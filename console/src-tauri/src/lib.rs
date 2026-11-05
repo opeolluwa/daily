@@ -7,7 +7,6 @@ use std::sync::Arc;
 use lunar::{adapters::notifications::CreateNotification, DataEngine};
 use tauri::Listener;
 use tauri::Manager;
-use tauri_plugin_syncular::SyncularConfig;
 
 use crate::state::app::AppState;
 
@@ -67,19 +66,6 @@ pub async fn run() {
                         Err(_) => app_data_dir.join("almonds.db"),
                     };
 
-                    //syncular client
-                    let database_path_for_syncular =
-                        db_path.clone().into_os_string().into_string().unwrap();
-                    let config = SyncularConfig {
-                        base_url: Some("https://your.server".into()),
-                        db_path: Some(database_path_for_syncular),
-                        auto_sync: true,
-                        ..Default::default()
-                    };
-                    app.handle()
-                        .plugin(tauri_plugin_syncular::init(config))
-                        .unwrap();
-
                     let db_url = format!("sqlite://{}?mode=rwc", db_path.display());
                     dbg!("Database URL: {:?}", &db_url);
                     let kernel = DataEngine::new(&db_url)
@@ -109,8 +95,6 @@ pub async fn run() {
             commands::bookmarks::get_bookmark,
             commands::bookmarks::get_bookmarks_by_tag,
             commands::bookmarks::get_recently_added_bookmarks,
-            commands::bookmarks::get_unsynced_bookmarks,
-            commands::bookmarks::clear_synced_bookmarks,
             commands::bookmarks::transfer_bookmark,
             commands::bookmarks::update_bookmark,
             commands::notifications::create_notification,
@@ -125,8 +109,6 @@ pub async fn run() {
             commands::notes::get_all_notes,
             commands::notes::get_note,
             commands::notes::get_recently_added_notes,
-            commands::notes::get_unsynced_notes,
-            commands::notes::clear_synced_notes,
             commands::notes::transfer_note,
             commands::notes::update_note,
             commands::notes::export_notes_as_pdf,
@@ -143,16 +125,12 @@ pub async fn run() {
             commands::reminder::duplicate_reminder,
             commands::reminder::get_all_reminders,
             commands::reminder::get_reminder,
-            commands::reminder::get_unsynced_reminders,
-            commands::reminder::clear_synced_reminders,
             commands::reminder::transfer_reminder,
             commands::reminder::update_reminder,
             commands::recycle_bin::create_recycle_bin_entry,
             commands::recycle_bin::get_all_recycle_bin_entries,
             commands::recycle_bin::get_recycle_bin_entry,
             commands::recycle_bin::get_recycle_bin_entries_by_type,
-            commands::recycle_bin::get_unsynced_recycle_bin,
-            commands::recycle_bin::clear_synced_recycle_bin,
             commands::recycle_bin::purge_all_recycle_bin_entries,
             commands::recycle_bin::purge_recycle_bin_entry,
             commands::recycle_bin::restore_recycle_bin_entry,
@@ -162,37 +140,25 @@ pub async fn run() {
             commands::snippets::get_all_snippets,
             commands::snippets::get_recently_added_snippet,
             commands::snippets::get_snippet,
-            commands::snippets::get_unsynced_snippets,
-            commands::snippets::clear_synced_snippets,
             commands::snippets::transfer_snippet,
             commands::snippets::update_snippet,
-            commands::sync_queue::add_sync_queue_entry,
-            commands::sync_queue::count_sync_queue_entries,
-            commands::sync_queue::remove_sync_queue_entry,
-            commands::sync_queue::run_sync,
             commands::todo::change_todo_priority,
             commands::todo::create_todo,
             commands::todo::delete_todo,
             commands::todo::duplicate_todo,
             commands::todo::get_all_todos,
             commands::todo::get_todo,
-            commands::todo::get_unsynced_todos,
-            commands::todo::clear_synced_todos,
             commands::todo::mark_todo_done,
             commands::todo::transfer_todo,
             commands::todo::update_todo,
             commands::todo::update_todo_due_date,
             commands::workspace_profiles::create_workspace_profile,
             commands::workspace_profiles::duplicate_workspace_profile,
-            commands::workspace_profiles::get_unsynced_workspace_profiles,
-            commands::workspace_profiles::clear_synced_workspace_profiles,
             commands::workspace_profiles::get_workspace_profile,
             commands::workspace_profiles::transfer_workspace_profile,
             commands::workspace_profiles::update_workspace_profile,
             commands::workspaces::create_workspace,
             commands::workspaces::delete_workspace,
-            commands::workspaces::get_unsynced_workspaces,
-            commands::workspaces::clear_synced_workspaces,
             commands::workspaces::get_workspace_by_id,
             commands::workspaces::list_workspaces,
             commands::workspaces::update_workspace,

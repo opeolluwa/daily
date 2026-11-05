@@ -59,7 +59,7 @@ const handleTransfer = async (targetWorkspaceId: string) => {
       </div>
     </div>
     <span
-      class="px-2 py-1 rounded-full bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-300 text-xs font-medium capitalize shrink-0"
+      class="px-2 py-1 rounded-full bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-300 text-2xs font-medium capitalize shrink-0"
     >
       {{ bookmark.tag }}
     </span>
@@ -74,7 +74,7 @@ const handleTransfer = async (targetWorkspaceId: string) => {
         title="Preview"
         @click="emit('preview', bookmark)"
       >
-        <UIcon name="heroicons:eye" class="size-4" />
+        <UIcon name="lucide:square-arrow-out-up-right" class="size-4" />
       </button>
       <MetaControls
         item-name="bookmark"

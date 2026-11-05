@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use sea_orm::{
     ActiveModelBehavior, ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection,
-    EntityTrait, IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
+    EntityTrait, IntoActiveModel, QueryFilter, QueryOrder,
 };
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
@@ -12,7 +12,7 @@ use crate::types::EntitySyncResult;
 use crate::entities::sea_orm_active_enums::ItemType;
 use crate::{
     adapters::{meta::RequestMeta, recycle_bin::CreateRecycleBinEntry},
-    entities::{bookmark, notes, paste_bins, recycle_bin, reminder, snippets, sync_queue, todo},
+    entities::{bookmark, notes, paste_bins, recycle_bin, reminder, snippets, todo},
     error::LunarError,
     utils::{extract_req_meta, js_err, mock_connection, to_js},
 };
@@ -61,9 +61,6 @@ pub trait RecycleBinRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, LunarError>;
 
-    async fn extract_unsynced(&self) -> Result<Vec<recycle_bin::Model>, LunarError>;
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError>;
     async fn upsert_many(
         &self,
         models: Vec<recycle_bin::Model>,
@@ -249,42 +246,6 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
         Ok(entry)
     }
 
-    async fn extract_unsynced(&self) -> Result<Vec<recycle_bin::Model>, LunarError> {
-        let queue_entries = sync_queue::Entity::find()
-            .filter(sync_queue::Column::TableName.eq("recycle_bin"))
-            .limit(25)
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-
-        let identifiers = queue_entries
-            .iter()
-            .map(|entry| {
-                Uuid::parse_str(&entry.record_identifier)
-                    .map_err(|err| LunarError::DbOperationError(err.to_string()))
-            })
-            .collect::<Result<Vec<Uuid>, LunarError>>()?;
-
-        if identifiers.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::Identifier.is_in(identifiers))
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))
-    }
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError> {
-        sync_queue::Entity::delete_many()
-            .filter(sync_queue::Column::TableName.eq("recycle_bin"))
-            .filter(sync_queue::Column::RecordIdentifier.is_in(identifiers))
-            .exec(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-        Ok(())
-    }
     async fn upsert_many(
         &self,
         models: Vec<recycle_bin::Model>,

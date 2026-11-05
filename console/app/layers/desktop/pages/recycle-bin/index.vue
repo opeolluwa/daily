@@ -66,18 +66,38 @@ function itemTypeIcon(type: RecycleBinItemType): string {
 async function handlePurge(identifier: string) {
   try {
     await recycleBinStore.purgeEntry(identifier);
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Permanently Deleted", description: "The item has been removed" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Permanently Deleted",
+      description: "The item has been removed",
+    });
   } catch {
-    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to delete the item" });
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: "Failed to delete the item",
+    });
   }
 }
 
 async function handleRestore(identifier: string) {
   try {
     await recycleBinStore.restoreEntry(identifier);
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Item Restored", description: "The item has been restored" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Item Restored",
+      description: "The item has been restored",
+    });
   } catch {
-    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to restore the item" });
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: "Failed to restore the item",
+    });
   }
 }
 
@@ -88,9 +108,19 @@ async function handlePurgeAll() {
   }
   try {
     await recycleBinStore.purgeAll();
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Recycle Bin Emptied", description: "All items have been permanently removed" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Recycle Bin Emptied",
+      description: "All items have been permanently removed",
+    });
   } catch {
-    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to empty the recycle bin" });
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: "Failed to empty the recycle bin",
+    });
   } finally {
     confirmPurgeAll.value = false;
   }

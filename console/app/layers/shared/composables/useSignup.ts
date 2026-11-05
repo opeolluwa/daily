@@ -11,7 +11,9 @@ export function useSignup() {
   const submitError = ref("");
 
   function validate(): boolean {
-    errors.email = emailValidator(form.email) ? "" : "A valid email is required";
+    errors.email = emailValidator(form.email)
+      ? ""
+      : "A valid email is required";
     errors.password =
       form.password.length >= 6 ? "" : "Password must be at least 6 characters";
     errors.confirmPassword =

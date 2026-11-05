@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
-    IntoActiveModel, QueryFilter, QuerySelect,
+    IntoActiveModel, QueryFilter,
 };
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
@@ -17,7 +17,7 @@ use crate::{
         recycle_bin::CreateRecycleBinEntry,
         reminder::{CreateReminder, UpdateReminder},
     },
-    entities::{recycle_bin, reminder, sync_queue},
+    entities::{recycle_bin, reminder},
     error::LunarError,
     repositories::{
         prelude::WorkspaceRepositoryExt,
@@ -69,9 +69,6 @@ pub trait ReminderRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, LunarError>;
 
-    async fn extract_unsynced(&self) -> Result<Vec<reminder::Model>, LunarError>;
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError>;
     async fn upsert_many(
         &self,
         models: Vec<reminder::Model>,
@@ -218,42 +215,6 @@ impl ReminderRepositoryExt for ReminderRepository {
         Ok(bin)
     }
 
-    async fn extract_unsynced(&self) -> Result<Vec<reminder::Model>, LunarError> {
-        let queue_entries = sync_queue::Entity::find()
-            .filter(sync_queue::Column::TableName.eq("reminder"))
-            .limit(25)
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-
-        let identifiers = queue_entries
-            .iter()
-            .map(|entry| {
-                Uuid::parse_str(&entry.record_identifier)
-                    .map_err(|err| LunarError::DbOperationError(err.to_string()))
-            })
-            .collect::<Result<Vec<Uuid>, LunarError>>()?;
-
-        if identifiers.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        reminder::Entity::find()
-            .filter(reminder::Column::Identifier.is_in(identifiers))
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))
-    }
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError> {
-        sync_queue::Entity::delete_many()
-            .filter(sync_queue::Column::TableName.eq("reminder"))
-            .filter(sync_queue::Column::RecordIdentifier.is_in(identifiers))
-            .exec(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-        Ok(())
-    }
     async fn upsert_many(
         &self,
         models: Vec<reminder::Model>,

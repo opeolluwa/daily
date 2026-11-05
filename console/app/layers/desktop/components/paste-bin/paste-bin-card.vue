@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [identifier: string];
+  edit: [identifier: string];
 }>();
 
 const pasteBinStore = usePasteBinStore();
@@ -49,7 +50,12 @@ async function togglePin() {
 
 async function confirmDelete() {
   await pasteBinStore.deletePasteBin(props.identifier);
-  toast.add({ color: "success", icon: "heroicons:check-circle", title: "Paste Removed", description: "The paste has been moved to the recycle bin" });
+  toast.add({
+    color: "success",
+    icon: "heroicons:check-circle",
+    title: "Paste Removed",
+    description: "The paste has been moved to the recycle bin",
+  });
 }
 
 const handleDuplicate = async (targetWorkspaceId: string) => {
@@ -130,7 +136,8 @@ const handleTransfer = async (targetWorkspaceId: string) => {
         </button>
         <MetaControls
           item-name="paste"
-          :show-edit="false"
+          :show-edit="true"
+          @edit-record="emit('edit', identifier)"
           @delete-record="confirmDelete"
           @duplicate-record="
             (targetWorkspaceId) => handleDuplicate(targetWorkspaceId)

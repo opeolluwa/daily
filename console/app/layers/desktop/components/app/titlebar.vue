@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAuthStore } from "@shared/stores/auth";
-import { useSyncQueueStore } from "@shared/stores/sync-queue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform } from "@tauri-apps/plugin-os";
 import { useEventListener } from "@vueuse/core";
@@ -10,9 +9,6 @@ import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
 const iconSize = "md";
 const authStore = useAuthStore();
-const syncQueueStore = useSyncQueueStore();
-const isOnline = computed(() => syncQueueStore.isOnline);
-const runningSync = computed(() => syncQueueStore.runningSync);
 const router = useRouter();
 
 const colorMode = useColorMode();
@@ -26,9 +22,6 @@ const themeLabel = computed(() => (isDark.value ? "Light mode" : "Dark mode"));
 const isMacOS = computed(() => {
   return currentPlatform.toLowerCase() === "macos";
 });
-const syncIcon = computed(() =>
-  runningSync.value ? "heroicons:arrow-path" : "heroicons:cloud-arrow-up",
-);
 const isDark = computed({
   get: () => colorMode.value === "dark",
   set: (v) => (colorMode.preference = v ? "dark" : "light"),
@@ -67,14 +60,6 @@ function onSearchInput(val: string) {
   searchQuery.value = val;
   isOpen.value = val.trim().length > 0;
 }
-
-onMounted(() => {
-  if (isOnline.value) syncQueueStore.runSync();
-});
-
-watch(isOnline, (online) => {
-  if (online) syncQueueStore.runSync();
-});
 
 useEventListener("keydown", (e: KeyboardEvent) => {
   const mod = isMacOS.value ? e.metaKey : e.ctrlKey;
@@ -178,22 +163,6 @@ useEventListener("keydown", (e: KeyboardEvent) => {
     </div>
 
     <WorkspaceSelect class="cursor-pointer hidden md:block" />
-
-    <UButton
-      :size="iconSize"
-      variant="ghost"
-      color="neutral"
-      :disabled="!isOnline"
-      aria-label="Sync data"
-      @click="syncQueueStore.runSync()"
-    >
-      <template #leading>
-        <UIcon
-          :name="syncIcon"
-          :class="['size-5', runningSync && 'animate-spin']"
-        />
-      </template>
-    </UButton>
 
     <!-- Search -->
     <div

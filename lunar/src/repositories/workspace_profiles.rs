@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
-    IntoActiveModel, QueryFilter, QuerySelect,
+    IntoActiveModel, QueryFilter,
 };
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
@@ -20,7 +20,7 @@ use crate::{
         meta::RequestMeta,
         workspace_profiles::{CreateWorkspaceProfile, UpdateWorkspaceProfile},
     },
-    entities::{workspace_profiles, sync_queue},
+    entities::workspace_profiles,
     error::LunarError,
     utils::{extract_req_meta, js_err, mock_connection, to_js},
 };
@@ -53,9 +53,6 @@ pub trait WorkspaceProfileRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<workspace_profiles::Model, LunarError>;
 
-    async fn extract_unsynced(&self) -> Result<Vec<workspace_profiles::Model>, LunarError>;
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError>;
     async fn upsert_many(
         &self,
         models: Vec<workspace_profiles::Model>,
@@ -147,42 +144,6 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
             .map_err(|err| LunarError::DbOperationError(err.to_string()))
     }
 
-    async fn extract_unsynced(&self) -> Result<Vec<workspace_profiles::Model>, LunarError> {
-        let queue_entries = sync_queue::Entity::find()
-            .filter(sync_queue::Column::TableName.eq("workspace_profiles"))
-            .limit(25)
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-
-        let identifiers = queue_entries
-            .iter()
-            .map(|entry| {
-                Uuid::parse_str(&entry.record_identifier)
-                    .map_err(|err| LunarError::DbOperationError(err.to_string()))
-            })
-            .collect::<Result<Vec<Uuid>, LunarError>>()?;
-
-        if identifiers.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        workspace_profiles::Entity::find()
-            .filter(workspace_profiles::Column::Identifier.is_in(identifiers))
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))
-    }
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError> {
-        sync_queue::Entity::delete_many()
-            .filter(sync_queue::Column::TableName.eq("workspace_profiles"))
-            .filter(sync_queue::Column::RecordIdentifier.is_in(identifiers))
-            .exec(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-        Ok(())
-    }
     async fn upsert_many(
         &self,
         models: Vec<workspace_profiles::Model>,

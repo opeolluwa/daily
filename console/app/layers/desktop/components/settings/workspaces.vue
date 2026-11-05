@@ -8,7 +8,12 @@ const workspaceStore = useWorkspacesStore();
 const showCreateModal = ref(false);
 
 function handleCreated() {
-  toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Created", description: "Your workspace is ready" });
+  toast.add({
+    color: "success",
+    icon: "heroicons:check-circle",
+    title: "Workspace Created",
+    description: "Your workspace is ready",
+  });
 }
 
 // ── secure workspace ──────────────────────────────────────────────────────────
@@ -76,14 +81,24 @@ async function submitSecure() {
         isSecured: false,
         password: "",
       });
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Password Removed", description: "The workspace is no longer protected" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Password Removed",
+        description: "The workspace is no longer protected",
+      });
     } else {
       await workspaceStore.updateWorkspace(secureTargetId.value, {
         isSecured: true,
         password: securePassword.value,
       });
       workspaceStore.unlockWorkspace(secureTargetId.value);
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Secured", description: "A password has been set" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Workspace Secured",
+        description: "A password has been set",
+      });
     }
     closeSecureModal();
   } catch (e) {
@@ -91,7 +106,8 @@ async function submitSecure() {
       color: "error",
       icon: "heroicons:x-circle",
       title: "Something Went Wrong",
-      description: (e as Error).message || "Failed to update workspace security",
+      description:
+        (e as Error).message || "Failed to update workspace security",
     });
   } finally {
     secureSubmitting.value = false;
@@ -107,7 +123,12 @@ async function handleDelete(identifier: string) {
 async function handleSetDefault(identifier: string) {
   try {
     await workspaceStore.updateWorkspace(identifier, { isDefault: true });
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Default Updated", description: "Your default workspace has been changed" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Default Updated",
+      description: "Your default workspace has been changed",
+    });
   } catch (e) {
     toast.add({
       color: "error",
@@ -132,7 +153,9 @@ async function handleToggleHidden(identifier: string) {
       color: "success",
       icon: "heroicons:check-circle",
       title: ws.isHidden ? "Workspace Visible" : "Workspace Hidden",
-      description: ws.isHidden ? "The workspace is now visible" : "The workspace has been hidden",
+      description: ws.isHidden
+        ? "The workspace is now visible"
+        : "The workspace has been hidden",
     });
   } catch (e) {
     toast.add({
@@ -174,7 +197,12 @@ async function submitEdit() {
       name: editName.value.trim() || undefined,
       description: editDescription.value.trim(),
     });
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Updated", description: "Your changes have been saved" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Workspace Updated",
+      description: "Your changes have been saved",
+    });
     closeEdit();
   } catch (e) {
     toast.add({
@@ -287,7 +315,9 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
           </p>
           <RyderPasswordInput
             v-model="securePassword"
-            :label="secureTargetWorkspace?.isSecured ? 'Current password' : 'Password'"
+            :label="
+              secureTargetWorkspace?.isSecured ? 'Current password' : 'Password'
+            "
             placeholder="Enter password"
             name="secure-password"
             :disabled="secureSubmitting"

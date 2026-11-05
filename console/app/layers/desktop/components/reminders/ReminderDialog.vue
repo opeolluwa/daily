@@ -78,10 +78,20 @@ async function handleSubmit() {
 
     if (editing.value && props.reminder) {
       await reminderStore.updateReminder(props.reminder.identifier, payload);
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Updated", description: "Your changes have been saved" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Reminder Updated",
+        description: "Your changes have been saved",
+      });
     } else {
       await reminderStore.createReminder(payload);
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Created", description: "Your reminder has been saved" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Reminder Created",
+        description: "Your reminder has been saved",
+      });
     }
     open.value = false;
   } catch {
@@ -103,10 +113,20 @@ async function handleDelete() {
   deleting.value = true;
   try {
     await reminderStore.deleteReminder(props.reminder.identifier);
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Deleted", description: "The reminder has been removed" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Reminder Deleted",
+      description: "The reminder has been removed",
+    });
     open.value = false;
   } catch {
-    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to delete reminder" });
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: "Failed to delete reminder",
+    });
   } finally {
     deleting.value = false;
   }
@@ -154,9 +174,7 @@ async function handleDelete() {
           type="button"
           class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
           :class="
-            form.recurring
-              ? 'bg-primary-500'
-              : 'bg-gray-200 dark:bg-gray-700'
+            form.recurring ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
           "
           @click="form.recurring = !form.recurring"
         >

@@ -6,7 +6,6 @@ pub mod error;
 #[cfg(feature = "markdown2pdf")]
 pub mod markdown2pdf;
 pub mod repositories;
-// pub mod sync_engine;
 pub mod types;
 pub mod utils;
 #[cfg(not(target_arch = "wasm32"))]

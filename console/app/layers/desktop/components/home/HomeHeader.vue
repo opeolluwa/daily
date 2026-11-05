@@ -62,7 +62,7 @@ const today = computed(() =>
         >
           {{ greeting }}, {{ userName }}
         </h1>
-        <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400 hidden">
           <template v-if="activeTodoCount > 0">
             <strong class="text-gray-700 dark:text-gray-300">{{
               activeTodoCount

@@ -1,59 +1,13 @@
 <script setup lang="ts">
-import { useRoute } from "#imports";
-
-definePageMeta({ layout: false });
-
-type Section = "profile" | "workspaces" | "backup" | "about";
-
-const route = useRoute();
-
-const navSections: { key: Section; label: string; icon: string }[] = [
-  { key: "profile", label: "Profile", icon: "i-lucide-user" },
-  { key: "workspaces", label: "Workspaces", icon: "heroicons:briefcase" },
-  { key: "backup", label: "Backup & Sync", icon: "heroicons:cloud-arrow-up" },
-  { key: "about", label: "About", icon: "heroicons:information-circle" },
-];
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const isValidSection = (s: any): s is Section =>
-  navSections.some((n) => n.key === s);
-
-const activeSection = ref<Section>(
-  isValidSection(route.query.section)
-    ? (route.query.section as Section)
-    : "profile",
-);
+definePageMeta({ layout: "settings" });
 </script>
 
 <template>
-  <NuxtLayout name="default">
-    <template #main_content>
-      <SettingsProfileSettings v-if="activeSection === 'profile'" />
-      <SettingsWorkspaces v-else-if="activeSection === 'workspaces'" />
-      <SettingsBackupSettings v-else-if="activeSection === 'backup'" />
-      <SettingsAboutSettings v-else-if="activeSection === 'about'" />
-    </template>
+  <div>
+    <SettingsNavList class="lg:hidden" />
 
-    <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Preferences
-      </h2>
-      <div class="flex flex-col gap-1">
-        <button
-          v-for="s in navSections"
-          :key="s.key"
-          class="flex items-center gap-3 py-2 px-3 rounded-lg text-sm transition-colors w-full text-left cursor-pointer"
-          :class="
-            activeSection === s.key
-              ? 'bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-medium'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-          "
-          @click="activeSection = s.key"
-        >
-          <UIcon :name="s.icon" class="size-5 shrink-0" />
-          {{ s.label }}
-        </button>
-      </div>
-    </template>
-  </NuxtLayout>
+    <div class="hidden lg:block">
+      <SettingsProfileSettings />
+    </div>
+  </div>
 </template>

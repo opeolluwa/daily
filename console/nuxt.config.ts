@@ -16,6 +16,15 @@ export default defineNuxtConfig({
     "@shared": resolve(__dirname, "app/layers/shared"),
   },
 
+  icon: {
+    serverBundle: {
+      collections: ["heroicons", "lucide", "ri"],
+    },
+    clientBundle: {
+      scan: true,
+    },
+  },
+
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   ssr: false,
@@ -27,7 +36,7 @@ export default defineNuxtConfig({
     display: "swap",
     download: true,
   },
-  
+
   runtimeConfig: {
     public: {
       apiBaseUrl: "http://localhost:8000",
@@ -103,9 +112,6 @@ export default defineNuxtConfig({
       },
     },
     worker: {
-      // The sync worker is an ES module (it imports @syncular/client, which
-      // code-splits). Vite's default worker format is iife, which rejects
-      // module imports at build time.
       format: "es",
     },
     optimizeDeps: {

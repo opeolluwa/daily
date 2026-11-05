@@ -11,7 +11,6 @@ import { RecycleBinRepository } from "./repositories/recycle_bin";
 import { WorkspaceRepository } from "./repositories/workspace";
 import { WorkspaceProfileRepository } from "./repositories/workspace_profiles";
 import { UserPreferencesRepository } from "./repositories/user_preferences";
-import { SyncQueueRepository } from "./repositories/sync_queue";
 
 export interface LunarConsoleApi {
   db: PGlite;
@@ -26,7 +25,6 @@ export interface LunarConsoleApi {
   workspaces: WorkspaceRepository;
   workspaceProfiles: WorkspaceProfileRepository;
   userPreferences: UserPreferencesRepository;
-  syncQueue: SyncQueueRepository;
 }
 
 /** Builds the in-browser lunar API, applying pending migrations on first use. */
@@ -45,7 +43,6 @@ export async function createLunarConsoleApi(): Promise<LunarConsoleApi> {
     workspaces: new WorkspaceRepository(),
     workspaceProfiles: new WorkspaceProfileRepository(),
     userPreferences: new UserPreferencesRepository(),
-    syncQueue: new SyncQueueRepository(),
   };
 }
 

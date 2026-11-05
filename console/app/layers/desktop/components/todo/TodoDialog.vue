@@ -114,7 +114,12 @@ async function handleSubmit() {
         }
       }
 
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Todo Updated", description: "Your changes have been saved" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Todo Updated",
+        description: "Your changes have been saved",
+      });
     } else {
       await todoStore.createTodo({
         title: form.title.trim(),
@@ -125,7 +130,12 @@ async function handleSubmit() {
           : undefined,
         priority: form.priority,
       });
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Todo Created", description: "Your todo has been saved" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Todo Created",
+        description: "Your todo has been saved",
+      });
     }
     open.value = false;
   } catch {
@@ -133,7 +143,9 @@ async function handleSubmit() {
       color: "error",
       icon: "heroicons:x-circle",
       title: "Something Went Wrong",
-      description: editing.value ? "Failed to update todo" : "Failed to create todo",
+      description: editing.value
+        ? "Failed to update todo"
+        : "Failed to create todo",
     });
   } finally {
     submitting.value = false;
@@ -145,10 +157,20 @@ async function handleDelete() {
   deleting.value = true;
   try {
     await todoStore.deleteTodo(props.todo.identifier);
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Todo Deleted", description: "The todo has been removed" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: "Todo Deleted",
+      description: "The todo has been removed",
+    });
     open.value = false;
   } catch {
-    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to delete todo" });
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: "Failed to delete todo",
+    });
   } finally {
     deleting.value = false;
   }
@@ -202,9 +224,7 @@ async function handleDelete() {
                 class="size-4 shrink-0 text-gray-400"
               />
               {{
-                form.dueDate
-                  ? formatDisplayDate(form.dueDate)
-                  : "Pick a date"
+                form.dueDate ? formatDisplayDate(form.dueDate) : "Pick a date"
               }}
             </button>
             <template #content="{ close }">
@@ -285,9 +305,7 @@ async function handleDelete() {
           "
           class="size-5 transition-colors"
           :class="
-            form.done
-              ? 'text-emerald-500'
-              : 'text-gray-300 dark:text-gray-600'
+            form.done ? 'text-emerald-500' : 'text-gray-300 dark:text-gray-600'
           "
         />
         <span
