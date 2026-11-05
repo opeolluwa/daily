@@ -86,7 +86,15 @@ onBeforeRouteLeave(async () => {
       <NoteTitleInput v-model="title" :disabled="submitting" />
     </template>
     <template #main_content>
-      <NotesEditor v-model="content" />
+      <div class="notes-editor-desktop min-h-[calc(100dvh-12rem)]">
+        <NotesEditor v-model="content">
+          <template #toolbar>
+            <NotesDesktopToolBarWrapper>
+              <NotesEditorToolBar />
+            </NotesDesktopToolBarWrapper>
+          </template>
+        </NotesEditor>
+      </div>
       <p v-if="error" class="text-xs text-red-500 mt-6">
         {{ error }}
       </p>

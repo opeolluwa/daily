@@ -3,7 +3,6 @@ import { useCurrentEditor, useEditorState } from "@domternal/vue";
 import { getMarkRange, type Command, type Editor } from "@domternal/core";
 import { TextSelection } from "@domternal/pm/state";
 import { emojis } from "@domternal/extension-emoji";
-import ToolBarWrapper from "../app/ToolBarWrapper.vue";
 
 const { editor } = useCurrentEditor();
 
@@ -157,9 +156,6 @@ function normalizeUrl(raw: string) {
   return `https://${t}`;
 }
 
-// domternal's command registry lacks `setTextSelection`/`extendMarkRange`,
-// which would silently abort any chain using them. This custom command
-// restores the selection and widens it across an adjacent/existing link.
 const selectAndExtendLink =
   (from: number, to: number): Command =>
   ({ tr, dispatch }) => {
@@ -501,251 +497,249 @@ const tableOps = computed(() => [
 </script>
 
 <template>
-  <ToolBarWrapper>
-    <div
-      v-if="s.inTable"
-      class="no-scrollbar flex items-center gap-0.5 overflow-x-auto border-b border-gray-100 px-2 pb-1.5 pt-2 dark:border-gray-800"
+  <div
+    v-if="s.inTable"
+    class="no-scrollbar flex items-center gap-0.5 overflow-x-auto border-b border-gray-100 px-2 pb-1.5 pt-2 dark:border-gray-800"
+  >
+    <button
+      v-for="op in tableOps"
+      :key="op.label"
+      type="button"
+      :title="op.label"
+      :aria-label="op.label"
+      class="flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+      @mousedown.prevent
+      @click="op.action()"
     >
-      <button
-        v-for="op in tableOps"
-        :key="op.label"
-        type="button"
-        :title="op.label"
-        :aria-label="op.label"
-        class="flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-        @mousedown.prevent
-        @click="op.action()"
+      <UIcon :name="op.icon" class="size-4.5" />
+    </button>
+  </div>
+
+  <div
+    class="no-scrollbar flex items-center gap-0.5 overflow-x-auto px-2 pt-2"
+  >
+    <template v-for="(tool, i) in tools" :key="i">
+      <span
+        v-if="tool.kind === 'sep'"
+        class="mx-1 h-6 w-px shrink-0 bg-gray-200 dark:bg-gray-700"
+      />
+
+      <UPopover
+        v-else-if="tool.kind === 'headings'"
+        v-model:open="headingsOpen"
+        :content="{ side: 'top', align: 'start' }"
+        :ui="{ content: 'w-44 p-1' }"
       >
-        <UIcon :name="op.icon" class="size-4.5" />
-      </button>
-    </div>
-
-    <div
-      class="no-scrollbar flex items-center gap-0.5 overflow-x-auto px-2 pt-2"
-    >
-      <template v-for="(tool, i) in tools" :key="i">
-        <span
-          v-if="tool.kind === 'sep'"
-          class="mx-1 h-6 w-px shrink-0 bg-gray-200 dark:bg-gray-700"
-        />
-
-        <UPopover
-          v-else-if="tool.kind === 'headings'"
-          v-model:open="headingsOpen"
-          :content="{ side: 'top', align: 'start' }"
-          :ui="{ content: 'w-44 p-1' }"
+        <button
+          type="button"
+          title="Text style"
+          aria-label="Text style"
+          :class="btnClass(s.headingLevel !== null)"
+          class="min-w-9 px-1"
+          @mousedown.prevent
         >
+          <span class="text-sm font-semibold">
+            {{ s.headingLevel ? `H${s.headingLevel}` : "Aa" }}
+          </span>
+        </button>
+        <template #content>
           <button
+            v-for="opt in headingOptions"
+            :key="opt.key"
             type="button"
-            title="Text style"
-            aria-label="Text style"
-            :class="btnClass(s.headingLevel !== null)"
-            class="min-w-9 px-1"
-            @mousedown.prevent
+            class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            @click="applyHeading(opt.level)"
           >
-            <span class="text-sm font-semibold">
-              {{ s.headingLevel ? `H${s.headingLevel}` : "Aa" }}
-            </span>
+            <span :class="opt.preview">{{ opt.label }}</span>
+            <UIcon
+              v-if="(s.headingLevel ?? null) === opt.level"
+              name="ri:check-line"
+              class="size-4 text-primary-500"
+            />
           </button>
-          <template #content>
+        </template>
+      </UPopover>
+
+      <UPopover
+        v-else-if="tool.kind === 'link'"
+        v-model:open="linkOpen"
+        :content="{ side: 'top', align: 'start' }"
+        :ui="{ content: 'p-1.5' }"
+      >
+        <button
+          type="button"
+          title="Link"
+          aria-label="Link"
+          :class="btnClass(s.linkHref !== null)"
+          @mousedown="onLinkTriggerMousedown"
+        >
+          <UIcon name="ri:link" class="size-5" />
+        </button>
+        <template #content>
+          <form
+            class="flex w-72 max-w-[calc(100vw-2rem)] items-center gap-1"
+            @submit.prevent="applyLink"
+          >
+            <UInput
+              v-model="linkDraft"
+              placeholder="Paste or type a URL…"
+              size="sm"
+              class="flex-1"
+            />
+            <UButton
+              type="submit"
+              icon="ri:check-line"
+              size="sm"
+              variant="soft"
+              aria-label="Apply link"
+            />
+            <UButton
+              v-if="s.linkHref"
+              icon="ri:link-unlink"
+              color="error"
+              size="sm"
+              variant="ghost"
+              aria-label="Remove link"
+              @click="removeLink"
+            />
+          </form>
+        </template>
+      </UPopover>
+
+      <UPopover
+        v-else-if="tool.kind === 'color'"
+        v-model:open="colorOpen"
+        :content="{ side: 'top', align: 'start' }"
+        :ui="{ content: 'p-2' }"
+      >
+        <button
+          type="button"
+          title="Text color"
+          aria-label="Text color"
+          :class="btnClass(s.color !== null)"
+          @mousedown.prevent
+        >
+          <span class="flex flex-col items-center leading-none">
+            <UIcon name="ri:font-color" class="size-5" />
+            <span
+              class="mt-0.5 block h-0.5 w-4 rounded-full bg-current"
+              :style="s.color ? { backgroundColor: s.color } : undefined"
+            />
+          </span>
+        </button>
+        <template #content>
+          <div class="grid w-44 grid-cols-5 gap-1">
             <button
-              v-for="opt in headingOptions"
-              :key="opt.key"
+              v-for="c in colorPalette"
+              :key="c"
               type="button"
-              class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-              @click="applyHeading(opt.level)"
+              :title="c"
+              :aria-label="`Color ${c}`"
+              class="flex size-7 items-center justify-center rounded-md transition hover:bg-gray-100 dark:hover:bg-gray-800"
+              @click="applyColor(c)"
             >
-              <span :class="opt.preview">{{ opt.label }}</span>
-              <UIcon
-                v-if="(s.headingLevel ?? null) === opt.level"
-                name="ri:check-line"
-                class="size-4 text-primary-500"
+              <span
+                class="size-5 rounded-full border border-gray-300 dark:border-gray-600"
+                :style="{ backgroundColor: c }"
               />
             </button>
-          </template>
-        </UPopover>
-
-        <UPopover
-          v-else-if="tool.kind === 'link'"
-          v-model:open="linkOpen"
-          :content="{ side: 'top', align: 'start' }"
-          :ui="{ content: 'p-1.5' }"
-        >
-          <button
-            type="button"
-            title="Link"
-            aria-label="Link"
-            :class="btnClass(s.linkHref !== null)"
-            @mousedown="onLinkTriggerMousedown"
+          </div>
+          <div
+            class="mt-2 border-t border-gray-100 pt-1.5 dark:border-gray-800"
           >
-            <UIcon name="ri:link" class="size-5" />
-          </button>
-          <template #content>
-            <form
-              class="flex w-72 max-w-[calc(100vw-2rem)] items-center gap-1"
-              @submit.prevent="applyLink"
+            <button
+              type="button"
+              class="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              @click="applyColor(null)"
             >
-              <UInput
-                v-model="linkDraft"
-                placeholder="Paste or type a URL…"
-                size="sm"
-                class="flex-1"
-              />
-              <UButton
-                type="submit"
-                icon="ri:check-line"
-                size="sm"
-                variant="soft"
-                aria-label="Apply link"
-              />
-              <UButton
-                v-if="s.linkHref"
-                icon="ri:link-unlink"
-                color="error"
-                size="sm"
-                variant="ghost"
-                aria-label="Remove link"
-                @click="removeLink"
-              />
-            </form>
-          </template>
-        </UPopover>
+              <UIcon name="ri:close-circle-line" class="size-3.5" />
+              Default
+            </button>
+          </div>
+        </template>
+      </UPopover>
 
-        <UPopover
-          v-else-if="tool.kind === 'color'"
-          v-model:open="colorOpen"
-          :content="{ side: 'top', align: 'start' }"
-          :ui="{ content: 'p-2' }"
-        >
-          <button
-            type="button"
-            title="Text color"
-            aria-label="Text color"
-            :class="btnClass(s.color !== null)"
-            @mousedown.prevent
-          >
-            <span class="flex flex-col items-center leading-none">
-              <UIcon name="ri:font-color" class="size-5" />
-              <span
-                class="mt-0.5 block h-0.5 w-4 rounded-full bg-current"
-                :style="s.color ? { backgroundColor: s.color } : undefined"
-              />
-            </span>
-          </button>
-          <template #content>
-            <div class="grid w-44 grid-cols-5 gap-1">
-              <button
-                v-for="c in colorPalette"
-                :key="c"
-                type="button"
-                :title="c"
-                :aria-label="`Color ${c}`"
-                class="flex size-7 items-center justify-center rounded-md transition hover:bg-gray-100 dark:hover:bg-gray-800"
-                @click="applyColor(c)"
-              >
-                <span
-                  class="size-5 rounded-full border border-gray-300 dark:border-gray-600"
-                  :style="{ backgroundColor: c }"
-                />
-              </button>
-            </div>
-            <div
-              class="mt-2 border-t border-gray-100 pt-1.5 dark:border-gray-800"
-            >
-              <button
-                type="button"
-                class="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                @click="applyColor(null)"
-              >
-                <UIcon name="ri:close-circle-line" class="size-3.5" />
-                Default
-              </button>
-            </div>
-          </template>
-        </UPopover>
-
-        <UPopover
-          v-else-if="tool.kind === 'emoji'"
-          v-model:open="emojiOpen"
-          :content="{ side: 'top', align: 'start' }"
-          :ui="{ content: 'p-2' }"
-        >
-          <button
-            type="button"
-            title="Emoji"
-            aria-label="Emoji"
-            :class="btnClass(false)"
-            @mousedown.prevent
-          >
-            <UIcon name="ri:emotion-happy-line" class="size-5" />
-          </button>
-          <template #content>
-            <div class="w-64 max-w-[calc(100vw-2rem)]">
-              <UInput
-                v-model="emojiQuery"
-                icon="ri:search-line"
-                placeholder="Search emoji…"
-                size="sm"
-                class="w-full"
-              />
-              <div
-                class="mt-2 max-h-52 overflow-y-auto overscroll-contain pr-0.5"
-              >
-                <template v-for="[group, items] in emojiGroups" :key="group">
-                  <p
-                    class="px-1 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500"
-                  >
-                    {{ group }}
-                  </p>
-                  <div class="grid grid-cols-8 gap-0.5">
-                    <button
-                      v-for="item in items"
-                      :key="item.name"
-                      type="button"
-                      :title="item.name.replaceAll('_', ' ')"
-                      :aria-label="item.name.replaceAll('_', ' ')"
-                      class="flex size-7 items-center justify-center rounded-md text-lg leading-none transition hover:bg-gray-100 dark:hover:bg-gray-800"
-                      @click="insertEmoji(item.name)"
-                    >
-                      {{ item.emoji }}
-                    </button>
-                  </div>
-                </template>
-                <p
-                  v-if="emojiGroups.length === 0"
-                  class="py-4 text-center text-xs text-gray-400"
-                >
-                  No emoji found
-                </p>
-              </div>
-            </div>
-          </template>
-        </UPopover>
-
-        <button
-          v-else
-          type="button"
-          :title="tool.label"
-          :aria-label="tool.label"
-          :aria-pressed="tool.active || undefined"
-          :disabled="tool.disabled"
-          :class="btnClass(tool.active)"
-          @mousedown.prevent
-          @click="tool.action()"
-        >
-          <UIcon :name="tool.icon" class="size-5" />
-        </button>
-      </template>
-
-      <input
-        ref="imageInput"
-        type="file"
-        accept="image/*"
-        class="hidden"
-        @change="handleImagePick"
+      <UPopover
+        v-else-if="tool.kind === 'emoji'"
+        v-model:open="emojiOpen"
+        :content="{ side: 'top', align: 'start' }"
+        :ui="{ content: 'p-2' }"
       >
-    </div>
-  </ToolBarWrapper>
+        <button
+          type="button"
+          title="Emoji"
+          aria-label="Emoji"
+          :class="btnClass(false)"
+          @mousedown.prevent
+        >
+          <UIcon name="ri:emotion-happy-line" class="size-5" />
+        </button>
+        <template #content>
+          <div class="w-64 max-w-[calc(100vw-2rem)]">
+            <UInput
+              v-model="emojiQuery"
+              icon="ri:search-line"
+              placeholder="Search emoji…"
+              size="sm"
+              class="w-full"
+            />
+            <div
+              class="mt-2 max-h-52 overflow-y-auto overscroll-contain pr-0.5"
+            >
+              <template v-for="[group, items] in emojiGroups" :key="group">
+                <p
+                  class="px-1 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500"
+                >
+                  {{ group }}
+                </p>
+                <div class="grid grid-cols-8 gap-0.5">
+                  <button
+                    v-for="item in items"
+                    :key="item.name"
+                    type="button"
+                    :title="item.name.replaceAll('_', ' ')"
+                    :aria-label="item.name.replaceAll('_', ' ')"
+                    class="flex size-7 items-center justify-center rounded-md text-lg leading-none transition hover:bg-gray-100 dark:hover:bg-gray-800"
+                    @click="insertEmoji(item.name)"
+                  >
+                    {{ item.emoji }}
+                  </button>
+                </div>
+              </template>
+              <p
+                v-if="emojiGroups.length === 0"
+                class="py-4 text-center text-xs text-gray-400"
+              >
+                No emoji found
+              </p>
+            </div>
+          </div>
+        </template>
+      </UPopover>
+
+      <button
+        v-else
+        type="button"
+        :title="tool.label"
+        :aria-label="tool.label"
+        :aria-pressed="tool.active || undefined"
+        :disabled="tool.disabled"
+        :class="btnClass(tool.active)"
+        @mousedown.prevent
+        @click="tool.action()"
+      >
+        <UIcon :name="tool.icon" class="size-5" />
+      </button>
+    </template>
+
+    <input
+      ref="imageInput"
+      type="file"
+      accept="image/*"
+      class="hidden"
+      @change="handleImagePick"
+    >
+  </div>
 </template>
 
 <style scoped>

@@ -95,7 +95,6 @@ async function handleSubmit() {
         type="text"
         name="workspace-name"
         placeholder="Daily"
-        :error="errors.name"
         :disabled="loading"
       />
       <RyderInput
@@ -104,7 +103,6 @@ async function handleSubmit() {
         type="text"
         name="workspace-description"
         placeholder="Organize files and tasks"
-        :error="errors.description"
         :disabled="loading"
       />
       <p v-if="submitError" class="text-sm text-red-500">

@@ -19,3 +19,19 @@
 #auth_layout h2 + p {
   @apply text-gray-600 dark:text-gray-400 text-center;
 }
+
+.notes-editor-desktop {
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-editor-desktop .notes-editor {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.notes-editor-desktop .dm-editor {
+  flex: 1;
+}

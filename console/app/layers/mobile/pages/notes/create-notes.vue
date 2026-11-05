@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useNoteStore } from "@shared/stores/notes";
 import { onBeforeRouteLeave } from "vue-router";
-import EditorToolBar from "@mobile/components/notes/EditorToolBar.vue";
+import EditorToolBar from "@shared/components/notes/EditorToolBar.vue";
+import ToolBarWrapper from "@mobile/components/app/ToolBarWrapper.vue";
 import AppFab from "@mobile/components/app/fab.vue";
 import NoteTitleInput from "@shared/components/notes/note-title-input.vue";
 definePageMeta({ name: "New note", layout: "notes", keepalive: true });
@@ -74,7 +75,9 @@ onBeforeRouteLeave(async () => {
 
     <NotesEditor v-model="content">
       <template #toolbar>
-        <EditorToolBar />
+        <ToolBarWrapper>
+          <EditorToolBar />
+        </ToolBarWrapper>
       </template>
     </NotesEditor>
 
