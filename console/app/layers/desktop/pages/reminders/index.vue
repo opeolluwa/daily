@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useReminderStore } from "@shared/stores/reminder";
+import ReminderDialog from "@desktop/components/reminders/ReminderDialog.vue";
 
 definePageMeta({ layout: false });
 
 const reminderStore = useReminderStore();
-const router = useRouter();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "upcoming" | "recurring">("all");
+const dialogOpen = ref(false);
+const editingReminder = ref<any>(null);
 
 const filteredReminders = computed(() => {
   let list = reminderStore.reminders;
@@ -41,7 +43,8 @@ async function handleDelete(identifier: string) {
 }
 
 function handleEdit(identifier: string) {
-  router.push(`/reminders/edit-reminder?id=${identifier}`);
+  editingReminder.value = reminderStore.reminders.find(r => r.identifier === identifier) ?? null;
+  dialogOpen.value = true;
 }
 
 onMounted(async () => {
@@ -65,7 +68,7 @@ onUnmounted(() => clearSearch());
         v-if="reminderStore.reminders.length !== 0"
         label="New Reminder"
         icon="heroicons:plus"
-        to="/reminders/create-reminder"
+        @click="editingReminder = null; dialogOpen = true"
       />
     </template>
 
@@ -101,7 +104,7 @@ onUnmounted(() => clearSearch());
         description="Create your first reminder to stay on track."
         icon="heroicons:clock"
         action-label="Create reminder"
-        @action="navigateTo('/reminders/create-reminder')"
+        @action="editingReminder = null; dialogOpen = true"
       />
 
       <RyderEmptyState
@@ -208,6 +211,10 @@ onUnmounted(() => clearSearch());
         {{ reminderStore.reminders.length }}
       </p>
       <p class="text-xs text-gray-400 dark:text-gray-500">reminders</p>
+    </template>
+
+    <template #modal_content>
+      <ReminderDialog v-model:open="dialogOpen" :reminder="editingReminder" />
     </template>
   </NuxtLayout>
 </template>

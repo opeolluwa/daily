@@ -20,6 +20,8 @@ pub enum ItemType {
     Snippet,
     #[sea_orm(string_value = "bookmark")]
     Bookmark,
+    #[sea_orm(string_value = "paste_bin")]
+    PasteBin,
 }
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ts_rs :: TS,

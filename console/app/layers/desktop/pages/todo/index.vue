@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TodoCard from "@desktop/components/todo/todo-card.vue";
+import TodoDialog from "@desktop/components/todo/TodoDialog.vue";
 import { useTodoStore } from "@shared/stores/todo";
 import {
   TODO_SORT_OPTIONS,
@@ -10,10 +11,11 @@ import {
 definePageMeta({ layout: false });
 
 const todoStore = useTodoStore();
-const router = useRouter();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "active" | "completed">("all");
 const sortBy = ref<TodoSort>("priority-high");
+const dialogOpen = ref(false);
+const editingTodo = ref<any>(null);
 
 const filteredTodos = computed(() => {
   let list = todoStore.todos;
@@ -48,7 +50,8 @@ async function deleteCompleted() {
 }
 
 function handleEdit(identifier: string) {
-  router.push(`/todo/edit-todo?id=${identifier}`);
+  editingTodo.value = todoStore.todos.find(t => t.identifier === identifier) ?? null;
+  dialogOpen.value = true;
 }
 
 onMounted(async () => {
@@ -72,7 +75,7 @@ onUnmounted(() => clearSearch());
         v-if="todoStore.todos.length !== 0"
         label="New Todo"
         icon="heroicons:plus"
-        to="/todo/create-todo"
+        @click="editingTodo = null; dialogOpen = true"
       />
     </template>
 
@@ -119,7 +122,7 @@ onUnmounted(() => clearSearch());
         description="Create your first todo to get started."
         icon="heroicons:check-circle"
         action-label="Create todo"
-        @action="navigateTo('/todo/create-todo')"
+        @action="editingTodo = null; dialogOpen = true"
       />
 
       <RyderEmptyState
@@ -205,6 +208,10 @@ onUnmounted(() => clearSearch());
           }}</span>
         </div>
       </div>
+    </template>
+
+    <template #modal_content>
+      <TodoDialog v-model:open="dialogOpen" :todo="editingTodo" />
     </template>
   </NuxtLayout>
 </template>

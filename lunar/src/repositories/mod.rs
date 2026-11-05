@@ -1,6 +1,7 @@
 pub mod bookmarks;
 pub mod notes;
 pub mod notifications;
+pub mod paste_bins;
 pub mod prelude;
 pub mod recycle_bin;
 pub mod reminder;

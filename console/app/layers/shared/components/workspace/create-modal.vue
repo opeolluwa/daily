@@ -50,11 +50,6 @@ function handleClose(value: boolean) {
   emit("update:open", value);
 }
 
-function handleCancel(close: () => void) {
-  resetForm();
-  close();
-}
-
 async function handleSubmit() {
   if (!validate()) return;
   loading.value = true;
@@ -82,58 +77,41 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <UModal
+  <RyderCreateDialog
     :open="open"
     :title="title"
     :description="description"
-    :ui="{ footer: 'justify-end' }"
+    :loading="loading"
+    :submit-label="submitLabel"
+    :submit-disabled="loading"
     @update:open="handleClose"
+    @submit="handleSubmit"
+    @cancel="handleClose(false)"
   >
-    <template #body>
-      <form class="pb-6 mt-4 flex flex-col" @submit.prevent="handleSubmit">
-        <div class="flex flex-col gap-4">
-          <RyderInput
-            v-model="form.name"
-            label="Name"
-            hint="required"
-            type="text"
-            name="workspace-name"
-            placeholder="Daily"
-            :error="errors.name"
-            :disabled="loading"
-          />
-          <RyderInput
-            v-model="form.description"
-            label="Description"
-            hint="required"
-            type="text"
-            name="workspace-description"
-            placeholder="Organize files and tasks"
-            :error="errors.description"
-            :disabled="loading"
-          />
-        </div>
-        <p v-if="submitError" class="text-sm text-red-500">
-          {{ submitError }}
-        </p>
-      </form>
-    </template>
-
-    <template #footer="{ close }">
-      <UButton
-        label="Cancel"
-        color="neutral"
-        variant="outline"
-        @click="handleCancel(close)"
-      />
-      <UButton
-        color="primary"
-        :loading="loading"
+    <div class="flex flex-col gap-4">
+      <RyderInput
+        v-model="form.name"
+        label="Name"
+        hint="required"
+        type="text"
+        name="workspace-name"
+        placeholder="Daily"
+        :error="errors.name"
         :disabled="loading"
-        @click="handleSubmit"
-      >
-        {{ submitLabel }}
-      </UButton>
-    </template>
-  </UModal>
+      />
+      <RyderInput
+        v-model="form.description"
+        label="Description"
+        hint="required"
+        type="text"
+        name="workspace-description"
+        placeholder="Organize files and tasks"
+        :error="errors.description"
+        :disabled="loading"
+      />
+      <p v-if="submitError" class="text-sm text-red-500">
+        {{ submitError }}
+      </p>
+    </div>
+  </RyderCreateDialog>
 </template>

@@ -26,6 +26,9 @@ pub enum LunarError {
     #[error("Snippet does not exist: {0}")]
     SnippetNotFound(String),
 
+    #[error("Paste bin does not exist: {0}")]
+    PasteBinNotFound(String),
+
     #[error("Reminder does not exists ")]
     ReminderNotFound(String),
 

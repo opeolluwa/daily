@@ -7,6 +7,7 @@ pub use super::note_categories::Entity as NoteCategories;
 pub use super::notes::Entity as Notes;
 pub use super::notifications::Entity as Notifications;
 pub use super::one_time_password::Entity as OneTimePassword;
+pub use super::paste_bins::Entity as PasteBins;
 pub use super::recycle_bin::Entity as RecycleBin;
 pub use super::reminder::Entity as Reminder;
 pub use super::revoked_token::Entity as RevokedToken;

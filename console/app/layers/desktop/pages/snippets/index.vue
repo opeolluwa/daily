@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useSnippetStore } from "@shared/stores/snippets";
 import SnippetCard from "@desktop/components/snippets/snippet-card.vue";
+import SnippetDialog from "@desktop/components/snippets/SnippetDialog.vue";
 import {
   SNIPPET_SORT_OPTIONS,
   sortSnippets,
@@ -12,6 +13,8 @@ const snippetStore = useSnippetStore();
 const activeLanguage = ref("All");
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const sortBy = ref<SnippetSort>("date-newest");
+const dialogOpen = ref(false);
+const editingSnippet = ref<any>(null);
 
 const allLanguages = computed(() => ["All", ...snippetStore.languages]);
 
@@ -68,11 +71,10 @@ onUnmounted(() => clearSearch());
     </template>
 
     <template #primary_cta>
-      <!-- Desktop: full label -->
       <div
         v-if="snippetStore.snippets.length !== 0"
         class="hidden md:flex items-center justify-end"
-        @click="navigateTo('/snippets/create-snippets')"
+        @click="editingSnippet = null; dialogOpen = true"
       >
         <button
           class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
@@ -81,10 +83,9 @@ onUnmounted(() => clearSearch());
           Add Snippet
         </button>
       </div>
-      <!-- Mobile: icon-only round FAB -->
       <RyderFab
         aria-label="Add Snippet"
-        @click="navigateTo('/snippets/create-snippets')"
+        @click="editingSnippet = null; dialogOpen = true"
       />
     </template>
 
@@ -123,7 +124,7 @@ onUnmounted(() => clearSearch());
         description="Save your first code snippet to get started."
         icon="heroicons:code-bracket"
         action-label="Create snippet"
-        @action="navigateTo('/snippets/create-snippets')"
+        @action="editingSnippet = null; dialogOpen = true"
       />
 
       <RyderEmptyState
@@ -228,6 +229,10 @@ onUnmounted(() => clearSearch());
           </p>
         </div>
       </div>
+    </template>
+
+    <template #modal_content>
+      <SnippetDialog v-model:open="dialogOpen" :snippet="editingSnippet" />
     </template>
   </NuxtLayout>
 </template>

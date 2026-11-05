@@ -40,56 +40,42 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Add Bookmark">
-    <template #body>
-      <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-        <RyderInput
-          v-model="form.title"
-          placeholder="Bookmark title"
-          label="Title"
-          name="bookmark title"
-          :disabled="submitting"
-        />
+  <RyderCreateDialog
+    v-model:open="open"
+    title="Add Bookmark"
+    :loading="submitting"
+    submit-label="Save"
+    :submit-disabled="!form.title.trim() || !form.url.trim()"
+    @submit="handleSubmit"
+    @cancel="open = false"
+  >
+    <div class="flex flex-col gap-4">
+      <RyderInput
+        v-model="form.title"
+        placeholder="Bookmark title"
+        label="Title"
+        name="bookmark title"
+        :disabled="submitting"
+      />
 
-        <RyderInput
-          v-model="form.url"
-          label="URL"
-          name="bookmark url"
-          placeholder="https://example.com"
-          :disabled="submitting"
-        />
+      <RyderInput
+        v-model="form.url"
+        label="URL"
+        name="bookmark url"
+        placeholder="https://example.com"
+        :disabled="submitting"
+      />
 
-        <RyderSelect
-          v-model="form.tag"
-          :items="
-            tags.map((t) => ({ label: _.capitalize(t.label), value: t.value }))
-          "
-          value-key="value"
-          label="Tag"
-          name="bookmark tag"
-          :disabled="submitting"
-        />
-
-        <div class="flex gap-2">
-          <UButton
-            type="submit"
-            size="sm"
-            :loading="submitting"
-            :disabled="!form.title.trim() || !form.url.trim()"
-          >
-            Save
-          </UButton>
-          <UButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            :disabled="submitting"
-            @click="open = false"
-          >
-            Cancel
-          </UButton>
-        </div>
-      </form>
-    </template>
-  </UModal>
+      <RyderSelect
+        v-model="form.tag"
+        :items="
+          tags.map((t) => ({ label: _.capitalize(t.label), value: t.value }))
+        "
+        value-key="value"
+        label="Tag"
+        name="bookmark tag"
+        :disabled="submitting"
+      />
+    </div>
+  </RyderCreateDialog>
 </template>
