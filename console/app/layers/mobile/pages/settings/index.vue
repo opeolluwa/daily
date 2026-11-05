@@ -9,12 +9,6 @@ const routes = [
     to: "/settings/profile",
   },
   {
-    label: "Appearance",
-    description: "Dark mode & font size",
-    icon: "ri:paint-brush-line",
-    to: "/settings/appearance",
-  },
-  {
     label: "Workspaces",
     description: "Create, secure & manage workspaces",
     icon: "heroicons:briefcase",
@@ -26,20 +20,6 @@ const routes = [
     icon: "heroicons:cloud-arrow-up",
     to: "/settings/backup",
   },
-
-  {
-    label: "Notifications",
-    description: "Alerts & notifications",
-    icon: "heroicons:inbox",
-    to: "/settings/notifications",
-  },
-  {
-    label: "Reminders",
-    description: "Sounds, repeat & vibration",
-    icon: "heroicons:bell-alert",
-    to: "/settings/alarm",
-  },
-
   {
     label: "About",
     description: "Version, build & platform",

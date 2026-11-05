@@ -26,8 +26,8 @@
   --app-dark-300: #5e7aab;
   --app-dark-400: #375990;
   --app-dark-500: #0d1220;
-  --app-dark-600: #0a0f1c;
-  --app-dark-700: #070b14;
+  --app-dark-600: #2a3548;
+  --app-dark-700: #1a2332;
   --app-dark-800: #04070d;
   --app-dark-900: #020407;
   --app-dark-950: #010203;
@@ -114,8 +114,8 @@ body {
 .dark {
   --color-gray-900: var(--app-dark-900);
   --color-gray-800: var(--app-dark-800);
-  --color-gray-700: var(--app-dark-700);
-  --color-gray-600: var(--app-dark-600);
+  --color-gray-700: #1a2332;
+  --color-gray-600: #2a3548;
 }
 
 .almond_input_box {

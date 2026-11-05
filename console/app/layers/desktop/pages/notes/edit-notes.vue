@@ -198,28 +198,25 @@ onMounted(async () => {
 
         <!-- Actions -->
         <div class="flex flex-col gap-2 mb-6">
-          <UButton
+          <RyderButton
             block
-            size="sm"
             :loading="submitting"
             :disabled="!hasChanges"
-            :ui="{
-              base: 'bg-primary-500 hover:bg-primary-600 disabled:bg-primary-600 disabled:text-gray-100 disabled:cursor-not-allowed py-2',
-            }"
             @click="handleSave"
           >
             Save changes
-          </UButton>
-          <UButton
+          </RyderButton>
+
+          <RyderButton
             block
-            variant="ghost"
-            size="sm"
-            :disabled="submitting"
-            :ui="{ base: 'text-primary-500' }"
+            :loading="submitting"
+            :disabled="!hasChanges"
+            variant="outline"
             @click="router.push('/notes')"
           >
             Discard
-          </UButton>
+          </RyderButton>
+    
           <p
             class="text-center text-[10px] text-gray-300 dark:text-gray-600 mt-1"
           >
