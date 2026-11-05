@@ -38,6 +38,12 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="noteStore.notes.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Notes
+      </h1>
+    </template>
+
     <template #primary_cta>
       <AppPrimaryCta
         v-if="noteStore.notes.length !== 0"
@@ -61,57 +67,23 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 4" :key="i" class="h-24 rounded-lg" />
       </div>
 
-      <!-- Empty state: no notes at all -->
-      <div
+      <RyderEmptyState
         v-else-if="noteStore.notes.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div
-          class="mb-4 p-2 flex justify-center items-center rounded-full bg-gray-100 dark:bg-gray-800"
-        >
-          <UIcon
-            name="heroicons:document-text"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No notes yet
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Create your first note to get started.
-        </p>
-        <button
-          class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-          @click="navigateTo('/notes/create-notes')"
-        >
-          Create note
-        </button>
-      </div>
+        title="No notes yet"
+        description="Create your first note to get started."
+        icon="heroicons:document-text"
+        action-label="Create note"
+        @action="navigateTo('/notes/create-notes')"
+      />
 
-      <!-- Empty state: search has no results -->
-      <div
+      <RyderEmptyState
         v-else-if="filteredNotes.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div class="mb-4 p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-          <UIcon
-            name="heroicons:magnifying-glass"
-            class="w-8 h-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No results found
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Try a different search term.
-        </p>
-        <button
-          class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-          @click="searchQuery = ''"
-        >
-          Clear search
-        </button>
-      </div>
+        title="No results found"
+        description="Try a different search term."
+        icon="heroicons:magnifying-glass"
+        action-label="Clear search"
+        @action="searchQuery = ''"
+      />
 
       <!-- Notes list -->
       <div v-else class="flex flex-col gap-3">
@@ -135,16 +107,13 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 3" :key="i" class="h-10 rounded-lg" />
       </div>
 
-      <div
+      <RyderEmptyState
         v-else-if="noteStore.recent.length === 0"
-        class="flex flex-col items-center py-6 text-center"
-      >
-        <UIcon
-          name="heroicons:clock"
-          class="w-5 h-5 text-gray-300 dark:text-gray-600 mb-2"
-        />
-        <p class="text-xs text-gray-400 dark:text-gray-500">No recent notes</p>
-      </div>
+        title="No recent notes"
+        description="Your recently modified notes will appear here."
+        icon="heroicons:clock"
+        compact
+      />
 
       <div v-else class="flex flex-col gap-1">
         <div

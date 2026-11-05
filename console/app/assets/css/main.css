@@ -57,7 +57,7 @@
   --color-app-dark-800: var(--app-dark-800);
   --color-app-dark-900: var(--app-dark-900);
   --color-app-dark-950: var(--app-dark-950);
-
+/*
   --color-primary-50: var(--app-primary-50);
   --color-primary-100: var(--app-primary-100);
   --color-primary-200: var(--app-primary-200);
@@ -68,7 +68,21 @@
   --color-primary-700: var(--app-primary-700);
   --color-primary-800: var(--app-primary-800);
   --color-primary-900: var(--app-primary-900);
-  --color-primary-950: var(--app-primary-950);
+  --color-primary-950: var(--app-primary-950);*/
+
+
+  --color-primary-50: #f4ebfa;
+  --color-primary-100: #e8d7f4;
+  --color-primary-200: #d2afe9;
+  --color-primary-300: #bb87de;
+  --color-primary-400: #a55fd3;
+  --color-primary-500: #8e37c8;
+  --color-primary-600: #722ca0;
+  --color-primary-700: #552178;
+  --color-primary-800: #391650;
+  --color-primary-900: #1c0b28;
+  --color-primary-950: #14081c;
+  
 
   --color-primary: var(--color-primary-500);
   --font-ios: "Lato", sans-serif;

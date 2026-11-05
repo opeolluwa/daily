@@ -10,7 +10,7 @@ const { token, email, loading, submitError, handleAccept } =
     <RyderPageHeader
       class="text-center"
       title="You're invited!"
-      subtitle="You've been invited to join a workspace on Lunar."
+      subtitle="You've been invited to join a workspace on Daily."
     />
 
     <div

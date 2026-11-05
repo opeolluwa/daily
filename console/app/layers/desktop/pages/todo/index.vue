@@ -61,6 +61,12 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="todoStore.todos.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Todo
+      </h1>
+    </template>
+
     <template #primary_cta>
       <AppPrimaryCta
         v-if="todoStore.todos.length !== 0"
@@ -107,67 +113,23 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-lg" />
       </div>
 
-      <!-- Empty state: no todos at all -->
-      <div
+      <RyderEmptyState
         v-else-if="todoStore.todos.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div
-          class="mb-4 p-2 flex justify-center items-center rounded-full bg-gray-100 dark:bg-gray-800"
-        >
-          <UIcon
-            name="heroicons:check-circle"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No todos yet
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Create your first todo to get started.
-        </p>
-        <NuxtLink
-          to="/todo/create-todo"
-          class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-        >
-          Create todo
-        </NuxtLink>
-      </div>
+        title="No todos yet"
+        description="Create your first todo to get started."
+        icon="heroicons:check-circle"
+        action-label="Create todo"
+        @action="navigateTo('/todo/create-todo')"
+      />
 
-      <!-- Empty state: search or filter yields no results -->
-      <div
+      <RyderEmptyState
         v-else-if="filteredTodos.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div class="mb-4 p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-          <UIcon
-            name="heroicons:magnifying-glass"
-            class="w-8 h-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No results found
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Try a different search or filter.
-        </p>
-        <div class="flex gap-3">
-          <button
-            v-if="searchQuery"
-            class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-            @click="searchQuery = ''"
-          >
-            Clear search
-          </button>
-          <button
-            v-if="filter !== 'all'"
-            class="text-xs text-gray-400 hover:text-gray-600 font-medium"
-            @click="filter = 'all'"
-          >
-            Clear filter
-          </button>
-        </div>
-      </div>
+        title="No results found"
+        description="Try a different search or filter."
+        icon="heroicons:magnifying-glass"
+        action-label="Clear filters"
+        @action="searchQuery = ''; filter = 'all'"
+      />
 
       <!-- Todo list -->
       <div v-else class="flex flex-col gap-2">

@@ -61,6 +61,12 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="snippetStore.snippets.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Snippets
+      </h1>
+    </template>
+
     <template #primary_cta>
       <!-- Desktop: full label -->
       <div
@@ -111,67 +117,23 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 3" :key="i" class="h-32 rounded-lg" />
       </div>
 
-      <!-- Empty state: no snippets at all -->
-      <div
+      <RyderEmptyState
         v-else-if="snippetStore.snippets.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div
-          class="mb-4 p-2 flex justify-center items-center rounded-full bg-gray-100 dark:bg-gray-800"
-        >
-          <UIcon
-            name="heroicons:code-bracket"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No snippets yet
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Save your first code snippet to get started.
-        </p>
-        <NuxtLink
-          to="/snippets/create-snippets"
-          class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-        >
-          Create snippet
-        </NuxtLink>
-      </div>
+        title="No snippets yet"
+        description="Save your first code snippet to get started."
+        icon="heroicons:code-bracket"
+        action-label="Create snippet"
+        @action="navigateTo('/snippets/create-snippets')"
+      />
 
-      <!-- Empty state: filtered language has no results -->
-      <div
+      <RyderEmptyState
         v-else-if="filteredSnippets.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div class="mb-4 p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-          <UIcon
-            name="heroicons:funnel"
-            class="w-8 h-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No results found
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Try a different search or language filter.
-        </p>
-        <div class="flex items-center gap-3">
-          <button
-            v-if="searchQuery"
-            class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-            @click="searchQuery = ''"
-          >
-            Clear search
-          </button>
-          <button
-            v-if="activeLanguage !== 'All'"
-            class="text-xs text-gray-400 hover:text-gray-600 font-medium"
-            @click="activeLanguage = 'All'"
-          >
-            Clear filter
-          </button>
-        </div>
-      </div>
+        title="No results found"
+        description="Try a different search or language filter."
+        icon="heroicons:funnel"
+        action-label="Clear filters"
+        @action="searchQuery = ''; activeLanguage = 'All'"
+      />
 
       <!-- Snippet list -->
       <div v-else class="flex flex-col gap-3">
@@ -199,16 +161,13 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 4" :key="i" class="h-8 rounded-lg" />
       </div>
 
-      <div
+      <RyderEmptyState
         v-else-if="snippetStore.languages.length === 0"
-        class="flex flex-col items-center py-6 text-center"
-      >
-        <UIcon
-          name="heroicons:tag"
-          class="w-5 h-5 text-gray-300 dark:text-gray-600 mb-2"
-        />
-        <p class="text-xs text-gray-400 dark:text-gray-500">No languages yet</p>
-      </div>
+        title="No languages yet"
+        description="Languages will appear as you add snippets."
+        icon="heroicons:tag"
+        compact
+      />
 
       <div v-else class="flex flex-col gap-1">
         <div
@@ -245,18 +204,13 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 3" :key="i" class="h-12 rounded-lg" />
       </div>
 
-      <div
+      <RyderEmptyState
         v-else-if="snippetStore.recent.length === 0"
-        class="flex flex-col items-center py-6 text-center"
-      >
-        <UIcon
-          name="heroicons:clock"
-          class="w-5 h-5 text-gray-300 dark:text-gray-600 mb-2"
-        />
-        <p class="text-xs text-gray-400 dark:text-gray-500">
-          No recent snippets
-        </p>
-      </div>
+        title="No recent snippets"
+        description="Your recently modified snippets will appear here."
+        icon="heroicons:clock"
+        compact
+      />
 
       <div v-else class="flex flex-col gap-2">
         <div

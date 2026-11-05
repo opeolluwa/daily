@@ -1,6 +1,6 @@
 # Almonds
 
-A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings notes, snippets, bookmarks, tasks, and AI conversations into one workspace.
+A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings notes, snippets, bookmarks, and tasks into one workspace.
 
 ![screenshot](./screenshot.png)
 
@@ -10,7 +10,6 @@ A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings 
 - **Bookmarks** — save and organize web links
 - **Snippets** — store reusable code with syntax highlighting
 - **Todo** — track tasks and to-dos
-- **Ollama** — chat with local AI models
 - **Scratch Pad** — quick freeform writing space
 - **Moodboard** — visual inspiration board
 

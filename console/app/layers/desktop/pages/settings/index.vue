@@ -8,7 +8,6 @@ type Section =
   | "appearance"
   | "locale"
   | "backup"
-  | "ai"
   | "notifications"
   | "alarm"
   | "about"
@@ -22,7 +21,6 @@ const navSections: { key: Section; label: string; icon: string }[] = [
   { key: "locale", label: "Locale", icon: "heroicons:language" },
   { key: "workspaces", label: "Workspaces", icon: "heroicons:briefcase" },
   { key: "backup", label: "Backup & Sync", icon: "heroicons:cloud-arrow-up" },
-  { key: "ai", label: "AI & Ollama", icon: "heroicons:cpu-chip" },
   { key: "notifications", label: "Notifications", icon: "heroicons:inbox" },
   { key: "alarm", label: "Alarm", icon: "heroicons:bell-alert" },
   { key: "about", label: "About", icon: "heroicons:information-circle" },
@@ -45,7 +43,6 @@ const activeSection = ref<Section>(
       <SettingsProfileSettings v-if="activeSection === 'profile'" />
       <SettingsAppearanceSettings v-else-if="activeSection === 'appearance'" />
       <SettingsBackupSettings v-else-if="activeSection === 'backup'" />
-      <SettingsAiSettings v-else-if="activeSection === 'ai'" />
       <SettingsNotificationsSettings
         v-else-if="activeSection === 'notifications'"
       />

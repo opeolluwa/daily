@@ -32,25 +32,13 @@ const recentBookmarks = computed(() => bookmarkStore.bookmarks.slice(0, 3));
       </NuxtLink>
     </div>
 
-    <div
+    <RyderEmptyState
       v-if="recentBookmarks.length === 0"
-      class="flex flex-col items-center justify-center py-8 text-center"
-    >
-      <div
-        class="flex items-center justify-center rounded-full bg-gray-100 p-2 dark:bg-gray-800"
-      >
-        <UIcon
-          name="heroicons:bookmark"
-          class="size-5 text-gray-400 dark:text-gray-500"
-        />
-      </div>
-      <p class="mt-2 text-xs font-medium text-gray-600 dark:text-gray-400">
-        No bookmarks yet
-      </p>
-      <p class="mt-0.5 text-[11px] text-gray-400 dark:text-gray-500">
-        Saved bookmarks will appear here.
-      </p>
-    </div>
+      title="No bookmarks yet"
+      description="Saved bookmarks will appear here."
+      icon="heroicons:bookmark"
+      compact
+    />
 
     <div v-else class="divide-y divide-gray-100 dark:divide-gray-700/60">
       <div

@@ -31,25 +31,13 @@ defineProps<{
       Loading…
     </div>
 
-    <div
+    <RyderEmptyState
       v-else-if="bookmarks.length === 0"
-      class="flex flex-col items-center justify-center py-10 text-center"
-    >
-      <div
-        class="p-2 flex justify-center items-center rounded-full bg-gray-100 dark:bg-gray-800"
-      >
-        <UIcon
-          name="heroicons:bookmark"
-          class="size-6 text-gray-400 dark:text-gray-500"
-        />
-      </div>
-      <p class="mt-3 text-xs font-medium text-gray-600 dark:text-gray-400">
-        No bookmarks yet
-      </p>
-      <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
-        Saved bookmarks will appear here.
-      </p>
-    </div>
+      title="No bookmarks yet"
+      description="Saved bookmarks will appear here."
+      icon="heroicons:bookmark"
+      compact
+    />
 
     <div
       v-else

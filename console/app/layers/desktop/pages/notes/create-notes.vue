@@ -94,31 +94,23 @@ onBeforeRouteLeave(async () => {
 
     <template #side_content>
       <!-- Save -->
-      <UButton
+      <RyderButton
         block
-        size="sm"
         :loading="submitting"
         :disabled="!hasContent"
         class="mb-2"
-        :ui="{
-          base: 'bg-primary-500 hover:bg-primary-600 disabled:bg-primary-600 disabled:text-gray-100 disabled:cursor-not-allowed py-2',
-        }"
         @click="handleSave"
       >
         Save note
-      </UButton>
-      <UButton
+      </RyderButton>
+      <RyderButton
         block
-        variant="ghost"
-        size="sm"
+        variant="outline"
         :disabled="submitting"
-        :ui="{
-          base: 'text-primary-500 hover:text-primary-600 disabled:text-primary-600 disabled:text-gray-100 disabled:cursor-not-allowed py-2',
-        }"
         @click="router.push('/notes')"
       >
         Discard
-      </UButton>
+      </RyderButton>
 
       <USeparator class="my-5" />
 

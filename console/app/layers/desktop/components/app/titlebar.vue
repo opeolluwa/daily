@@ -211,7 +211,7 @@ useEventListener("keydown", (e: KeyboardEvent) => {
             isOpen = false;
             searchInputRef?.blur();
           "
-        >
+        />
         <kbd
           v-if="!searchQuery"
           class="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono select-none"
@@ -267,9 +267,10 @@ useEventListener("keydown", (e: KeyboardEvent) => {
           }"
         >
           <UUser
-            size="sm"
+            size="md"
+            color="primary"
             class="cursor-pointer"
-            :avatar="{ src: 'https://i.pravatar.cc/150?u=john-doe' }"
+            :avatar="{ icon: 'heroicons:user' }"
           />
         </UDropdownMenu>
       </div>

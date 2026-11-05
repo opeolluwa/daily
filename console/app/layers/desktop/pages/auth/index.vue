@@ -19,7 +19,7 @@ onMounted(() => {
     <div class="flex flex-col gap-5">
       <RyderPageHeader
         title="Welcome back"
-        subtitle="Sign in to your Lunar account to continue."
+        subtitle="Sign in to your Daily account to continue."
       />
 
       <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">

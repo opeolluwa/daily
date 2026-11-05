@@ -213,21 +213,13 @@ function navigate(item: SearchResult) {
       </p>
     </div>
 
-    <div
+    <RyderEmptyState
       v-else-if="!hasResults"
-      class="flex flex-col items-center px-8 py-24 text-center"
-    >
-      <UIcon
-        name="heroicons:no-symbol"
-        class="size-12 text-gray-300 dark:text-gray-600"
-      />
-      <p class="mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-        No results for "{{ searchQuery }}"
-      </p>
-      <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-        Try a different search term.
-      </p>
-    </div>
+      :title="`No results for &quot;${searchQuery}&quot;`"
+      description="Try a different search term."
+      icon="heroicons:magnifying-glass"
+      compact
+    />
 
     <template v-else>
       <div v-for="section in sections" :key="section.type" class="mb-3">

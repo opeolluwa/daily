@@ -1,4 +1,4 @@
-package com.opeolluwa.lunar
+package com.opeolluwa.daily
 
 import android.os.Bundle
 import android.os.Handler
