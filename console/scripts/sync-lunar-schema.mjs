@@ -33,7 +33,7 @@ if (!hasSqlFiles()) {
   console.log("[lunar] generated migration SQL missing — running migration-export…");
   try {
     execSync(
-      `cargo run --quiet --manifest-path "${manifestPath}" --bin migration-export -- "${sourceDir}"`,
+      `cargo run --quiet --manifest-path "${manifestPath}" --bin migration-export -- "${sourceDir}" postgres`,
       { stdio: "inherit" },
     );
   } catch {

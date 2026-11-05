@@ -4,7 +4,7 @@ export function useResetPassword() {
   const route = useRoute();
   const authApi = useAuthApi();
   const authStore = useAuthStore();
-  const { notify } = useAppNotification();
+  const toast = useToast();
 
   const step = computed(() => (route.query.step === "set" ? "set" : "email"));
 
@@ -35,9 +35,11 @@ export function useResetPassword() {
         email: form.email.trim(),
       });
       authStore.setPendingToken(response.token);
-      notify({
-        message: "Reset code sent to your email.",
-        type: "success",
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Reset Code Sent",
+        description: "Check your email for the reset code",
         duration: 5000,
       });
       await navigateTo("/auth/confirm-otp?flow=reset");
@@ -66,7 +68,7 @@ export function useResetPassword() {
         authStore.pendingToken,
       );
       authStore.clearPendingToken();
-      notify({ message: "Password updated successfully", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Password Updated", description: "Your password has been changed" });
       await navigateTo("/auth/login");
     } catch (error) {
       submitError.value = (error as Error).message;

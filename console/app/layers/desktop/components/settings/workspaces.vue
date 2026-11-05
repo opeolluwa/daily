@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
-const { notify } = useAppNotification();
+const toast = useToast();
 const workspaceStore = useWorkspacesStore();
 
 // ── create workspace ──────────────────────────────────────────────────────────
 const showCreateModal = ref(false);
 
 function handleCreated() {
-  notify({ message: "Workspace created", type: "success" });
+  toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Created", description: "Your workspace is ready" });
 }
 
 // ── secure workspace ──────────────────────────────────────────────────────────
@@ -76,20 +76,22 @@ async function submitSecure() {
         isSecured: false,
         password: "",
       });
-      notify({ message: "Workspace password removed", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Password Removed", description: "The workspace is no longer protected" });
     } else {
       await workspaceStore.updateWorkspace(secureTargetId.value, {
         isSecured: true,
         password: securePassword.value,
       });
       workspaceStore.unlockWorkspace(secureTargetId.value);
-      notify({ message: "Workspace secured with password", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Secured", description: "A password has been set" });
     }
     closeSecureModal();
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace security",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace security",
     });
   } finally {
     secureSubmitting.value = false;
@@ -105,11 +107,13 @@ async function handleDelete(identifier: string) {
 async function handleSetDefault(identifier: string) {
   try {
     await workspaceStore.updateWorkspace(identifier, { isDefault: true });
-    notify({ message: "Default workspace updated", type: "success" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Default Updated", description: "Your default workspace has been changed" });
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace",
     });
   }
 }
@@ -124,14 +128,18 @@ async function handleToggleHidden(identifier: string) {
     await workspaceStore.updateWorkspace(identifier, {
       isHidden: !ws.isHidden,
     });
-    notify({
-      message: ws.isHidden ? "Workspace is now visible" : "Workspace hidden",
-      type: "success",
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: ws.isHidden ? "Workspace Visible" : "Workspace Hidden",
+      description: ws.isHidden ? "The workspace is now visible" : "The workspace has been hidden",
     });
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace",
     });
   }
 }
@@ -166,12 +174,14 @@ async function submitEdit() {
       name: editName.value.trim() || undefined,
       description: editDescription.value.trim(),
     });
-    notify({ message: "Workspace updated", type: "success" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Updated", description: "Your changes have been saved" });
     closeEdit();
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace",
     });
   } finally {
     editSubmitting.value = false;
@@ -184,9 +194,9 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
 <template>
   <div class="flex flex-col gap-4 mt-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
-        Workspaces
-      </h2>
+      <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Workspace
+      </h1>
       <div class="w-36">
         <RyderButton
           size="md"
@@ -222,22 +232,20 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
           <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
             Edit workspace
           </h3>
-          <UFormField label="Name">
-            <UInput
-              v-model="editName"
-              placeholder="Workspace name"
-              class="w-full"
-              :disabled="editSubmitting"
-            />
-          </UFormField>
-          <UFormField label="Description">
-            <UInput
-              v-model="editDescription"
-              placeholder="Short description"
-              class="w-full"
-              :disabled="editSubmitting"
-            />
-          </UFormField>
+          <RyderInput
+            v-model="editName"
+            label="Name"
+            placeholder="Workspace name"
+            name="edit-workspace-name"
+            :disabled="editSubmitting"
+          />
+          <RyderInput
+            v-model="editDescription"
+            label="Description"
+            placeholder="Short description"
+            name="edit-workspace-description"
+            :disabled="editSubmitting"
+          />
           <div class="flex items-center gap-2 mt-2">
             <UButton
               size="sm"
@@ -277,31 +285,21 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
                 : "This workspace will require a password before it can be accessed."
             }}
           </p>
-          <UFormField
-            :label="
-              secureTargetWorkspace?.isSecured ? 'Current password' : 'Password'
-            "
-          >
-            <UInput
-              v-model="securePassword"
-              type="password"
-              placeholder="Enter password"
-              class="w-full"
-              :disabled="secureSubmitting"
-            />
-          </UFormField>
-          <UFormField
+          <RyderPasswordInput
+            v-model="securePassword"
+            :label="secureTargetWorkspace?.isSecured ? 'Current password' : 'Password'"
+            placeholder="Enter password"
+            name="secure-password"
+            :disabled="secureSubmitting"
+          />
+          <RyderPasswordInput
             v-if="!secureTargetWorkspace?.isSecured"
+            v-model="secureConfirm"
             label="Confirm password"
-          >
-            <UInput
-              v-model="secureConfirm"
-              type="password"
-              placeholder="Confirm password"
-              class="w-full"
-              :disabled="secureSubmitting"
-            />
-          </UFormField>
+            placeholder="Confirm password"
+            name="secure-confirm"
+            :disabled="secureSubmitting"
+          />
           <p v-if="secureError" class="text-xs text-red-500 dark:text-red-400">
             {{ secureError }}
           </p>

@@ -25,6 +25,7 @@ const itemTypeOptions: Array<{
   { label: "Bookmarks", value: "bookmark" },
   { label: "Reminders", value: "reminder" },
   { label: "Snippets", value: "snippet" },
+  { label: "Paste Bin", value: "paste_bin" },
 ];
 
 const filteredEntries = computed(() => {
@@ -55,6 +56,7 @@ function itemTypeIcon(type: RecycleBinItemType): string {
     bookmark: "heroicons:bookmark",
     reminder: "heroicons:clock",
     snippet: "heroicons:code-bracket",
+    paste_bin: "ri:clipboard-line",
   };
   return icons[type] ?? "heroicons:document";
 }

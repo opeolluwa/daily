@@ -8,7 +8,7 @@ export function useLogin(
 ) {
   const authApi = useAuthApi();
   const authStore = useAuthStore();
-  const { notify } = useAppNotification();
+  const toast = useToast();
   const emailMemory = options.rememberEmail ? useRememberedEmail() : null;
 
   const form = reactive<LoginRequest>({
@@ -40,7 +40,7 @@ export function useLogin(
         response.exp,
       );
       emailMemory?.rememberEmail(form.email.trim());
-      notify({ message: "Logged in successfully", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Welcome Back", description: "You've been logged in successfully" });
       await navigateTo("/");
     } catch (error) {
       submitError.value = (error as Error).message;

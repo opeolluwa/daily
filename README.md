@@ -10,7 +10,7 @@ A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings 
 - **Bookmarks** — save and organize web links
 - **Snippets** — store reusable code with syntax highlighting
 - **Todo** — track tasks and to-dos
-- **Scratch Pad** — quick freeform writing space
+- **Paste Bin** — save, pin, and reuse snippets of text and links
 - **Moodboard** — visual inspiration board
 
 ## Tech Stack

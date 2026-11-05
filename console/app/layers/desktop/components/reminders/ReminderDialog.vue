@@ -16,7 +16,7 @@ const props = defineProps<{
 const open = defineModel<boolean>("open", { required: true });
 
 const reminderStore = useReminderStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const editing = computed(() => !!props.reminder);
 const submitting = ref(false);
@@ -78,16 +78,18 @@ async function handleSubmit() {
 
     if (editing.value && props.reminder) {
       await reminderStore.updateReminder(props.reminder.identifier, payload);
-      notify({ type: "success", message: "Reminder updated" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Updated", description: "Your changes have been saved" });
     } else {
       await reminderStore.createReminder(payload);
-      notify({ type: "success", message: "Reminder created" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Created", description: "Your reminder has been saved" });
     }
     open.value = false;
   } catch {
-    notify({
-      type: "error",
-      message: editing.value
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: editing.value
         ? "Failed to update reminder"
         : "Failed to create reminder",
     });
@@ -101,10 +103,10 @@ async function handleDelete() {
   deleting.value = true;
   try {
     await reminderStore.deleteReminder(props.reminder.identifier);
-    notify({ type: "success", message: "Reminder deleted" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Deleted", description: "The reminder has been removed" });
     open.value = false;
   } catch {
-    notify({ type: "error", message: "Failed to delete reminder" });
+    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to delete reminder" });
   } finally {
     deleting.value = false;
   }
@@ -122,46 +124,30 @@ async function handleDelete() {
     @cancel="resetForm"
   >
     <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Title <span class="text-rose-500">*</span>
-        </label>
-        <input
-          v-model="form.title"
-          type="text"
-          placeholder="What should I remind you about?"
-          class="almond_input_box"
-        >
-      </div>
+      <RyderInput
+        v-model="form.title"
+        label="Title"
+        :required="true"
+        placeholder="What should I remind you about?"
+        name="reminder-title"
+      />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Description
-        </label>
-        <textarea
-          v-model="form.description"
-          placeholder="Add more details..."
-          rows="3"
-          class="w-full bg-white dark:bg-gray-800 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-600 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500 resize-none"
-        />
-      </div>
+      <RyderTextarea
+        v-model="form.description"
+        label="Description"
+        name="reminder-description"
+        placeholder="Add more details..."
+        :rows="3"
+      />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Remind at <span class="text-rose-500">*</span>
-        </label>
-        <div class="relative">
-          <UIcon
-            name="heroicons:clock"
-            class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 pointer-events-none"
-          />
-          <input
-            v-model="form.remindAt"
-            type="datetime-local"
-            class="w-full bg-white dark:bg-gray-800 rounded-lg pl-9 pr-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-600 focus:border-transparent"
-          >
-        </div>
-      </div>
+      <RyderInput
+        v-model="form.remindAt"
+        label="Remind at"
+        :required="true"
+        type="datetime-local"
+        icon="heroicons:clock"
+        name="remind-at"
+      />
 
       <div class="flex items-center gap-3">
         <button
@@ -187,17 +173,13 @@ async function handleDelete() {
         </label>
       </div>
 
-      <div v-if="form.recurring" class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Recurrence rule
-        </label>
-        <input
-          v-model="form.recurrenceRule"
-          type="text"
-          placeholder="e.g. FREQ=DAILY;INTERVAL=1"
-          class="almond_input_box"
-        >
-      </div>
+      <RyderInput
+        v-if="form.recurring"
+        v-model="form.recurrenceRule"
+        label="Recurrence rule"
+        placeholder="e.g. FREQ=DAILY;INTERVAL=1"
+        name="recurrence-rule"
+      />
 
       <button
         v-if="editing"

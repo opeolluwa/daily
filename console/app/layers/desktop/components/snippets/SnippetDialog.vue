@@ -15,7 +15,7 @@ const props = defineProps<{
 const open = defineModel<boolean>("open", { required: true });
 
 const snippetStore = useSnippetStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const editing = computed(() => !!props.snippet);
 
@@ -67,17 +67,19 @@ async function handleSubmit() {
 
     if (editing.value && props.snippet) {
       await snippetStore.updateSnippet(props.snippet.identifier, payload);
-      notify({ type: "success", message: "Snippet updated" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Snippet Updated", description: "Your changes have been saved" });
     } else {
       await snippetStore.createSnippet(payload);
-      notify({ type: "success", message: "Snippet created" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Snippet Created", description: "Your snippet has been saved" });
     }
     open.value = false;
     resetForm();
   } catch {
-    notify({
-      type: "error",
-      message: editing.value
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: editing.value
         ? "Failed to update snippet"
         : "Failed to create snippet",
     });
@@ -117,35 +119,26 @@ async function handleSubmit() {
         :disabled="submitting"
       />
 
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
-          Code <span class="text-red-400 ml-0.5">*</span>
-        </label>
-        <UTextarea
+      <div class="font-mono">
+        <RyderTextarea
           v-model="form.code"
+          label="Code"
+          name="snippet-code"
           placeholder="Paste your code here..."
           :rows="12"
           :disabled="submitting"
-          :ui="{ base: 'bg-transparent' }"
-          class="font-mono"
         />
       </div>
 
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
-          Description
-          <span class="text-gray-400 dark:text-gray-600 font-normal ml-1"
-            >(optional)</span
-          >
-        </label>
-        <UTextarea
-          v-model="form.description"
-          placeholder="What does this snippet do?"
-          :rows="3"
-          :disabled="submitting"
-          :ui="{ base: 'bg-transparent' }"
-        />
-      </div>
+      <RyderTextarea
+        v-model="form.description"
+        label="Description"
+        hint="optional"
+        name="snippet-description"
+        placeholder="What does this snippet do?"
+        :rows="3"
+        :disabled="submitting"
+      />
     </div>
   </RyderCreateDialog>
 </template>

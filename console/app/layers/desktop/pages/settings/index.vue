@@ -50,7 +50,7 @@ const activeSection = ref<Section>(
           "
           @click="activeSection = s.key"
         >
-          <UIcon :name="s.icon" class="size-4 shrink-0" />
+          <UIcon :name="s.icon" class="size-5 shrink-0" />
           {{ s.label }}
         </button>
       </div>

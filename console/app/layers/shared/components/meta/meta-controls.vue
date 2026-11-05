@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type { DropdownMenuItem } from "@nuxt/ui";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const workspaceStore = useWorkspacesStore();
 const showDuplicateModal = ref(false);
@@ -98,7 +98,7 @@ const handleDuplicate = async () => {
     emit("duplicateRecord", targetWorkspaceId.value);
     showDuplicateModal.value = false;
     targetWorkspaceId.value = "";
-    notify({ message: `${props.itemName} duplicated successfully` });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: `${props.itemName} Duplicated`, description: "A copy has been created" });
   } finally {
     isSubmitting.value = false;
   }
@@ -113,7 +113,7 @@ const handleTransfer = async () => {
     emit("transferRecord", targetWorkspaceId.value);
     showTransferModal.value = false;
     targetWorkspaceId.value = "";
-    notify({ message: `${props.itemName} transferred successfully` });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: `${props.itemName} Transferred`, description: "The item has been moved" });
   } finally {
     isSubmitting.value = false;
   }

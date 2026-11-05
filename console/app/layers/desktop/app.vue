@@ -52,11 +52,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UApp>
+  <UApp
+    :toaster="{
+      position: 'top-right',
+      progress: false,
+      duration: 2500,
+      ui: { base: 'py-2' },
+    }"
+  >
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <AppNotification />
     <UserSetupModal v-if="setupRequired" />
     <WorkspaceSetupModal v-if="workspaceSetupRequired" />
     <WorkspaceLockModal
