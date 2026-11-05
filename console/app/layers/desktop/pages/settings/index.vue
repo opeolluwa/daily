@@ -3,28 +3,14 @@ import { useRoute } from "#imports";
 
 definePageMeta({ layout: false });
 
-type Section =
-  | "profile"
-  | "appearance"
-  | "locale"
-  | "backup"
-  | "ai"
-  | "notifications"
-  | "alarm"
-  | "about"
-  | "workspaces";
+type Section = "profile" | "workspaces" | "backup" | "about";
 
 const route = useRoute();
 
 const navSections: { key: Section; label: string; icon: string }[] = [
   { key: "profile", label: "Profile", icon: "i-lucide-user" },
-  { key: "appearance", label: "Appearance", icon: "heroicons:paint-brush" },
-  { key: "locale", label: "Locale", icon: "heroicons:language" },
   { key: "workspaces", label: "Workspaces", icon: "heroicons:briefcase" },
   { key: "backup", label: "Backup & Sync", icon: "heroicons:cloud-arrow-up" },
-  { key: "ai", label: "AI & Ollama", icon: "heroicons:cpu-chip" },
-  { key: "notifications", label: "Notifications", icon: "heroicons:inbox" },
-  { key: "alarm", label: "Alarm", icon: "heroicons:bell-alert" },
   { key: "about", label: "About", icon: "heroicons:information-circle" },
 ];
 
@@ -43,16 +29,9 @@ const activeSection = ref<Section>(
   <NuxtLayout name="default">
     <template #main_content>
       <SettingsProfileSettings v-if="activeSection === 'profile'" />
-      <SettingsAppearanceSettings v-else-if="activeSection === 'appearance'" />
-      <SettingsBackupSettings v-else-if="activeSection === 'backup'" />
-      <SettingsAiSettings v-else-if="activeSection === 'ai'" />
-      <SettingsNotificationsSettings
-        v-else-if="activeSection === 'notifications'"
-      />
-      <SettingsAlarmSettings v-else-if="activeSection === 'alarm'" />
-      <SettingsAboutSettings v-else-if="activeSection === 'about'" />
       <SettingsWorkspaces v-else-if="activeSection === 'workspaces'" />
-      <SettingsLocaleSettings v-else-if="activeSection === 'locale'" />
+      <SettingsBackupSettings v-else-if="activeSection === 'backup'" />
+      <SettingsAboutSettings v-else-if="activeSection === 'about'" />
     </template>
 
     <template #side_content>

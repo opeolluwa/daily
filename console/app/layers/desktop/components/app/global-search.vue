@@ -234,14 +234,13 @@ const flatIndexByItem = computed(() => {
     ref="dropdownRef"
     class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-[520px] max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 py-2"
   >
-    <!-- No results -->
-    <div
+    <RyderEmptyState
       v-if="!hasResults"
-      class="flex flex-col items-center justify-center py-10 gap-2 text-gray-400 dark:text-gray-500"
-    >
-      <UIcon name="heroicons:magnifying-glass" class="size-6" />
-      <p class="text-sm">No results for "{{ searchQuery }}"</p>
-    </div>
+      :title="`No results for &quot;${searchQuery}&quot;`"
+      description="Try a different search term."
+      icon="heroicons:magnifying-glass"
+      compact
+    />
 
     <!-- Results grouped by type -->
     <template v-else>

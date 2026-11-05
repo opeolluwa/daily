@@ -12,7 +12,7 @@ use crate::types::EntitySyncResult;
 use crate::entities::sea_orm_active_enums::ItemType;
 use crate::{
     adapters::{meta::RequestMeta, recycle_bin::CreateRecycleBinEntry},
-    entities::{bookmark, notes, recycle_bin, reminder, snippets, sync_queue, todo},
+    entities::{bookmark, notes, paste_bins, recycle_bin, reminder, snippets, sync_queue, todo},
     error::LunarError,
     utils::{extract_req_meta, js_err, mock_connection, to_js},
 };
@@ -226,6 +226,13 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
             }
             ItemType::Reminder => {
                 Self::restore_payload::<reminder::Model, reminder::ActiveModel>(
+                    &entry.payload,
+                    self.conn.as_ref(),
+                )
+                .await?
+            }
+            ItemType::PasteBin => {
+                Self::restore_payload::<paste_bins::Model, paste_bins::ActiveModel>(
                     &entry.payload,
                     self.conn.as_ref(),
                 )

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useReminderStore } from "@shared/stores/reminder";
+import ReminderDialog from "@desktop/components/reminders/ReminderDialog.vue";
 
 definePageMeta({ layout: false });
 
 const reminderStore = useReminderStore();
-const router = useRouter();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "upcoming" | "recurring">("all");
+const dialogOpen = ref(false);
+const editingReminder = ref<any>(null);
 
 const filteredReminders = computed(() => {
   let list = reminderStore.reminders;
@@ -41,7 +43,8 @@ async function handleDelete(identifier: string) {
 }
 
 function handleEdit(identifier: string) {
-  router.push(`/reminders/edit-reminder?id=${identifier}`);
+  editingReminder.value = reminderStore.reminders.find(r => r.identifier === identifier) ?? null;
+  dialogOpen.value = true;
 }
 
 onMounted(async () => {
@@ -54,12 +57,18 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="reminderStore.reminders.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Reminders
+      </h1>
+    </template>
+
     <template #primary_cta>
       <AppPrimaryCta
         v-if="reminderStore.reminders.length !== 0"
         label="New Reminder"
         icon="heroicons:plus"
-        to="/reminders/create-reminder"
+        @click="editingReminder = null; dialogOpen = true"
       />
     </template>
 
@@ -89,67 +98,23 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-lg" />
       </div>
 
-      <!-- Empty state: no reminders at all -->
-      <div
+      <RyderEmptyState
         v-else-if="reminderStore.reminders.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div
-          class="mb-4 p-2 flex justify-center items-center rounded-full bg-gray-100 dark:bg-gray-800"
-        >
-          <UIcon
-            name="heroicons:clock"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No reminders yet
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Create your first reminder to stay on track.
-        </p>
-        <NuxtLink
-          to="/reminders/create-reminder"
-          class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-        >
-          Create reminder
-        </NuxtLink>
-      </div>
+        title="No reminders yet"
+        description="Create your first reminder to stay on track."
+        icon="heroicons:clock"
+        action-label="Create reminder"
+        @action="editingReminder = null; dialogOpen = true"
+      />
 
-      <!-- Empty state: search or filter yields no results -->
-      <div
+      <RyderEmptyState
         v-else-if="filteredReminders.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div class="mb-4 p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-          <UIcon
-            name="heroicons:magnifying-glass"
-            class="w-8 h-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No results found
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
-          Try a different search or filter.
-        </p>
-        <div class="flex gap-3">
-          <button
-            v-if="searchQuery"
-            class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-            @click="searchQuery = ''"
-          >
-            Clear search
-          </button>
-          <button
-            v-if="filter !== 'all'"
-            class="text-xs text-gray-400 hover:text-gray-600 font-medium"
-            @click="filter = 'all'"
-          >
-            Clear filter
-          </button>
-        </div>
-      </div>
+        title="No results found"
+        description="Try a different search or filter."
+        icon="heroicons:magnifying-glass"
+        action-label="Clear filters"
+        @action="searchQuery = ''; filter = 'all'"
+      />
 
       <!-- Reminder list -->
       <div v-else class="flex flex-col gap-2">
@@ -246,6 +211,10 @@ onUnmounted(() => clearSearch());
         {{ reminderStore.reminders.length }}
       </p>
       <p class="text-xs text-gray-400 dark:text-gray-500">reminders</p>
+    </template>
+
+    <template #modal_content>
+      <ReminderDialog v-model:open="dialogOpen" :reminder="editingReminder" />
     </template>
   </NuxtLayout>
 </template>

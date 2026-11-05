@@ -98,6 +98,12 @@ function relativeTime(iso: string) {
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="notificationStore.notifications.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Notifications
+      </h1>
+    </template>
+
     <template #main_content>
       <!-- Toolbar -->
       <div class="flex items-center justify-between mb-5">
@@ -132,28 +138,12 @@ function relativeTime(iso: string) {
         </button>
       </div>
 
-      <!-- Empty state -->
-      <div
+      <RyderEmptyState
         v-if="filtered.length === 0"
-        class="flex flex-col items-center justify-center py-24 text-center"
-      >
-        <div class="mb-4 p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-          <UIcon
-            name="heroicons:bell-slash"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {{ filter === "unread" ? "All caught up" : "No notifications" }}
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500">
-          {{
-            filter === "unread"
-              ? "You have no unread notifications."
-              : "Nothing here yet."
-          }}
-        </p>
-      </div>
+        :title="filter === 'unread' ? 'All caught up' : 'No notifications'"
+        :description="filter === 'unread' ? 'You have no unread notifications.' : 'Nothing here yet.'"
+        icon="heroicons:bell-slash"
+      />
 
       <!-- Notification list -->
       <div v-else class="flex flex-col gap-2">

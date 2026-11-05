@@ -9,6 +9,7 @@ pub mod note_categories;
 pub mod notes;
 pub mod notifications;
 pub mod one_time_password;
+pub mod paste_bins;
 pub mod recycle_bin;
 pub mod reminder;
 pub mod revoked_token;
@@ -30,6 +31,7 @@ seaography::register_entity_modules!([
     notes,
     notifications,
     one_time_password,
+    paste_bins,
     recycle_bin,
     reminder,
     revoked_token,

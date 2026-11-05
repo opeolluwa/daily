@@ -69,6 +69,12 @@ async function handleCreate(payload: {
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="bookmarkStore.bookmarks.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Bookmarks
+      </h1>
+    </template>
+
     <template #primary_cta>
       <!-- Desktop: full label -->
       <div
@@ -111,71 +117,23 @@ async function handleCreate(payload: {
         <span class="text-sm">Loading bookmarks…</span>
       </div>
 
-      <!-- Empty state: no bookmarks at all -->
-      <div
+      <RyderEmptyState
         v-else-if="bookmarkStore.bookmarks.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center gap-3"
-      >
-        <div
-          class="size-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
-        >
-          <UIcon
-            name="heroicons:bookmark"
-            class="size-7 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-          No bookmarks yet
-        </p>
-        <p class="text-xs text-gray-400 dark:text-gray-500 max-w-xs">
-          Save links you want to revisit.
-        </p>
+        title="No bookmarks yet"
+        description="Save links you want to revisit."
+        icon="heroicons:bookmark"
+        action-label="Create bookmark"
+        @action="showAddModal = true"
+      />
 
-        <UButton
-          variant="link"
-          class="text-xs text-primary-500 hover:text-primary-600 font-medium cursor-pointer"
-          @click="showAddModal = true"
-        >
-          Create bookmark
-        </UButton>
-      </div>
-
-      <!-- Empty state: search / tag filter has no results -->
-      <div
+      <RyderEmptyState
         v-else-if="filtered.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center gap-3"
-      >
-        <div
-          class="size-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
-        >
-          <UIcon
-            name="heroicons:magnifying-glass"
-            class="size-7 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-          No results found
-        </p>
-        <p class="text-xs text-gray-400 dark:text-gray-500 max-w-xs">
-          Try a different search term or tag.
-        </p>
-        <div class="flex gap-3">
-          <button
-            v-if="searchQuery"
-            class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-            @click="searchQuery = ''"
-          >
-            Clear search
-          </button>
-          <button
-            v-if="activeTag !== 'all'"
-            class="text-xs text-gray-400 hover:text-gray-600 font-medium"
-            @click="activeTag = 'all'"
-          >
-            Clear filter
-          </button>
-        </div>
-      </div>
+        title="No results found"
+        description="Try a different search term or tag."
+        icon="heroicons:magnifying-glass"
+        action-label="Clear filters"
+        @action="searchQuery = ''; activeTag = 'all'"
+      />
 
       <!-- Bookmark list -->
       <div v-else class="flex flex-col gap-3">

@@ -34,25 +34,33 @@ const isDark = computed({
   set: (v) => (colorMode.preference = v ? "dark" : "light"),
 });
 
+const preferenceStore = useUserPreferenceStore();
+
 const userMenuItems = computed(() => [
-  {
-    label: authStore.isGuest
-      ? "Guest mode"
-      : useUserPreferenceStore().fullName || "Account",
-    icon: authStore.isGuest ? "heroicons:user" : "heroicons:user-circle",
-    class: "text-gray-500 dark:text-gray-400 pointer-events-none",
-    onSelect: () => {},
-  },
-  {
-    label: authStore.isGuest ? "Exit" : "Logout",
-    icon: "heroicons:arrow-right-start-on-rectangle",
-    class: "text-red-500 dark:text-red-400",
-    onSelect: () => {
-      authStore.clearSession();
-      authStore.exitGuestMode();
-      navigateTo("/auth/login");
+  [
+    {
+      label: "Profile",
+      icon: "i-lucide-user",
+      onSelect: () => navigateTo("/settings?section=profile"),
     },
-  },
+    {
+      label: "Workspaces",
+      icon: "heroicons:briefcase",
+      onSelect: () => navigateTo("/settings?section=workspaces"),
+    },
+  ],
+  [
+    {
+      label: authStore.isGuest ? "Exit" : "Logout",
+      icon: "heroicons:arrow-right-start-on-rectangle",
+      class: "text-red-500 dark:text-red-400",
+      onSelect: () => {
+        authStore.clearSession();
+        authStore.exitGuestMode();
+        navigateTo("/auth/login");
+      },
+    },
+  ],
 ]);
 
 function onSearchInput(val: string) {
@@ -211,7 +219,7 @@ useEventListener("keydown", (e: KeyboardEvent) => {
             isOpen = false;
             searchInputRef?.blur();
           "
-        >
+        />
         <kbd
           v-if="!searchQuery"
           class="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono select-none"
@@ -261,16 +269,24 @@ useEventListener("keydown", (e: KeyboardEvent) => {
           :items="userMenuItems"
           :ui="{
             content:
-              'min-w-48 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 py-1.5',
+              'min-w-56 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1.5',
             item: 'rounded-lg mx-1 px-3 py-2 gap-2.5 text-sm transition-colors duration-150',
             separator: 'my-1 mx-2',
           }"
         >
-          <UUser
-            size="sm"
+          <UAvatar
+            icon="i-lucide-user"
+            size="md"
             class="cursor-pointer"
-            :avatar="{ src: 'https://i.pravatar.cc/150?u=john-doe' }"
           />
+
+          <template #header>
+            <div class="px-3 py-2.5 border-b border-gray-100 dark:border-gray-700">
+              <p class="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
+                {{ authStore.isGuest ? 'Guest mode' : preferenceStore.fullName || 'Account' }}
+              </p>
+            </div>
+          </template>
         </UDropdownMenu>
       </div>
     </div>

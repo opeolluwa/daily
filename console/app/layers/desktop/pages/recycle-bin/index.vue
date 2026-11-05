@@ -107,6 +107,12 @@ onUnmounted(() => {
 
 <template>
   <NuxtLayout name="default">
+    <template #page_title>
+      <h1 v-if="recycleBinStore.entries.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Recycle Bin
+      </h1>
+    </template>
+
     <template #primary_cta>
       <button
         v-if="recycleBinStore.entries.length !== 0"
@@ -155,58 +161,21 @@ onUnmounted(() => {
         <USkeleton v-for="i in 4" :key="i" class="h-14 rounded-lg" />
       </div>
 
-      <!-- Empty state: bin is empty -->
-      <div
+      <RyderEmptyState
         v-else-if="recycleBinStore.entries.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div
-          class="mb-4 p-2 flex justify-center items-center rounded-full bg-gray-100 dark:bg-gray-800"
-        >
-          <UIcon
-            name="heroicons:trash"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Recycle bin is empty
-        </h3>
-        <p class="text-xs text-gray-400 dark:text-gray-500">
-          Deleted items will appear here.
-        </p>
-      </div>
+        title="Recycle bin is empty"
+        description="Deleted items will appear here."
+        icon="heroicons:trash"
+      />
 
-      <!-- Empty state: filter yields no results -->
-      <div
+      <RyderEmptyState
         v-else-if="filteredEntries.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div class="mb-4 p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-          <UIcon
-            name="heroicons:magnifying-glass"
-            class="w-8 h-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No results found
-        </h3>
-        <div class="flex gap-3 mt-3">
-          <button
-            v-if="searchQuery"
-            class="text-xs text-primary-500 hover:text-primary-600 font-medium"
-            @click="searchQuery = ''"
-          >
-            Clear search
-          </button>
-          <button
-            v-if="typeFilter !== 'all'"
-            class="text-xs text-gray-400 hover:text-gray-600 font-medium"
-            @click="typeFilter = 'all'"
-          >
-            Clear filter
-          </button>
-        </div>
-      </div>
+        title="No results found"
+        description="Try a different search or filter."
+        icon="heroicons:magnifying-glass"
+        action-label="Clear filters"
+        @action="searchQuery = ''; typeFilter = 'all'"
+      />
 
       <!-- Entry list -->
       <div v-else class="flex flex-col gap-2">

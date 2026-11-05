@@ -122,7 +122,7 @@ async function handleSubmit() {
               label="Name"
               type="text"
               name="workspace-name"
-              placeholder="Lunar"
+              placeholder="Daily"
               :disabled="loading"
             />
             <p v-if="errors.name" class="-mt-3 text-xs text-red-500">

@@ -16,7 +16,6 @@ const plans = computed(() => [
       "Local storage only",
       "All core modules (Notes, Tasks, Todo, Calendar)",
       "Unlimited entries",
-      "AI via local Ollama",
     ],
     missing: ["Cloud sync", "Multi-device access", "Priority support"],
   },

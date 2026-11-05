@@ -236,10 +236,6 @@ const UNSUPPORTED = new Set([
   "list_alarm_sounds",
   "play_alarm_sound",
   "stop_alarm_sound",
-  "is_ollama_installed",
-  "check_ai_model",
-  "pull_ai_model",
-  "generate_stream",
 ]);
 
 async function dispatchBrowser(

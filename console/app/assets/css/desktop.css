@@ -1,11 +1,11 @@
 @reference "./main.css";
 
 .titlebar {
-  @apply fixed top-0 left-0 right-0 h-14 border-b rounded-t-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 items-center p-2;
+  @apply fixed top-0 left-0 right-0 h-14 border-b rounded-t-xl border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 items-center p-2;
 }
 
 #wild_almonds_app {
-  @apply mt-14 rounded-b-xl overflow-hidden bg-gray-50 dark:bg-app-dark-800 ring-1 ring-gray-200/80 dark:ring-white/10;
+  @apply mt-14 rounded-b-xl overflow-hidden bg-gray-50 dark:bg-app-dark-800 ring-1 ring-gray-200/80 dark:ring-white/[0.15];
 }
 
 #auth_layout form {

@@ -10,13 +10,6 @@ const route = useRoute();
 const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
 
-const pageTitle = computed(() => {
-  const raw = route.name?.toString().replaceAll("-", " ") ?? "";
-  return raw
-    .split(" ")
-    .map((w) => _.capitalize(w))
-    .join(" ");
-});
 </script>
 
 <template>
@@ -34,11 +27,7 @@ const pageTitle = computed(() => {
           class="flex-1 overflow-y-auto scrollbar-config p-6 bg-gray-50 dark:bg-app-dark-800"
         >
           <div class="flex items-center gap-3 mb-1" />
-          <slot name="page_title">
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-               {{ pageTitle }} 
-            </h1>
-          </slot>
+          <slot name="page_title"> </slot>
 
           <div
             v-if="

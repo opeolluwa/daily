@@ -5,7 +5,6 @@
 - [Node.js](https://nodejs.org/) >= 18
 - [Rust](https://www.rust-lang.org/tools/install)
 - [just](https://github.com/casey/just)
-- [Ollama](https://ollama.com/) _(optional — required for AI features)_
 
 ## Setup
 

@@ -131,9 +131,6 @@ importers:
       nuxt-seo-utils:
         specifier: 9.0.1
         version: 9.0.1(18dcc1a20f3b8a9b0a8ce1d30cbeeee3)
-      ollama:
-        specifier: ^0.6.4
-        version: 0.6.4
       pinia-plugin-persistedstate:
         specifier: ^4.7.1
         version: 4.7.1(@nuxt/kit@4.6.4(@nuxt/schema@4.6.4)(confbox@0.2.4)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(oxc-parser@0.141.0)(rolldown@1.2.16)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))))(@pinia/nuxt@1.0.3(@nuxt/schema@4.6.4)(confbox@0.2.4)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(oxc-parser@0.141.0)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))(rolldown@1.2.16)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))))(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))
@@ -1697,7 +1694,7 @@ packages:
     engines: {node: '>=20.11.1'}
 
   '@opeolluwa/ryder@https://codeload.github.com/opeolluwa/ryder/tar.gz/3cd2b6f32c9300310071fa4f8fce4d3e18171e69':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/opeolluwa/ryder/tar.gz/3cd2b6f32c9300310071fa4f8fce4d3e18171e69}
+    resolution: {gitHosted: true, integrity: sha512-GsINoFVWLgCXLZWgQsnDAgPu80uRs/mGofRIeZAmN05gKziHgRTX2NY3VmXw4r9VRf7yXzv5DJB+xXsq1LMkfg==, tarball: https://codeload.github.com/opeolluwa/ryder/tar.gz/3cd2b6f32c9300310071fa4f8fce4d3e18171e69}
     version: 1.6.11
     peerDependencies:
       '@domternal/core': ^1.1.1
@@ -5229,9 +5226,6 @@ packages:
   ohash@2.0.12:
     resolution: {integrity: sha512-65S/5gk9YSsaRjcyf7Nfa6h/d3E8/1gslpXfI4W7Dxn/oap8IKRuNT5VXkLQ1YFKIEg4apRY4Pj6aiwFzrDdmw==}
 
-  ollama@0.6.4:
-    resolution: {integrity: sha512-KzM6b5Sq0TgipeMTdImuELr/V4eNqrTf37PRzUTHCPPieFmboYw6qPn+pX7+lg0nSP1jsKwy4AFkiQFXhqHeZA==}
-
   on-change@6.0.2:
     resolution: {integrity: sha512-08+12qcOVEA0fS9g/VxKS27HaT94nRutUT77J2dr8zv/unzXopvhBuF8tNLWsoLQ5IgrQ6eptGeGqUYat82U1w==}
     engines: {node: '>=20'}
@@ -6486,9 +6480,6 @@ packages:
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
-
-  whatwg-fetch@3.6.20:
-    resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
 
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
@@ -12349,10 +12340,6 @@ snapshots:
 
   ohash@2.0.12: {}
 
-  ollama@0.6.4:
-    dependencies:
-      whatwg-fetch: 3.6.20
-
   on-change@6.0.2: {}
 
   on-finished@2.4.2:
@@ -13761,8 +13748,6 @@ snapshots:
   webidl-conversions@3.0.1: {}
 
   webpack-virtual-modules@0.6.2: {}
-
-  whatwg-fetch@3.6.20: {}
 
   whatwg-url@5.0.0:
     dependencies:

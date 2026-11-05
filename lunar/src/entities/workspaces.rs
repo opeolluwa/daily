@@ -32,6 +32,8 @@ pub enum Relation {
     Notes,
     #[sea_orm(has_many = "super::notifications::Entity")]
     Notifications,
+    #[sea_orm(has_many = "super::paste_bins::Entity")]
+    PasteBins,
     #[sea_orm(has_many = "super::recycle_bin::Entity")]
     RecycleBin,
     #[sea_orm(has_many = "super::reminder::Entity")]
@@ -75,6 +77,12 @@ impl Related<super::notes::Entity> for Entity {
 impl Related<super::notifications::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Notifications.def()
+    }
+}
+
+impl Related<super::paste_bins::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PasteBins.def()
     }
 }
 
@@ -132,6 +140,8 @@ pub enum RelatedEntity {
     Notes,
     #[sea_orm(entity = "super::notifications::Entity")]
     Notifications,
+    #[sea_orm(entity = "super::paste_bins::Entity")]
+    PasteBins,
     #[sea_orm(entity = "super::recycle_bin::Entity")]
     RecycleBin,
     #[sea_orm(entity = "super::reminder::Entity")]
