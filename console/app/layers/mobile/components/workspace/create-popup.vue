@@ -117,7 +117,7 @@ async function handleSubmit() {
           style="-webkit-overflow-scrolling: touch"
         >
           <div class="flex flex-col gap-4">
-            <AppInput
+            <RyderInput
               v-model="form.name"
               label="Name"
               type="text"
@@ -129,7 +129,7 @@ async function handleSubmit() {
               {{ errors.name }}
             </p>
 
-            <AppInput
+            <RyderInput
               v-model="form.description"
               label="Description (optional)"
               type="text"

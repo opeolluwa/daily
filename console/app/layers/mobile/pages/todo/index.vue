@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppFab from "@mobile/components/app/fab.vue";
 import { useTodoStore } from "@shared/stores/todo";
-import EmptyState from "@shared/components/app/EmptyState.vue";
 
 definePageMeta({ name: "Tasks" });
 
@@ -34,7 +33,7 @@ function handleCreated() {
 
       <!-- Empty state: no todos at all -->
       <div v-else-if="todoStore.todos.length === 0">
-        <EmptyState
+        <RyderEmptyState
           title="No task yet"
           description="Create your first task to get started."
           icon="ri:calendar-todo-line"

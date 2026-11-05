@@ -3,7 +3,6 @@ import { useBookmarkStore } from "@shared/stores/bookmarks";
 import { safeOpenUrl as openUrl } from "@shared/utils/safe-open-url";
 import AppFab from "@mobile/components/app/fab.vue";
 import BookmarkCard from "@mobile/components/bookmark/bookmark-card.vue";
-import EmptyState from "@shared/components/app/EmptyState.vue";
 
 definePageMeta({ name: "Bookmarks" });
 
@@ -37,7 +36,7 @@ function handleCreated() {
 
       <!-- Empty state: no bookmarks at all -->
       <div v-else-if="bookmarkStore.bookmarks.length === 0">
-        <EmptyState
+        <RyderEmptyState
           title="No bookmarks yet"
           description="Create your first bookmark to get started."
           icon="ri:bookmark-line"

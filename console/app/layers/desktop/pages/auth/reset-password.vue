@@ -14,15 +14,15 @@ const {
 
 <template>
   <div class="flex flex-col gap-5">
-    <AppPageHeader
+    <RyderPageHeader
       v-if="step === 'email'"
       title="Reset your password"
-      description="Enter your account email and we'll send you a reset code."
+      subtitle="Enter your account email and we'll send you a reset code."
     />
-    <AppPageHeader
+    <RyderPageHeader
       v-else
       title="Set a new password"
-      description="Choose a new password for your account."
+      subtitle="Choose a new password for your account."
     />
 
     <form
@@ -32,7 +32,7 @@ const {
       "
     >
       <template v-if="step === 'email'">
-        <AppInput
+        <RyderInput
           v-model="form.email"
           type="email"
           name="email"
@@ -47,15 +47,14 @@ const {
 
         <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-        <AppButton type="submit" :loading="loading" :disabled="loading">
+        <RyderButton type="submit" size="md" class="w-full" :loading="loading" :disabled="loading">
           Send reset code
-        </AppButton>
+        </RyderButton>
       </template>
 
       <template v-else>
-        <AppInput
+        <RyderPasswordInput
           v-model="form.password"
-          type="password"
           name="password"
           label="New password"
           hint="required"
@@ -66,9 +65,8 @@ const {
           {{ errors.password }}
         </p>
 
-        <AppInput
+        <RyderPasswordInput
           v-model="form.confirmPassword"
-          type="password"
           name="confirmPassword"
           label="Confirm new password"
           hint="required"
@@ -81,15 +79,15 @@ const {
 
         <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-        <AppButton
+        <RyderButton
           type="submit"
-          color="primary"
-          class="w-full py-3 bg-primary-500 hover:bg-primary-600 rounded-lg text-white font-medium disabled:opacity-50 text-center"
+          size="md"
+          class="w-full"
           :loading="loading"
           :disabled="loading"
         >
           Update password
-        </AppButton>
+        </RyderButton>
       </template>
     </form>
 

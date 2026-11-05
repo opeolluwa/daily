@@ -37,7 +37,7 @@ async function handleSubmit() {
 <template>
   <form class="flex flex-col gap-5" @submit.prevent="handleSubmit">
     <div class="flex flex-col gap-1">
-      <AppInput
+      <RyderInput
         v-model="title"
         hint="(optional)"
         placeholder="My snippet"
@@ -49,7 +49,7 @@ async function handleSubmit() {
 
     <!-- Language -->
 
-    <AppSelect
+    <RyderSelect
       v-model="language"
       name="language"
       label="Language"

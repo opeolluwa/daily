@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import EmptyState from "@shared/components/app/EmptyState.vue";
 import NotesCard from "@mobile/components/notes/card.vue";
 import AppFab from "@mobile/components/app/fab.vue";
 import { sortNotes, type NoteSort } from "@shared/utils/sorting";
@@ -50,7 +49,7 @@ const filteredNotes = computed(() => {
       <template v-else>
         <!-- Empty state: no notes at all -->
         <div v-if="noteStore.notes.length === 0">
-          <EmptyState
+          <RyderEmptyState
             title="No notes yet"
             description="Create your first note to get started."
             icon="ri:booklet-line"
@@ -61,7 +60,7 @@ const filteredNotes = computed(() => {
 
         <template v-else>
           <!-- Empty state: search has no results -->
-          <EmptyState
+          <RyderEmptyState
             v-if="filteredNotes.length === 0"
             title="No results found"
             description="Try a different search term."

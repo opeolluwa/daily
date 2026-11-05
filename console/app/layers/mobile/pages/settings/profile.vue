@@ -58,7 +58,7 @@ async function handleSave() {
     />
 
     <form class="mt-6 flex flex-col gap-y-5">
-      <AppInput
+      <RyderInput
         v-model="form.firstName"
         type="text"
         placeholder="John"
@@ -66,7 +66,7 @@ async function handleSave() {
         name="first-name"
       />
 
-      <AppInput
+      <RyderInput
         v-model="form.lastName"
         type="text"
         placeholder="Doe"
@@ -74,7 +74,7 @@ async function handleSave() {
         name="last-name"
       />
 
-      <AppInput
+      <RyderInput
         v-model="form.email"
         type="email"
         placeholder="john@example.com"
@@ -82,9 +82,9 @@ async function handleSave() {
         name="email"
       />
 
-      <AppButton :disabled="saving" class="justify-center" @click="handleSave">
+      <RyderButton size="md" class="w-full justify-center" :disabled="saving" @click="handleSave">
         {{ saving ? "Saving…" : "Save changes" }}
-      </AppButton>
+      </RyderButton>
     </form>
   </div>
 </template>

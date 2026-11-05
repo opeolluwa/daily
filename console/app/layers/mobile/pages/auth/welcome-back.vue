@@ -17,15 +17,14 @@ function handleLogin() {
 
 <template>
   <div class="flex flex-col flex-1">
-    <AppPageHeader
+    <RyderPageHeader
       title="Welcome back, Adeoye"
-      description="Enter your password to continue."
+      subtitle="Enter your password to continue."
     />
     <form @submit.prevent="handleLogin">
       <div>
-        <AppInput
+        <RyderPasswordInput
           v-model="form.password"
-          type="password"
           name="password"
           label="Password"
           placeholder="••••••••"
@@ -47,15 +46,15 @@ function handleLogin() {
 
       <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-      <AppButton
+      <RyderButton
         type="submit"
-        class="text-center align-center"
+        class="w-full text-center align-center"
         :loading="loading"
         :disabled="loading"
-        size="xl"
+        size="md"
       >
         Sign in
-      </AppButton>
+      </RyderButton>
     </form>
   </div>
 </template>

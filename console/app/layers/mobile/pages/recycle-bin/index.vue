@@ -3,7 +3,6 @@ import {
   useRecycleBinStore,
   type RecycleBinItemType,
 } from "@shared/stores/recycle-bin";
-import EmptyState from "@shared/components/app/EmptyState.vue";
 
 definePageMeta({ name: "Recycle bin" });
 
@@ -133,7 +132,7 @@ onUnmounted(() => clearSearch());
 
     <!-- Empty state: bin is empty -->
     <div v-else-if="recycleBinStore.entries.length === 0">
-      <EmptyState
+      <RyderEmptyState
         title="Recycle bin is empty"
         description="Deleted items will appear here."
         icon="ri:delete-bin-line"
@@ -156,7 +155,7 @@ onUnmounted(() => clearSearch());
       </div>
 
       <!-- Empty state: filter/search yields no results -->
-      <EmptyState
+      <RyderEmptyState
         v-if="filteredEntries.length === 0"
         title="No results found"
         description="Try a different search term or filter."

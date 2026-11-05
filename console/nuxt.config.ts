@@ -1,7 +1,7 @@
 import { resolve } from "path";
 
-// const isMobile = process.env.NUXT_APP_TARGET === "mobile";
-const isMobile = true
+const isMobile = process.env.NUXT_APP_TARGET === "mobile";
+// const isMobile = true
 
 export default defineNuxtConfig({
   srcDir: "app",
@@ -20,6 +20,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
 
+  googleFonts: {
+    families: {
+      Lato: [400, 700],
+    },
+    display: "swap",
+    download: true,
+  },
+  
   runtimeConfig: {
     public: {
       apiBaseUrl: "http://localhost:8000",
@@ -36,14 +44,32 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
     "@vueuse/nuxt",
+    "nuxt-seo-utils",
   ],
 
   css: [
-    "./assets/css/main.css",
+    "~/assets/css/main.css",
     "highlight.js/styles/atom-one-dark.css",
     "@domternal/theme",
-    isMobile ? "./assets/css/mobile.css" : "./assets/css/desktop.css",
+    isMobile ? "~/assets/css/mobile.css" : "~/assets/css/desktop.css",
   ],
+
+  i18n: {
+    defaultLocale: "en",
+    locales: ["en"],
+  },
+
+  googleFonts: {
+    families: {
+      Lato: [400, 700],
+    },
+    display: "swap",
+  },
+
+  site: {
+    url: "https://localhost",
+    name: "Daily Console",
+  },
 
   colorMode: {
     preference: "system",

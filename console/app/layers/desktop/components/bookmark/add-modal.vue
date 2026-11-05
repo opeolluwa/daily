@@ -43,7 +43,7 @@ async function handleSubmit() {
   <UModal v-model:open="open" title="Add Bookmark">
     <template #body>
       <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-        <AppInput
+        <RyderInput
           v-model="form.title"
           placeholder="Bookmark title"
           label="Title"
@@ -51,7 +51,7 @@ async function handleSubmit() {
           :disabled="submitting"
         />
 
-        <AppInput
+        <RyderInput
           v-model="form.url"
           label="URL"
           name="bookmark url"
@@ -59,7 +59,7 @@ async function handleSubmit() {
           :disabled="submitting"
         />
 
-        <AppSelect
+        <RyderSelect
           v-model="form.tag"
           :items="
             tags.map((t) => ({ label: _.capitalize(t.label), value: t.value }))
@@ -67,7 +67,6 @@ async function handleSubmit() {
           value-key="value"
           label="Tag"
           name="bookmark tag"
-          :ui="{ base: 'almond_input_box' }"
           :disabled="submitting"
         />
 

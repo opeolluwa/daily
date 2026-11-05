@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useNotificationStore } from "@shared/stores/notifications";
-import EmptyState from "@shared/components/app/EmptyState.vue";
 
 definePageMeta({ name: "Notifications" });
 
@@ -23,7 +22,7 @@ function handleDismiss(identifier: string) {
       <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-xl" />
     </div>
 
-    <EmptyState
+    <RyderEmptyState
       v-else-if="notificationStore.notifications.length === 0"
       title="You're all caught up"
       description="New notifications will appear here."

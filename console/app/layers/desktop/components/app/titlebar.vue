@@ -8,7 +8,7 @@ import { computed, onMounted, watch } from "vue";
 import { IS_WEB } from "@shared/env";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
-const iconSize = "sm";
+const iconSize = "md";
 const authStore = useAuthStore();
 const syncQueueStore = useSyncQueueStore();
 const isOnline = computed(() => syncQueueStore.isOnline);
@@ -127,7 +127,7 @@ useEventListener("keydown", (e: KeyboardEvent) => {
 
       <!-- web control/mobile -->
 
-      <AppButton
+      <RyderButton
         size="xl"
         color="neutral"
         variant="ghost"

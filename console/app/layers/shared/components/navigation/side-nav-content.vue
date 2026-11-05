@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { items, secondaryRoutes } from "@shared/data/routes";
+import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
+
+const preferenceStore = useUserPreferenceStore();
 
 withDefaults(
   defineProps<{
@@ -53,16 +56,8 @@ function onNavigate() {
         v-for="(item, index) in items"
         :key="item.type === 'label' ? `label-${index}` : item.path"
       >
-        <!-- LABEL -->
-        <div
-          v-if="item.type === 'label' && !collapsed"
-          class="mt-6 px-2 mb-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500"
-        >
-          {{ item.name }}
-        </div>
-
         <!-- LINK -->
-        <UTooltip v-else :text="item.name" :disabled="!collapsed" side="right">
+        <UTooltip :text="item.name" :disabled="!collapsed" side="right">
           <NuxtLink
             :to="item.path"
             class="flex items-center w-full h-11 mt-1 gap-2 px-2 rounded-xl transition-colors"
@@ -93,7 +88,7 @@ function onNavigate() {
     </div>
 
     <!-- Footer -->
-    <div class="shrink-0 px-3 pt-1 pb-4">
+    <div class="shrink-0 px-3 pt-1 pb-4 mt-auto">
       <USeparator class="mb-3" />
 
       <!-- THEME -->
@@ -116,35 +111,65 @@ function onNavigate() {
       </UTooltip>
 
       <!-- SECONDARY -->
-      <template v-for="item in secondaryRoutes" :key="item.path">
-        <UTooltip :text="item.name" :disabled="!collapsed" side="right">
-          <NuxtLink
-            :to="item.path"
-            class="flex items-center w-full h-11 mt-1 gap-2 px-2 rounded-xl transition-colors"
-            :class="[
-              collapsed ? 'justify-center px-0' : '',
-              isActive(item.path)
-                ? 'bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-400 font-medium'
-                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white',
-            ]"
-            @click="onNavigate"
-          >
-            <UIcon
-              :name="isActive(item.path) ? item.activeIcon : item.icon"
-              class="size-5 shrink-0"
-              :class="
+      <div class="mt-auto">
+        <template v-for="item in secondaryRoutes" :key="item.path">
+          <UTooltip :text="item.name" :disabled="!collapsed" side="right">
+            <NuxtLink
+              :to="item.path"
+              class="flex items-center w-full h-11 mt-1 gap-2 px-2 rounded-xl transition-colors"
+              :class="[
+                collapsed ? 'justify-center px-0' : '',
                 isActive(item.path)
-                  ? 'text-primary-500'
-                  : 'text-gray-500 dark:text-gray-400'
-              "
-            />
+                  ? 'bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-400 font-medium'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white',
+              ]"
+              @click="onNavigate"
+            >
+              <UIcon
+                :name="isActive(item.path) ? item.activeIcon : item.icon"
+                class="size-5 shrink-0"
+                :class="
+                  isActive(item.path)
+                    ? 'text-primary-500'
+                    : 'text-gray-500 dark:text-gray-400'
+                "
+              />
 
-            <span v-if="!collapsed" class="text-sm truncate">
-              {{ item.name }}
-            </span>
-          </NuxtLink>
-        </UTooltip>
-      </template>
+              <span v-if="!collapsed" class="text-sm truncate">
+                {{ item.name }}
+              </span>
+            </NuxtLink>
+          </UTooltip>
+        </template>
+      </div>
+
+      <!-- User card -->
+      <USeparator class="my-3" />
+      <UTooltip
+        :text="preferenceStore.fullName || 'User'"
+        :disabled="!collapsed"
+        side="right"
+      >
+        <div
+          class="flex items-center gap-2 px-2 py-2 rounded-xl"
+          :class="collapsed ? 'justify-center' : ''"
+        >
+          <UAvatar :icon="'i-lucide-user'" size="sm" class="shrink-0" />
+          <div v-if="!collapsed" class="min-w-0 flex-1">
+            <p
+              class="text-sm font-medium text-gray-900 dark:text-white truncate"
+            >
+              {{ preferenceStore.fullName || "User" }}
+            </p>
+            <p
+              v-if="preferenceStore.preference?.email"
+              class="text-xs text-gray-500 dark:text-gray-400 truncate"
+            >
+              {{ preferenceStore.preference.email }}
+            </p>
+          </div>
+        </div>
+      </UTooltip>
     </div>
   </div>
 </template>
