@@ -7,12 +7,12 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
 <template>
   <div class="flex flex-col gap-5">
     <RyderPageHeader
+      class="justify-center"
       title="Create your account"
       subtitle="Get started in a few seconds."
-      class="text-center"
     />
 
-    <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
+    <form class="flex flex-col space-y-4" @submit.prevent="handleSubmit">
       <RyderInput
         v-model="form.email"
         type="email"

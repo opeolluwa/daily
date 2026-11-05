@@ -16,17 +16,19 @@ const {
   <div class="flex flex-col gap-5">
     <RyderPageHeader
       v-if="step === 'email'"
+      class="justify-center"
       title="Reset your password"
       subtitle="Enter your account email and we'll send you a reset code."
     />
     <RyderPageHeader
       v-else
+      class="text-center"
       title="Set a new password"
       subtitle="Choose a new password for your account."
     />
 
     <form
-      class="flex flex-col gap-4"
+      class="flex flex-col space-y-4"
       @submit.prevent="
         step === 'email' ? handleRequestCode() : handleSetPassword()
       "

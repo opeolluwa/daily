@@ -28,9 +28,13 @@ const description = computed(() =>
 
 <template>
   <div class="flex flex-col gap-5">
-    <RyderPageHeader :title="title" :subtitle="description" />
+    <RyderPageHeader
+      class="justify-center"
+      :title="title"
+      :subtitle="description"
+    />
 
-    <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
+    <form class="flex flex-col space-y-5" @submit.prevent="handleSubmit">
       <div>
         <RyderInput
           v-model="otp"
