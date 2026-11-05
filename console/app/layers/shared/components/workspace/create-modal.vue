@@ -92,7 +92,6 @@ async function handleSubmit() {
       <RyderInput
         v-model="form.name"
         label="Name"
-        hint="required"
         type="text"
         name="workspace-name"
         placeholder="Daily"
@@ -102,7 +101,6 @@ async function handleSubmit() {
       <RyderInput
         v-model="form.description"
         label="Description"
-        hint="required"
         type="text"
         name="workspace-description"
         placeholder="Organize files and tasks"

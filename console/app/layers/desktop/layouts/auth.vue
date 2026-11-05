@@ -12,7 +12,7 @@
       class="pointer-events-none absolute -bottom-24 -right-24 size-96 rounded-full bg-violet-300/20 dark:bg-violet-500/10 blur-3xl hidden md:block"
     />
 
-    <div
+    <RyderCard
       class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 pb-8 pt-12 px-8"
     >
       <Transition
@@ -23,7 +23,7 @@
       >
         <slot />
       </Transition>
-    </div>
+    </RyderCard>
 
     <slot name="below-card" />
   </div>

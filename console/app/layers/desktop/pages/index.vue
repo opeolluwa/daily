@@ -68,24 +68,7 @@ const statPills = computed(() => [
     </template>
 
     <template #main_content>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="lg:col-span-2">
-          <HomeTodos
-            :todos="todoStore.todos"
-            :loading="todoStore.loading"
-            @delete="(id) => todoStore.deleteTodo(id)"
-          />
-        </div>
-        <div>
-          <HomeNotes :notes="recentNotes" :loading="noteStore.loading" />
-        </div>
-        <div class="lg:col-span-3">
-          <HomeBookmarks
-            :bookmarks="recentBookmarks"
-            :loading="bookmarkStore.loading"
-          />
-        </div>
-      </div>
+
     </template>
   </NuxtLayout>
 </template>

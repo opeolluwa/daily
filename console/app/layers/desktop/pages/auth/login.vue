@@ -28,7 +28,6 @@ onMounted(() => {
           type="email"
           name="email"
           label="Email"
-          hint="required"
           placeholder="you@example.com"
           :disabled="loading"
         />
@@ -41,7 +40,6 @@ onMounted(() => {
             v-model="form.password"
             name="password"
             label="Password"
-            hint="required"
             placeholder="••••••••"
             :disabled="loading"
           />

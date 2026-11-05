@@ -9,6 +9,7 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
     <RyderPageHeader
       title="Create your account"
       subtitle="Get started in a few seconds."
+      class="text-center"
     />
 
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
@@ -17,7 +18,6 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
         type="email"
         name="email"
         label="Email"
-        hint="required"
         placeholder="you@example.com"
         :disabled="loading"
       />
@@ -29,7 +29,6 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
         v-model="form.password"
         name="password"
         label="Password"
-        hint="required"
         placeholder="At least 6 characters"
         :disabled="loading"
         :enable-password-toggle="false"
@@ -42,7 +41,6 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
         v-model="form.confirmPassword"
         name="confirmPassword"
         label="Confirm password"
-        hint="required"
         placeholder="Repeat your password"
         :disabled="loading"
         :enable-password-toggle="false"

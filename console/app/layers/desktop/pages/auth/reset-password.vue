@@ -37,7 +37,6 @@ const {
           type="email"
           name="email"
           label="Email"
-          hint="required"
           placeholder="you@example.com"
           :disabled="loading"
         />
@@ -57,7 +56,6 @@ const {
           v-model="form.password"
           name="password"
           label="New password"
-          hint="required"
           placeholder="At least 6 characters"
           :disabled="loading"
         />
@@ -69,7 +67,6 @@ const {
           v-model="form.confirmPassword"
           name="confirmPassword"
           label="Confirm new password"
-          hint="required"
           placeholder="Repeat your new password"
           :disabled="loading"
         />

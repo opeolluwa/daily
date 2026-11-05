@@ -148,7 +148,6 @@ async function handleSubmit() {
             label="Title"
             type="text"
             name="paste-title"
-            hint="(optional)"
             placeholder="Untitled paste"
             :disabled="loading"
             @input="handleTitleInput"
