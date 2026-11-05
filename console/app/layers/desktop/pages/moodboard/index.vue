@@ -105,7 +105,7 @@ async function handleDelete(filename: string) {
         </button>
       </div>
       <!-- Mobile: icon-only round FAB -->
-      <AppFab
+      <RyderFab
         :disabled="moodboardStore.uploading"
         :icon="
           moodboardStore.uploading ? 'heroicons:arrow-path' : 'heroicons:plus'

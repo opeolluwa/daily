@@ -28,19 +28,16 @@ const description = computed(() =>
 
 <template>
   <div class="flex flex-col gap-5">
-    <AppPageHeader :title="title" :description="description" />
+    <RyderPageHeader :title="title" :subtitle="description" />
 
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
       <div>
-        <AppNumberInput
+        <RyderInput
           v-model="otp"
           label="Verification code"
           name="otp"
           placeholder="••••••"
           :disabled="loading"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          :maxlength="6"
         />
         <div class="flex justify-end mt-1">
           <button
@@ -63,15 +60,15 @@ const description = computed(() =>
 
       <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-      <AppButton
+      <RyderButton
         type="submit"
-        color="primary"
-        class="w-full py-3 bg-primary-500 hover:bg-primary-600 rounded-lg text-white font-medium disabled:opacity-50 text-center"
+        size="md"
+        class="w-full"
         :loading="loading"
         :disabled="loading"
       >
         Verify code
-      </AppButton>
+      </RyderButton>
     </form>
 
     <p class="text-sm text-center text-gray-500 dark:text-gray-400">

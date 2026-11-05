@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import _ from "lodash";
 
-import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
-const preferenceStore = useUserPreferenceStore();
 const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
@@ -38,7 +36,7 @@ const pageTitle = computed(() => {
           <div class="flex items-center gap-3 mb-1" />
           <slot name="page_title">
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-              {{ pageTitle }}
+              <!-- {{ pageTitle }} -->
             </h1>
           </slot>
 
@@ -129,14 +127,8 @@ const pageTitle = computed(() => {
           <div class="shrink-0" style="height: env(safe-area-inset-top)" />
           <!-- Header -->
           <div
-            class="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0"
+            class="flex items-center justify-end px-4 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0"
           >
-            <UUser
-              :name="preferenceStore.fullName"
-              :description="preferenceStore.preference?.email"
-              :avatar="{ icon: 'i-lucide-user' }"
-              class="min-w-0 flex-1 truncate"
-            />
             <UButton
               size="sm"
               color="neutral"

@@ -17,5 +17,5 @@ defineProps<{
   </NuxtLink>
 
   <!-- Mobile: icon-only round FAB -->
-  <AppFab :icon="icon" :aria-label="label" @click="navigateTo(to)" />
+  <RyderFab :icon="icon" :aria-label="label" @click="navigateTo(to)" />
 </template>

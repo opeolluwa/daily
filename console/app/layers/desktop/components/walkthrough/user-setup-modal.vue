@@ -59,7 +59,7 @@ async function handleSubmit() {
     <template #body>
       <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
         <div class="grid grid-cols-2 gap-3">
-          <AppInput
+          <RyderInput
             v-model="form.firstName"
             label="First name"
             hint="required"
@@ -69,7 +69,7 @@ async function handleSubmit() {
             :disabled="loading"
           />
 
-          <AppInput
+          <RyderInput
             v-model="form.lastName"
             label="Last name"
             hint="required"
@@ -80,7 +80,7 @@ async function handleSubmit() {
           />
         </div>
 
-        <AppInput
+        <RyderInput
           v-model="form.email"
           label="Email"
           hint="required"
@@ -91,15 +91,16 @@ async function handleSubmit() {
         />
 
         <div class="flex justify-end pt-1">
-          <AppButton
+          <RyderButton
             type="submit"
             color="primary"
+            size="md"
             class="w-fit"
             :loading="loading"
             :disabled="loading"
           >
             Save and continue
-          </AppButton>
+          </RyderButton>
         </div>
       </form>
     </template>

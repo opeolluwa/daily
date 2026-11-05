@@ -71,8 +71,8 @@
   --color-primary-950: var(--app-primary-950);
 
   --color-primary: var(--color-primary-500);
-  --font-ios: "Poppins", sans-serif;
-  --font-material: "Poppins", sans-serif;
+  --font-ios: "Lato", sans-serif;
+  --font-material: "Lato", sans-serif;
 }
 
 html {
@@ -93,9 +93,9 @@ body {
   }
 }
 
-* {
+/** {
   user-select: none;
-}
+}*/
 
 .dark {
   --color-gray-900: var(--app-dark-900);

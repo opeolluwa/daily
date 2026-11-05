@@ -188,12 +188,14 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
         Workspaces
       </h2>
       <div class="w-36">
-        <AppButton
+        <RyderButton
+          size="md"
+          class="w-full"
           :disabled="workspaceStore.loading"
           @click="showCreateModal = true"
         >
           New workspace
-        </AppButton>
+        </RyderButton>
       </div>
     </div>
 

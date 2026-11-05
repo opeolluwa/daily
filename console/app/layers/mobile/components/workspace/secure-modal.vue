@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useWorkspacesStore } from "@shared/stores/workspaces";
-import AppInput from "@shared/components/app/Input.vue";
 
 const props = defineProps<{
   open: boolean;
@@ -101,18 +100,16 @@ async function handleSubmit() {
         <UFormField
           :label="targetWorkspace?.isSecured ? 'Current password' : 'Password'"
         >
-          <AppInput
+          <RyderPasswordInput
             v-model="password"
-            type="password"
             placeholder="Enter password"
             class="w-full"
             :disabled="submitting"
           />
         </UFormField>
         <UFormField v-if="!targetWorkspace?.isSecured" label="Confirm password">
-          <AppInput
+          <RyderPasswordInput
             v-model="confirm"
-            type="password"
             placeholder="Confirm password"
             class="w-full"
             :disabled="submitting"

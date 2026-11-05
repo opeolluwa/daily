@@ -120,17 +120,7 @@ export const mobileBottomNavRoutes: Route[] = [
 export const items: NavigationRoute[] = [
   ...primaryRoutes,
 
-  {
-    type: "label",
-    name: "Workspace",
-  },
-
   ...workspaceRoutes,
-
-  {
-    type: "label",
-    name: "Tools",
-  },
 
   ...toolRoutes,
 ];

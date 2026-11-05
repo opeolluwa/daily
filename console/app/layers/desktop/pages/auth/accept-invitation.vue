@@ -7,10 +7,10 @@ const { token, email, loading, submitError, handleAccept } =
 
 <template>
   <div class="flex flex-col gap-5">
-    <AppPageHeader
+    <RyderPageHeader
       class="text-center"
       title="You're invited!"
-      description="You've been invited to join a workspace on Lunar."
+      subtitle="You've been invited to join a workspace on Lunar."
     />
 
     <div
@@ -38,15 +38,15 @@ const { token, email, loading, submitError, handleAccept } =
     <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
     <div v-if="token" class="flex flex-col gap-3">
-      <AppButton
-        color="primary"
-        class="w-full py-3 bg-primary-500 hover:bg-primary-600 rounded-lg text-white font-medium disabled:opacity-50 text-center"
+      <RyderButton
+        size="md"
+        class="w-full"
         :loading="loading"
         :disabled="loading"
         @click="handleAccept"
       >
         Accept invitation
-      </AppButton>
+      </RyderButton>
 
       <p class="text-sm text-center text-gray-500 dark:text-gray-400">
         Prefer to sign in first?

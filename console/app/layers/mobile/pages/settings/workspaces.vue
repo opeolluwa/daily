@@ -110,7 +110,7 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
 
 <template>
   <div class="flex flex-col gap-4 mt-4">
-    <AppEmptyState
+    <RyderEmptyState
       v-if="!workspaces.length && !workspaceStore.loading"
       icon="heroicons:briefcase"
       title="No workspaces yet"

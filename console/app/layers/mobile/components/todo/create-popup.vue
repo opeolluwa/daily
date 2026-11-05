@@ -143,7 +143,7 @@ async function handleSubmit() {
           style="-webkit-overflow-scrolling: touch"
         >
           <div class="flex flex-col gap-4">
-            <AppInput
+            <RyderInput
               v-model="form.title"
               label="Title"
               type="text"

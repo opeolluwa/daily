@@ -6,13 +6,13 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
 
 <template>
   <div class="flex flex-col flex-1">
-    <AppPageHeader
+    <RyderPageHeader
       title="Create your account"
-      description="Get started in a few seconds."
+      subtitle="Get started in a few seconds."
     />
 
     <form @submit.prevent="handleSubmit">
-      <AppInput
+      <RyderInput
         v-model="form.email"
         type="email"
         name="email"
@@ -25,9 +25,8 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
         {{ errors.email }}
       </p>
 
-      <AppInput
+      <RyderPasswordInput
         v-model="form.password"
-        type="password"
         name="password"
         label="Password"
         placeholder="At least 6 characters"
@@ -39,9 +38,8 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
         {{ errors.password }}
       </p>
 
-      <AppInput
+      <RyderPasswordInput
         v-model="form.confirmPassword"
-        type="password"
         name="confirmPassword"
         label="Confirm password"
         placeholder="Repeat your password"
@@ -55,9 +53,9 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
 
       <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-      <AppButton type="submit" :loading="loading" :disabled="loading">
+      <RyderButton type="submit" class="w-full" size="md" :loading="loading" :disabled="loading">
         Create account
-      </AppButton>
+      </RyderButton>
     </form>
 
     <p class="text-sm text-left text-gray-500 dark:text-gray-400 pt-4">

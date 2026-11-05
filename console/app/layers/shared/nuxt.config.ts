@@ -11,7 +11,13 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
     "@vueuse/nuxt",
+    "@opeolluwa/ryder",
   ],
 
+  ryder: {
+    components: true,
+    layouts: true,
+    prefix: "Ryder",
+  },
   css: ["highlight.js/styles/atom-one-dark.css", "@domternal/theme"],
 });

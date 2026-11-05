@@ -84,7 +84,7 @@ async function handleCreate(payload: {
         </button>
       </div>
       <!-- Mobile: icon-only round FAB -->
-      <AppFab aria-label="Add Bookmark" @click="showAddModal = true" />
+      <RyderFab aria-label="Add Bookmark" @click="showAddModal = true" />
     </template>
 
     <template #main_content>

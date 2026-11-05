@@ -281,19 +281,20 @@ const workspaces = computed(() => [
             Create a duplicate of this {{ itemName }} in another workspace.
           </p>
 
-          <AppSelect
+          <RyderSelect
             v-model="targetWorkspaceId"
             placeholder="Select target workspace"
             :items="workspaces"
             class="w-full mt-8"
           />
-          <AppButton
+          <RyderButton
+            size="md"
             class="mt-2 w-fit ml-auto"
             :disabled="!targetWorkspaceId || isSubmitting"
             @click="handleDuplicate"
           >
             {{ isSubmitting ? "Processing..." : "Duplicate" }}
-          </AppButton>
+          </RyderButton>
         </div>
       </template>
     </UModal>
@@ -308,20 +309,21 @@ const workspaces = computed(() => [
             Transfer this {{ itemName }} to another workspace?
           </p>
 
-          <AppSelect
+          <RyderSelect
             v-model="targetWorkspaceId"
             placeholder="Select target workspace"
             label="Select target workspace"
             :items="workspaces"
             class="w-full mt-8"
           />
-          <AppButton
+          <RyderButton
+            size="md"
             class="mt-2 w-fit ml-auto"
             :disabled="!targetWorkspaceId || isSubmitting"
             @click="handleTransfer"
           >
             {{ isSubmitting ? "Processing..." : "Transfer" }}
-          </AppButton>
+          </RyderButton>
         </div>
       </template>
     </UModal>

@@ -58,24 +58,23 @@ async function submit() {
 
     <template #body>
       <form class="flex flex-col gap-4" @submit.prevent="submit">
-        <AppInput
+        <RyderPasswordInput
           v-model="password"
           label="Password"
-          type="password"
           name="lock-password"
           placeholder="Enter password"
-          :error="error"
           :disabled="loading"
-          autofocus
         />
         <div class="flex justify-end pt-1">
-          <AppButton
+          <RyderButton
             type="submit"
+            size="md"
+            class="w-full"
             :loading="loading"
             :disabled="!password || loading"
           >
             Unlock
-          </AppButton>
+          </RyderButton>
         </div>
       </form>
     </template>

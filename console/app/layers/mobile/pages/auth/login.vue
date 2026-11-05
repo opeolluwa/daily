@@ -9,13 +9,13 @@ const { form, errors, loading, submitError, handleSubmit } = useLogin(
 
 <template>
   <div class="flex flex-col flex-1">
-    <AppPageHeader
+    <RyderPageHeader
       title="Welcome back"
-      description="Sign in to your Lunar account to continue."
+      subtitle="Sign in to your Lunar account to continue."
     />
 
     <form @submit.prevent="handleSubmit">
-      <AppInput
+      <RyderInput
         v-model="form.email"
         type="email"
         name="email"
@@ -29,9 +29,8 @@ const { form, errors, loading, submitError, handleSubmit } = useLogin(
       </p>
 
       <div>
-        <AppInput
+        <RyderPasswordInput
           v-model="form.password"
-          type="password"
           name="password"
           label="Password"
           placeholder="••••••••"
@@ -53,15 +52,15 @@ const { form, errors, loading, submitError, handleSubmit } = useLogin(
 
       <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-      <AppButton
+      <RyderButton
         type="submit"
-        class="text-center align-center"
+        class="w-full text-center align-center"
         :loading="loading"
         :disabled="loading"
-        size="xl"
+        size="md"
       >
         Sign in
-      </AppButton>
+      </RyderButton>
     </form>
 
     <p

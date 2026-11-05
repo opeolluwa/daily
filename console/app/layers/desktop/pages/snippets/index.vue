@@ -76,7 +76,7 @@ onUnmounted(() => clearSearch());
         </button>
       </div>
       <!-- Mobile: icon-only round FAB -->
-      <AppFab
+      <RyderFab
         aria-label="Add Snippet"
         @click="navigateTo('/snippets/create-snippets')"
       />

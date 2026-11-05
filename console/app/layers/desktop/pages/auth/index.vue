@@ -17,13 +17,13 @@ onMounted(() => {
 <template>
   <NuxtLayout name="auth">
     <div class="flex flex-col gap-5">
-      <AppPageHeader
+      <RyderPageHeader
         title="Welcome back"
-        description="Sign in to your Lunar account to continue."
+        subtitle="Sign in to your Lunar account to continue."
       />
 
       <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-        <AppInput
+        <RyderInput
           v-model="form.email"
           type="email"
           name="email"
@@ -37,9 +37,8 @@ onMounted(() => {
         </p>
 
         <div>
-          <AppInput
+          <RyderPasswordInput
             v-model="form.password"
-            type="password"
             name="password"
             label="Password"
             hint="required"
@@ -61,9 +60,9 @@ onMounted(() => {
 
         <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-        <AppButton type="submit" :loading="loading" :disabled="loading">
+        <RyderButton type="submit" size="md" class="w-full" :loading="loading" :disabled="loading">
           Sign in
-        </AppButton>
+        </RyderButton>
       </form>
 
       <p class="text-sm text-center text-gray-500 dark:text-gray-400">
