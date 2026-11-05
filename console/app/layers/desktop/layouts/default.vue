@@ -9,25 +9,22 @@ const route = useRoute();
 
 const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
-
 </script>
 
 <template>
   <UDashboardGroup id="wild_almonds_app" as="div">
     <!-- Sidebar: icons-only strip when collapsed -->
-     <NavigationApp /> 
+    <NavigationApp />
 
     <!-- Right column: header + main content -->
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
-      <!-- App header -->
-      <!-- <AppHeader /> -->
       <!-- Page content + inline aside (fullscreen mode) -->
       <div class="flex flex-1 overflow-hidden">
         <main
           class="flex-1 overflow-y-auto scrollbar-config p-6 bg-gray-50 dark:bg-app-dark-800"
         >
           <div class="flex items-center gap-3 mb-1" />
-          <slot name="page_title"> </slot>
+          <slot name="page_title" />
 
           <div
             v-if="

@@ -8,18 +8,6 @@
 }
 
 :root {
-  --app-primary-50: #f0f9ff;
-  --app-primary-100: #e0f2fe;
-  --app-primary-200: #bae6fd;
-  --app-primary-300: #7dd3fc;
-  --app-primary-400: #38bdf8;
-  --app-primary-500: #0ea5e9;
-  --app-primary-600: #0284c7;
-  --app-primary-700: #0369a1;
-  --app-primary-800: #075985;
-  --app-primary-900: #0c4a6e;
-  --app-primary-950: #082f49;
-
   --app-dark-50: #e0e6f2;
   --app-dark-100: #b8c4e0;
   --app-dark-200: #8a9dc6;
@@ -62,19 +50,6 @@
   --color-onyx-600: #1a2332;
   --color-onyx-700: var(--app-dark-800);
   --color-onyx-900: var(--app-dark-900);
-/*
-  --color-primary-50: var(--app-primary-50);
-  --color-primary-100: var(--app-primary-100);
-  --color-primary-200: var(--app-primary-200);
-  --color-primary-300: var(--app-primary-300);
-  --color-primary-400: var(--app-primary-400);
-  --color-primary-500: var(--app-primary-500);
-  --color-primary-600: var(--app-primary-600);
-  --color-primary-700: var(--app-primary-700);
-  --color-primary-800: var(--app-primary-800);
-  --color-primary-900: var(--app-primary-900);
-  --color-primary-950: var(--app-primary-950);*/
-
 
   --color-primary-50: #f4ebfa;
   --color-primary-100: #e8d7f4;
@@ -87,7 +62,6 @@
   --color-primary-800: #391650;
   --color-primary-900: #1c0b28;
   --color-primary-950: #14081c;
-  
 
   --color-primary: var(--color-primary-500);
   --font-ios: "Lato", sans-serif;
@@ -99,11 +73,11 @@ html {
 }
 
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Lato", sans-serif;
   height: 100%;
-  overflow: hidden;
+
   overscroll-behavior: none;
-  border: none !important;
+  font-size: 16px;
 }
 
 @layer base {
@@ -122,7 +96,6 @@ body {
   --color-gray-700: #1a2332;
   --color-gray-600: #2a3548;
 }
-
 
 .scrollbar-config {
   @apply scrollbar-thumb-rounded-full scrollbar-w-[0.25px] scrollbar-corner-primary-400 scrollbar-h-20 scrollbar-track-rounded-full scrollbar-thin scrollbar-thumb-primary-600 scrollbar-track-transparent;

@@ -160,26 +160,3 @@ pub async fn transfer_bookmark(
         .map_err(AppError::from)?;
     Ok(())
 }
-
-#[tauri::command]
-pub async fn get_unsynced_bookmarks(
-    state: State<'_, AppState>,
-) -> Result<Vec<bookmark::Model>, AppError> {
-    state
-        .bookmark_repository
-        .extract_unsynced()
-        .await
-        .map_err(Into::into)
-}
-
-#[tauri::command]
-pub async fn clear_synced_bookmarks(
-    state: State<'_, AppState>,
-    identifiers: Vec<String>,
-) -> Result<(), AppError> {
-    state
-        .bookmark_repository
-        .clear_synced(identifiers)
-        .await
-        .map_err(Into::into)
-}

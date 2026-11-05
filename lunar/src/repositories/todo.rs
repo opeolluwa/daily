@@ -5,7 +5,7 @@ use chrono::Utc;
 use sea_orm::prelude::Date;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
-    IntoActiveModel, QueryFilter, QuerySelect,
+    IntoActiveModel, QueryFilter,
 };
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
@@ -19,7 +19,7 @@ use crate::{
         recycle_bin::CreateRecycleBinEntry,
         todo::{CreateTodo, UpdateTodo},
     },
-    entities::{recycle_bin, todo, sync_queue},
+    entities::{recycle_bin, todo},
     error::LunarError,
     repositories::{
         prelude::WorkspaceRepositoryExt,
@@ -88,9 +88,6 @@ pub trait TodoRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<todo::Model, LunarError>;
 
-    async fn extract_unsynced(&self) -> Result<Vec<todo::Model>, LunarError>;
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError>;
     async fn upsert_many(
         &self,
         models: Vec<todo::Model>,
@@ -299,42 +296,6 @@ impl TodoRepositoryExt for TodoRepository {
             .map_err(|err| LunarError::DbOperationError(err.to_string()))
     }
 
-    async fn extract_unsynced(&self) -> Result<Vec<todo::Model>, LunarError> {
-        let queue_entries = sync_queue::Entity::find()
-            .filter(sync_queue::Column::TableName.eq("todo"))
-            .limit(25)
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-
-        let identifiers = queue_entries
-            .iter()
-            .map(|entry| {
-                Uuid::parse_str(&entry.record_identifier)
-                    .map_err(|err| LunarError::DbOperationError(err.to_string()))
-            })
-            .collect::<Result<Vec<Uuid>, LunarError>>()?;
-
-        if identifiers.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        todo::Entity::find()
-            .filter(todo::Column::Identifier.is_in(identifiers))
-            .all(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))
-    }
-
-    async fn clear_synced(&self, identifiers: Vec<String>) -> Result<(), LunarError> {
-        sync_queue::Entity::delete_many()
-            .filter(sync_queue::Column::TableName.eq("todo"))
-            .filter(sync_queue::Column::RecordIdentifier.is_in(identifiers))
-            .exec(self.conn.as_ref())
-            .await
-            .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
-        Ok(())
-    }
     async fn upsert_many(
         &self,
         models: Vec<todo::Model>,
