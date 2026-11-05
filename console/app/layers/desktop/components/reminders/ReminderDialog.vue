@@ -16,7 +16,7 @@ const props = defineProps<{
 const open = defineModel<boolean>("open", { required: true });
 
 const reminderStore = useReminderStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const editing = computed(() => !!props.reminder);
 const submitting = ref(false);
@@ -78,16 +78,18 @@ async function handleSubmit() {
 
     if (editing.value && props.reminder) {
       await reminderStore.updateReminder(props.reminder.identifier, payload);
-      notify({ type: "success", message: "Reminder updated" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Updated", description: "Your changes have been saved" });
     } else {
       await reminderStore.createReminder(payload);
-      notify({ type: "success", message: "Reminder created" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Created", description: "Your reminder has been saved" });
     }
     open.value = false;
   } catch {
-    notify({
-      type: "error",
-      message: editing.value
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: editing.value
         ? "Failed to update reminder"
         : "Failed to create reminder",
     });
@@ -101,10 +103,10 @@ async function handleDelete() {
   deleting.value = true;
   try {
     await reminderStore.deleteReminder(props.reminder.identifier);
-    notify({ type: "success", message: "Reminder deleted" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Reminder Deleted", description: "The reminder has been removed" });
     open.value = false;
   } catch {
-    notify({ type: "error", message: "Failed to delete reminder" });
+    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to delete reminder" });
   } finally {
     deleting.value = false;
   }

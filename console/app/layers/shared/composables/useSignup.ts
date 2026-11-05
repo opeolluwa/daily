@@ -3,7 +3,7 @@ import { useAuthStore } from "@shared/stores/auth";
 export function useSignup() {
   const authApi = useAuthApi();
   const authStore = useAuthStore();
-  const { notify } = useAppNotification();
+  const toast = useToast();
 
   const form = reactive({ email: "", password: "", confirmPassword: "" });
   const errors = reactive({ email: "", password: "", confirmPassword: "" });
@@ -29,9 +29,11 @@ export function useSignup() {
         password: form.password,
       });
       authStore.setPendingToken(response.token);
-      notify({
-        message: "Account created. Check your email for a verification code.",
-        type: "success",
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Account Created",
+        description: "Check your email for a verification code",
         duration: 5000,
       });
       await navigateTo(`/auth/confirm-otp?flow=verify`);

@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 const pasteBinStore = usePasteBinStore();
 const workspaceStore = useWorkspacesStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const copied = ref(false);
 
@@ -49,7 +49,7 @@ async function togglePin() {
 
 async function confirmDelete() {
   await pasteBinStore.deletePasteBin(props.identifier);
-  notify({ message: "Paste moved to recycle bin", type: "success" });
+  toast.add({ color: "success", icon: "heroicons:check-circle", title: "Paste Removed", description: "The paste has been moved to the recycle bin" });
 }
 
 const handleDuplicate = async (targetWorkspaceId: string) => {

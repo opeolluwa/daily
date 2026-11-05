@@ -112,9 +112,9 @@ body {
   }
 }
 
-/** {
+* {
   user-select: none;
-}*/
+}
 
 .dark {
   --color-gray-900: var(--app-dark-900);

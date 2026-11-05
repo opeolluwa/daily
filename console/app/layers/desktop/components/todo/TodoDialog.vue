@@ -16,7 +16,7 @@ const props = defineProps<{
 const open = defineModel<boolean>("open", { required: true });
 
 const todoStore = useTodoStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const editing = computed(() => !!props.todo);
 
@@ -114,7 +114,7 @@ async function handleSubmit() {
         }
       }
 
-      notify({ type: "success", message: "Todo updated" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Todo Updated", description: "Your changes have been saved" });
     } else {
       await todoStore.createTodo({
         title: form.title.trim(),
@@ -125,13 +125,15 @@ async function handleSubmit() {
           : undefined,
         priority: form.priority,
       });
-      notify({ type: "success", message: "Todo created" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Todo Created", description: "Your todo has been saved" });
     }
     open.value = false;
   } catch {
-    notify({
-      type: "error",
-      message: editing.value ? "Failed to update todo" : "Failed to create todo",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: editing.value ? "Failed to update todo" : "Failed to create todo",
     });
   } finally {
     submitting.value = false;
@@ -143,10 +145,10 @@ async function handleDelete() {
   deleting.value = true;
   try {
     await todoStore.deleteTodo(props.todo.identifier);
-    notify({ type: "success", message: "Todo deleted" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Todo Deleted", description: "The todo has been removed" });
     open.value = false;
   } catch {
-    notify({ type: "error", message: "Failed to delete todo" });
+    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to delete todo" });
   } finally {
     deleting.value = false;
   }

@@ -95,7 +95,7 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
     },
 
     async deleteWorkspace(identifier: string): Promise<void> {
-      const { notify } = useAppNotification();
+      const toast = useToast();
       try {
         await invoke<Workspace>("delete_workspace", {
           identifier,
@@ -103,15 +103,19 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
         });
 
         await this.fetchWorkspaces();
-        notify({
-          message: "Workspace deleted",
-          type: "success",
+        toast.add({
+          color: "success",
+          icon: "heroicons:check-circle",
+          title: "Workspace Deleted",
+          description: "The workspace has been removed",
         });
       } catch (error) {
-        notify({
-          message:
+        toast.add({
+          color: "error",
+          icon: "heroicons:x-circle",
+          title: "Something Went Wrong",
+          description:
             (error as unknown as Error).message || "Failed to delete workspace",
-          type: "error",
         });
       }
     },

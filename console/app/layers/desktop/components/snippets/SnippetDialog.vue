@@ -15,7 +15,7 @@ const props = defineProps<{
 const open = defineModel<boolean>("open", { required: true });
 
 const snippetStore = useSnippetStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 
 const editing = computed(() => !!props.snippet);
 
@@ -67,17 +67,19 @@ async function handleSubmit() {
 
     if (editing.value && props.snippet) {
       await snippetStore.updateSnippet(props.snippet.identifier, payload);
-      notify({ type: "success", message: "Snippet updated" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Snippet Updated", description: "Your changes have been saved" });
     } else {
       await snippetStore.createSnippet(payload);
-      notify({ type: "success", message: "Snippet created" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Snippet Created", description: "Your snippet has been saved" });
     }
     open.value = false;
     resetForm();
   } catch {
-    notify({
-      type: "error",
-      message: editing.value
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: editing.value
         ? "Failed to update snippet"
         : "Failed to create snippet",
     });

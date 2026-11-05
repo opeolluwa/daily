@@ -5,7 +5,7 @@ export function useConfirmOtp() {
   const route = useRoute();
   const authApi = useAuthApi();
   const authStore = useAuthStore();
-  const { notify } = useAppNotification();
+  const toast = useToast();
 
   const flow = computed(() =>
     route.query.flow === "reset" ? "reset" : "verify",
@@ -34,7 +34,7 @@ export function useConfirmOtp() {
       );
       authStore.setPendingToken(response.token);
       startCooldown();
-      notify({ message: "New code sent to your email", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Code Sent", description: "Check your email for a new verification code" });
     } catch (error) {
       submitError.value = (error as Error).message;
     }
@@ -64,12 +64,12 @@ export function useConfirmOtp() {
 
       if (flow.value === "reset") {
         authStore.setPendingToken(response.token);
-        notify({ message: "Code verified", type: "success" });
+        toast.add({ color: "success", icon: "heroicons:check-circle", title: "Code Verified", description: "Your verification code has been confirmed" });
         await navigateTo("/auth/reset-password?step=set");
       } else {
         authStore.clearPendingToken();
         authStore.setSession(response.token, "", 0);
-        notify({ message: "Account verified successfully", type: "success" });
+        toast.add({ color: "success", icon: "heroicons:check-circle", title: "Account Verified", description: "Your account is now active" });
         await navigateTo("/");
       }
     } catch (error) {

@@ -10,7 +10,7 @@ import {
 definePageMeta({ layout: false });
 
 const pasteBinStore = usePasteBinStore();
-const { notify } = useAppNotification();
+const toast = useToast();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const sortBy = ref<PasteBinSort>("date-newest");
 
@@ -110,7 +110,7 @@ async function saveNow() {
   } catch (error) {
     console.error("[paste-bin] failed to save", error);
     saveStatus.value = "idle";
-    notify({ type: "error", message: "Failed to save paste" });
+    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Failed to save paste" });
   }
 }
 
@@ -174,17 +174,17 @@ async function pasteFromClipboard() {
     title.value = deriveTitle(text);
     isPinned.value = false;
     await flush();
-    notify({ message: "Pasted from clipboard", type: "success" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Pasted", description: "Content pasted from clipboard" });
   } catch (error) {
     console.error("[paste-bin] clipboard read failed", error);
-    notify({ type: "error", message: "Could not read the clipboard" });
+    toast.add({ color: "error", icon: "heroicons:x-circle", title: "Something Went Wrong", description: "Could not read the clipboard" });
   }
 }
 
 async function copyCurrent() {
   if (!content.value) return;
   await navigator.clipboard.writeText(content.value);
-  notify({ message: "Copied to clipboard", type: "success" });
+  toast.add({ color: "success", icon: "heroicons:check-circle", title: "Copied", description: "Content copied to clipboard" });
 }
 
 function handleTitleInput() {
@@ -232,6 +232,7 @@ onBeforeUnmount(() => {
 
     <template #main_content>
       <div
+        v-if="pasteBinStore.pasteBins.length > 0 || content"
         class="mb-5 overflow-hidden rounded-lg border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
       >
         <div
@@ -292,7 +293,10 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="mb-3 flex items-center justify-between">
+      <div
+        v-if="pasteBinStore.pasteBins.length > 0"
+        class="mb-3 flex items-center justify-between"
+      >
         <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">
           Pastes
         </h2>

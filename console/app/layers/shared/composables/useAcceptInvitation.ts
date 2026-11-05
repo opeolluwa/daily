@@ -1,7 +1,7 @@
 export function useAcceptInvitation() {
   const route = useRoute();
   const authApi = useAuthApi();
-  const { notify } = useAppNotification();
+  const toast = useToast();
 
   const token = computed(() => (route.query.token as string | undefined) ?? "");
   const email = computed(() => (route.query.email as string | undefined) ?? "");
@@ -14,9 +14,11 @@ export function useAcceptInvitation() {
     submitError.value = "";
     try {
       await authApi.acceptInvitation({ token: token.value });
-      notify({
-        message: "Invitation accepted. Welcome aboard!",
-        type: "success",
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Invitation Accepted",
+        description: "Welcome aboard!",
       });
       await navigateTo("/");
     } catch (error) {

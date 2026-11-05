@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
-const { notify } = useAppNotification();
+const toast = useToast();
 const workspaceStore = useWorkspacesStore();
 
 // ── create workspace ──────────────────────────────────────────────────────────
 const showCreateModal = ref(false);
 
 function handleCreated() {
-  notify({ message: "Workspace created", type: "success" });
+  toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Created", description: "Your workspace is ready" });
 }
 
 // ── secure workspace ──────────────────────────────────────────────────────────
@@ -76,20 +76,22 @@ async function submitSecure() {
         isSecured: false,
         password: "",
       });
-      notify({ message: "Workspace password removed", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Password Removed", description: "The workspace is no longer protected" });
     } else {
       await workspaceStore.updateWorkspace(secureTargetId.value, {
         isSecured: true,
         password: securePassword.value,
       });
       workspaceStore.unlockWorkspace(secureTargetId.value);
-      notify({ message: "Workspace secured with password", type: "success" });
+      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Secured", description: "A password has been set" });
     }
     closeSecureModal();
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace security",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace security",
     });
   } finally {
     secureSubmitting.value = false;
@@ -105,11 +107,13 @@ async function handleDelete(identifier: string) {
 async function handleSetDefault(identifier: string) {
   try {
     await workspaceStore.updateWorkspace(identifier, { isDefault: true });
-    notify({ message: "Default workspace updated", type: "success" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Default Updated", description: "Your default workspace has been changed" });
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace",
     });
   }
 }
@@ -124,14 +128,18 @@ async function handleToggleHidden(identifier: string) {
     await workspaceStore.updateWorkspace(identifier, {
       isHidden: !ws.isHidden,
     });
-    notify({
-      message: ws.isHidden ? "Workspace is now visible" : "Workspace hidden",
-      type: "success",
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: ws.isHidden ? "Workspace Visible" : "Workspace Hidden",
+      description: ws.isHidden ? "The workspace is now visible" : "The workspace has been hidden",
     });
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace",
     });
   }
 }
@@ -166,12 +174,14 @@ async function submitEdit() {
       name: editName.value.trim() || undefined,
       description: editDescription.value.trim(),
     });
-    notify({ message: "Workspace updated", type: "success" });
+    toast.add({ color: "success", icon: "heroicons:check-circle", title: "Workspace Updated", description: "Your changes have been saved" });
     closeEdit();
   } catch (e) {
-    notify({
-      message: (e as Error).message || "Failed to update workspace",
-      type: "error",
+    toast.add({
+      color: "error",
+      icon: "heroicons:x-circle",
+      title: "Something Went Wrong",
+      description: (e as Error).message || "Failed to update workspace",
     });
   } finally {
     editSubmitting.value = false;
