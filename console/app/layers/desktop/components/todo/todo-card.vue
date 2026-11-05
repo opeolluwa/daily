@@ -64,7 +64,11 @@ const handleTransfer = async (targetWorkspaceId: string) => {
 </script>
 
 <template>
-  <RyderCard :ui="{ root: 'flex items-center gap-4 hover:shadow-sm transition-shadow group' }">
+  <RyderCard
+    :ui="{
+      root: 'flex items-center gap-4 hover:shadow-sm transition-shadow group',
+    }"
+  >
     <button @click="emit('toggle', todo.identifier, !todo.done)">
       <UIcon
         :name="todo.done ? 'heroicons:check-circle-solid' : 'heroicons:circle'"
@@ -92,12 +96,6 @@ const handleTransfer = async (targetWorkspaceId: string) => {
         {{ todo.description }}
       </p>
     </div>
-
-    <UIcon
-      name="heroicons:flag"
-      class="size-4 shrink-0"
-      :class="priorityColor[todo.priority]"
-    />
 
     <span
       v-if="todo.dueDate"
