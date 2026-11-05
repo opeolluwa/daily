@@ -118,10 +118,10 @@ onUnmounted(() => clearSearch());
 
       <!-- Reminder list -->
       <div v-else class="flex flex-col gap-2">
-        <div
+        <RyderCard
           v-for="reminder in filteredReminders"
           :key="reminder.identifier"
-          class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg px-4 py-3 border border-gray-100 dark:border-gray-700"
+          :ui="{ root: '!px-4 !py-3 flex items-start gap-3' }"
         >
           <div
             class="mt-0.5 p-1.5 rounded-md"
@@ -175,7 +175,7 @@ onUnmounted(() => clearSearch());
               <UIcon name="heroicons:trash" class="size-4" />
             </button>
           </div>
-        </div>
+        </RyderCard>
       </div>
     </template>
 

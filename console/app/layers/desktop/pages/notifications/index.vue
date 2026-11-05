@@ -147,15 +147,15 @@ function relativeTime(iso: string) {
 
       <!-- Notification list -->
       <div v-else class="flex flex-col gap-2">
-        <div
+        <RyderCard
           v-for="item in filtered"
           :key="item.identifier"
-          class="group relative flex items-start gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 border transition-all cursor-pointer"
-          :class="
-            item.isRead
-              ? 'border-gray-100 dark:border-gray-700'
-              : 'border-primary-100 dark:border-primary-900 hover:border-primary-200 dark:hover:border-primary-800'
-          "
+          :ui="{
+            root: [
+              'group relative flex items-start gap-3 transition-all cursor-pointer',
+              item.isRead ? '' : '!border-primary-100 dark:!border-primary-900 hover:!border-primary-200 dark:hover:!border-primary-800'
+            ].filter(Boolean).join(' ')
+          }"
           @click="markRead(item.identifier)"
         >
           <!-- unread dot -->
@@ -208,7 +208,7 @@ function relativeTime(iso: string) {
           >
             <UIcon name="heroicons:x-mark" class="size-3.5" />
           </button>
-        </div>
+        </RyderCard>
       </div>
     </template>
 

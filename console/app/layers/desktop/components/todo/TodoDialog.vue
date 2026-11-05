@@ -164,29 +164,21 @@ async function handleDelete() {
     @cancel="resetForm"
   >
     <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Title <span class="text-rose-500">*</span>
-        </label>
-        <input
-          v-model="form.title"
-          type="text"
-          placeholder="What needs to be done?"
-          class="almond_input_box"
-        >
-      </div>
+      <RyderInput
+        v-model="form.title"
+        label="Title"
+        :required="true"
+        placeholder="What needs to be done?"
+        name="todo-title"
+      />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Description
-        </label>
-        <textarea
-          v-model="form.description"
-          placeholder="Add more details..."
-          rows="3"
-          class="almond_input_box resize-none"
-        />
-      </div>
+      <RyderTextarea
+        v-model="form.description"
+        label="Description"
+        name="todo-description"
+        placeholder="Add more details..."
+        :rows="3"
+      />
 
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-gray-500 dark:text-gray-400">

@@ -184,9 +184,9 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
 <template>
   <div class="flex flex-col gap-4 mt-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
-        Workspaces
-      </h2>
+      <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+        Workspace
+      </h1>
       <div class="w-36">
         <RyderButton
           size="md"
@@ -222,22 +222,20 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
           <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
             Edit workspace
           </h3>
-          <UFormField label="Name">
-            <UInput
-              v-model="editName"
-              placeholder="Workspace name"
-              class="w-full"
-              :disabled="editSubmitting"
-            />
-          </UFormField>
-          <UFormField label="Description">
-            <UInput
-              v-model="editDescription"
-              placeholder="Short description"
-              class="w-full"
-              :disabled="editSubmitting"
-            />
-          </UFormField>
+          <RyderInput
+            v-model="editName"
+            label="Name"
+            placeholder="Workspace name"
+            name="edit-workspace-name"
+            :disabled="editSubmitting"
+          />
+          <RyderInput
+            v-model="editDescription"
+            label="Description"
+            placeholder="Short description"
+            name="edit-workspace-description"
+            :disabled="editSubmitting"
+          />
           <div class="flex items-center gap-2 mt-2">
             <UButton
               size="sm"
@@ -277,31 +275,21 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
                 : "This workspace will require a password before it can be accessed."
             }}
           </p>
-          <UFormField
-            :label="
-              secureTargetWorkspace?.isSecured ? 'Current password' : 'Password'
-            "
-          >
-            <UInput
-              v-model="securePassword"
-              type="password"
-              placeholder="Enter password"
-              class="w-full"
-              :disabled="secureSubmitting"
-            />
-          </UFormField>
-          <UFormField
+          <RyderPasswordInput
+            v-model="securePassword"
+            :label="secureTargetWorkspace?.isSecured ? 'Current password' : 'Password'"
+            placeholder="Enter password"
+            name="secure-password"
+            :disabled="secureSubmitting"
+          />
+          <RyderPasswordInput
             v-if="!secureTargetWorkspace?.isSecured"
+            v-model="secureConfirm"
             label="Confirm password"
-          >
-            <UInput
-              v-model="secureConfirm"
-              type="password"
-              placeholder="Confirm password"
-              class="w-full"
-              :disabled="secureSubmitting"
-            />
-          </UFormField>
+            placeholder="Confirm password"
+            name="secure-confirm"
+            :disabled="secureSubmitting"
+          />
           <p v-if="secureError" class="text-xs text-red-500 dark:text-red-400">
             {{ secureError }}
           </p>

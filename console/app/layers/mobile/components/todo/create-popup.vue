@@ -155,18 +155,14 @@ async function handleSubmit() {
               {{ errors.title }}
             </p>
 
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
-                Description
-              </label>
-              <textarea
-                v-model="form.description"
-                placeholder="Add more details..."
-                rows="3"
-                class="almond_input_box resize-none"
-                :disabled="loading"
-              />
-            </div>
+            <RyderTextarea
+              v-model="form.description"
+              label="Description"
+              name="todo-description"
+              placeholder="Add more details..."
+              :rows="3"
+              :disabled="loading"
+            />
 
             <div class="flex flex-col gap-1.5">
               <label class="text-xs font-medium text-gray-600 dark:text-gray-400">

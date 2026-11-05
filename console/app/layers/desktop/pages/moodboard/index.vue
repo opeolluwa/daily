@@ -98,10 +98,10 @@ async function handleDelete(filename: string) {
 
       <!-- Masonry grid -->
       <div v-else class="columns-2 gap-3 space-y-3">
-        <div
+        <RyderCard
           v-for="image in moodboardStore.images"
           :key="image.filename"
-          class="break-inside-avoid bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-sm transition-shadow cursor-pointer group"
+          :ui="{ root: '!p-0 break-inside-avoid overflow-hidden hover:shadow-sm transition-shadow cursor-pointer group' }"
         >
           <div class="relative">
             <img
@@ -126,7 +126,7 @@ async function handleDelete(filename: string) {
               </button>
             </div>
           </div>
-        </div>
+        </RyderCard>
       </div>
     </template>
 

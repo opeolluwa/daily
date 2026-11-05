@@ -62,10 +62,10 @@ export const toolRoutes: Route[] = [
     activeIcon: "ri:layout-grid-fill",
   },
   {
-    path: "/scratch-pad",
-    name: "Scratch Pad",
-    icon: "ri:pencil-line",
-    activeIcon: "ri:pencil-fill",
+    path: "/paste-bin",
+    name: "Paste Bin",
+    icon: "ri:clipboard-line",
+    activeIcon: "ri:clipboard-fill",
   },
 ];
 

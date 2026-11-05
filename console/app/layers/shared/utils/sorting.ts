@@ -1,5 +1,6 @@
 import type { Bookmark } from "@shared/stores/bookmarks";
 import type { Note } from "@shared/stores/notes";
+import type { PasteBin } from "@shared/stores/paste-bin";
 import type { Snippet } from "@shared/stores/snippets";
 import type { Todo } from "@shared/stores/todo";
 
@@ -12,6 +13,7 @@ export interface SortOption<T extends string = string> {
 export type NoteSort = "name-asc" | "name-desc" | "date-newest" | "date-oldest";
 export type BookmarkSort = NoteSort;
 export type SnippetSort = NoteSort;
+export type PasteBinSort = NoteSort;
 export type TodoSort = NoteSort | "priority-high" | "priority-low";
 
 export const NOTE_SORT_OPTIONS: SortOption<NoteSort>[][] = [
@@ -53,6 +55,21 @@ export const BOOKMARK_SORT_OPTIONS: SortOption<BookmarkSort>[][] = [
 ];
 
 export const SNIPPET_SORT_OPTIONS: SortOption<SnippetSort>[][] = [
+  [
+    { label: "Name A–Z", value: "name-asc", icon: "heroicons:bars-arrow-up" },
+    {
+      label: "Name Z–A",
+      value: "name-desc",
+      icon: "heroicons:bars-arrow-down",
+    },
+  ],
+  [
+    { label: "Newest first", value: "date-newest", icon: "heroicons:clock" },
+    { label: "Oldest first", value: "date-oldest", icon: "heroicons:clock" },
+  ],
+];
+
+export const PASTE_BIN_SORT_OPTIONS: SortOption<PasteBinSort>[][] = [
   [
     { label: "Name A–Z", value: "name-asc", icon: "heroicons:bars-arrow-up" },
     {
@@ -157,6 +174,24 @@ export function sortSnippets(list: Snippet[], sortBy: SnippetSort): Snippet[] {
         return compareByDate(a, b, "createdAt", -1);
       case "date-oldest":
         return compareByDate(a, b, "createdAt", 1);
+    }
+  });
+}
+
+export function sortPasteBins(
+  list: PasteBin[],
+  sortBy: PasteBinSort,
+): PasteBin[] {
+  return [...list].sort((a, b) => {
+    switch (sortBy) {
+      case "name-asc":
+        return compareByName(a.title ?? "", b.title ?? "");
+      case "name-desc":
+        return compareByName(b.title ?? "", a.title ?? "");
+      case "date-newest":
+        return compareByDate(a, b, "updatedAt", -1);
+      case "date-oldest":
+        return compareByDate(a, b, "updatedAt", 1);
     }
   });
 }

@@ -4,6 +4,7 @@ import type {
   CreateBookmark,
   CreateNote,
   CreateNotification,
+  CreatePasteBin,
   CreateRecycleBinEntry,
   CreateReminder,
   CreateSnippet,
@@ -14,6 +15,7 @@ import type {
   RequestMeta,
   UpdateBookmark,
   UpdateNote,
+  UpdatePasteBin,
   UpdateReminder,
   UpdateSnippet,
   UpdateTodo,
@@ -35,7 +37,8 @@ const asMeta = (args: InvokeArgs): RequestMeta | undefined =>
 const duplicate = (
   api: LunarConsoleApi,
   a: InvokeArgs,
-  kind: "notes" | "todos" | "bookmarks" | "snippets" | "reminders",
+  kind:
+    "notes" | "todos" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
 ) => {
   const repo = api[kind];
   return repo.duplicate_record(
@@ -48,7 +51,8 @@ const duplicate = (
 const transfer = (
   api: LunarConsoleApi,
   a: InvokeArgs,
-  kind: "notes" | "todos" | "bookmarks" | "snippets" | "reminders",
+  kind:
+    "notes" | "todos" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
 ) => {
   const repo = api[kind];
   return repo.transfer_record(
@@ -166,6 +170,22 @@ const COMMANDS: Record<string, CommandHandler> = {
     api.snippets.delete(asString(a, "identifier"), asMeta(a)),
   duplicate_snippet: (api, a) => duplicate(api, a, "snippets"),
   transfer_snippet: (api, a) => transfer(api, a, "snippets"),
+
+  get_all_paste_bins: (api, a) => api.pasteBins.find_all(asMeta(a)),
+  get_recently_added_paste_bins: (api, a) =>
+    api.pasteBins.recently_added(asMeta(a)),
+  create_paste_bin: (api, a) =>
+    api.pasteBins.create(a.pasteBin as CreatePasteBin, asMeta(a)),
+  update_paste_bin: (api, a) =>
+    api.pasteBins.update(
+      asString(a, "identifier"),
+      a.pasteBin as UpdatePasteBin,
+      asMeta(a),
+    ),
+  delete_paste_bin: (api, a) =>
+    api.pasteBins.delete(asString(a, "identifier"), asMeta(a)),
+  duplicate_paste_bin: (api, a) => duplicate(api, a, "pasteBins"),
+  transfer_paste_bin: (api, a) => transfer(api, a, "pasteBins"),
 
   get_all_reminders: (api, a) => api.reminders.find_all(asMeta(a)),
   create_reminder: (api, a) =>

@@ -21,9 +21,7 @@ function formatDate(iso: string) {
 </script>
 
 <template>
-  <div
-    class="group bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 hover:shadow-sm transition-shadow flex items-center gap-4"
-  >
+  <RyderCard :ui="{ root: 'group flex items-center gap-4 hover:shadow-sm transition-shadow' }">
     <UIcon
       name="heroicons:briefcase"
       class="size-5 text-primary-500 shrink-0"
@@ -112,5 +110,5 @@ function formatDate(iso: string) {
         @delete-record="emit('delete', workspace.identifier)"
       />
     </div>
-  </div>
+  </RyderCard>
 </template>

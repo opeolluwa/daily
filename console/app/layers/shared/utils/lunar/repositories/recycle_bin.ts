@@ -9,6 +9,7 @@ const SOURCE_TABLES: Record<ItemType, string> = {
   bookmark: "bookmark",
   snippet: "snippets",
   reminder: "reminder",
+  paste_bin: "paste_bins",
 };
 
 function snakeize(key: string): string {

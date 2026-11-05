@@ -23,6 +23,7 @@ const itemTypeOptions: Array<{
   { label: "Bookmarks", value: "bookmark" },
   { label: "Reminders", value: "reminder" },
   { label: "Snippets", value: "snippet" },
+  { label: "Paste Bin", value: "paste_bin" },
 ];
 
 const filteredEntries = computed(() => {
@@ -57,6 +58,7 @@ function itemTypeIcon(type: RecycleBinItemType): string {
     bookmark: "heroicons:bookmark",
     reminder: "heroicons:clock",
     snippet: "heroicons:code-bracket",
+    paste_bin: "ri:clipboard-line",
   };
   return icons[type] ?? "heroicons:document";
 }
@@ -108,7 +110,10 @@ onUnmounted(() => {
 <template>
   <NuxtLayout name="default">
     <template #page_title>
-      <h1 v-if="recycleBinStore.entries.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      <h1
+        v-if="recycleBinStore.entries.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Recycle Bin
       </h1>
     </template>
@@ -174,15 +179,18 @@ onUnmounted(() => {
         description="Try a different search or filter."
         icon="heroicons:magnifying-glass"
         action-label="Clear filters"
-        @action="searchQuery = ''; typeFilter = 'all'"
+        @action="
+          searchQuery = '';
+          typeFilter = 'all';
+        "
       />
 
       <!-- Entry list -->
       <div v-else class="flex flex-col gap-2">
-        <div
+        <RyderCard
           v-for="entry in filteredEntries"
           :key="entry.identifier"
-          class="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-lg px-4 py-3 border border-gray-100 dark:border-gray-700"
+          :ui="{ root: '!px-4 !py-3 flex items-center gap-3' }"
         >
           <div class="p-1.5 rounded-md bg-gray-100 dark:bg-gray-700">
             <UIcon
@@ -217,7 +225,7 @@ onUnmounted(() => {
           >
             <UIcon name="heroicons:trash" class="size-4" />
           </button>
-        </div>
+        </RyderCard>
       </div>
     </template>
 

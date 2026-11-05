@@ -69,7 +69,7 @@ db-pull-server:
 #   just build-wasm release  # release profile
 [working-directory: 'lunar']
 build-lunar profile='dev':
-	cargo run --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations
+	cargo run --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations postgres
 	wasm-pack build --target web --{{profile}}
 	cargo test
 	node ../scripts/fix-ts-exports.mjs src/entities
@@ -79,4 +79,4 @@ build-lunar profile='dev':
 # files are missing.
 [working-directory: 'lunar']
 schema-export:
-	cargo run --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations
+	cargo run --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations postgres

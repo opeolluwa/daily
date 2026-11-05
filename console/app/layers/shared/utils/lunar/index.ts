@@ -4,6 +4,7 @@ import { NotesRepository } from "./repositories/notes";
 import { TodoRepository } from "./repositories/todo";
 import { BookmarkRepository } from "./repositories/bookmarks";
 import { SnippetRepository } from "./repositories/snippets";
+import { PasteBinRepository } from "./repositories/paste_bins";
 import { ReminderRepository } from "./repositories/reminder";
 import { NotificationRepository } from "./repositories/notifications";
 import { RecycleBinRepository } from "./repositories/recycle_bin";
@@ -18,6 +19,7 @@ export interface LunarConsoleApi {
   todos: TodoRepository;
   bookmarks: BookmarkRepository;
   snippets: SnippetRepository;
+  pasteBins: PasteBinRepository;
   reminders: ReminderRepository;
   notifications: NotificationRepository;
   recycleBin: RecycleBinRepository;
@@ -36,6 +38,7 @@ export async function createLunarConsoleApi(): Promise<LunarConsoleApi> {
     todos: new TodoRepository(),
     bookmarks: new BookmarkRepository(),
     snippets: new SnippetRepository(),
+    pasteBins: new PasteBinRepository(),
     reminders: new ReminderRepository(),
     notifications: new NotificationRepository(),
     recycleBin: new RecycleBinRepository(),
@@ -51,6 +54,7 @@ export type { CreateNote, UpdateNote } from "./repositories/notes";
 export type { CreateTodo, UpdateTodo } from "./repositories/todo";
 export type { CreateBookmark, UpdateBookmark } from "./repositories/bookmarks";
 export type { CreateSnippet, UpdateSnippet } from "./repositories/snippets";
+export type { CreatePasteBin, UpdatePasteBin } from "./repositories/paste_bins";
 export type { CreateReminder, UpdateReminder } from "./repositories/reminder";
 export type { CreateNotification } from "./repositories/notifications";
 export type { CreateRecycleBinEntry } from "./repositories/recycle_bin";

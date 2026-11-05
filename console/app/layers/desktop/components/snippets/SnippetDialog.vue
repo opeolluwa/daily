@@ -117,35 +117,26 @@ async function handleSubmit() {
         :disabled="submitting"
       />
 
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
-          Code <span class="text-red-400 ml-0.5">*</span>
-        </label>
-        <UTextarea
+      <div class="font-mono">
+        <RyderTextarea
           v-model="form.code"
+          label="Code"
+          name="snippet-code"
           placeholder="Paste your code here..."
           :rows="12"
           :disabled="submitting"
-          :ui="{ base: 'bg-transparent' }"
-          class="font-mono"
         />
       </div>
 
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
-          Description
-          <span class="text-gray-400 dark:text-gray-600 font-normal ml-1"
-            >(optional)</span
-          >
-        </label>
-        <UTextarea
-          v-model="form.description"
-          placeholder="What does this snippet do?"
-          :rows="3"
-          :disabled="submitting"
-          :ui="{ base: 'bg-transparent' }"
-        />
-      </div>
+      <RyderTextarea
+        v-model="form.description"
+        label="Description"
+        hint="optional"
+        name="snippet-description"
+        placeholder="What does this snippet do?"
+        :rows="3"
+        :disabled="submitting"
+      />
     </div>
   </RyderCreateDialog>
 </template>
