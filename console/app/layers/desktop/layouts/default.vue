@@ -36,7 +36,7 @@ const pageTitle = computed(() => {
           <div class="flex items-center gap-3 mb-1" />
           <slot name="page_title">
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-              <!-- {{ pageTitle }} -->
+               {{ pageTitle }} 
             </h1>
           </slot>
 

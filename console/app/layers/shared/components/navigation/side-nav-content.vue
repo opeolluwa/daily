@@ -56,8 +56,6 @@ function onNavigate() {
         v-for="(item, index) in items"
         :key="item.type === 'label' ? `label-${index}` : item.path"
       >
-  
-
         <!-- LINK -->
         <UTooltip :text="item.name" :disabled="!collapsed" side="right">
           <NuxtLink
@@ -113,38 +111,37 @@ function onNavigate() {
       </UTooltip>
 
       <!-- SECONDARY -->
-<div class="mt-auto">
+      <div class="mt-auto">
+        <template v-for="item in secondaryRoutes" :key="item.path">
+          <UTooltip :text="item.name" :disabled="!collapsed" side="right">
+            <NuxtLink
+              :to="item.path"
+              class="flex items-center w-full h-11 mt-1 gap-2 px-2 rounded-xl transition-colors"
+              :class="[
+                collapsed ? 'justify-center px-0' : '',
+                isActive(item.path)
+                  ? 'bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-400 font-medium'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white',
+              ]"
+              @click="onNavigate"
+            >
+              <UIcon
+                :name="isActive(item.path) ? item.activeIcon : item.icon"
+                class="size-5 shrink-0"
+                :class="
+                  isActive(item.path)
+                    ? 'text-primary-500'
+                    : 'text-gray-500 dark:text-gray-400'
+                "
+              />
 
-    <template v-for="item in secondaryRoutes" :key="item.path">
-      <UTooltip :text="item.name" :disabled="!collapsed" side="right">
-        <NuxtLink
-          :to="item.path"
-          class="flex items-center w-full h-11 mt-1 gap-2 px-2 rounded-xl transition-colors"
-          :class="[
-            collapsed ? 'justify-center px-0' : '',
-            isActive(item.path)
-              ? 'bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-400 font-medium'
-              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white',
-          ]"
-          @click="onNavigate"
-        >
-          <UIcon
-            :name="isActive(item.path) ? item.activeIcon : item.icon"
-            class="size-5 shrink-0"
-            :class="
-              isActive(item.path)
-                ? 'text-primary-500'
-                : 'text-gray-500 dark:text-gray-400'
-            "
-          />
-
-          <span v-if="!collapsed" class="text-sm truncate">
-            {{ item.name }}
-          </span>
-        </NuxtLink>
-      </UTooltip>
-    </template>
-</div>
+              <span v-if="!collapsed" class="text-sm truncate">
+                {{ item.name }}
+              </span>
+            </NuxtLink>
+          </UTooltip>
+        </template>
+      </div>
 
       <!-- User card -->
       <USeparator class="my-3" />
@@ -157,14 +154,12 @@ function onNavigate() {
           class="flex items-center gap-2 px-2 py-2 rounded-xl"
           :class="collapsed ? 'justify-center' : ''"
         >
-          <UAvatar
-            :icon="'i-lucide-user'"
-            size="sm"
-            class="shrink-0"
-          />
+          <UAvatar :icon="'i-lucide-user'" size="sm" class="shrink-0" />
           <div v-if="!collapsed" class="min-w-0 flex-1">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-              {{ preferenceStore.fullName || 'User' }}
+            <p
+              class="text-sm font-medium text-gray-900 dark:text-white truncate"
+            >
+              {{ preferenceStore.fullName || "User" }}
             </p>
             <p
               v-if="preferenceStore.preference?.email"
