@@ -7,7 +7,6 @@ use std::sync::Arc;
 use lunar::{adapters::notifications::CreateNotification, DataEngine};
 use tauri::Listener;
 use tauri::Manager;
-use tauri_plugin_syncular::SyncularConfig;
 
 use crate::state::app::AppState;
 
@@ -66,19 +65,6 @@ pub async fn run() {
                         Ok(path) => std::path::PathBuf::from(path),
                         Err(_) => app_data_dir.join("almonds.db"),
                     };
-
-                    //syncular client
-                    let database_path_for_syncular =
-                        db_path.clone().into_os_string().into_string().unwrap();
-                    let config = SyncularConfig {
-                        base_url: Some("https://your.server".into()),
-                        db_path: Some(database_path_for_syncular),
-                        auto_sync: true,
-                        ..Default::default()
-                    };
-                    app.handle()
-                        .plugin(tauri_plugin_syncular::init(config))
-                        .unwrap();
 
                     let db_url = format!("sqlite://{}?mode=rwc", db_path.display());
                     dbg!("Database URL: {:?}", &db_url);

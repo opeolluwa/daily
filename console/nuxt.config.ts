@@ -112,9 +112,6 @@ export default defineNuxtConfig({
       },
     },
     worker: {
-      // The sync worker is an ES module (it imports @syncular/client, which
-      // code-splits). Vite's default worker format is iife, which rejects
-      // module imports at build time.
       format: "es",
     },
     optimizeDeps: {
