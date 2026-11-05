@@ -34,7 +34,12 @@ export function useConfirmOtp() {
       );
       authStore.setPendingToken(response.token);
       startCooldown();
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Code Sent", description: "Check your email for a new verification code" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Code Sent",
+        description: "Check your email for a new verification code",
+      });
     } catch (error) {
       submitError.value = (error as Error).message;
     }
@@ -64,12 +69,22 @@ export function useConfirmOtp() {
 
       if (flow.value === "reset") {
         authStore.setPendingToken(response.token);
-        toast.add({ color: "success", icon: "heroicons:check-circle", title: "Code Verified", description: "Your verification code has been confirmed" });
+        toast.add({
+          color: "success",
+          icon: "heroicons:check-circle",
+          title: "Code Verified",
+          description: "Your verification code has been confirmed",
+        });
         await navigateTo("/auth/reset-password?step=set");
       } else {
         authStore.clearPendingToken();
         authStore.setSession(response.token, "", 0);
-        toast.add({ color: "success", icon: "heroicons:check-circle", title: "Account Verified", description: "Your account is now active" });
+        toast.add({
+          color: "success",
+          icon: "heroicons:check-circle",
+          title: "Account Verified",
+          description: "Your account is now active",
+        });
         await navigateTo("/");
       }
     } catch (error) {

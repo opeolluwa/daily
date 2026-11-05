@@ -20,7 +20,9 @@ export function useLogin(
   const submitError = ref("");
 
   function validate(): boolean {
-    errors.email = emailValidator(form.email) ? "" : "A valid email is required";
+    errors.email = emailValidator(form.email)
+      ? ""
+      : "A valid email is required";
     errors.password = form.password ? "" : "Password is required";
     return !errors.email && !errors.password;
   }
@@ -40,7 +42,12 @@ export function useLogin(
         response.exp,
       );
       emailMemory?.rememberEmail(form.email.trim());
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Welcome Back", description: "You've been logged in successfully" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Welcome Back",
+        description: "You've been logged in successfully",
+      });
       await navigateTo("/");
     } catch (error) {
       submitError.value = (error as Error).message;

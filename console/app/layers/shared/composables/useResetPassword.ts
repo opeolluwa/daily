@@ -14,7 +14,9 @@ export function useResetPassword() {
   const submitError = ref("");
 
   function validateEmail(): boolean {
-    errors.email = emailValidator(form.email) ? "" : "A valid email is required";
+    errors.email = emailValidator(form.email)
+      ? ""
+      : "A valid email is required";
     return !errors.email;
   }
 
@@ -68,7 +70,12 @@ export function useResetPassword() {
         authStore.pendingToken,
       );
       authStore.clearPendingToken();
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Password Updated", description: "Your password has been changed" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Password Updated",
+        description: "Your password has been changed",
+      });
       await navigateTo("/auth/login");
     } catch (error) {
       submitError.value = (error as Error).message;

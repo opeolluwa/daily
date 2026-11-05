@@ -98,7 +98,12 @@ const handleDuplicate = async () => {
     emit("duplicateRecord", targetWorkspaceId.value);
     showDuplicateModal.value = false;
     targetWorkspaceId.value = "";
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: `${props.itemName} Duplicated`, description: "A copy has been created" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: `${props.itemName} Duplicated`,
+      description: "A copy has been created",
+    });
   } finally {
     isSubmitting.value = false;
   }
@@ -113,7 +118,12 @@ const handleTransfer = async () => {
     emit("transferRecord", targetWorkspaceId.value);
     showTransferModal.value = false;
     targetWorkspaceId.value = "";
-    toast.add({ color: "success", icon: "heroicons:check-circle", title: `${props.itemName} Transferred`, description: "The item has been moved" });
+    toast.add({
+      color: "success",
+      icon: "heroicons:check-circle",
+      title: `${props.itemName} Transferred`,
+      description: "The item has been moved",
+    });
   } finally {
     isSubmitting.value = false;
   }

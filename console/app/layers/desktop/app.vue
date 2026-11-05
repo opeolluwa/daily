@@ -52,14 +52,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UApp
-    :toaster="{
-      position: 'top-right',
-      progress: false,
-      duration: 2500,
-      ui: { base: 'py-2' },
-    }"
-  >
+  <UApp>
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

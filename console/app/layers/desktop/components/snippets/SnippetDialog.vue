@@ -67,10 +67,20 @@ async function handleSubmit() {
 
     if (editing.value && props.snippet) {
       await snippetStore.updateSnippet(props.snippet.identifier, payload);
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Snippet Updated", description: "Your changes have been saved" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Snippet Updated",
+        description: "Your changes have been saved",
+      });
     } else {
       await snippetStore.createSnippet(payload);
-      toast.add({ color: "success", icon: "heroicons:check-circle", title: "Snippet Created", description: "Your snippet has been saved" });
+      toast.add({
+        color: "success",
+        icon: "heroicons:check-circle",
+        title: "Snippet Created",
+        description: "Your snippet has been saved",
+      });
     }
     open.value = false;
     resetForm();
