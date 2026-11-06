@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Workspace } from "@shared/stores/workspaces";
+import type { DropdownMenuItem } from "@nuxt/ui";
 
-defineProps<{ workspace: Workspace }>();
+const props = defineProps<{ workspace: Workspace }>();
 
 const emit = defineEmits<{
   delete: [identifier: string];
@@ -18,6 +19,25 @@ function formatDate(iso: string) {
     year: "numeric",
   });
 }
+
+const extraItems = computed<DropdownMenuItem[]>(() => [
+  {
+    label: props.workspace.isHidden ? "Show workspace" : "Hide workspace",
+    icon: props.workspace.isHidden ? "heroicons:eye" : "heroicons:eye-slash",
+    class: "text-gray-700 dark:text-gray-300",
+    onSelect: () => emit("toggleHidden", props.workspace.identifier),
+  },
+  ...(!props.workspace.isDefault
+    ? [
+        {
+          label: "Set as default",
+          icon: "heroicons:star",
+          class: "text-gray-700 dark:text-gray-300",
+          onSelect: () => emit("setDefault", props.workspace.identifier),
+        },
+      ]
+    : []),
+]);
 </script>
 
 <template>
@@ -63,19 +83,6 @@ function formatDate(iso: string) {
       class="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center gap-1"
     >
       <UTooltip
-        :text="workspace.isHidden ? 'Show workspace' : 'Hide workspace'"
-      >
-        <button
-          class="text-gray-400 hover:text-primary-500 transition-colors"
-          @click="emit('toggleHidden', workspace.identifier)"
-        >
-          <UIcon
-            :name="workspace.isHidden ? 'heroicons:eye' : 'heroicons:eye-slash'"
-            class="size-4"
-          />
-        </button>
-      </UTooltip>
-      <UTooltip
         :text="workspace.isSecured ? 'Remove password' : 'Set password'"
       >
         <button
@@ -92,20 +99,12 @@ function formatDate(iso: string) {
           />
         </button>
       </UTooltip>
-      <UTooltip text="Set as default workspace">
-        <button
-          v-if="!workspace.isDefault"
-          class="text-gray-400 hover:text-primary-500 transition-colors"
-          @click="emit('setDefault', workspace.identifier)"
-        >
-          <UIcon name="heroicons:star" class="size-4" />
-        </button>
-      </UTooltip>
       <MetaControls
         item-name="workspace"
         :show-edit="true"
         :show-duplicate="false"
         :show-transfer="false"
+        :extra-items="extraItems"
         @edit-record="emit('edit', workspace.identifier)"
         @delete-record="emit('delete', workspace.identifier)"
       />

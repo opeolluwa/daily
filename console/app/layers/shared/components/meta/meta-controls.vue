@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, type PropType } from "vue";
 import type { DropdownMenuItem } from "@nuxt/ui";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
@@ -38,6 +38,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  extraItems: {
+    type: Array as PropType<DropdownMenuItem[]>,
+    default: () => [],
+  },
 });
 
 const controls = computed(() => [
@@ -66,6 +70,7 @@ const controls = computed(() => [
           },
         ]
       : []),
+    ...props.extraItems,
   ],
   [
     ...(props.showEdit

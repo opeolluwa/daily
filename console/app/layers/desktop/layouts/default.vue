@@ -21,7 +21,7 @@ const { mobileNavOpen } = useMobileNav();
       <!-- Page content + inline aside (fullscreen mode) -->
       <div class="flex flex-1 overflow-hidden">
         <main
-          class="flex-1 overflow-y-auto scrollbar-config p-6 bg-gray-50 dark:bg-app-dark-800"
+          class="flex-1 overflow-y-auto scrollbar-config p-6 dark:bg-app-dark-800"
         >
           <div class="flex items-center gap-3 mb-1" />
           <slot name="page_title" />
