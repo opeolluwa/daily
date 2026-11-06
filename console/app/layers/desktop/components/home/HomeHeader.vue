@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import HomeStats from "~/layers/mobile/components/home/HomeStats.vue";
-
 defineProps<{
   userName: string;
   activeTodoCount: number;
@@ -73,7 +71,5 @@ const today = computed(() =>
         </p>
       </div>
     </div>
-
-    <HomeStats :stats="stats" />
   </div>
 </template>

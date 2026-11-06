@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Daily",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "identifier": "com.opeolluwa.daily",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -23,9 +23,9 @@
         "transparent": true
       }
     ],
-    "withGlobalTauri": true,
+    "withGlobalTauri": false,
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost"
     }
   },
   "bundle": {

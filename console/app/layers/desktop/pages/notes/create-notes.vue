@@ -12,6 +12,7 @@ const content = ref("");
 const submitting = ref(false);
 const saved = ref(false);
 const error = ref<string | null>(null);
+const notesEditor = ref<InstanceType<typeof NotesEditor> | null>(null);
 
 onActivated(() => {
   title.value = "";
@@ -19,6 +20,7 @@ onActivated(() => {
   error.value = null;
   submitting.value = false;
   saved.value = false;
+  notesEditor.value?.editor?.clearContent(false);
 });
 
 // ── word count ────────────────────────────────────────────────────────────────
@@ -36,8 +38,12 @@ const charCount = computed(() => {
 
 const lastSaved = ref<Date | null>(null);
 
+const plainText = computed(() =>
+  content.value.replace(/<[^>]*>/g, "").trim(),
+);
+
 const hasContent = computed(
-  () => !!title.value.trim() || !!content.value.trim(),
+  () => !!title.value.trim() || !!plainText.value,
 );
 
 // ── save ──────────────────────────────────────────────────────────────────────
@@ -86,7 +92,15 @@ onBeforeRouteLeave(async () => {
       <NoteTitleInput v-model="title" :disabled="submitting" />
     </template>
     <template #main_content>
-      <NotesEditor v-model="content" />
+      <div class="notes-editor-desktop min-h-[calc(100dvh-12rem)]">
+        <NotesEditor ref="notesEditor" v-model="content">
+          <template #toolbar>
+            <NotesDesktopToolBarWrapper>
+              <NotesEditorToolBar />
+            </NotesDesktopToolBarWrapper>
+          </template>
+        </NotesEditor>
+      </div>
       <p v-if="error" class="text-xs text-red-500 mt-6">
         {{ error }}
       </p>

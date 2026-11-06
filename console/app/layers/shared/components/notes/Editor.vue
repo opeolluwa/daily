@@ -72,6 +72,7 @@ const dmVars = computed(() =>
         "--dm-primary-hover": "var(--color-primary-600)",
         "--dm-primary-surface":
           "color-mix(in srgb, var(--color-primary-500) 10%, transparent)",
+        "--dm-bg": "transparent",
         "--dm-block-handle-gutter": 0,
       },
 );
@@ -264,11 +265,9 @@ function isLikelyMarkdown(text: string): boolean {
 <style>
 .dm-editor {
   --dm-editor-bg: transparent;
-  --dm-editor-border-radius: 0;
-  --dm-editor-shadow: none;
+  --dm-bg: transparent;
   --dm-editor-border: none;
-  --dm-border-color: #cccccc;
-  --dm-code-surface: transparent;
+  --dm-border-color: transparent;
 }
 
 .notes-editor .dm-editor .ProseMirror {

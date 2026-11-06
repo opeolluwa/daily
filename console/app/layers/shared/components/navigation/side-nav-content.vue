@@ -51,7 +51,7 @@ function onNavigate() {
 <template>
   <div class="flex flex-col flex-1 min-h-0">
     <!-- Body -->
-    <div class="flex flex-col min-h-0 overflow-y-auto px-3 pt-2 pb-1">
+    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto px-3 pt-2 pb-1">
       <template
         v-for="(item, index) in items"
         :key="item.type === 'label' ? `label-${index}` : item.path"

@@ -18,17 +18,17 @@ onMounted(() => {
   <NuxtLayout name="auth">
     <div class="flex flex-col gap-5">
       <RyderPageHeader
+        class="justify-center"
         title="Welcome back"
         subtitle="Sign in to your Daily account to continue."
       />
 
-      <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
+      <form class="flex flex-col space-y-4" @submit.prevent="handleSubmit">
         <RyderInput
           v-model="form.email"
           type="email"
           name="email"
           label="Email"
-          hint="required"
           placeholder="you@example.com"
           :disabled="loading"
         />
@@ -41,7 +41,6 @@ onMounted(() => {
             v-model="form.password"
             name="password"
             label="Password"
-            hint="required"
             placeholder="••••••••"
             :disabled="loading"
           />

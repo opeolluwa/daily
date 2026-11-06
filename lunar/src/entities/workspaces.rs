@@ -18,6 +18,7 @@ pub struct Model {
     pub is_hidden: bool,
     pub is_secured: bool,
     #[sea_orm(column_type = "Text", nullable)]
+    #[serde(skip_serializing)]
     pub password_hash: Option<String>,
     pub user_identifier: Option<Uuid>,
 }

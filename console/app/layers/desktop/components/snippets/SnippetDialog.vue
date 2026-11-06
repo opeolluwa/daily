@@ -112,7 +112,6 @@ async function handleSubmit() {
     <div class="flex flex-col gap-4">
       <RyderInput
         v-model="form.title"
-        hint="(optional)"
         placeholder="My snippet"
         label="Title"
         name="snippet title"
@@ -123,7 +122,6 @@ async function handleSubmit() {
         v-model="form.language"
         name="language"
         label="Language"
-        hint="optional"
         placeholder="e.g. TypeScript"
         :items="SNIPPET_LANGUAGES"
         :disabled="submitting"
@@ -143,7 +141,6 @@ async function handleSubmit() {
       <RyderTextarea
         v-model="form.description"
         label="Description"
-        hint="optional"
         name="snippet-description"
         placeholder="What does this snippet do?"
         :rows="3"

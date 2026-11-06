@@ -16,17 +16,19 @@ const {
   <div class="flex flex-col gap-5">
     <RyderPageHeader
       v-if="step === 'email'"
+      class="justify-center"
       title="Reset your password"
       subtitle="Enter your account email and we'll send you a reset code."
     />
     <RyderPageHeader
       v-else
+      class="text-center"
       title="Set a new password"
       subtitle="Choose a new password for your account."
     />
 
     <form
-      class="flex flex-col gap-4"
+      class="flex flex-col space-y-4"
       @submit.prevent="
         step === 'email' ? handleRequestCode() : handleSetPassword()
       "
@@ -37,7 +39,6 @@ const {
           type="email"
           name="email"
           label="Email"
-          hint="required"
           placeholder="you@example.com"
           :disabled="loading"
         />
@@ -47,7 +48,7 @@ const {
 
         <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-        <RyderButton type="submit" size="md" class="w-full" :loading="loading" :disabled="loading">
+        <RyderButton type="submit" size="md" class="w-full dark:text-white font-medium" :loading="loading" :disabled="loading">
           Send reset code
         </RyderButton>
       </template>
@@ -57,7 +58,6 @@ const {
           v-model="form.password"
           name="password"
           label="New password"
-          hint="required"
           placeholder="At least 6 characters"
           :disabled="loading"
         />
@@ -69,7 +69,6 @@ const {
           v-model="form.confirmPassword"
           name="confirmPassword"
           label="Confirm new password"
-          hint="required"
           placeholder="Repeat your new password"
           :disabled="loading"
         />

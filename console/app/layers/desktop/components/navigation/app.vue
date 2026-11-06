@@ -19,9 +19,10 @@ const sidebarStore = useSidebarStore();
         'bg-white dark:bg-gray-950',
         'border-e border-gray-200 dark:border-gray-800',
         'overflow-hidden',
+        'min-h-0',
       ],
       header: 'shrink-0 h-auto p-0',
-      body: 'flex flex-col flex-1 min-h-0 p-0',
+      body: 'flex flex-col flex-1 min-h-0 p-0 overflow-hidden',
       footer: 'shrink-0 p-0',
       handle: 'cursor-ew-resize',
     }"

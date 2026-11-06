@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useNoteStore } from "@shared/stores/notes";
 import { onBeforeRouteLeave } from "vue-router";
-import EditorToolBar from "@mobile/components/notes/EditorToolBar.vue";
+import EditorToolBar from "@shared/components/notes/EditorToolBar.vue";
+import ToolBarWrapper from "@mobile/components/app/ToolBarWrapper.vue";
 import AppFab from "@mobile/components/app/fab.vue";
 import NoteTitleInput from "@shared/components/notes/note-title-input.vue";
 definePageMeta({ name: "New note", layout: "notes", keepalive: true });
@@ -14,6 +15,7 @@ const content = ref("");
 const submitting = ref(false);
 const saved = ref(false);
 const error = ref<string | null>(null);
+const notesEditor = ref<InstanceType<typeof NotesEditor> | null>(null);
 
 onActivated(() => {
   title.value = "";
@@ -21,12 +23,17 @@ onActivated(() => {
   error.value = null;
   submitting.value = false;
   saved.value = false;
+  notesEditor.value?.editor?.clearContent(false);
 });
 
 const lastSaved = ref<Date | null>(null);
 
+const plainText = computed(() =>
+  content.value.replace(/<[^>]*>/g, "").trim(),
+);
+
 const hasContent = computed(
-  () => !!title.value.trim() || !!content.value.trim(),
+  () => !!title.value.trim() || !!plainText.value,
 );
 
 async function handleSave() {
@@ -72,9 +79,11 @@ onBeforeRouteLeave(async () => {
   <div class="pb-24">
     <NoteTitleInput v-model="title" :disabled="submitting" />
 
-    <NotesEditor v-model="content">
+    <NotesEditor ref="notesEditor" v-model="content">
       <template #toolbar>
-        <EditorToolBar />
+        <ToolBarWrapper>
+          <EditorToolBar />
+        </ToolBarWrapper>
       </template>
     </NotesEditor>
 

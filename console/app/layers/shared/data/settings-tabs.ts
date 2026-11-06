@@ -12,13 +12,6 @@ const items: SettingsTab[] = [
     to: "/settings/profile",
   },
   {
-    key: "appearance",
-    label: "Appearance",
-    icon: "heroicons:paint-brush",
-    desc: "Theme & font size",
-    to: "/settings/appearance",
-  },
-  {
     key: "notifications",
     label: "Notifications",
     icon: "heroicons:bell",

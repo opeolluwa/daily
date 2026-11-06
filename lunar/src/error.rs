@@ -38,7 +38,7 @@ pub enum LunarError {
     #[error("Failed to read download Directory")]
     DownloadDirNotFound,
 
-    #[cfg(feature = "markdown2pdf")]
-    #[error("Failed to parse markdown: {0}")]
+    #[cfg(feature = "pdf")]
+    #[error("Failed to generate PDF: {0}")]
     Markdown2Pdf(String),
 }

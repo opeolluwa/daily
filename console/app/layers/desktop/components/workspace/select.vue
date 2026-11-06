@@ -31,7 +31,7 @@ const workspaceItems = computed(() => [
             ? "heroicons:lock-closed"
             : "heroicons:check-circle",
         class: isActive
-          ? "font-semibold text-primary-500 dark:text-primary-400 capitalize"
+          ? "font-medium text-gray-500 dark:text-gray-400 capitalize"
           : "text-gray-700 dark:text-gray-300 capitalize",
         onSelect: () => handleWorkspaceSelect(w.identifier),
       };
@@ -46,7 +46,7 @@ const workspaceItems = computed(() => [
     {
       label: "Add Workspace",
       icon: "heroicons:plus-circle",
-      class: "text-emerald-500 dark:text-emerald-400 font-medium",
+      class: "text-primary-500 dark:text-primary-400 font-medium",
       onSelect: () => (showCreateModal.value = true),
     },
   ],
@@ -58,9 +58,9 @@ const workspaceItems = computed(() => [
       :items="workspaceItems"
       :ui="{
         content:
-          'min-w-60 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 py-1.5',
-        item: 'rounded-lg mx-1 px-3 py-2 gap-2.5 text-sm transition-colors duration-150',
-        separator: 'my-1 mx-2',
+          'min-w-52 rounded-lg shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-900 py-1',
+        item: 'rounded-md mx-0.5 px-2.5 py-1.5 gap-2 text-[13px] transition-colors duration-100',
+        separator: 'my-0.5 mx-1.5',
       }"
       class="hidden md:flex"
     >

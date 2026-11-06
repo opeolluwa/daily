@@ -221,21 +221,12 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
 
 <template>
   <div class="flex flex-col gap-4 mt-4">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-        Workspace
-      </h1>
-      <div class="w-36">
-        <RyderButton
-          size="md"
-          class="w-full"
-          :disabled="workspaceStore.loading"
-          @click="showCreateModal = true"
-        >
-          New workspace
-        </RyderButton>
-      </div>
-    </div>
+    <RyderPageHeader
+      title="Workspaces"
+      subtitle="Manage and create new workspaces "
+      @cta="showCreateModal = true"
+      cta-text="Add new"
+    />
 
     <!-- Workspace list -->
     <div

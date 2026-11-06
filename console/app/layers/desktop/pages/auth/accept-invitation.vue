@@ -40,7 +40,7 @@ const { token, email, loading, submitError, handleAccept } =
     <div v-if="token" class="flex flex-col gap-3">
       <RyderButton
         size="md"
-        class="w-full"
+        class="w-full  dark:text-white font-medium"
         :loading="loading"
         :disabled="loading"
         @click="handleAccept"

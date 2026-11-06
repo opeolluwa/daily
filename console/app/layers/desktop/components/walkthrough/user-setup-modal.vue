@@ -62,7 +62,6 @@ async function handleSubmit() {
           <RyderInput
             v-model="form.firstName"
             label="First name"
-            hint="required"
             type="text"
             name="email"
             placeholder="Jane"
@@ -72,7 +71,6 @@ async function handleSubmit() {
           <RyderInput
             v-model="form.lastName"
             label="Last name"
-            hint="required"
             type="text"
             name="lastName"
             placeholder="Doe"
@@ -83,7 +81,6 @@ async function handleSubmit() {
         <RyderInput
           v-model="form.email"
           label="Email"
-          hint="required"
           type="email"
           name="email"
           placeholder="jane@example.com"

@@ -92,21 +92,17 @@ async function handleSubmit() {
       <RyderInput
         v-model="form.name"
         label="Name"
-        hint="required"
         type="text"
         name="workspace-name"
         placeholder="Daily"
-        :error="errors.name"
         :disabled="loading"
       />
       <RyderInput
         v-model="form.description"
         label="Description"
-        hint="required"
         type="text"
         name="workspace-description"
         placeholder="Organize files and tasks"
-        :error="errors.description"
         :disabled="loading"
       />
       <p v-if="submitError" class="text-sm text-red-500">

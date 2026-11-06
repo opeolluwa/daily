@@ -153,14 +153,18 @@ onMounted(async () => {
       </div>
 
       <div v-else-if="original">
-        <div class="mx-auto pb-20">
+        <div class="notes-editor-desktop mx-auto min-h-[calc(100dvh-12rem)]">
           <!-- Editor -->
-          <NotesEditor :key="id" ref="notesEditor" v-model="content" />
+          <NotesEditor :key="id" ref="notesEditor" v-model="content">
+            <template #toolbar>
+              <NotesDesktopToolBarWrapper>
+                <NotesEditorToolBar />
+              </NotesDesktopToolBarWrapper>
+            </template>
+          </NotesEditor>
 
           <p v-if="error" class="text-xs text-red-500 mt-4">{{ error }}</p>
         </div>
-
-        <!-- Sticky bottom bar -->
       </div>
     </template>
 
@@ -201,10 +205,12 @@ onMounted(async () => {
           <RyderButton
             block
             :loading="submitting"
+            class="dark:text-white font-medium"
             :disabled="!hasChanges"
             @click="handleSave"
           >
             Save changes
+            
           </RyderButton>
 
           <RyderButton
