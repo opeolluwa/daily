@@ -15,6 +15,7 @@ const content = ref("");
 const submitting = ref(false);
 const saved = ref(false);
 const error = ref<string | null>(null);
+const notesEditor = ref<InstanceType<typeof NotesEditor> | null>(null);
 
 onActivated(() => {
   title.value = "";
@@ -22,6 +23,7 @@ onActivated(() => {
   error.value = null;
   submitting.value = false;
   saved.value = false;
+  notesEditor.value?.editor?.clearContent(false);
 });
 
 const lastSaved = ref<Date | null>(null);
@@ -73,7 +75,7 @@ onBeforeRouteLeave(async () => {
   <div class="pb-24">
     <NoteTitleInput v-model="title" :disabled="submitting" />
 
-    <NotesEditor v-model="content">
+    <NotesEditor ref="notesEditor" v-model="content">
       <template #toolbar>
         <ToolBarWrapper>
           <EditorToolBar />

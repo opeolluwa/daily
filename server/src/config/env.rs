@@ -14,6 +14,7 @@ pub struct AppConfig {
     pub export_path: String,
     pub port: u16,
     pub allowed_origins: AllowOrigin,
+    pub allowed_origin_strings: Vec<String>,
     pub environment: Environment,
     // GraphQL / API settings
     pub graphql_endpoint: String,
@@ -21,6 +22,15 @@ pub struct AppConfig {
     pub complexity_limit: Option<usize>,
 
     pub base_url: String,
+
+    // Rate limiting
+    pub rate_limit_rps: u32,
+    pub rate_limit_burst: u32,
+    pub rate_limit_rpm: u32,
+    pub rate_limit_max_keys: usize,
+
+    // Timeout
+    pub timeout_secs: u64,
 
     // SMTP
     pub smtp_host: String,
@@ -45,6 +55,12 @@ impl FromStr for Environment {
             "prod" | "production" => Ok(Environment::Production),
             _ => Err(AppError::InvalidEnv(s.to_string())),
         }
+    }
+}
+
+impl Environment {
+    pub fn is_production(&self) -> bool {
+        matches!(self, Environment::Production)
     }
 }
 
@@ -102,19 +118,48 @@ impl AppConfig {
             .transpose()?;
 
         // Parse allowed origins (comma-separated)
-        let allowed_origins = match extract_env::<String>("ALLOWED_ORIGINS").as_deref() {
-            Ok("*") | Err(_) => AllowOrigin::any(),
-            Ok(origins) => {
-                let parsed = origins
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|s| !s.is_empty())
-                    .filter_map(|s| s.parse().ok())
-                    .collect::<Vec<_>>();
-
-                AllowOrigin::list(parsed)
-            }
+        let raw_origins = extract_env::<String>("ALLOWED_ORIGINS")
+            .unwrap_or_else(|_| "*".to_string());
+        let allowed_origin_strings: Vec<String> = if raw_origins == "*" {
+            vec![]
+        } else {
+            raw_origins
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(String::from)
+                .collect()
         };
+        let allowed_origins = if allowed_origin_strings.is_empty() {
+            AllowOrigin::any()
+        } else {
+            let parsed = allowed_origin_strings
+                .iter()
+                .filter_map(|s| s.parse().ok())
+                .collect::<Vec<_>>();
+            AllowOrigin::list(parsed)
+        };
+
+        let rate_limit_rps = env::var("RATE_LIMIT_RPS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(20);
+        let rate_limit_burst = env::var("RATE_LIMIT_BURST")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(40);
+        let rate_limit_rpm = env::var("RATE_LIMIT_RPM")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(300);
+        let rate_limit_max_keys = env::var("RATE_LIMIT_MAX_KEYS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(10_000);
+        let timeout_secs = env::var("TIMEOUT_SECS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(25);
 
         Ok(Self {
             database_url: extract_env("DATABASE_URL")?,
@@ -125,10 +170,16 @@ impl AppConfig {
             port,
             environment,
             allowed_origins,
+            allowed_origin_strings,
             graphql_endpoint,
             depth_limit,
             complexity_limit,
             base_url,
+            rate_limit_rps,
+            rate_limit_burst,
+            rate_limit_rpm,
+            rate_limit_max_keys,
+            timeout_secs,
             smtp_host: env::var("SMTP_HOST").unwrap_or_default(),
             smtp_port: env::var("SMTP_PORT")
                 .unwrap_or_else(|_| "587".into())

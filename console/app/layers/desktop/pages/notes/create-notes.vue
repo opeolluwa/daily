@@ -12,6 +12,7 @@ const content = ref("");
 const submitting = ref(false);
 const saved = ref(false);
 const error = ref<string | null>(null);
+const notesEditor = ref<InstanceType<typeof NotesEditor> | null>(null);
 
 onActivated(() => {
   title.value = "";
@@ -19,6 +20,7 @@ onActivated(() => {
   error.value = null;
   submitting.value = false;
   saved.value = false;
+  notesEditor.value?.editor?.clearContent(false);
 });
 
 // ── word count ────────────────────────────────────────────────────────────────
@@ -87,7 +89,7 @@ onBeforeRouteLeave(async () => {
     </template>
     <template #main_content>
       <div class="notes-editor-desktop min-h-[calc(100dvh-12rem)]">
-        <NotesEditor v-model="content">
+        <NotesEditor ref="notesEditor" v-model="content">
           <template #toolbar>
             <NotesDesktopToolBarWrapper>
               <NotesEditorToolBar />
