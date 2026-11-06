@@ -238,9 +238,9 @@ useEventListener("keydown", (e: KeyboardEvent) => {
           :items="userMenuItems"
           :ui="{
             content:
-              'min-w-56 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1.5',
-            item: 'rounded-lg mx-1 px-3 py-2 gap-2.5 text-sm transition-colors duration-150',
-            separator: 'my-1 mx-2',
+              'min-w-48 rounded-lg shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-900 py-1',
+            item: 'rounded-md mx-0.5 px-2.5 py-1.5 gap-2 text-[13px] transition-colors duration-100',
+            separator: 'my-0.5 mx-1.5',
           }"
         >
           <UAvatar
@@ -250,8 +250,8 @@ useEventListener("keydown", (e: KeyboardEvent) => {
           />
 
           <template #header>
-            <div class="px-3 py-2.5 border-b border-gray-100 dark:border-gray-700">
-              <p class="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
+            <div class="px-2.5 py-2 border-b border-gray-100 dark:border-gray-700">
+              <p class="text-[13px] font-medium text-gray-700 dark:text-gray-200 truncate">
                 {{ authStore.isGuest ? 'Guest mode' : preferenceStore.fullName || 'Account' }}
               </p>
             </div>

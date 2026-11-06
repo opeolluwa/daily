@@ -78,7 +78,7 @@ const controls = computed(() => [
           {
             label: "Edit",
             icon: "heroicons:pencil-square",
-            class: "text-amber-500 dark:text-amber-400 font-medium",
+            class: "text-gray-700 dark:text-gray-300 font-medium",
             onSelect: () => emit("editRecord"),
           },
         ]
@@ -172,9 +172,9 @@ const workspaces = computed<DropdownMenuItem[]>(() => [
     size="sm"
     :ui="{
       content:
-        'min-w-44 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 py-1',
-      item: 'rounded-lg mx-1 px-3 py-2 gap-2.5 text-sm transition-colors duration-150',
-      separator: 'my-1 mx-2',
+        'min-w-40 rounded-lg shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-900 py-1',
+      item: 'rounded-md mx-0.5 px-2.5 py-1.5 gap-2 text-[13px] transition-colors duration-100',
+      separator: 'my-0.5 mx-1.5',
     }"
   >
     <button
