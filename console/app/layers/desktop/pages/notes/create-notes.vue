@@ -38,8 +38,12 @@ const charCount = computed(() => {
 
 const lastSaved = ref<Date | null>(null);
 
+const plainText = computed(() =>
+  content.value.replace(/<[^>]*>/g, "").trim(),
+);
+
 const hasContent = computed(
-  () => !!title.value.trim() || !!content.value.trim(),
+  () => !!title.value.trim() || !!plainText.value,
 );
 
 // ── save ──────────────────────────────────────────────────────────────────────
