@@ -51,7 +51,7 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
 
       <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-      <RyderButton type="submit" size="md" class="w-full" :loading="loading" :disabled="loading">
+      <RyderButton type="submit" size="md" class="w-full dark:text-white font-medium" :loading="loading" :disabled="loading">
         Create account
       </RyderButton>
     </form>

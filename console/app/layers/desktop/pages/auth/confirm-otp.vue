@@ -67,7 +67,7 @@ const description = computed(() =>
       <RyderButton
         type="submit"
         size="md"
-        class="w-full"
+        class="w-full dark:text-white font-medium"
         :loading="loading"
         :disabled="loading"
       >

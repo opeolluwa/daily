@@ -205,10 +205,12 @@ onMounted(async () => {
           <RyderButton
             block
             :loading="submitting"
+            class="dark:text-white font-medium"
             :disabled="!hasChanges"
             @click="handleSave"
           >
             Save changes
+            
           </RyderButton>
 
           <RyderButton
