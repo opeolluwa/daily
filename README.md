@@ -1,8 +1,6 @@
-# Almonds
+# Daily
 
 A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings notes, snippets, bookmarks, and tasks into one workspace.
-
-![screenshot](./screenshot.png)
 
 ## Features
 
@@ -15,14 +13,14 @@ A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings 
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Nuxt 4 + Vue 3 |
-| Console | Tauri v2 |
-| UI | @nuxt/ui + Tailwind CSS |
-| State | Pinia + persisted state |
-| Database | Tauri SQL plugin (SQLite) |
-| i18n | @nuxtjs/i18n |
+| Layer     | Technology                |
+| --------- | ------------------------- |
+| Framework | Nuxt 4 + Vue 3            |
+| Console   | Tauri v2                  |
+| UI        | @nuxt/ui + Tailwind CSS   |
+| State     | Pinia + persisted state   |
+| Database  | Tauri SQL plugin (SQLite) |
+| i18n      | @nuxtjs/i18n              |
 
 ## Docs
 
