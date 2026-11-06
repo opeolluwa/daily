@@ -145,7 +145,7 @@ pub async fn export_notes_as_pdf(
         .await
         .map_err(|err| AppError::Io(err.to_string()))?;
 
-    let note = note.unwrap();
+    let note = note.ok_or_else(|| AppError::Io("note not found".to_string()))?;
     let note_content = note.content;
     let note_title = note.title;
 

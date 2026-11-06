@@ -15,12 +15,20 @@ fn moodboard_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(app_data_dir.join("moodboard"))
 }
 
+const MAX_IMAGE_BYTES: usize = 20 * 1024 * 1024;
+
+const ALLOWED_EXTENSIONS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp", "svg"];
+
 #[tauri::command]
 pub async fn save_moodboard_image(
     app: AppHandle,
     filename: String,
     bytes: Vec<u8>,
 ) -> Result<String, String> {
+    if bytes.len() > MAX_IMAGE_BYTES {
+        return Err("file too large (max 20 MB)".into());
+    }
+
     let dir = moodboard_dir(&app)?;
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
 
@@ -29,6 +37,10 @@ pub async fn save_moodboard_image(
         .and_then(|e| e.to_str())
         .unwrap_or("jpg")
         .to_lowercase();
+
+    if !ALLOWED_EXTENSIONS.contains(&ext.as_str()) {
+        return Err("unsupported file type".into());
+    }
 
     let unique_name = format!("{}.{}", uuid::Uuid::new_v4(), ext);
     let path = dir.join(&unique_name);
@@ -99,9 +111,21 @@ pub async fn list_moodboard_images(app: AppHandle) -> Result<Vec<MoodboardImage>
 
 #[tauri::command]
 pub async fn delete_moodboard_image(app: AppHandle, filename: String) -> Result<(), String> {
-    let path = moodboard_dir(&app)?.join(&filename);
-    if path.exists() {
-        std::fs::remove_file(&path).map_err(|e| e.to_string())?;
+    if filename.contains('/') || filename.contains('\\') || filename.contains('\0') {
+        return Err("invalid filename".into());
+    }
+
+    let dir = moodboard_dir(&app)?;
+    let path = dir.join(&filename);
+
+    let canonical = path.canonicalize().map_err(|e| e.to_string())?;
+    let canonical_dir = dir.canonicalize().map_err(|e| e.to_string())?;
+    if !canonical.starts_with(&canonical_dir) {
+        return Err("invalid filename".into());
+    }
+
+    if canonical.exists() {
+        std::fs::remove_file(&canonical).map_err(|e| e.to_string())?;
     }
     Ok(())
 }

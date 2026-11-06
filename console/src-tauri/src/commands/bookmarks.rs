@@ -8,6 +8,8 @@ use lunar::{
 use tauri::State;
 use uuid::Uuid;
 
+use validator::Validate;
+
 use crate::{
     adapters::bookmarks::{CreateBookmark, UpdateBookmark},
     errors::AppError,
@@ -20,6 +22,7 @@ pub async fn create_bookmark(
     bookmark: CreateBookmark,
     meta: Option<RequestMeta>,
 ) -> Result<bookmark::Model, AppError> {
+    bookmark.validate().map_err(|e| AppError::Io(e.to_string()))?;
     let model = state
         .bookmark_repository
         .create(&bookmark.into(), &meta)
@@ -91,6 +94,7 @@ pub async fn update_bookmark(
     bookmark: UpdateBookmark,
     meta: Option<RequestMeta>,
 ) -> Result<bookmark::Model, AppError> {
+    bookmark.validate().map_err(|e| AppError::Io(e.to_string()))?;
     let model = state
         .bookmark_repository
         .update(&identifier, &bookmark.into(), &meta)

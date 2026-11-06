@@ -262,15 +262,6 @@ function isLikelyMarkdown(text: string): boolean {
 </template>
 
 <style>
-.dm-editor {
-  --dm-editor-bg: transparent;
-  --dm-editor-border-radius: 0;
-  --dm-editor-shadow: none;
-  --dm-editor-border: none;
-  --dm-border-color: #cccccc;
-  --dm-code-surface: transparent;
-}
-
 .notes-editor .dm-editor .ProseMirror {
   --dm-editor-padding: 0;
   --dm-editor-padding-top-extra: 0.25rem;
