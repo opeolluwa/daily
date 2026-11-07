@@ -7,8 +7,9 @@ const preferenceStore = useUserPreferenceStore();
 withDefaults(
   defineProps<{
     collapsed?: boolean;
+    showUserCard?: boolean;
   }>(),
-  { collapsed: false },
+  { collapsed: false, showUserCard: true },
 );
 
 const emit = defineEmits<{
@@ -144,32 +145,34 @@ function onNavigate() {
       </div>
 
       <!-- User card -->
-      <USeparator class="my-3" />
-      <UTooltip
-        :text="preferenceStore.fullName || 'User'"
-        :disabled="!collapsed"
-        side="right"
-      >
-        <div
-          class="flex items-center gap-2 px-2 py-2 rounded-xl"
-          :class="collapsed ? 'justify-center' : ''"
+      <template v-if="showUserCard">
+        <USeparator class="my-3" />
+        <UTooltip
+          :text="preferenceStore.fullName || 'User'"
+          :disabled="!collapsed"
+          side="right"
         >
-          <UAvatar :icon="'i-lucide-user'" size="sm" class="shrink-0" />
-          <div v-if="!collapsed" class="min-w-0 flex-1">
-            <p
-              class="text-sm font-medium text-gray-900 dark:text-white truncate"
-            >
-              {{ preferenceStore.fullName || "User" }}
-            </p>
-            <p
-              v-if="preferenceStore.preference?.email"
-              class="text-xs text-gray-500 dark:text-gray-400 truncate"
-            >
-              {{ preferenceStore.preference.email }}
-            </p>
+          <div
+            class="flex items-center gap-2 px-2 py-2 rounded-xl"
+            :class="collapsed ? 'justify-center' : ''"
+          >
+            <UAvatar :icon="'i-lucide-user'" size="sm" class="shrink-0" />
+            <div v-if="!collapsed" class="min-w-0 flex-1">
+              <p
+                class="text-sm font-medium text-gray-900 dark:text-white truncate"
+              >
+                {{ preferenceStore.fullName || "User" }}
+              </p>
+              <p
+                v-if="preferenceStore.preference?.email"
+                class="text-xs text-gray-500 dark:text-gray-400 truncate"
+              >
+                {{ preferenceStore.preference.email }}
+              </p>
+            </div>
           </div>
-        </div>
-      </UTooltip>
+        </UTooltip>
+      </template>
     </div>
   </div>
 </template>
