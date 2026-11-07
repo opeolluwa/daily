@@ -16,11 +16,13 @@ const {
   <div class="flex flex-col flex-1">
     <RyderPageHeader
       v-if="step === 'email'"
+      class="!flex"
       title="Reset your password"
       subtitle="Enter your account email and we'll send you a reset code."
     />
     <RyderPageHeader
       v-else
+      class="!flex"
       title="Set a new password"
       subtitle="Choose a new password for your account."
     />
@@ -47,7 +49,13 @@ const {
 
         <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-        <RyderButton type="submit" class="w-full" size="md" :loading="loading" :disabled="loading">
+        <RyderButton
+          type="submit"
+          class="w-full"
+          size="md"
+          :loading="loading"
+          :disabled="loading"
+        >
           Send reset code
         </RyderButton>
       </template>

@@ -1,5 +1,9 @@
 <script lang="ts" setup>
-import { primaryRoutes, secondaryRoutes } from "@shared/data/routes";
+import {
+  mobileBottomNavRoutes,
+  primaryRoutes,
+  secondaryRoutes,
+} from "@shared/data/routes";
 import { kPage, kNavbar } from "konsta/vue";
 import _ from "lodash";
 
@@ -20,6 +24,12 @@ const topLevelPaths = [...primaryRoutes, ...secondaryRoutes].map(
   (item) => item.path,
 );
 const isTopLevel = computed(() => topLevelPaths.includes(route.path));
+const bottomNavItems = mobileBottomNavRoutes.map((item) => ({
+  label: item.name,
+  to: item.path,
+  icon: item.icon,
+  activeIcon: item.activeIcon,
+}));
 
 const showEditorToolBar = computed(() => {
   return (
@@ -44,15 +54,16 @@ useHead({ title: () => pageTitle.value as string });
         class="shrink-0 px-2"
       >
         <template #left>
-          <UButton
+          <RyderButton
             v-if="isTopLevel"
             size="md"
             color="neutral"
             variant="ghost"
-            icon="heroicons:bars-3"
             aria-label="Open menu"
             @click="toggleMobileNav()"
-          />
+          >
+            <UIcon name="heroicons:bars-3" class="size-5" />
+          </RyderButton>
 
           <button
             v-else
@@ -87,7 +98,11 @@ useHead({ title: () => pageTitle.value as string });
         <slot />
       </AppViewport>
 
-      <AppBottonNav v-if="!showEditorToolBar" />
+      <RyderBottomNav
+        v-if="!showEditorToolBar"
+        :items="bottomNavItems"
+        bg-class="bg-white dark:bg-app-dark-800"
+      />
       <AppSideNav />
     </main>
   </kPage>

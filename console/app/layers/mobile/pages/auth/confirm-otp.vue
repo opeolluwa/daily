@@ -28,7 +28,7 @@ const description = computed(() =>
 
 <template>
   <div class="flex flex-col flex-1">
-    <RyderPageHeader :title="title" :subtitle="description" />
+    <RyderPageHeader class="!flex" :title="title" :subtitle="description" />
 
     <form @submit.prevent="handleSubmit">
       <div>

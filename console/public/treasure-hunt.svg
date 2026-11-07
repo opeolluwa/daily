@@ -2,40 +2,40 @@
   <!-- Box/Chest -->
   <g>
     <!-- Bottom part of chest -->
-    <path d="M 50 100 L 45 140 Q 45 155 60 155 L 140 155 Q 155 155 155 140 L 150 100 Z" fill="#0369a1" stroke="#082f49" stroke-width="2"/>
+    <path d="M 50 100 L 45 140 Q 45 155 60 155 L 140 155 Q 155 155 155 140 L 150 100 Z" fill="#552178" stroke="#14081c" stroke-width="2"/>
 
     <!-- Chest lid/back -->
-    <path d="M 50 100 L 60 70 Q 100 55 140 70 L 150 100 Z" fill="#0284c7" stroke="#082f49" stroke-width="2"/>
+    <path d="M 50 100 L 60 70 Q 100 55 140 70 L 150 100 Z" fill="#722ca0" stroke="#14081c" stroke-width="2"/>
 
     <!-- Lid detail -->
-    <ellipse cx="100" cy="75" rx="40" ry="20" fill="none" stroke="#082f49" stroke-width="1.5"/>
+    <ellipse cx="100" cy="75" rx="40" ry="20" fill="none" stroke="#14081c" stroke-width="1.5"/>
   </g>
 
   <!-- Overflowing items -->
   <g>
     <!-- Item 1 - Circle -->
-    <circle cx="70" cy="60" r="12" fill="#38bdf8" stroke="#082f49" stroke-width="1.5"/>
+    <circle cx="70" cy="60" r="12" fill="#a55fd3" stroke="#14081c" stroke-width="1.5"/>
 
     <!-- Item 2 - Square -->
-    <rect x="95" y="45" width="18" height="18" fill="#7dd3fc" stroke="#082f49" stroke-width="1.5" rx="2"/>
+    <rect x="95" y="45" width="18" height="18" fill="#bb87de" stroke="#14081c" stroke-width="1.5" rx="2"/>
 
     <!-- Item 3 - Triangle -->
-    <polygon points="130,70 140,50 150,70" fill="#0ea5e9" stroke="#082f49" stroke-width="1.5"/>
+    <polygon points="130,70 140,50 150,70" fill="#8e37c8" stroke="#14081c" stroke-width="1.5"/>
 
     <!-- Item 4 - Circle -->
-    <circle cx="55" cy="85" r="10" fill="#bae6fd" stroke="#082f49" stroke-width="1.5"/>
+    <circle cx="55" cy="85" r="10" fill="#d2afe9" stroke="#14081c" stroke-width="1.5"/>
 
     <!-- Item 5 - Star/sparkle -->
     <g transform="translate(125 90)">
-      <path d="M 0,-8 L 2,-2 L 8,-1 L 3,3 L 5,9 L 0,5 L -5,9 L -3,3 L -8,-1 L -2,-2 Z" fill="#38bdf8" stroke="#082f49" stroke-width="1"/>
+      <path d="M 0,-8 L 2,-2 L 8,-1 L 3,3 L 5,9 L 0,5 L -5,9 L -3,3 L -8,-1 L -2,-2 Z" fill="#a55fd3" stroke="#14081c" stroke-width="1"/>
     </g>
 
     <!-- Item 6 - Small circle -->
-    <circle cx="85" cy="75" r="8" fill="#7dd3fc" stroke="#082f49" stroke-width="1.5"/>
+    <circle cx="85" cy="75" r="8" fill="#bb87de" stroke="#14081c" stroke-width="1.5"/>
   </g>
 
   <!-- Splash effect lines -->
-  <g stroke="#082f49" stroke-width="1.5" fill="none">
+  <g stroke="#14081c" stroke-width="1.5" fill="none">
     <path d="M 60 50 Q 55 40 50 30" stroke-linecap="round"/>
     <path d="M 140 55 Q 155 35 160 20" stroke-linecap="round"/>
     <path d="M 100 45 Q 110 30 115 15" stroke-linecap="round"/>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import NotesCard from "@mobile/components/notes/card.vue";
-import AppFab from "@mobile/components/app/fab.vue";
 import { sortNotes, type NoteSort } from "@shared/utils/sorting";
 import { useNoteStore } from "@shared/stores/notes";
 const noteStore = useNoteStore();
@@ -33,11 +32,12 @@ const filteredNotes = computed(() => {
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => noteStore.fetchNotes()">
+  <RyderPullToRefresh @refresh="() => noteStore.fetchNotes()">
     <div>
       <!-- Create note FAB -->
-      <AppFab
+      <RyderFab
         v-if="!noteStore.loading && filteredNotes.length > 0"
+        class="!bottom-24"
         @click="navigateTo('/notes/create-notes')"
       />
 
@@ -83,5 +83,5 @@ const filteredNotes = computed(() => {
         </template>
       </template>
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

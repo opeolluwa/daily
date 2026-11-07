@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from "@shared/stores/auth";
+import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
 const authStore = useAuthStore();
+const preferenceStore = useUserPreferenceStore();
 
 const { mobileNavOpen } = useMobileNav();
 
@@ -26,8 +28,14 @@ function handleLogout() {
 
         <!-- Header -->
         <div
-          class="flex items-center justify-end px-4 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0"
+          class="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0"
         >
+          <UUser
+            :name="preferenceStore.fullName || 'Lunar User'"
+            :description="preferenceStore.preference?.email"
+            :avatar="{ icon: 'i-lucide-user' }"
+            class="min-w-0 flex-1 truncate"
+          />
           <UButton
             size="sm"
             color="neutral"
@@ -38,7 +46,10 @@ function handleLogout() {
           />
         </div>
 
-        <NavigationSideNavContent @navigate="mobileNavOpen = false" />
+        <NavigationSideNavContent
+          :show-user-card="false"
+          @navigate="mobileNavOpen = false"
+        />
 
         <!-- Footer: logout -->
         <div class="shrink-0 px-3 pt-1 pb-4">

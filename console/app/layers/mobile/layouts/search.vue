@@ -39,14 +39,15 @@ function handleTrailing() {
           @keydown.escape="handleTrailing"
         >
           <template #trailing>
-            <UButton
+            <RyderButton
               color="neutral"
               variant="link"
               size="sm"
-              icon="i-lucide-circle-x"
               :aria-label="searchQuery ? 'Clear input' : 'Close search'"
               @click="handleTrailing"
-            />
+            >
+              <UIcon name="i-lucide-circle-x" class="size-4" />
+            </RyderButton>
           </template>
         </UInput>
       </template>

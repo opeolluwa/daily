@@ -17,6 +17,8 @@ export default withNuxt({
           "default",
           "Fab",
           "viewport",
+          "create",
+          "edit",
           "walkthrough",
         ],
       },

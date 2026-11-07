@@ -71,7 +71,7 @@ const handleTransfer = async (targetWorkspaceId: string) => {
   >
     <button @click="emit('toggle', todo.identifier, !todo.done)">
       <UIcon
-        :name="todo.done ? 'heroicons:check-circle-solid' : 'heroicons:circle'"
+        :name="todo.done ? 'heroicons:check-circle-solid' : 'lucide:circle'"
         class="size-5 transition-colors"
         :class="
           todo.done

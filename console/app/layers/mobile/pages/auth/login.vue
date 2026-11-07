@@ -10,6 +10,7 @@ const { form, errors, loading, submitError, handleSubmit } = useLogin(
 <template>
   <div class="flex flex-col flex-1">
     <RyderPageHeader
+      class="!flex"
       title="Welcome back"
       subtitle="Sign in to your Daily account to continue."
     />

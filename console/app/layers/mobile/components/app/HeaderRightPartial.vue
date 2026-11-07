@@ -1,22 +1,24 @@
 <template>
   <div class="flex gap-x-1.5">
-    <UButton
+    <RyderButton
       size="md"
       color="neutral"
       variant="ghost"
-      icon="heroicons:magnifying-glass"
       aria-label="Search"
       @click="navigateTo('/search')"
-    />
+    >
+      <UIcon name="heroicons:magnifying-glass" class="size-5" />
+    </RyderButton>
 
-    <UButton
+    <RyderButton
       size="md"
       color="neutral"
       variant="ghost"
-      icon="heroicons:bell"
       aria-label="Notifications"
       @click="navigateTo('/notifications')"
-    />
+    >
+      <UIcon name="heroicons:bell" class="size-5" />
+    </RyderButton>
 
     <UUser
       size="sm"

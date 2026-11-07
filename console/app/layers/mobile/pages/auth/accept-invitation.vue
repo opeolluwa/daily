@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import RyderPageHeader from "@opeolluwa/ryder/components/feedback/PageHeader.vue";
 definePageMeta({ layout: "auth" });
 
 const { token, email, loading, submitError, handleAccept } =
@@ -8,7 +9,7 @@ const { token, email, loading, submitError, handleAccept } =
 <template>
   <div class="flex flex-col flex-1">
     <RyderPageHeader
-      class="text-center"
+      class="!flex text-center"
       title="You're invited!"
       subtitle="You've been invited to join a workspace on Daily."
     />

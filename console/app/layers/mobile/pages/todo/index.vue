@@ -1,30 +1,32 @@
 <script setup lang="ts">
-import AppFab from "@mobile/components/app/fab.vue";
 import { useTodoStore } from "@shared/stores/todo";
 
 definePageMeta({ name: "Tasks" });
 
 const todoStore = useTodoStore();
-const { notify } = useAppNotification();
+const router = useRouter();
 
-const showCreatePopup = ref(false);
+function openCreate() {
+  router.push("/todo/create-todo");
+}
+
+function openEdit(identifier: string) {
+  router.push({ path: "/todo/edit-todo", query: { id: identifier } });
+}
 
 onMounted(() => {
   todoStore.fetchTodos();
 });
-
-function handleCreated() {
-  notify({ message: "Task created", type: "success" });
-}
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => todoStore.fetchTodos()">
+  <RyderPullToRefresh @refresh="() => todoStore.fetchTodos()">
     <div>
       <!-- Create task FAB -->
-      <AppFab
+      <RyderFab
         v-if="todoStore.todos.length !== 0"
-        @click="showCreatePopup = true"
+        class="!bottom-24"
+        @click="openCreate"
       />
       <!-- Loading -->
       <div v-if="todoStore.loading" class="flex flex-col gap-2">
@@ -38,7 +40,7 @@ function handleCreated() {
           description="Create your first task to get started."
           icon="ri:calendar-todo-line"
           action-label="create task"
-          @action="showCreatePopup = true"
+          @action="openCreate"
         />
       </div>
 
@@ -49,15 +51,10 @@ function handleCreated() {
           :key="todo.identifier"
           :todo="todo"
           @toggle="(id, done) => todoStore.toggleDone(id, done)"
+          @edit="openEdit"
           @delete="(id) => todoStore.deleteTodo(id)"
         />
       </div>
-
-      <!-- Create task popup -->
-      <TodoCreatePopup
-        v-model:open="showCreatePopup"
-        @created="handleCreated"
-      />
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

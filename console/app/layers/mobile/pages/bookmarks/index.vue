@@ -1,32 +1,30 @@
 <script setup lang="ts">
 import { useBookmarkStore } from "@shared/stores/bookmarks";
 import { safeOpenUrl as openUrl } from "@shared/utils/safe-open-url";
-import AppFab from "@mobile/components/app/fab.vue";
 import BookmarkCard from "@mobile/components/bookmark/bookmark-card.vue";
 
 definePageMeta({ name: "Bookmarks" });
 
 const bookmarkStore = useBookmarkStore();
-const { notify } = useAppNotification();
+const router = useRouter();
 
-const showCreatePopup = ref(false);
+function openCreate() {
+  router.push("/bookmarks/create-bookmark");
+}
 
 onMounted(() => {
   bookmarkStore.fetchBookmarks();
 });
-
-function handleCreated() {
-  notify({ message: "Bookmark created", type: "success" });
-}
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => bookmarkStore.fetchBookmarks()">
+  <RyderPullToRefresh @refresh="() => bookmarkStore.fetchBookmarks()">
     <div>
       <!-- Create bookmark FAB -->
-      <AppFab
+      <RyderFab
         v-if="bookmarkStore.bookmarks.length !== 0"
-        @click="showCreatePopup = true"
+        class="!bottom-24"
+        @click="openCreate"
       />
 
       <!-- Loading -->
@@ -41,7 +39,7 @@ function handleCreated() {
           description="Create your first bookmark to get started."
           icon="ri:bookmark-line"
           action-label="create bookmark"
-          @action="showCreatePopup = true"
+          @action="openCreate"
         />
       </div>
 
@@ -55,12 +53,6 @@ function handleCreated() {
           @preview="(bm) => openUrl(bm.url)"
         />
       </div>
-
-      <!-- Create bookmark popup -->
-      <BookmarkCreatePopup
-        v-model:open="showCreatePopup"
-        @created="handleCreated"
-      />
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

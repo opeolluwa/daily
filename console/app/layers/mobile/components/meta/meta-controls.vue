@@ -352,16 +352,16 @@ const workspaces = computed(() => [
           </div>
 
           <div class="flex justify-end gap-2">
-            <UButton
+            <RyderButton
               size="sm"
               variant="ghost"
               @click="showDeleteConfirm = false"
             >
               Cancel
-            </UButton>
-            <UButton size="sm" color="error" @click="handleDelete">
+            </RyderButton>
+            <RyderButton size="sm" color="error" @click="handleDelete">
               Delete
-            </UButton>
+            </RyderButton>
           </div>
         </div>
       </template>

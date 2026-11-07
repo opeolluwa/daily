@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import AppFab from "@mobile/components/app/fab.vue";
 import PasteBinCard from "@mobile/components/paste-bin/card.vue";
-import PasteBinCreatePopup from "@mobile/components/paste-bin/create-popup.vue";
-import { usePasteBinStore, type PasteBin } from "@shared/stores/paste-bin";
+import { usePasteBinStore } from "@shared/stores/paste-bin";
 import { sortPasteBins } from "@shared/utils/sorting";
 
 definePageMeta({ name: "Paste Bin" });
 
 const pasteBinStore = usePasteBinStore();
-const { notify } = useAppNotification();
+const router = useRouter();
 const { searchQuery, clearSearch } = useAppSearch();
-
-const showPopup = ref(false);
-const editingPaste = ref<PasteBin | null>(null);
 
 const filteredPastes = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
@@ -29,21 +24,11 @@ const filteredPastes = computed(() => {
 });
 
 function openCreate() {
-  editingPaste.value = null;
-  showPopup.value = true;
+  router.push("/paste-bin/create-paste");
 }
 
 function openEdit(identifier: string) {
-  const paste = pasteBinStore.pasteBins.find(
-    (entry) => entry.identifier === identifier,
-  );
-  if (!paste) return;
-  editingPaste.value = paste;
-  showPopup.value = true;
-}
-
-function handleSaved() {
-  notify({ message: "Paste saved", type: "success" });
+  router.push({ path: "/paste-bin/edit-paste", query: { id: identifier } });
 }
 
 onMounted(() => {
@@ -54,10 +39,11 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => pasteBinStore.fetchPasteBins()">
+  <RyderPullToRefresh @refresh="() => pasteBinStore.fetchPasteBins()">
     <div>
-      <AppFab
+      <RyderFab
         v-if="!pasteBinStore.loading && filteredPastes.length > 0"
+        class="!bottom-24"
         @click="openCreate"
       />
 
@@ -100,12 +86,6 @@ onUnmounted(() => clearSearch());
           </div>
         </template>
       </template>
-
-      <PasteBinCreatePopup
-        v-model:open="showPopup"
-        :paste="editingPaste"
-        @saved="handleSaved"
-      />
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

@@ -30,8 +30,10 @@ onMounted(() => backupStore.init());
 
 <template>
   <div class="flex flex-col gap-4 mt-4">
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-5"
+    <RyderCard
+      :ui="{
+        root: '!rounded-lg !border-gray-100 dark:!border-gray-700 dark:!bg-gray-800 !p-5',
+      }"
     >
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
         Backup & Sync
@@ -113,6 +115,6 @@ onMounted(() => backupStore.init());
           <UIcon name="heroicons:arrow-top-right-on-square" class="size-3.5" />
         </NuxtLink>
       </div>
-    </div>
+    </RyderCard>
   </div>
 </template>

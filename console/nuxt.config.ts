@@ -1,7 +1,7 @@
 import { resolve } from "path";
 
-const isMobile = process.env.NUXT_APP_TARGET === "mobile";
-// const isMobile = true
+// const isMobile = process.env.NUXT_APP_TARGET === "mobile";
+const isMobile = true
 
 export default defineNuxtConfig({
   srcDir: "app",
@@ -17,11 +17,25 @@ export default defineNuxtConfig({
   },
 
   icon: {
-    serverBundle: {
-      collections: ["heroicons", "lucide", "ri"],
-    },
+    // Fully offline: never fall back to the remote Iconify API.
+    fallbackToApi: false,
     clientBundle: {
-      scan: true,
+      scan: {
+        // The default scan omits `.ts`, but many icons live in data/*.ts.
+        globInclude: ["**/*.{vue,jsx,tsx,ts,md,mdc,mdx,yml,yaml}"],
+        globExclude: [
+          "node_modules",
+          "dist",
+          ".output",
+          ".nuxt",
+          "build",
+          "coverage",
+          "test",
+          "tests",
+          ".*",
+          "src-tauri",
+        ],
+      },
     },
   },
 
@@ -69,13 +83,6 @@ export default defineNuxtConfig({
     strategy: "no_prefix",
   },
 
-  googleFonts: {
-    families: {
-      Lato: [400, 700],
-    },
-    display: "swap",
-  },
-
   site: {
     url: "https://localhost",
     name: "Daily Console",
@@ -93,11 +100,6 @@ export default defineNuxtConfig({
   },
 
   devServer: { host: "0" },
-  icon: {
-    serverBundle: {
-      collections: ["heroicons", "lucide", "ri"],
-    },
-  },
 
   vite: {
     clearScreen: false,

@@ -22,8 +22,10 @@ function formatDate(iso: string) {
 </script>
 
 <template>
-  <div
-    class="group bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 hover:shadow-sm transition-shadow flex items-center gap-4"
+  <RyderCard
+    :ui="{
+      root: 'group flex items-center gap-4 transition-shadow hover:shadow-sm !rounded-lg !border-gray-100 dark:!border-gray-700 dark:!bg-gray-800',
+    }"
   >
     <UIcon
       name="heroicons:briefcase"
@@ -83,5 +85,5 @@ function formatDate(iso: string) {
         @toggle-secured-record="emit('toggleSecured', workspace.identifier)"
       />
     </div>
-  </div>
+  </RyderCard>
 </template>

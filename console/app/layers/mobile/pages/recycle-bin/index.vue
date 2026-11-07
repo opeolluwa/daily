@@ -232,22 +232,22 @@ onUnmounted(() => clearSearch());
             will be permanently deleted. This action cannot be undone.
           </p>
           <div class="flex items-center gap-2 mt-2">
-            <UButton
+            <RyderButton
               size="sm"
               color="error"
               :loading="purging"
               @click="handlePurge"
             >
               Delete
-            </UButton>
-            <UButton
+            </RyderButton>
+            <RyderButton
               variant="ghost"
               size="sm"
               :disabled="purging"
               @click="closePurgeConfirm"
             >
               Cancel
-            </UButton>
+            </RyderButton>
           </div>
         </div>
       </template>
@@ -265,22 +265,22 @@ onUnmounted(() => clearSearch());
             deleted. This action cannot be undone.
           </p>
           <div class="flex items-center gap-2 mt-2">
-            <UButton
+            <RyderButton
               size="sm"
               color="error"
               :loading="purging"
               @click="handleEmptyBin"
             >
               Empty bin
-            </UButton>
-            <UButton
+            </RyderButton>
+            <RyderButton
               variant="ghost"
               size="sm"
               :disabled="purging"
               @click="closeEmptyBinConfirm"
             >
               Cancel
-            </UButton>
+            </RyderButton>
           </div>
         </div>
       </template>
