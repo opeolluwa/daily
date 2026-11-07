@@ -132,13 +132,15 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
                             let active_model = model.into_active_model();
 
                             if exists {
-                                active_model.update(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                active_model
+                                    .update(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
                             } else {
-                                active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                active_model
+                                    .insert(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
                             }
                             Ok(())
                         }
@@ -182,11 +184,7 @@ impl UserPreferencesRepository {
     }
 
     #[wasm_bindgen(js_name = "update")]
-    pub async fn update_js(
-        &self,
-        identifier: &str,
-        payload: JsValue,
-    ) -> Result<JsValue, JsValue> {
+    pub async fn update_js(&self, identifier: &str, payload: JsValue) -> Result<JsValue, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
         let payload: UpdateUserPreferences =
             serde_wasm_bindgen::from_value(payload).map_err(js_err)?;

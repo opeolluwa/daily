@@ -3,14 +3,15 @@ pub mod adapters;
 pub mod data_engine;
 pub mod entities;
 pub mod error;
-#[cfg(feature = "pdf")]
-pub mod markdown2pdf;
 pub mod repositories;
 pub mod types;
 pub mod utils;
 #[cfg(not(target_arch = "wasm32"))]
 pub use data_engine::DataEngine;
 pub use sea_orm;
-
+#[cfg(feature = "cipher")]
+pub mod cipher;
+#[cfg(feature = "pdf")]
+pub mod ironpress;
 #[cfg(not(target_arch = "wasm32"))]
 pub use migration;

@@ -15,6 +15,23 @@ pub(crate) fn extract_req_meta(meta: &Option<RequestMeta>) -> Result<RequestMeta
     Ok(meta.to_owned())
 }
 
+/// Checks whether a file already exists at the given path.
+///
+/// File-related operations should call this before writing so the caller can
+/// decide whether to overwrite, rename, or abort.
+#[cfg(not(target_arch = "wasm32"))]
+pub async fn detect_duplicate(
+    path: impl AsRef<std::path::Path>,
+) -> std::io::Result<Option<std::path::PathBuf>> {
+    let path = path.as_ref();
+
+    if tokio::fs::try_exists(path).await? {
+        Ok(Some(path.to_path_buf()))
+    } else {
+        Ok(None)
+    }
+}
+
 pub fn mock_connection() -> Arc<DatabaseConnection> {
     Arc::new(MockDatabase::new(DatabaseBackend::Postgres).into_connection())
 }

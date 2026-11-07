@@ -81,7 +81,7 @@ async fn main() -> Result<(), AppError> {
         .with_env_filter(EnvFilter::from_default_env().add_directive(Level::INFO.into()))
         .init();
 
-    // ── Rate limiter ─────────────────────────────────────────────────────────
+// rate limit
     let requests_per_second =
         NonZeroU32::new(app_config.rate_limit_rps).unwrap_or(nz!(20u32));
     let burst = NonZeroU32::new(app_config.rate_limit_burst).unwrap_or(nz!(40u32));
@@ -108,7 +108,7 @@ async fn main() -> Result<(), AppError> {
             AppError::StartupError("internal server error".to_string())
         })?;
 
-    // ── CORS ─────────────────────────────────────────────────────────────────
+//CORS
     let cors = if app_config.environment == Environment::Production {
         CorsLayer::new()
             .allow_origin(app_config.allowed_origins.clone())
@@ -131,7 +131,7 @@ async fn main() -> Result<(), AppError> {
             .allow_headers(Any)
     };
 
-    // ── Database ─────────────────────────────────────────────────────────────
+//db
     let lunar = data_engine::DataEngine::new(&app_config.database_url).await?;
 
     lunar
@@ -163,7 +163,7 @@ async fn main() -> Result<(), AppError> {
         )
         .with_state(graphql_state);
 
-    // ── Middleware stack ──────────────────────────────────────────────────────
+
     let is_production = app_config.environment.is_production();
 
     let app = Router::new()

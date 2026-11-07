@@ -9,8 +9,8 @@ use sea_orm::{
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
-use crate::types::EntitySyncResult;
 use crate::entities::sea_orm_active_enums::ItemType;
+use crate::types::EntitySyncResult;
 use crate::{
     adapters::{
         meta::RequestMeta,
@@ -234,28 +234,29 @@ impl NotesRepositoryExt for NotesRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), LunarError> = async {
-                            let exists = notes::Entity::find()
-                                .filter(notes::Column::Identifier.eq(model.identifier))
-                                .one(conn.as_ref())
-                                .await
-                                .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-                                .is_some();
+                        let op_result: Result<(), LunarError> =
+                            async {
+                                let exists = notes::Entity::find()
+                                    .filter(notes::Column::Identifier.eq(model.identifier))
+                                    .one(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?
+                                    .is_some();
 
-                            let active_model = model.into_active_model();
+                                let active_model = model.into_active_model();
 
-                            if exists {
-                                active_model.update(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
-                            } else {
-                                active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                if exists {
+                                    active_model.update(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                } else {
+                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                }
+                                Ok(())
                             }
-                            Ok(())
-                        }
-                        .await;
+                            .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),

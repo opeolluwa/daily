@@ -4,7 +4,7 @@ use lunar::{
     repositories::notes::NotesRepositoryExt,
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 use uuid::Uuid;
 
 use crate::{
@@ -132,13 +132,36 @@ pub async fn transfer_note(
     Ok(())
 }
 
+#[derive(serde::Serialize)]
+#[serde(tag = "status", rename_all = "camelCase")]
+pub enum PdfExportStatus {
+    Exported { path: String },
+    Duplicate { path: String },
+}
+
+fn sanitize_file_name(title: &str) -> String {
+    let sanitized: String = title
+        .chars()
+        .filter(|c| !matches!(c, '/' | '\\' | '\0'))
+        .collect();
+    let sanitized = sanitized.trim();
+
+    if sanitized.is_empty() {
+        "untitled".to_string()
+    } else {
+        sanitized.to_string()
+    }
+}
+
 #[tauri::command]
 pub async fn export_notes_as_pdf(
+    app: AppHandle,
     state: State<'_, AppState>,
     record_identifier: Uuid,
     _previous_workspace_identifier: Uuid,
     meta: Option<RequestMeta>,
-) -> Result<(), AppError> {
+    overwrite: Option<bool>,
+) -> Result<PdfExportStatus, AppError> {
     let note = state
         .notes_repository
         .find_by_id(&record_identifier, &meta)
@@ -146,11 +169,32 @@ pub async fn export_notes_as_pdf(
         .map_err(|err| AppError::Io(err.to_string()))?;
 
     let note = note.ok_or_else(|| AppError::Io("note not found".to_string()))?;
-    let note_content = note.content;
-    let note_title = note.title;
 
-    lunar::markdown2pdf::parse_markdown_to_pdf(&note_content, &note_title)
+    let download_dir = app
+        .path()
+        .download_dir()
         .map_err(|err| AppError::Io(err.to_string()))?;
+    let file_name = sanitize_file_name(&note.title);
+    let overwrite = overwrite.unwrap_or(false);
 
-    Ok(())
+    let target = download_dir.join(format!("{}.pdf", file_name));
+    if let Some(existing) = lunar::utils::detect_duplicate(&target)
+        .await
+        .map_err(|err| AppError::Io(err.to_string()))?
+    {
+        if !overwrite {
+            return Ok(PdfExportStatus::Duplicate {
+                path: existing.display().to_string(),
+            });
+        }
+    }
+
+    let path =
+        lunar::ironpress::render_html_to_pdf(&note.content, &file_name, &download_dir, overwrite)
+            .await
+            .map_err(|err| AppError::Io(err.to_string()))?;
+
+    Ok(PdfExportStatus::Exported {
+        path: path.display().to_string(),
+    })
 }

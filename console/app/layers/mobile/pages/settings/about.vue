@@ -22,14 +22,7 @@ const info = [
       }"
     >
       <div class="flex items-center gap-3 mb-5">
-        <div
-          class="size-10 bg-primary-100 dark:bg-primary-950 rounded-lg flex items-center justify-center"
-        >
-          <UIcon
-            name="heroicons:sparkles"
-            class="size-5 text-primary-600 dark:text-primary-400"
-          />
-        </div>
+        <AppLogo class="size-10 shrink-0 rounded-lg" />
         <div>
           <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">
             {{ appName }}
