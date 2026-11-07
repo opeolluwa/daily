@@ -102,6 +102,7 @@ useHead({ title: () => pageTitle.value as string });
         v-if="!showEditorToolBar"
         :items="bottomNavItems"
         bg-class="bg-white dark:bg-app-dark-800"
+        class="!z-30"
       />
       <AppSideNav />
     </main>
