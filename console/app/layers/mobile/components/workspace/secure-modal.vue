@@ -137,7 +137,7 @@ async function handleSubmit() {
             {{
               targetWorkspace?.isSecured ? "Remove password" : "Set password"
             }}
-          </UButton>
+          </RyderButton>
         </div>
       </div>
     </template>

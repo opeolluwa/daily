@@ -33,7 +33,8 @@ watch(
   () => props.paste,
   (paste) => {
     if (!paste) return;
-    titleDirty.value = !!paste.title && paste.title !== deriveTitle(paste.content);
+    titleDirty.value =
+      !!paste.title && paste.title !== deriveTitle(paste.content);
     title.value = paste.title ?? "";
     content.value = paste.content;
     isPinned.value = paste.isPinned;

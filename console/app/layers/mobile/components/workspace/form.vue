@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  useWorkspacesStore,
-  type Workspace,
-} from "@shared/stores/workspaces";
+import { useWorkspacesStore, type Workspace } from "@shared/stores/workspaces";
 
 const props = defineProps<{
   workspace?: Workspace | null;

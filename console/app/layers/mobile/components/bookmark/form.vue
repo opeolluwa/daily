@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  useBookmarkStore,
-  type BookmarkTag,
-} from "@shared/stores/bookmarks";
+import { useBookmarkStore, type BookmarkTag } from "@shared/stores/bookmarks";
 
 const emit = defineEmits<{
   saved: [];

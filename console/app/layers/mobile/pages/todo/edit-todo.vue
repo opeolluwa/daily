@@ -14,8 +14,7 @@ const id = computed(() =>
 );
 
 const todo = computed(
-  () =>
-    todoStore.todos.find((entry) => entry.identifier === id.value) ?? null,
+  () => todoStore.todos.find((entry) => entry.identifier === id.value) ?? null,
 );
 
 function handleSaved() {
