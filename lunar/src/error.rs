@@ -41,4 +41,20 @@ pub enum LunarError {
     #[cfg(feature = "pdf")]
     #[error("Failed to generate PDF: {0}")]
     Markdown2Pdf(String),
+
+    #[cfg(feature = "pdf")]
+    #[error("Failed to generate PDF: {0}")]
+    HTMLConversionError(String),
+
+    #[cfg(feature = "cipher")]
+    #[error("Cipher key decode failed: {0}")]
+    CipherKeyDecodeError(String),
+
+    #[cfg(feature = "cipher")]
+    #[error("Cipher encryption failed: {0}")]
+    CipherEncryptError(String),
+
+    #[cfg(feature = "cipher")]
+    #[error("Cipher decryption failed: {0}")]
+    CipherDecryptError(String),
 }

@@ -4,8 +4,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use sea_orm::prelude::Expr;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
-    QueryFilter,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
 };
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
@@ -235,28 +234,29 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), LunarError> = async {
-                            let exists = workspaces::Entity::find()
-                                .filter(workspaces::Column::Identifier.eq(model.identifier))
-                                .one(conn.as_ref())
-                                .await
-                                .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-                                .is_some();
+                        let op_result: Result<(), LunarError> =
+                            async {
+                                let exists = workspaces::Entity::find()
+                                    .filter(workspaces::Column::Identifier.eq(model.identifier))
+                                    .one(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?
+                                    .is_some();
 
-                            let active_model: workspaces::ActiveModel = model.into();
+                                let active_model: workspaces::ActiveModel = model.into();
 
-                            if exists {
-                                active_model.update(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
-                            } else {
-                                active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                if exists {
+                                    active_model.update(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                } else {
+                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                }
+                                Ok(())
                             }
-                            Ok(())
-                        }
-                        .await;
+                            .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -338,6 +338,8 @@ impl WorkspaceRepository {
     #[wasm_bindgen(js_name = "exists")]
     pub async fn exists_js(&self, identifier: &str) -> Result<bool, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
-        <Self as WorkspaceRepositoryExt>::exists(self, &id).await.map_err(JsValue::from)
+        <Self as WorkspaceRepositoryExt>::exists(self, &id)
+            .await
+            .map_err(JsValue::from)
     }
 }

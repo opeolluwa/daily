@@ -23,8 +23,7 @@ pub fn parse_markdown_to_pdf(markdown: &str, file_name: &str) -> Result<(), Luna
         .convert_markdown(markdown)
         .map_err(|e| LunarError::Markdown2Pdf(e.to_string()))?;
 
-    std::fs::write(&output_path, pdf_bytes)
-        .map_err(|e| LunarError::Markdown2Pdf(e.to_string()))?;
+    std::fs::write(&output_path, pdf_bytes).map_err(|e| LunarError::Markdown2Pdf(e.to_string()))?;
 
     Ok(())
 }

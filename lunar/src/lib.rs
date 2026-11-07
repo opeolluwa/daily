@@ -11,6 +11,9 @@ pub mod utils;
 #[cfg(not(target_arch = "wasm32"))]
 pub use data_engine::DataEngine;
 pub use sea_orm;
-
+#[cfg(feature = "cipher")]
+pub mod cipher;
+#[cfg(feature = "pdf")]
+pub mod ironpress;
 #[cfg(not(target_arch = "wasm32"))]
 pub use migration;

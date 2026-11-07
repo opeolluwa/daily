@@ -1,15 +1,6 @@
 # Daily
 
-A personal productivity console app built with Tauri, Nuxt 4, and Vue 3. Brings notes, snippets, bookmarks, and tasks into one workspace.
-
-## Features
-
-- **Notes** — create and manage personal notes
-- **Bookmarks** — save and organize web links
-- **Snippets** — store reusable code with syntax highlighting
-- **Todo** — track tasks and to-dos
-- **Paste Bin** — save, pin, and reuse snippets of text and links
-- **Moodboard** — visual inspiration board
+A customizable personal assistance in manking
 
 ## Tech Stack
 

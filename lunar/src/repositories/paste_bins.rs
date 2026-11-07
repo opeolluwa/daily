@@ -255,9 +255,7 @@ impl TransferRecord for PasteBinRepository {
             .record_exists_in_workspace(record_identifier, previous_workspace_identifier)
             .await?
         {
-            return Err(LunarError::PasteBinNotFound(
-                record_identifier.to_string(),
-            ));
+            return Err(LunarError::PasteBinNotFound(record_identifier.to_string()));
         }
 
         let Some(record) = paste_bins::Entity::find()
@@ -266,9 +264,7 @@ impl TransferRecord for PasteBinRepository {
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
         else {
-            return Err(LunarError::PasteBinNotFound(
-                record_identifier.to_string(),
-            ));
+            return Err(LunarError::PasteBinNotFound(record_identifier.to_string()));
         };
 
         let mut active_model = record.into_active_model();
@@ -340,9 +336,7 @@ impl DuplicateRecord for PasteBinRepository {
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
         else {
-            return Err(LunarError::PasteBinNotFound(
-                record_identifier.to_string(),
-            ));
+            return Err(LunarError::PasteBinNotFound(record_identifier.to_string()));
         };
 
         let mut new_record = record.into_active_model();

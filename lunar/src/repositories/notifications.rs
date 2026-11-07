@@ -56,11 +56,8 @@ pub trait NotificationRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<notifications::Model, LunarError>;
 
-    async fn delete(
-        &self,
-        identifier: &Uuid,
-        meta: &Option<RequestMeta>,
-    ) -> Result<(), LunarError>;
+    async fn delete(&self, identifier: &Uuid, meta: &Option<RequestMeta>)
+    -> Result<(), LunarError>;
 }
 
 #[async_trait]
@@ -213,12 +210,9 @@ impl NotificationRepository {
         let notification_type: NotificationType =
             serde_wasm_bindgen::from_value(notification_type).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let models = <Self as NotificationRepositoryExt>::find_by_type(
-            self,
-            &notification_type,
-            &meta,
-        )
-        .await?;
+        let models =
+            <Self as NotificationRepositoryExt>::find_by_type(self, &notification_type, &meta)
+                .await?;
         to_js(&models)
     }
 

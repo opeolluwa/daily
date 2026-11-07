@@ -9,8 +9,8 @@ use sea_orm::{
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
-use crate::types::EntitySyncResult;
 use crate::entities::sea_orm_active_enums::{ItemType, Tag};
+use crate::types::EntitySyncResult;
 use crate::{
     adapters::{
         bookmarks::{CreateBookmark, UpdateBookmark},
@@ -275,28 +275,29 @@ impl BookmarkRepositoryExt for BookmarkRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), LunarError> = async {
-                            let exists = bookmark::Entity::find()
-                                .filter(bookmark::Column::Identifier.eq(model.identifier))
-                                .one(conn.as_ref())
-                                .await
-                                .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-                                .is_some();
+                        let op_result: Result<(), LunarError> =
+                            async {
+                                let exists = bookmark::Entity::find()
+                                    .filter(bookmark::Column::Identifier.eq(model.identifier))
+                                    .one(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?
+                                    .is_some();
 
-                            let active_model = model.into_active_model();
+                                let active_model = model.into_active_model();
 
-                            if exists {
-                                active_model.update(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
-                            } else {
-                                active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                if exists {
+                                    active_model.update(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                } else {
+                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                }
+                                Ok(())
                             }
-                            Ok(())
-                        }
-                        .await;
+                            .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -478,11 +479,7 @@ impl BookmarkRepository {
     }
 
     #[wasm_bindgen(js_name = "find_by_tag")]
-    pub async fn find_by_tag_js(
-        &self,
-        tag: JsValue,
-        meta: JsValue,
-    ) -> Result<JsValue, JsValue> {
+    pub async fn find_by_tag_js(&self, tag: JsValue, meta: JsValue) -> Result<JsValue, JsValue> {
         let tag: Tag = serde_wasm_bindgen::from_value(tag).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let models = <Self as BookmarkRepositoryExt>::find_by_tag(self, &tag, &meta).await?;
@@ -521,7 +518,9 @@ impl BookmarkRepository {
     #[wasm_bindgen(js_name = "exists")]
     pub async fn exists_js(&self, identifier: &str) -> Result<bool, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
-        <Self as BookmarkRepositoryExt>::exists(self, &id).await.map_err(JsValue::from)
+        <Self as BookmarkRepositoryExt>::exists(self, &id)
+            .await
+            .map_err(JsValue::from)
     }
 
     #[wasm_bindgen(js_name = "transfer_record")]

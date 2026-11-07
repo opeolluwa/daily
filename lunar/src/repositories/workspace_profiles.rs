@@ -9,12 +9,12 @@ use sea_orm::{
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
-use crate::types::EntitySyncResult;
 use crate::repositories::{
     prelude::WorkspaceRepositoryExt,
     workspace::WorkspaceRepository,
     workspace_manager::{DuplicateRecord, RecordExistInWorkspace, TransferRecord},
 };
+use crate::types::EntitySyncResult;
 use crate::{
     adapters::{
         meta::RequestMeta,
@@ -96,9 +96,7 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
         let meta = extract_req_meta(meta)?;
 
         workspace_profiles::Entity::find()
-            .filter(
-                workspace_profiles::Column::WorkspaceIdentifier.eq(meta.workspace_identifier),
-            )
+            .filter(workspace_profiles::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))
@@ -114,9 +112,7 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
 
         let model = workspace_profiles::Entity::find()
             .filter(workspace_profiles::Column::Identifier.eq(*identifier))
-            .filter(
-                workspace_profiles::Column::WorkspaceIdentifier.eq(meta.workspace_identifier),
-            )
+            .filter(workspace_profiles::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
@@ -159,9 +155,7 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), LunarError> = async {
                             let exists = workspace_profiles::Entity::find()
-                                .filter(
-                                    workspace_profiles::Column::Identifier.eq(model.identifier),
-                                )
+                                .filter(workspace_profiles::Column::Identifier.eq(model.identifier))
                                 .one(conn.as_ref())
                                 .await
                                 .map_err(|err| LunarError::DbOperationError(err.to_string()))?
@@ -170,13 +164,15 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
                             let active_model = model.into_active_model();
 
                             if exists {
-                                active_model.update(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                active_model
+                                    .update(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
                             } else {
-                                active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                active_model
+                                    .insert(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
                             }
                             Ok(())
                         }
@@ -308,8 +304,7 @@ impl DuplicateRecord for WorkspaceProfileRepository {
         let Some(record) = workspace_profiles::Entity::find()
             .filter(workspace_profiles::Column::Identifier.eq(*record_identifier))
             .filter(
-                workspace_profiles::Column::WorkspaceIdentifier
-                    .eq(*previous_workspace_identifier),
+                workspace_profiles::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier),
             )
             .one(self.conn.as_ref())
             .await
@@ -347,8 +342,7 @@ impl WorkspaceProfileRepository {
         let payload: CreateWorkspaceProfile =
             serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let model = <Self as WorkspaceProfileRepositoryExt>::create(self, &payload, &meta)
-            .await?;
+        let model = <Self as WorkspaceProfileRepositoryExt>::create(self, &payload, &meta).await?;
         to_js(&model)
     }
 

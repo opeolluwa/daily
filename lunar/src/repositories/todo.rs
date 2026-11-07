@@ -10,9 +10,9 @@ use sea_orm::{
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
-use crate::types::EntitySyncResult;
 use crate::adapters::meta::RequestMeta;
 use crate::entities::sea_orm_active_enums::{ItemType, Priority};
+use crate::types::EntitySyncResult;
 use crate::utils::{extract_req_meta, js_err, mock_connection, to_js};
 use crate::{
     adapters::{
@@ -309,28 +309,29 @@ impl TodoRepositoryExt for TodoRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), LunarError> = async {
-                            let exists = todo::Entity::find()
-                                .filter(todo::Column::Identifier.eq(model.identifier))
-                                .one(conn.as_ref())
-                                .await
-                                .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-                                .is_some();
+                        let op_result: Result<(), LunarError> =
+                            async {
+                                let exists = todo::Entity::find()
+                                    .filter(todo::Column::Identifier.eq(model.identifier))
+                                    .one(conn.as_ref())
+                                    .await
+                                    .map_err(|err| LunarError::DbOperationError(err.to_string()))?
+                                    .is_some();
 
-                            let active_model = model.into_active_model();
+                                let active_model = model.into_active_model();
 
-                            if exists {
-                                active_model.update(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
-                            } else {
-                                active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                    LunarError::DbOperationError(err.to_string())
-                                })?;
+                                if exists {
+                                    active_model.update(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                } else {
+                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                        LunarError::DbOperationError(err.to_string())
+                                    })?;
+                                }
+                                Ok(())
                             }
-                            Ok(())
-                        }
-                        .await;
+                            .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -489,7 +490,11 @@ impl TodoRepository {
     }
 
     #[wasm_bindgen(js_name = "create_todo")]
-    pub async fn create_todo_js(&self, payload: JsValue, meta: JsValue) -> Result<JsValue, JsValue> {
+    pub async fn create_todo_js(
+        &self,
+        payload: JsValue,
+        meta: JsValue,
+    ) -> Result<JsValue, JsValue> {
         let payload: CreateTodo = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as TodoRepositoryExt>::create_todo(self, &payload, &meta).await?;
@@ -543,8 +548,8 @@ impl TodoRepository {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
         let priority: Priority = serde_wasm_bindgen::from_value(priority).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let model = <Self as TodoRepositoryExt>::change_priority(self, &id, &priority, &meta)
-            .await?;
+        let model =
+            <Self as TodoRepositoryExt>::change_priority(self, &id, &priority, &meta).await?;
         to_js(&model)
     }
 
