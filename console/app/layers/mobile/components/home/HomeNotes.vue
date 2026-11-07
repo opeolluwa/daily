@@ -23,9 +23,11 @@ function formatDate(iso: string) {
 <template>
   <USkeleton v-if="noteStore.loading" class="mt-4 h-40 rounded-2xl" />
 
-  <div
+  <RyderCard
     v-else
-    class="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/15 dark:bg-gray-800/60"
+    :ui="{
+      root: 'mt-4 overflow-hidden !rounded-2xl !border-gray-200 !bg-white dark:!border-white/15 dark:!bg-gray-800/60 !p-0',
+    }"
   >
     <div
       v-if="recentNotes.length > 0"
@@ -83,5 +85,5 @@ function formatDate(iso: string) {
         </span>
       </NuxtLink>
     </div>
-  </div>
+  </RyderCard>
 </template>

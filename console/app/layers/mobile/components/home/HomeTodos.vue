@@ -45,9 +45,11 @@ function formatDate(iso: string) {
 <template>
   <USkeleton v-if="todoStore.loading" class="mt-5 h-32 rounded-2xl" />
 
-  <div
+  <RyderCard
     v-else
-    class="mt-5 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/15 dark:bg-gray-800/60"
+    :ui="{
+      root: 'mt-5 overflow-hidden !rounded-2xl !border-gray-200 !bg-white dark:!border-white/15 dark:!bg-gray-800/60 !p-0',
+    }"
   >
     <div
       v-if="activeTodos.length > 0"
@@ -135,5 +137,5 @@ function formatDate(iso: string) {
         </span>
       </div>
     </div>
-  </div>
+  </RyderCard>
 </template>

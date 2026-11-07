@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useBookmarkStore } from "@shared/stores/bookmarks";
 import { safeOpenUrl as openUrl } from "@shared/utils/safe-open-url";
-import AppFab from "@mobile/components/app/fab.vue";
 import BookmarkCard from "@mobile/components/bookmark/bookmark-card.vue";
 
 definePageMeta({ name: "Bookmarks" });
@@ -21,11 +20,12 @@ function handleCreated() {
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => bookmarkStore.fetchBookmarks()">
+  <RyderPullToRefresh @refresh="() => bookmarkStore.fetchBookmarks()">
     <div>
       <!-- Create bookmark FAB -->
-      <AppFab
+      <RyderFab
         v-if="bookmarkStore.bookmarks.length !== 0"
+        class="!bottom-24"
         @click="showCreatePopup = true"
       />
 
@@ -62,5 +62,5 @@ function handleCreated() {
         @created="handleCreated"
       />
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

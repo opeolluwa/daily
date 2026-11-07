@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useWorkspacesStore } from "@shared/stores/workspaces";
-import AppFab from "@mobile/components/app/fab.vue";
 import WorkspaceCard from "@mobile/components/workspace/workspace-card.vue";
 definePageMeta({ name: "Workspaces" });
 
@@ -141,39 +140,37 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
           <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
             Edit workspace
           </h3>
-          <UFormField label="Name">
-            <UInput
-              v-model="editName"
-              placeholder="Workspace name"
-              class="w-full"
-              :disabled="editSubmitting"
-            />
-          </UFormField>
-          <UFormField label="Description">
-            <UInput
-              v-model="editDescription"
-              placeholder="Short description"
-              class="w-full"
-              :disabled="editSubmitting"
-            />
-          </UFormField>
+          <RyderInput
+            v-model="editName"
+            label="Name"
+            placeholder="Workspace name"
+            class="w-full"
+            :disabled="editSubmitting"
+          />
+          <RyderInput
+            v-model="editDescription"
+            label="Description"
+            placeholder="Short description"
+            class="w-full"
+            :disabled="editSubmitting"
+          />
           <div class="flex items-center gap-2 mt-2">
-            <UButton
+            <RyderButton
               size="sm"
               :loading="editSubmitting"
               :disabled="!editName.trim()"
               @click="submitEdit"
             >
               Save
-            </UButton>
-            <UButton
+            </RyderButton>
+            <RyderButton
               variant="ghost"
               size="sm"
               :disabled="editSubmitting"
               @click="closeEdit"
             >
               Cancel
-            </UButton>
+            </RyderButton>
           </div>
         </div>
       </template>
@@ -194,6 +191,10 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
       @created="handleCreated"
     />
 
-    <AppFab v-if="!showCreateModal" @click="showCreateModal = true" />
+    <RyderFab
+      v-if="!showCreateModal"
+      class="!bottom-24"
+      @click="showCreateModal = true"
+    />
   </div>
 </template>

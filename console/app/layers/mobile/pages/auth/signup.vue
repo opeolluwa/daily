@@ -7,6 +7,7 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
 <template>
   <div class="flex flex-col flex-1">
     <RyderPageHeader
+      class="!flex"
       title="Create your account"
       subtitle="Get started in a few seconds."
     />
@@ -53,7 +54,13 @@ const { form, errors, loading, submitError, handleSubmit } = useSignup();
 
       <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-      <RyderButton type="submit" class="w-full" size="md" :loading="loading" :disabled="loading">
+      <RyderButton
+        type="submit"
+        class="w-full"
+        size="md"
+        :loading="loading"
+        :disabled="loading"
+      >
         Create account
       </RyderButton>
     </form>

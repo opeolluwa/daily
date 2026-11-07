@@ -2,9 +2,8 @@
 definePageMeta({ layout: "auth" });
 
 const { rememberedEmail } = useRememberedEmail();
-const { form, errors, loading, submitError, handleSubmit } = useLogin(
-  rememberedEmail,
-);
+const { form, errors, loading, submitError, handleSubmit } =
+  useLogin(rememberedEmail);
 
 function handleLogin() {
   if (!rememberedEmail.value) {
@@ -18,6 +17,7 @@ function handleLogin() {
 <template>
   <div class="flex flex-col flex-1">
     <RyderPageHeader
+      class="!flex"
       title="Welcome back, Adeoye"
       subtitle="Enter your password to continue."
     />

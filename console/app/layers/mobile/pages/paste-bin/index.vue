@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AppFab from "@mobile/components/app/fab.vue";
 import PasteBinCard from "@mobile/components/paste-bin/card.vue";
 import PasteBinCreatePopup from "@mobile/components/paste-bin/create-popup.vue";
 import { usePasteBinStore, type PasteBin } from "@shared/stores/paste-bin";
@@ -54,10 +53,11 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => pasteBinStore.fetchPasteBins()">
+  <RyderPullToRefresh @refresh="() => pasteBinStore.fetchPasteBins()">
     <div>
-      <AppFab
+      <RyderFab
         v-if="!pasteBinStore.loading && filteredPastes.length > 0"
+        class="!bottom-24"
         @click="openCreate"
       />
 
@@ -107,5 +107,5 @@ onUnmounted(() => clearSearch());
         @saved="handleSaved"
       />
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

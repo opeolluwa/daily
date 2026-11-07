@@ -34,11 +34,11 @@ onMounted(refreshAll);
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="refreshAll">
+  <RyderPullToRefresh @refresh="refreshAll">
     <HomeHeader />
     <!-- <HomeStats />  -->
     <HomeTodos />
     <HomeNotes />
     <HomeBookmarks />
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

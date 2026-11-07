@@ -2,8 +2,6 @@
 import { useNoteStore } from "@shared/stores/notes";
 import { onBeforeRouteLeave } from "vue-router";
 import EditorToolBar from "@shared/components/notes/EditorToolBar.vue";
-import ToolBarWrapper from "@mobile/components/app/ToolBarWrapper.vue";
-import AppFab from "@mobile/components/app/fab.vue";
 import NoteTitleInput from "@shared/components/notes/note-title-input.vue";
 definePageMeta({ name: "New note", layout: "notes", keepalive: true });
 
@@ -28,13 +26,9 @@ onActivated(() => {
 
 const lastSaved = ref<Date | null>(null);
 
-const plainText = computed(() =>
-  content.value.replace(/<[^>]*>/g, "").trim(),
-);
+const plainText = computed(() => content.value.replace(/<[^>]*>/g, "").trim());
 
-const hasContent = computed(
-  () => !!title.value.trim() || !!plainText.value,
-);
+const hasContent = computed(() => !!title.value.trim() || !!plainText.value);
 
 async function handleSave() {
   if (!hasContent.value) return;
@@ -81,9 +75,9 @@ onBeforeRouteLeave(async () => {
 
     <NotesEditor ref="notesEditor" v-model="content">
       <template #toolbar>
-        <ToolBarWrapper>
+        <RyderToolBarWrapper class="dark:!bg-app-dark-900">
           <EditorToolBar />
-        </ToolBarWrapper>
+        </RyderToolBarWrapper>
       </template>
     </NotesEditor>
 
@@ -91,6 +85,6 @@ onBeforeRouteLeave(async () => {
       {{ error }}
     </p>
 
-    <AppFab icon="ri:save-line" @click="handleSave" />
+    <RyderFab class="!bottom-24" icon="ri:save-line" @click="handleSave" />
   </div>
 </template>

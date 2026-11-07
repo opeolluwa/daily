@@ -1,7 +1,7 @@
 import { resolve } from "path";
 
-const isMobile = process.env.NUXT_APP_TARGET === "mobile";
-// const isMobile = true
+// const isMobile = process.env.NUXT_APP_TARGET === "mobile";
+const isMobile = true
 
 export default defineNuxtConfig({
   srcDir: "app",
@@ -81,13 +81,6 @@ export default defineNuxtConfig({
     defaultLocale: "en",
     locales: ["en"],
     strategy: "no_prefix",
-  },
-
-  googleFonts: {
-    families: {
-      Lato: [400, 700],
-    },
-    display: "swap",
   },
 
   site: {

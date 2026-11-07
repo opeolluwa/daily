@@ -97,38 +97,37 @@ async function handleSubmit() {
               : "This workspace will require a password before it can be accessed."
           }}
         </p>
-        <UFormField
+        <RyderPasswordInput
+          v-model="password"
           :label="targetWorkspace?.isSecured ? 'Current password' : 'Password'"
-        >
-          <RyderPasswordInput
-            v-model="password"
-            placeholder="Enter password"
-            class="w-full"
-            :disabled="submitting"
-          />
-        </UFormField>
-        <UFormField v-if="!targetWorkspace?.isSecured" label="Confirm password">
-          <RyderPasswordInput
-            v-model="confirm"
-            placeholder="Confirm password"
-            class="w-full"
-            :disabled="submitting"
-          />
-        </UFormField>
+          placeholder="Enter password"
+          class="w-full"
+          :disabled="submitting"
+          :required="false"
+        />
+        <RyderPasswordInput
+          v-if="!targetWorkspace?.isSecured"
+          v-model="confirm"
+          label="Confirm password"
+          placeholder="Confirm password"
+          class="w-full"
+          :disabled="submitting"
+          :required="false"
+        />
         <p v-if="error" class="text-xs text-red-500 dark:text-red-400">
           {{ error }}
         </p>
         <div class="flex items-center gap-2 mt-2">
-          <UButton
+          <RyderButton
             variant="ghost"
             size="sm"
             :disabled="submitting"
             @click="close"
           >
             Cancel
-          </UButton>
+          </RyderButton>
 
-          <UButton
+          <RyderButton
             size="sm"
             :color="targetWorkspace?.isSecured ? 'error' : 'primary'"
             :loading="submitting"

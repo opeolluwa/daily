@@ -122,16 +122,17 @@ async function handleSubmit() {
           >
             {{ editing ? "Edit Paste" : "New Paste" }}
           </h2>
-          <UButton
+          <RyderButton
             size="md"
             color="neutral"
             variant="ghost"
-            icon="heroicons:x-mark"
             aria-label="Close"
             :disabled="loading"
             class="-mr-2"
             @click="requestClose"
-          />
+          >
+            <UIcon name="heroicons:x-mark" class="size-5" />
+          </RyderButton>
         </div>
         <p class="pt-1 text-sm text-gray-500 dark:text-gray-400">
           Save text, links, or anything you want to keep handy.

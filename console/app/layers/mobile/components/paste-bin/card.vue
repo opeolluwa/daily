@@ -72,8 +72,10 @@ const handleTransfer = async (targetWorkspaceId: string) => {
 </script>
 
 <template>
-  <div
-    class="cursor-pointer overflow-hidden rounded-lg border border-gray-100 bg-white transition-shadow hover:shadow-sm dark:border-gray-700 dark:bg-gray-800"
+  <RyderCard
+    :ui="{
+      root: 'cursor-pointer overflow-hidden transition-shadow hover:shadow-sm !rounded-lg !border-gray-100 dark:!border-gray-700 dark:!bg-gray-800 !p-0',
+    }"
     @click="emit('edit', identifier)"
   >
     <div class="p-4">
@@ -134,5 +136,5 @@ const handleTransfer = async (targetWorkspaceId: string) => {
         />
       </div>
     </div>
-  </div>
+  </RyderCard>
 </template>

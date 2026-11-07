@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AppFab from "@mobile/components/app/fab.vue";
 import { useTodoStore } from "@shared/stores/todo";
 
 definePageMeta({ name: "Tasks" });
@@ -19,11 +18,12 @@ function handleCreated() {
 </script>
 
 <template>
-  <AppPullToRefresh @refresh="() => todoStore.fetchTodos()">
+  <RyderPullToRefresh @refresh="() => todoStore.fetchTodos()">
     <div>
       <!-- Create task FAB -->
-      <AppFab
+      <RyderFab
         v-if="todoStore.todos.length !== 0"
+        class="!bottom-24"
         @click="showCreatePopup = true"
       />
       <!-- Loading -->
@@ -59,5 +59,5 @@ function handleCreated() {
         @created="handleCreated"
       />
     </div>
-  </AppPullToRefresh>
+  </RyderPullToRefresh>
 </template>

@@ -2,8 +2,6 @@
 import { useNoteStore } from "@shared/stores/notes";
 import { onBeforeRouteLeave } from "vue-router";
 import EditorToolBar from "@shared/components/notes/EditorToolBar.vue";
-import ToolBarWrapper from "@mobile/components/app/ToolBarWrapper.vue";
-import AppFab from "@mobile/components/app/fab.vue";
 import NoteTitleInput from "@shared/components/notes/note-title-input.vue";
 
 definePageMeta({ keepalive: true, name: "Edit notes", layout: "notes" });
@@ -128,15 +126,15 @@ onMounted(async () => {
 
       <NotesEditor :key="id" ref="notesEditor" v-model="content">
         <template #toolbar>
-          <ToolBarWrapper>
+          <RyderToolBarWrapper class="dark:!bg-app-dark-900">
             <EditorToolBar />
-          </ToolBarWrapper>
+          </RyderToolBarWrapper>
         </template>
       </NotesEditor>
 
       <p v-if="error" class="text-xs text-red-500 mt-4">{{ error }}</p>
 
-      <AppFab icon="ri:save-line" @click="handleSave"  />
+      <RyderFab class="!bottom-24" icon="ri:save-line" @click="handleSave" />
     </template>
   </div>
 </template>

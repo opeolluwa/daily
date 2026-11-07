@@ -94,29 +94,29 @@ async function handleSubmit() {
 
       <div class="shrink-0 px-4 pb-5">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
+          <h2
+            class="text-lg font-semibold leading-6 text-gray-900 dark:text-white"
+          >
             {{ title }}
           </h2>
-          <UButton
+          <RyderButton
             size="md"
             color="neutral"
             variant="ghost"
-            icon="heroicons:x-mark"
             aria-label="Close"
             :disabled="loading"
             class="-mr-2"
             @click="requestClose"
-          />
+          >
+            <UIcon name="heroicons:x-mark" class="size-5" />
+          </RyderButton>
         </div>
         <p class="pt-1 text-sm text-gray-500 dark:text-gray-400">
           {{ description }}
         </p>
       </div>
 
-      <form
-        class="flex min-h-0 flex-1 flex-col"
-        @submit.prevent="handleSubmit"
-      >
+      <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="handleSubmit">
         <div
           class="flex-1 overflow-y-auto px-4 pb-4"
           style="-webkit-overflow-scrolling: touch"
@@ -147,7 +147,9 @@ async function handleSubmit() {
             </p>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
+              <label
+                class="text-xs font-medium text-gray-600 dark:text-gray-400"
+              >
                 Tag
               </label>
               <URadioGroup
@@ -169,9 +171,9 @@ async function handleSubmit() {
         <div
           class="flex shrink-0 items-center justify-end gap-3 px-4 pb-2 pt-3"
         >
-          <UButton type="submit" :loading="loading">
+          <RyderButton type="submit" :loading="loading">
             {{ submitLabel }}
-          </UButton>
+          </RyderButton>
         </div>
       </form>
     </div>

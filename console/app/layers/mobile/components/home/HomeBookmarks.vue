@@ -10,9 +10,11 @@ const recentBookmarks = computed(() => bookmarkStore.bookmarks.slice(0, 3));
 <template>
   <USkeleton v-if="bookmarkStore.loading" class="mt-4 h-40 rounded-2xl" />
 
-  <div
+  <RyderCard
     v-else
-    class="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/15 dark:bg-gray-800/60"
+    :ui="{
+      root: 'mt-4 overflow-hidden !rounded-2xl !border-gray-200 !bg-white dark:!border-white/15 dark:!bg-gray-800/60 !p-0',
+    }"
   >
     <div
       v-if="recentBookmarks.length > 0"
@@ -72,5 +74,5 @@ const recentBookmarks = computed(() => bookmarkStore.bookmarks.slice(0, 3));
         </div>
       </div>
     </div>
-  </div>
+  </RyderCard>
 </template>
