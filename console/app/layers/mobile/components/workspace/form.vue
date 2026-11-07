@@ -96,18 +96,14 @@ async function handleSubmit() {
       </p>
     </div>
 
-    <div
-      class="sticky bottom-0 -mx-6 border-t border-gray-100 bg-white/95 px-6 py-3 backdrop-blur dark:border-gray-700 dark:bg-app-dark-800/95"
+    <RyderButton
+      type="submit"
+      size="md"
+      block
+      :loading="loading"
+      :disabled="loading"
     >
-      <RyderButton
-        type="submit"
-        size="md"
-        block
-        :loading="loading"
-        :disabled="loading"
-      >
-        {{ editing ? "Save changes" : "Create workspace" }}
-      </RyderButton>
-    </div>
+      {{ editing ? "Save changes" : "Create workspace" }}
+    </RyderButton>
   </form>
 </template>
