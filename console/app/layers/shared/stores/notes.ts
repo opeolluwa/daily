@@ -11,6 +11,9 @@ export type CreateNotePayload = Partial<CreateNote> & {
 
 export type UpdateNotePayload = Partial<UpdateNote>;
 
+type PdfExportStatus =
+  { status: "exported"; path: string } | { status: "duplicate"; path: string };
+
 export const useNoteStore = defineStore("notes_store", {
   state: () => ({
     notes: [] as Note[],
@@ -126,16 +129,14 @@ export const useNoteStore = defineStore("notes_store", {
     async exportAsPdf(
       recordIdentifier: string,
       previousWorkspaceIdentifier: string,
+      overwrite = false,
     ) {
-      try {
-        await invoke("export_notes_as_pdf", {
-          recordIdentifier,
-          previousWorkspaceIdentifier,
-          meta: await getWorkspaceMeta(),
-        });
-      } catch (err) {
-        console.log((err as unknown as Error).message);
-      }
+      return await invoke<PdfExportStatus | undefined>("export_notes_as_pdf", {
+        recordIdentifier,
+        previousWorkspaceIdentifier,
+        meta: await getWorkspaceMeta(),
+        overwrite,
+      });
     },
 
     async fetchUnsynced() {

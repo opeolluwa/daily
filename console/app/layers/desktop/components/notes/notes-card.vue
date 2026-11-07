@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useNoteStore } from "@shared/stores/notes";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
+import WarningModal from "@shared/components/app/WarningModal.vue";
 
 const props = defineProps<{
   identifier: string;
@@ -45,8 +46,17 @@ async function confirmDelete() {
   await noteStore.deleteNote(props.identifier);
 }
 
-async function downloadMarkdown() {
-  await noteStore.exportAsPdf(props.identifier, currentWorkspaceId.value);
+const {
+  showOverwriteConfirm,
+  overwriteMessage,
+  exporting,
+  exportAsPdf,
+  confirmOverwrite,
+  cancelOverwrite,
+} = useNotePdfExport();
+
+async function exportPdf() {
+  await exportAsPdf(props.identifier, currentWorkspaceId.value);
 }
 const workspaceStore = useWorkspacesStore();
 const currentWorkspaceId = computed(() => workspaceStore.activeWorkspaceId);
@@ -70,7 +80,9 @@ const handleTransfer = async (targetWorkspaceId: string) => {
 
 <template>
   <RyderCard
-    :ui="{ root: '!p-0 overflow-hidden cursor-pointer hover:shadow-sm transition-shadow' }"
+    :ui="{
+      root: '!p-0 overflow-hidden cursor-pointer hover:shadow-sm transition-shadow',
+    }"
     @click="router.push(`/notes/edit-notes?id=${identifier}`)"
   >
     <div class="p-4">
@@ -94,8 +106,8 @@ const handleTransfer = async (targetWorkspaceId: string) => {
       <div class="flex items-center gap-2" @click.stop>
         <button
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          title="Download as .md"
-          @click="downloadMarkdown"
+          title="Download as PDF"
+          @click="exportPdf"
         >
           <UIcon name="heroicons:arrow-down-tray" class="size-3.5" />
         </button>
@@ -113,4 +125,14 @@ const handleTransfer = async (targetWorkspaceId: string) => {
       </div>
     </div>
   </RyderCard>
+
+  <WarningModal
+    v-model:open="showOverwriteConfirm"
+    title="Overwrite PDF"
+    :message="overwriteMessage"
+    confirm-label="Overwrite"
+    :loading="exporting"
+    @confirm="confirmOverwrite"
+    @cancel="cancelOverwrite"
+  />
 </template>

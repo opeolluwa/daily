@@ -3,12 +3,8 @@
     class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-gray-900"
   >
     <div class="flex flex-col items-center gap-6">
-      <!-- Icon -->
-      <div
-        class="size-20 rounded-2xl bg-primary-50 dark:bg-primary-950 flex items-center justify-center shadow-sm"
-      >
-        <UIcon name="i-lucide-nut" class="size-10 text-primary-500" />
-      </div>
+      <!-- Logo -->
+      <AppLogo class="size-20 rounded-2xl shadow-sm" />
 
       <!-- App name -->
       <div class="flex flex-col items-center gap-1">

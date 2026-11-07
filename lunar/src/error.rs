@@ -35,16 +35,13 @@ pub enum LunarError {
     #[error("Notification does not exist: {0}")]
     NotificationNotFound(String),
 
-    #[error("Failed to read download Directory")]
-    DownloadDirNotFound,
-
-    #[cfg(feature = "pdf")]
-    #[error("Failed to generate PDF: {0}")]
-    Markdown2Pdf(String),
-
     #[cfg(feature = "pdf")]
     #[error("Failed to generate PDF: {0}")]
     HTMLConversionError(String),
+
+    #[cfg(feature = "pdf")]
+    #[error("File already exists: {0}")]
+    FileExists(String),
 
     #[cfg(feature = "cipher")]
     #[error("Cipher key decode failed: {0}")]

@@ -3,8 +3,6 @@ pub mod adapters;
 pub mod data_engine;
 pub mod entities;
 pub mod error;
-#[cfg(feature = "pdf")]
-pub mod markdown2pdf;
 pub mod repositories;
 pub mod types;
 pub mod utils;

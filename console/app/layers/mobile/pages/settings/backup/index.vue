@@ -17,8 +17,8 @@ const options: {
   },
   {
     key: "cloud",
-    label: "Almond Cloud",
-    desc: "Sync across devices via Almond Cloud.",
+    label: "Cloud",
+    desc: "Sync data across devices managed Cloud.",
     icon: "heroicons:cloud",
   },
 ];
@@ -101,17 +101,17 @@ onMounted(() => backupStore.init());
       >
         <div>
           <p class="text-sm font-medium text-primary-700 dark:text-primary-300">
-            Almond Cloud
+            Authorize Cloud
           </p>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             Secure, encrypted sync. Plans start free.
           </p>
         </div>
         <NuxtLink
-          to="/pricing"
+          to="/settings/backup/cloud"
           class="shrink-0 px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors flex items-center gap-1.5"
         >
-          View plans
+          Connect
           <UIcon name="heroicons:arrow-top-right-on-square" class="size-3.5" />
         </NuxtLink>
       </div>

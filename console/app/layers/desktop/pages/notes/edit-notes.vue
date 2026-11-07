@@ -91,24 +91,7 @@ onBeforeRouteLeave(async () => {
   }
 });
 
-// ── downloads ─────────────────────────────────────────────────────────────────
-function downloadMarkdown() {
-  if (!original.value) return;
-  const filename = (title.value || "untitled").replace(/[^a-z0-9_\- ]/gi, "_");
-  const blob = new Blob([content.value], {
-    type: "text/markdown;charset=utf-8",
-  });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `${filename}.md`;
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
 
-function downloadPdf() {
-  notesEditor.value?.editor?.commands.printDocument();
-}
 
 onMounted(async () => {
   if (noteStore.notes.length === 0) {
@@ -210,7 +193,6 @@ onMounted(async () => {
             @click="handleSave"
           >
             Save changes
-            
           </RyderButton>
 
           <RyderButton
@@ -222,7 +204,7 @@ onMounted(async () => {
           >
             Discard
           </RyderButton>
-    
+
           <p
             class="text-center text-[10px] text-gray-300 dark:text-gray-600 mt-1"
           >
@@ -236,36 +218,7 @@ onMounted(async () => {
           </p>
         </div>
 
-        <!-- Export -->
-        <div class="mb-6">
-          <h2
-            class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3"
-          >
-            Export
-          </h2>
-          <div class="flex flex-col gap-2">
-            <button
-              class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
-              @click="downloadMarkdown"
-            >
-              <UIcon
-                name="heroicons:document-text"
-                class="size-3.5 shrink-0 text-gray-400"
-              />
-              Download as Markdown
-            </button>
-            <button
-              class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
-              @click="downloadPdf"
-            >
-              <UIcon
-                name="heroicons:arrow-down-tray"
-                class="size-3.5 shrink-0 text-gray-400"
-              />
-              Download as PDF
-            </button>
-          </div>
-        </div>
+
 
         <!-- Tips -->
         <div>
