@@ -67,6 +67,7 @@ const pageTitle = computed(() => {
       <RyderBottomNav
         :items="bottomNavItems"
         bg-class="bg-white dark:bg-app-dark-800"
+        class="!z-30"
       />
       <AppSideNav />
     </main>
