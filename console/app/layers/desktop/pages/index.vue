@@ -106,7 +106,7 @@ const today = computed(() =>
           </div>
         </div>
 
-        <UForm>
+        <UForm class="w-full max-w-xl">
           <UInput
             v-model="query"
             class="w-full max-w-xl"
