@@ -82,6 +82,7 @@
     "@typescript-eslint/parser": "^8.72.1",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-better-tailwindcss": "^4.10.0",
     "eslint-plugin-prettier": "^5.5.7",
     "prettier": "^3.9.10",
     "vue-eslint-parser": "^10.4.1"

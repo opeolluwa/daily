@@ -10,6 +10,10 @@ export default defineNuxtConfig({
     isMobile ? "./app/layers/mobile" : "./app/layers/desktop",
   ],
 
+  ui: {
+    eslint: true,
+  },
+
   alias: {
     "@desktop": resolve(__dirname, "app/layers/desktop"),
     "@mobile": resolve(__dirname, "app/layers/mobile"),
@@ -61,6 +65,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/image",
     "@nuxt/ui",
+    '@nuxt/eslint',
     "@nuxtjs/device",
     "@nuxtjs/google-fonts",
     "@nuxtjs/i18n",
