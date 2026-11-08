@@ -66,10 +66,8 @@
     "tailwind-animations": "^1.0.2",
     "tailwind-scrollbar": "^4.0.2",
     "uuid": "^14.0.3",
-    "v-calendar": "^3.1.2",
-    "villus": "^3.5.2",
+    "v-calendar": "^2.4.2",
     "vue": "^3.5.44",
-    "vue-draggable-plus": "^0.6.1",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
