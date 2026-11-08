@@ -4,7 +4,7 @@ import { useWorkspacesStore } from "@shared/stores/workspaces";
 const toast = useToast();
 const workspaceStore = useWorkspacesStore();
 
-// ── create workspace ──────────────────────────────────────────────────────────
+//create workspace
 const showCreateModal = ref(false);
 
 function handleCreated() {
@@ -13,10 +13,11 @@ function handleCreated() {
     icon: "heroicons:check-circle",
     title: "Workspace Created",
     description: "Your workspace is ready",
+    progress: false,
   });
 }
 
-// ── secure workspace ──────────────────────────────────────────────────────────
+// secure workspace
 const secureTargetId = ref<string | null>(null);
 const securePassword = ref("");
 const secureConfirm = ref("");

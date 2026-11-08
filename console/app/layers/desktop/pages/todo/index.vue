@@ -80,7 +80,7 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <NuxtLayout name="default" :show-side-content="isListViewMode">
+  <NuxtLayout name="default" :show-side-content="isListViewMode ^isEmptyList">
     <template #page_title>
       <RyderPageHeader
         title="Task"
@@ -179,7 +179,7 @@ onUnmounted(() => clearSearch());
     </template>
 
     <template #side_content>
-      <template v-if="isListViewMode">
+
         <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
           Summary
         </h2>
@@ -241,7 +241,7 @@ onUnmounted(() => clearSearch());
           </div>
         </div>
       </template>
-    </template>
+
 
     <template #modal_content>
       <TodoDialog v-model:open="dialogOpen" :todo="editingTodo" />

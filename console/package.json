@@ -59,6 +59,7 @@
     "lunar": "file:../lunar",
     "nuxt": "^4.6.4",
     "nuxt-seo-utils": "9.0.1",
+    "pinia": "^4.1.0",
     "pinia-plugin-persistedstate": "^4.7.1",
     "rxjs": "^7.8.2",
     "scule": "^1.3.0",

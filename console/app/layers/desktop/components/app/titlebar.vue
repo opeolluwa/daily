@@ -3,7 +3,7 @@ import { useAuthStore } from "@shared/stores/auth";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform } from "@tauri-apps/plugin-os";
 import { useEventListener } from "@vueuse/core";
-import { computed, onMounted, watch } from "vue";
+import { computed, } from "vue";
 import { IS_WEB } from "@shared/env";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
