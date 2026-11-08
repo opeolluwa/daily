@@ -84,8 +84,16 @@ const today = computed(() =>
   <NuxtLayout name="default">
     <template #main_content>
       <div
-        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-6 px-6"
+        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-6 px-6 relative"
       >
+        <div
+          class="pointer-events-none absolute -top-20 -left-24 size-96 rounded-full bg-primary-300/20 dark:bg-primary-500/10 blur-3xl hidden md:block"
+        />
+
+        <div
+          class="pointer-events-none absolute -bottom-24 -right-24 size-96 rounded-full bg-violet-300/20 dark:bg-violet-500/10 blur-3xl hidden md:block"
+        />
+
         <div
           class="flex w-full flex-col items-center justify-center gap-4 text-center"
         >
@@ -114,6 +122,7 @@ const today = computed(() =>
             size="lg"
             placeholder="Search notes, bookmarks, todos…"
             :ui="{
+              root:'pl-3',
               base: 'py-4 shadow-sm bg-transparent placeholder:text-sm text-sm rounded-full',
               leadingIcon: 'text-primary size-5',
             }"
@@ -123,7 +132,7 @@ const today = computed(() =>
                 color="neutral"
                 icon="heroicons:sparkles-solid"
                 variant="link"
-                class="text-primary cursor-pointer font-medium"
+                class="text-primary pl-2 cursor-pointer font-medium"
                 size="lg"
               />
             </template>

@@ -67,6 +67,7 @@
     "v-calendar": "^3.1.2",
     "villus": "^3.5.2",
     "vue": "^3.5.44",
+    "vue-draggable-plus": "^0.6.1",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
