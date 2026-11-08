@@ -21,7 +21,7 @@ const { mobileNavOpen } = useMobileNav();
       <!-- Page content + inline aside (fullscreen mode) -->
       <div class="flex flex-1 overflow-hidden">
         <main
-          class="flex-1 overflow-y-auto scrollbar-config p-6 dark:bg-app-dark-800"
+          class="flex flex-1 flex-col overflow-y-auto scrollbar-config p-6 dark:bg-app-dark-800"
         >
           <div class="flex items-center gap-3 mb-1" />
           <slot name="page_title" />
@@ -42,7 +42,7 @@ const { mobileNavOpen } = useMobileNav();
             "
             name="modal_content"
           />
-          <div class="mt-5">
+          <div class="mt-5 flex min-h-0 flex-1 flex-col">
             <div
               v-if="
                 workspaceStore.isCurrentWorkspaceLocked &&
