@@ -1,4 +1,4 @@
-import type { CreateTodo, Todo, UpdateTodo } from "lunar";
+import type { CreateTodo, Todo, TodoStatus, UpdateTodo } from "lunar";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 
@@ -77,11 +77,51 @@ export const useTodoStore = defineStore("todo_store", {
     },
 
     async toggleDone(identifier: string, done: boolean): Promise<Todo> {
-      const updated = await invoke<Todo>("mark_todo_done", {
+      let updated = await invoke<Todo>("mark_todo_done", {
         identifier,
         done,
         meta: await getWorkspaceMeta(),
       });
+
+      const nextStatus: TodoStatus = done
+        ? "done"
+        : updated.status === "done"
+          ? "planned"
+          : updated.status;
+
+      if (nextStatus !== updated.status) {
+        updated = await invoke<Todo>("update_todo", {
+          identifier,
+          todo: { status: nextStatus },
+          meta: await getWorkspaceMeta(),
+        });
+      }
+
+      const idx = this.todos.findIndex((t) => t.identifier === identifier);
+      if (idx !== -1) this.todos[idx] = updated;
+
+      return updated;
+    },
+
+    async updateTodoStatus(
+      identifier: string,
+      status: TodoStatus,
+    ): Promise<Todo> {
+      let updated = await invoke<Todo>("update_todo", {
+        identifier,
+        todo: { status },
+        meta: await getWorkspaceMeta(),
+      });
+
+      const shouldBeDone = status === "done";
+
+      if (updated.done !== shouldBeDone) {
+        updated = await invoke<Todo>("mark_todo_done", {
+          identifier,
+          done: shouldBeDone,
+          meta: await getWorkspaceMeta(),
+        });
+      }
 
       const idx = this.todos.findIndex((t) => t.identifier === identifier);
       if (idx !== -1) this.todos[idx] = updated;

@@ -95,6 +95,9 @@ importers:
       '@tauri-apps/plugin-window-state':
         specifier: ^2.5.0
         version: 2.5.0
+      '@vue-dnd-kit/core':
+        specifier: ^3.1.0
+        version: 3.1.0(vue@3.5.44(typescript@6.0.3))
       '@vueuse/core':
         specifier: ^14.4.0
         version: 14.4.0(vue@3.5.44(typescript@6.0.3))
@@ -3212,6 +3215,11 @@ packages:
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
       vue: ^3.2.25 || ^3.6.0-rc.10
+
+  '@vue-dnd-kit/core@3.1.0':
+    resolution: {integrity: sha512-7cPCNJmo8WYjSQHsgKu/iQRj8MUC0EIWRCMgFmIOS1YrrWv7nOt8BdNI6F1oUJoH/u/o9jbxWMbXVdnYSgf1Zw==}
+    peerDependencies:
+      vue: ^3.5.0
 
   '@vue-macros/common@3.1.4':
     resolution: {integrity: sha512-/5Fv+6DgIcM9ajY05ZmKBv+LMX1M9A0X+IUwDRVdt67ciw8OV9bvG2r34p3RiEadlsQybjhKPRKNXDC8Bp23cw==}
@@ -9905,6 +9913,11 @@ snapshots:
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
+      vue: 3.5.44(typescript@6.0.3)
+
+  '@vue-dnd-kit/core@3.1.0(vue@3.5.44(typescript@6.0.3))':
+    dependencies:
+      '@vueuse/core': 14.4.0(vue@3.5.44(typescript@6.0.3))
       vue: 3.5.44(typescript@6.0.3)
 
   '@vue-macros/common@3.1.4(vue@3.5.44(typescript@6.0.3))':

@@ -9,62 +9,27 @@ import {
   sortTodos,
   type TodoSort,
 } from "@shared/utils/sorting";
-import { VueDraggable } from "vue-draggable-plus";
-
-type TodoStatus = "planned" | "in_progress" | "rescheduled" | "done";
-
-const columns: {
-  label: string;
-  status: TodoStatus;
-}[] = [
-  { label: "Planned", status: "planned" },
-  { label: "In Progress", status: "in_progress" },
-  { label: "Rescheduled", status: "rescheduled" },
-  { label: "Done", status: "done" },
-];
-
-const board = reactive<Record<TodoStatus, Todo[]>>({
-  planned: [],
-  in_progress: [],
-  rescheduled: [],
-  done: [],
-});
-
-function syncBoard() {
-  for (const column of columns) {
-    board[column.status] = todoStore.todos.filter(
-      (todo) => todo.status === column.status,
-    );
-  }
-}
-
-async function handleColumnChange(
-  status: TodoStatus,
-  event: {
-    added?: {
-      element: Todo;
-    };
-  },
-) {
-  const todo = event.added?.element;
-
-  if (!todo) return;
-
-  todo.status = status;
-
-  await todoStore.updateTodoStatus(todo.identifier, status);
-}
 
 const todoStore = useTodoStore();
-const activeTasks = computed(() => todoStore.activeTask);
-const plannedTasks = computed(() => todoStore.plannedTasks);
-const completedTasks = computed(() => todoStore.completed);
 
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "active" | "completed">("all");
 const sortBy = ref<TodoSort>("priority-high");
 const dialogOpen = ref(false);
 const editingTodo = ref<any>(null);
+
+import type { TabsItem } from "@nuxt/ui";
+
+const items = [
+  {
+    label: "List",
+    slot: "list" as const,
+  },
+  {
+    label: "Board",
+    slot: "board" as const,
+  },
+] satisfies TabsItem[];
 
 const filteredTodos = computed(() => {
   let list = todoStore.todos;
@@ -114,26 +79,18 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
-    <!-- <template #page_title>
-      <h1
-        v-if="todoStore.todos.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Todo
-      </h1>
-    </template> -->
-
-    <!-- <template #primary_cta>
-      <AppPrimaryCta
-        v-if="todoStore.todos.length !== 0"
-        label="New Todo"
-        icon="heroicons:plus"
-        @click="
+    <template #page_title>
+      <RyderPageHeader
+        title="Task"
+        subtitle="Plan you tasks"
+        cta-text="New Todo"
+        cta-icon="heroicons:plus"
+        @cta="
           editingTodo = null;
           dialogOpen = true;
         "
       />
-    </template> -->
+    </template>
 
     <template #main_content>
       <!-- Filter tabs -->
@@ -199,20 +156,30 @@ onUnmounted(() => clearSearch());
 
       <!-- Todo list -->
 
-      <DnDProvider>
-         <TaskBoard />
-      </DnDProvider>
+      <UTabs
+        color="neutral"
+        variant="link"
 
-      <!-- <div v-else class="flex flex-col gap-2">
-        <TodoCard
-          v-for="todo in filteredTodos"
-          :key="todo.identifier"
-          :todo="todo"
-          @toggle="handleToggle"
-          @edit="handleEdit"
-          @delete="handleDelete"
-        />
-      </div> -->
+        :items="items"
+        class="w-full"
+      >
+        <template #list>
+          <div class="flex flex-col gap-2">
+            <TodoCard
+              v-for="todo in filteredTodos"
+              :key="todo.identifier"
+              :todo="todo"
+              @toggle="handleToggle"
+              @edit="handleEdit"
+              @delete="handleDelete"
+            /></div
+        ></template>
+        <template #board>
+          <DnDProvider>
+            <TaskBoard />
+          </DnDProvider>
+        </template>
+      </UTabs>
     </template>
 
     <template #modal_content>

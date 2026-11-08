@@ -9,6 +9,7 @@ const COLUMNS = [
   "due_date",
   "priority",
   "done",
+  "status",
   "workspace_identifier",
   "created_at",
   "updated_at",
@@ -120,6 +121,10 @@ export class TodoRepository extends BaseRepository {
     if (payload.description !== undefined) {
       sets.push(`description = $${idx++}`);
       params.push(payload.description);
+    }
+    if (payload.status !== undefined && payload.status !== null) {
+      sets.push(`status = $${idx++}::todo_status`);
+      params.push(payload.status);
     }
 
     const row = await this.row<Todo>(

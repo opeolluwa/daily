@@ -1,11 +1,7 @@
-
 <script setup lang="ts">
 import { useTemplateRef } from "vue";
 import { makeSortableItem } from "@vue-dnd-kit/core";
-import {
-  useTodoStore,
-  type Todo,
-} from "@shared/stores/todo";
+import { useTodoStore, type Todo } from "@shared/stores/todo";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
 const props = defineProps<{
@@ -22,14 +18,15 @@ const emit = defineEmits<{
 const el = useTemplateRef<HTMLElement>("el");
 
 makeSortableItem(el, {
+  id: () => props.todo.identifier,
   item: () => props.todo,
 });
 
 // Priority styling
-const priorityColor: Record<string, string> = {
-  high: "text-rose-500",
-  medium: "text-amber-500",
-  low: "text-emerald-500",
+const priorityClass: Record<string, string> = {
+  high: "border-l-rose-500/50",
+  medium: "border-l-amber-500/50",
+  low: "border-l-emerald-500/50",
 };
 
 // Due date formatting
@@ -68,9 +65,7 @@ function isToday(dateStr: string | null) {
 const workspaceStore = useWorkspacesStore();
 const todoStore = useTodoStore();
 
-const currentWorkspaceId = computed(
-  () => workspaceStore.activeWorkspaceId,
-);
+const currentWorkspaceId = computed(() => workspaceStore.activeWorkspaceId);
 
 async function handleDuplicate(targetWorkspaceId: string) {
   await todoStore.duplicateTodo(
@@ -90,13 +85,12 @@ async function handleTransfer(targetWorkspaceId: string) {
 </script>
 
 <template>
-  <li
-    ref="el"
-    class="list-none"
-  >
+  <li ref="el" class="list-none">
     <RyderCard
+      class="rounded-sm! border-l border-l-2"
+      :class="priorityClass[todo.priority]"
       :ui="{
-        root: 'flex items-center gap-4 transition-shadow hover:shadow-sm group cursor-grab active:cursor-grabbing',
+        root: 'flex items-center gap-4 rounded-sm transition-shadow hover:shadow-sm group cursor-grab active:cursor-grabbing',
       }"
     >
       <!-- Toggle -->
@@ -105,30 +99,14 @@ async function handleTransfer(targetWorkspaceId: string) {
         @click="emit('toggle', todo.identifier, !todo.done)"
       >
         <UIcon
-          :name="
-            todo.done
-              ? 'heroicons:check-circle-solid'
-              : 'lucide:circle'
-          "
-          class="size-5 transition-colors"
-          :class="
-            todo.done
-              ? 'text-primary-500'
-              : 'text-gray-300 hover:text-gray-400 dark:text-gray-600'
-          "
+          name="lucide:grip-vertical"
+          class="size-4 transition-colors text-gray-400"
         />
       </button>
 
       <!-- Todo information -->
       <div class="min-w-0 flex-1">
-        <p
-          class="text-sm transition-colors"
-          :class="
-            todo.done
-              ? 'text-gray-400 line-through'
-              : 'text-gray-700 dark:text-gray-200'
-          "
-        >
+        <p class="text-sm transition-colors text-gray-700 dark:text-gray-200">
           {{ todo.title }}
         </p>
 
@@ -153,20 +131,9 @@ async function handleTransfer(targetWorkspaceId: string) {
         {{ formatDueDate(todo.dueDate) }}
       </span>
 
-      <!-- Actions -->
       <div
         class="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
       >
-        <button
-          v-if="!todo.done"
-          type="button"
-          class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950"
-          @click="emit('toggle', todo.identifier, true)"
-        >
-          <UIcon name="heroicons:check" class="size-3.5" />
-          Done
-        </button>
-
         <MetaControls
           item-name="todo"
           @edit-record="emit('edit', todo.identifier)"

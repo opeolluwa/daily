@@ -1,89 +1,79 @@
 <script setup lang="ts">
-import { toRef, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import { makeSortableList } from "@vue-dnd-kit/core";
+import type { TodoStatus } from "lunar";
 import Card from "./Card.vue";
+import type { Todo } from "@shared/stores/todo";
 
 const props = defineProps<{
-  column: { id: string; title: string; color: string; cards: Todo[] };
+  status: TodoStatus;
+  title: string;
+  color: string;
+  cards: Todo[];
+}>();
+
+const emit = defineEmits<{
+  move: [payload: { items: Todo[]; status: TodoStatus }];
 }>();
 
 const zone = useTemplateRef<HTMLElement>("zone");
 const list = useTemplateRef<HTMLElement>("list");
-// Lists with the same `group` exchange items. The drop is written into `column.cards`.
-// `dropzone`: the whole column takes drops, below the last card too.
-const { items, isOver } = makeSortableList(list, {
-  id: props.column.id,
-  items: toRef(props.column, "cards"),
+
+const { items, isOver } = makeSortableList<Todo>(list, {
+  id: props.status,
+  items: () => props.cards,
+  getKey: (todo) => todo.identifier,
   group: "board",
   dropzone: zone,
+  onDrop(event) {
+    event.preventDefault();
+
+    if (event.to.list !== props.status || event.to.index === -1) return;
+    if (event.sameList) return;
+
+    emit("move", { items: event.items, status: props.status });
+  },
 });
 </script>
 
 <template>
-  <section ref="zone" class="column" :class="{ over: isOver }">
-    <h3>
-      <span class="dot" :style="{ background: column.color }" />
-      <span class="title">{{ column.title }}</span>
-      <span class="count">{{ column.cards.length }}</span>
-    </h3>
-    <ul ref="list" class="cards">
+  <section
+    ref="zone"
+    class="flex min-h-0 flex-col rounded-xl border border-gray-200 bg-gray-50/70 p-3 transition-colors dark:border-gray-800 dark:bg-gray-900/40"
+    :class="{
+      'border-primary-500 bg-primary-500/5': isOver,
+    }"
+  >
+    <!-- Column header -->
+    <header class="mb-3 flex items-center gap-2 px-1">
+      <span
+        class="size-2 shrink-0 rounded-full"
+        :style="{ backgroundColor: color }"
+      />
+
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+        {{ title }}
+      </h3>
+
+      <span
+        class="ml-auto rounded-full bg-gray-200/70 px-2 py-1 font-mono text-[11px] leading-none text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+      >
+        {{ items.length }}
+      </span>
+    </header>
+
+    <!-- Sortable cards -->
+    <ul
+      ref="list"
+      class="flex min-h-40 flex-1 flex-col gap-2 overflow-y-auto p-0"
+    >
       <Card v-for="card in items" :key="card.identifier" :todo="card" />
     </ul>
+
+    <!-- Empty state -->
+    <div
+      v-if="items.length === 0"
+      class="pointer-events-none flex min-h-24 flex-1 items-center justify-center rounded-lg border border-dashed border-gray-200 text-xs text-gray-400 dark:border-gray-800 dark:text-gray-500"
+    />
   </section>
 </template>
-
-<style scoped>
-.column {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, currentColor 3%, transparent);
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-
-.column.over {
-  border-color: color-mix(in srgb, #42b883 60%, transparent);
-  background: color-mix(in srgb, #42b883 6%, transparent);
-}
-
-h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 4px 12px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.count {
-  margin-left: auto;
-  padding: 3px 7px;
-  border-radius: 99px;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  font:
-    11px/1 ui-monospace,
-    Menlo,
-    Consolas,
-    monospace;
-}
-
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 160px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-</style>
