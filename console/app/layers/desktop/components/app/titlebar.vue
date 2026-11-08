@@ -243,16 +243,20 @@ useEventListener("keydown", (e: KeyboardEvent) => {
             separator: 'my-0.5 mx-1.5',
           }"
         >
-          <UAvatar
-            icon="i-lucide-user"
-            size="md"
-            class="cursor-pointer"
-          />
+          <UAvatar icon="i-lucide-user" size="md" class="cursor-pointer" />
 
           <template #header>
-            <div class="px-2.5 py-2 border-b border-gray-100 dark:border-gray-700">
-              <p class="text-[13px] font-medium text-gray-700 dark:text-gray-200 truncate">
-                {{ authStore.isGuest ? 'Guest mode' : preferenceStore.fullName || 'Account' }}
+            <div
+              class="px-2.5 py-2 border-b border-gray-100 dark:border-gray-700"
+            >
+              <p
+                class="text-[13px] font-medium text-gray-700 dark:text-gray-200 truncate"
+              >
+                {{
+                  authStore.isGuest
+                    ? "Guest mode"
+                    : preferenceStore.fullName || "Account"
+                }}
               </p>
             </div>
           </template>

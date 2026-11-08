@@ -515,9 +515,7 @@ const tableOps = computed(() => [
     </button>
   </div>
 
-  <div
-    class="no-scrollbar flex items-center gap-0.5 overflow-x-auto px-2 pt-2"
-  >
+  <div class="no-scrollbar flex items-center gap-0.5 overflow-x-auto px-2 pt-2">
     <template v-for="(tool, i) in tools" :key="i">
       <span
         v-if="tool.kind === 'sep'"
@@ -738,7 +736,7 @@ const tableOps = computed(() => [
       accept="image/*"
       class="hidden"
       @change="handleImagePick"
-    >
+    />
   </div>
 </template>
 

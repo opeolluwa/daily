@@ -70,7 +70,10 @@ async function handleCreate(payload: {
 <template>
   <NuxtLayout name="default">
     <template #page_title>
-      <h1 v-if="bookmarkStore.bookmarks.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      <h1
+        v-if="bookmarkStore.bookmarks.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Bookmarks
       </h1>
     </template>
@@ -132,7 +135,10 @@ async function handleCreate(payload: {
         description="Try a different search term or tag."
         icon="heroicons:magnifying-glass"
         action-label="Clear filters"
-        @action="searchQuery = ''; activeTag = 'all'"
+        @action="
+          searchQuery = '';
+          activeTag = 'all';
+        "
       />
 
       <!-- Bookmark list -->

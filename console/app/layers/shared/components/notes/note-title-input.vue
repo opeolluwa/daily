@@ -23,7 +23,7 @@ function handleInput(event: Event) {
     placeholder="Untitled"
     rows="1"
     :disabled="disabled"
-    class="w-full resize-none bg-transparent outline-none text-xl  font-bold text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 leading-tight mb-0 overflow-hidden"
+    class="w-full resize-none bg-transparent outline-none text-xl font-bold text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 leading-tight mb-0 overflow-hidden"
     @input="handleInput"
   />
 </template>

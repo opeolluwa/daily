@@ -6,6 +6,24 @@ import { useTodoStore, type Todo } from "@shared/stores/todo";
 
 const todoStore = useTodoStore();
 
+const emit = defineEmits<{
+  edit: [identifier: string];
+  delete: [identifier: string];
+  toggle: [identifier: string, done: boolean];
+}>();
+
+function forwardEdit(identifier: string) {
+  emit("edit", identifier);
+}
+
+function forwardDelete(identifier: string) {
+  emit("delete", identifier);
+}
+
+function forwardToggle(identifier: string, done: boolean) {
+  emit("toggle", identifier, done);
+}
+
 const columns = computed<
   {
     status: TodoStatus;
@@ -58,6 +76,9 @@ async function handleMove({
       :cards="column.cards"
       class="min-w-0"
       @move="handleMove"
+      @edit="forwardEdit"
+      @delete="forwardDelete"
+      @toggle="forwardToggle"
     />
   </div>
 </template>

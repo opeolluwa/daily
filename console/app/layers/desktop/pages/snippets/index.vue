@@ -65,7 +65,10 @@ onUnmounted(() => clearSearch());
 <template>
   <NuxtLayout name="default">
     <template #page_title>
-      <h1 v-if="snippetStore.snippets.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      <h1
+        v-if="snippetStore.snippets.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Snippets
       </h1>
     </template>
@@ -74,7 +77,10 @@ onUnmounted(() => clearSearch());
       <div
         v-if="snippetStore.snippets.length !== 0"
         class="hidden md:flex items-center justify-end"
-        @click="editingSnippet = null; dialogOpen = true"
+        @click="
+          editingSnippet = null;
+          dialogOpen = true;
+        "
       >
         <button
           class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
@@ -85,7 +91,10 @@ onUnmounted(() => clearSearch());
       </div>
       <RyderFab
         aria-label="Add Snippet"
-        @click="editingSnippet = null; dialogOpen = true"
+        @click="
+          editingSnippet = null;
+          dialogOpen = true;
+        "
       />
     </template>
 
@@ -124,7 +133,10 @@ onUnmounted(() => clearSearch());
         description="Save your first code snippet to get started."
         icon="heroicons:code-bracket"
         action-label="Create snippet"
-        @action="editingSnippet = null; dialogOpen = true"
+        @action="
+          editingSnippet = null;
+          dialogOpen = true;
+        "
       />
 
       <RyderEmptyState
@@ -133,7 +145,10 @@ onUnmounted(() => clearSearch());
         description="Try a different search or language filter."
         icon="heroicons:funnel"
         action-label="Clear filters"
-        @action="searchQuery = ''; activeLanguage = 'All'"
+        @action="
+          searchQuery = '';
+          activeLanguage = 'All';
+        "
       />
 
       <!-- Snippet list -->

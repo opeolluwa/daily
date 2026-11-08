@@ -14,7 +14,22 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   move: [payload: { items: Todo[]; status: TodoStatus }];
+  edit: [identifier: string];
+  delete: [identifier: string];
+  toggle: [identifier: string, done: boolean];
 }>();
+
+function forwardEdit(identifier: string) {
+  emit("edit", identifier);
+}
+
+function forwardDelete(identifier: string) {
+  emit("delete", identifier);
+}
+
+function forwardToggle(identifier: string, done: boolean) {
+  emit("toggle", identifier, done);
+}
 
 const zone = useTemplateRef<HTMLElement>("zone");
 const list = useTemplateRef<HTMLElement>("list");
@@ -67,7 +82,14 @@ const { items, isOver } = makeSortableList<Todo>(list, {
       ref="list"
       class="flex min-h-40 flex-1 flex-col gap-2 overflow-y-auto p-0"
     >
-      <Card v-for="card in items" :key="card.identifier" :todo="card" />
+      <Card
+        v-for="card in items"
+        :key="card.identifier"
+        :todo="card"
+        @edit="forwardEdit"
+        @delete="forwardDelete"
+        @toggle="forwardToggle"
+      />
     </ul>
 
     <!-- Empty state -->

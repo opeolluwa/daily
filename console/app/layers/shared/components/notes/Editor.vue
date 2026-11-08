@@ -4,7 +4,8 @@ import DOMPurify from "dompurify";
 import katex from "katex";
 import { Domternal } from "@domternal/vue";
 import type { Editor } from "@domternal/core";
-import { Extension,
+import {
+  Extension,
   StarterKit,
   // BubbleMenu,
   BaseKeymap,
@@ -24,7 +25,8 @@ import { Extension,
   UniqueID,
   BlockColor,
   ListIndent,
-  Print } from "@domternal/core";
+  Print,
+} from "@domternal/core";
 import { Plugin, PluginKey } from "@domternal/pm/state";
 import { DOMParser as PMDOMParser } from "@domternal/pm/model";
 import { Details } from "@domternal/extension-details";

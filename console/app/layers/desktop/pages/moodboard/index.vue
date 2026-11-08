@@ -101,7 +101,9 @@ async function handleDelete(filename: string) {
         <RyderCard
           v-for="image in moodboardStore.images"
           :key="image.filename"
-          :ui="{ root: '!p-0 break-inside-avoid overflow-hidden hover:shadow-sm transition-shadow cursor-pointer group' }"
+          :ui="{
+            root: '!p-0 break-inside-avoid overflow-hidden hover:shadow-sm transition-shadow cursor-pointer group',
+          }"
         >
           <div class="relative">
             <img

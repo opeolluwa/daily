@@ -122,7 +122,7 @@ const today = computed(() =>
             size="lg"
             placeholder="Search notes, bookmarks, todos…"
             :ui="{
-              root:'pl-3',
+              root: 'pl-3',
               base: 'py-4 shadow-sm bg-transparent placeholder:text-sm text-sm rounded-full',
               leadingIcon: 'text-primary size-5',
             }"

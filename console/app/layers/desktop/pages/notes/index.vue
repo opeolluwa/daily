@@ -39,7 +39,10 @@ onUnmounted(() => clearSearch());
 <template>
   <NuxtLayout name="default">
     <template #page_title>
-      <h1 v-if="noteStore.notes.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      <h1
+        v-if="noteStore.notes.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Notes
       </h1>
     </template>

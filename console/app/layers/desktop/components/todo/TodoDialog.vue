@@ -300,9 +300,7 @@ async function handleDelete() {
         @click="form.done = !form.done"
       >
         <UIcon
-          :name="
-            form.done ? 'heroicons:check-circle-solid' : 'lucide:circle'
-          "
+          :name="form.done ? 'heroicons:check-circle-solid' : 'lucide:circle'"
           class="size-5 transition-colors"
           :class="
             form.done ? 'text-emerald-500' : 'text-gray-300 dark:text-gray-600'

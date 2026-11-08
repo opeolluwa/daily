@@ -16,10 +16,12 @@ const emit = defineEmits<{
 
 // Drag and drop
 const el = useTemplateRef<HTMLElement>("el");
+const grip = useTemplateRef<HTMLElement>("grip");
 
 makeSortableItem(el, {
   id: () => props.todo.identifier,
   item: () => props.todo,
+  handle: grip,
 });
 
 // Priority styling
@@ -90,7 +92,7 @@ async function handleTransfer(targetWorkspaceId: string) {
       class="rounded-sm! border-l border-l-2"
       :class="priorityClass[todo.priority]"
       :ui="{
-        root: 'flex items-center gap-4 rounded-sm transition-shadow hover:shadow-sm group cursor-grab active:cursor-grabbing',
+        root: 'flex items-center gap-4 rounded-sm transition-shadow hover:shadow-sm group',
       }"
     >
       <!-- Toggle -->
@@ -99,10 +101,24 @@ async function handleTransfer(targetWorkspaceId: string) {
         @click="emit('toggle', todo.identifier, !todo.done)"
       >
         <UIcon
-          name="lucide:grip-vertical"
-          class="size-4 transition-colors text-gray-400"
+          :name="todo.done ? 'heroicons:check-circle-solid' : 'lucide:circle'"
+          class="size-5 transition-colors"
+          :class="
+            todo.done
+              ? 'text-primary-500'
+              : 'text-gray-300 hover:text-gray-400 dark:text-gray-600'
+          "
         />
       </button>
+
+      <!-- Drag handle -->
+      <span
+        ref="grip"
+        title="Drag to move"
+        class="flex cursor-grab items-center text-gray-400 active:cursor-grabbing"
+      >
+        <UIcon name="lucide:grip-vertical" class="size-4" />
+      </span>
 
       <!-- Todo information -->
       <div class="min-w-0 flex-1">

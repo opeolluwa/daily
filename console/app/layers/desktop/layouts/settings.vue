@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { settingsTabForPath } from "@shared/data/settings-tabs";
-import tabs from "@shared/data/settings-tabs";
+import tabs, { settingsTabForPath } from "@shared/data/settings-tabs";
 
 const route = useRoute();
 
