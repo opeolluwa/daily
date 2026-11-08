@@ -110,7 +110,7 @@ const today = computed(() =>
           <UInput
             v-model="query"
             class="w-full max-w-xl"
-            icon="heroicons:sparkles-solid rounded-full"
+            icon="heroicons:plus"
             size="lg"
             placeholder="Search notes, bookmarks, todos…"
             :ui="{
@@ -118,6 +118,16 @@ const today = computed(() =>
               leadingIcon: 'text-primary size-5',
             }"
           >
+            <template #leading>
+              <UButton
+                color="neutral"
+                icon="heroicons:sparkles-solid"
+                variant="link"
+                class="text-primary cursor-pointer font-medium"
+                size="lg"
+              />
+            </template>
+
             <template #trailing>
               <UButton
                 type="submit"
