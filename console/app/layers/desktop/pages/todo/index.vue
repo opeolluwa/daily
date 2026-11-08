@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ layout: false });
+import { DnDProvider } from "@vue-dnd-kit/core";
 import TodoCard from "@desktop/components/todo/todo-card.vue";
 import TodoDialog from "@desktop/components/todo/TodoDialog.vue";
 import { useTodoStore } from "@shared/stores/todo";
@@ -7,10 +9,57 @@ import {
   sortTodos,
   type TodoSort,
 } from "@shared/utils/sorting";
+import { VueDraggable } from "vue-draggable-plus";
 
-definePageMeta({ layout: false });
+type TodoStatus = "planned" | "in_progress" | "rescheduled" | "done";
+
+const columns: {
+  label: string;
+  status: TodoStatus;
+}[] = [
+  { label: "Planned", status: "planned" },
+  { label: "In Progress", status: "in_progress" },
+  { label: "Rescheduled", status: "rescheduled" },
+  { label: "Done", status: "done" },
+];
+
+const board = reactive<Record<TodoStatus, Todo[]>>({
+  planned: [],
+  in_progress: [],
+  rescheduled: [],
+  done: [],
+});
+
+function syncBoard() {
+  for (const column of columns) {
+    board[column.status] = todoStore.todos.filter(
+      (todo) => todo.status === column.status,
+    );
+  }
+}
+
+async function handleColumnChange(
+  status: TodoStatus,
+  event: {
+    added?: {
+      element: Todo;
+    };
+  },
+) {
+  const todo = event.added?.element;
+
+  if (!todo) return;
+
+  todo.status = status;
+
+  await todoStore.updateTodoStatus(todo.identifier, status);
+}
 
 const todoStore = useTodoStore();
+const activeTasks = computed(() => todoStore.activeTask);
+const plannedTasks = computed(() => todoStore.plannedTasks);
+const completedTasks = computed(() => todoStore.completed);
+
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "active" | "completed">("all");
 const sortBy = ref<TodoSort>("priority-high");
@@ -50,7 +99,8 @@ async function deleteCompleted() {
 }
 
 function handleEdit(identifier: string) {
-  editingTodo.value = todoStore.todos.find(t => t.identifier === identifier) ?? null;
+  editingTodo.value =
+    todoStore.todos.find((t) => t.identifier === identifier) ?? null;
   dialogOpen.value = true;
 }
 
@@ -64,26 +114,33 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1 v-if="todoStore.todos.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+    <!-- <template #page_title>
+      <h1
+        v-if="todoStore.todos.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Todo
       </h1>
-    </template>
+    </template> -->
 
-    <template #primary_cta>
-      <!-- <AppPrimaryCta
+    <!-- <template #primary_cta>
+      <AppPrimaryCta
         v-if="todoStore.todos.length !== 0"
         label="New Todo"
         icon="heroicons:plus"
-        @click="editingTodo = null; dialogOpen = true"
-      /> -->
-    </template>
+        @click="
+          editingTodo = null;
+          dialogOpen = true;
+        "
+      />
+    </template> -->
 
     <template #main_content>
       <!-- Filter tabs -->
+
       <div
         v-if="!todoStore.loading && todoStore.todos.length > 0"
-        class="flex items-center gap-2 mb-4"
+        class="flex items-center gap-2 mb-4 hidden"
       >
         <div class="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
           <button
@@ -100,7 +157,7 @@ onUnmounted(() => clearSearch());
             {{ f }}
           </button>
         </div>
-        <!-- <AppSortMenu v-model="sortBy" :options="TODO_SORT_OPTIONS" /> -->
+        <AppSortMenu v-model="sortBy" :options="TODO_SORT_OPTIONS" />
         <button
           v-if="todoStore.completedTodos.length > 0"
           class="ml-auto flex items-center gap-1.5 text-xs text-red-400 hover:text-red-500 transition-colors"
@@ -122,7 +179,10 @@ onUnmounted(() => clearSearch());
         description="Create your first todo to get started."
         icon="heroicons:check-circle"
         action-label="Create todo"
-        @action="editingTodo = null; dialogOpen = true"
+        @action="
+          editingTodo = null;
+          dialogOpen = true;
+        "
       />
 
       <RyderEmptyState
@@ -131,10 +191,18 @@ onUnmounted(() => clearSearch());
         description="Try a different search or filter."
         icon="heroicons:magnifying-glass"
         action-label="Clear filters"
-        @action="searchQuery = ''; filter = 'all'"
+        @action="
+          searchQuery = '';
+          filter = 'all';
+        "
       />
 
       <!-- Todo list -->
+
+      <DnDProvider>
+         <TaskBoard />
+      </DnDProvider>
+
       <!-- <div v-else class="flex flex-col gap-2">
         <TodoCard
           v-for="todo in filteredTodos"
@@ -146,8 +214,6 @@ onUnmounted(() => clearSearch());
         />
       </div> -->
     </template>
-
-
 
     <template #modal_content>
       <TodoDialog v-model:open="dialogOpen" :todo="editingTodo" />

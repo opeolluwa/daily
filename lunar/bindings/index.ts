@@ -53,6 +53,7 @@ export type { Snippet } from "./snippets";
 export type { SnippetsInterface } from "./SnippetsInterface";
 export type { Tag } from "./Tag";
 export type { TodoInterface } from "./TodoInterface";
+export type { TodoStatus } from "./TodoStatus";
 export type { UpdateBookmark } from "./bookmarks";
 export type { UpdateNote } from "./notes";
 export type { UpdatePasteBin } from "./paste_bins";

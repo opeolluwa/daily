@@ -9,21 +9,31 @@ export type CreateTodoPayload = Partial<CreateTodo> &
 
 export type UpdateTodoPayload = Partial<UpdateTodo>;
 
+interface State {
+  todos: Todo[];
+  loading: boolean;
+}
 export const useTodoStore = defineStore("todo_store", {
-  state: () => ({
+  state: (): State => ({
     todos: [] as Todo[],
     loading: false,
   }),
 
   getters: {
-    activeTodos: (state) => state.todos.filter((t) => !t.done),
-    completedTodos: (state) => state.todos.filter((t) => t.done),
-    highPriorityCount: (state) =>
+    activeTodos: (state: State) => state.todos.filter((t) => !t.done),
+    completedTodos: (state: State) => state.todos.filter((t) => t.done),
+    highPriorityCount: (state: State) =>
       state.todos.filter((t) => t.priority === "high").length,
-    mediumPriorityCount: (state) =>
+    mediumPriorityCount: (state: State) =>
       state.todos.filter((t) => t.priority === "medium").length,
-    lowPriorityCount: (state) =>
+    lowPriorityCount: (state: State) =>
       state.todos.filter((t) => t.priority === "low").length,
+    plannedTasks: (state: State) =>
+      state.todos.filter((t) => t.status == "planned"),
+    completedTasks: (state: State) =>
+      state.todos.filter((t) => t.status == "done"),
+    activeTasks: (state: State) =>
+      state.todos.filter((t) => t.status == "in_progress"),
   },
 
   actions: {

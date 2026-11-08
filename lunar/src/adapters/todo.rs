@@ -38,4 +38,5 @@ impl Into<entities::todo::ActiveModel> for CreateTodo {
 pub struct UpdateTodo {
     pub title: Option<String>,
     pub description: Option<String>,
+    pub status: Option<String>,
 }

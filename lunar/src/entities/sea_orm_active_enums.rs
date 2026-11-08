@@ -85,3 +85,17 @@ pub enum Tag {
     #[sea_orm(string_value = "research")]
     Research,
 }
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ts_rs :: TS,
+)]
+#[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "todo_status")]
+#[ts(export)]
+#[serde(rename_all = "snake_case")]
+pub enum TodoStatus {
+    #[sea_orm(string_value = "planned")]
+    Planned,
+    #[sea_orm(string_value = "in_progress")]
+    InProgress,
+    #[sea_orm(string_value = "done")]
+    Done,
+}

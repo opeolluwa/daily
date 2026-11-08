@@ -41,6 +41,7 @@ impl From<CreateTodo> for lunar::adapters::todo::CreateTodo {
 pub struct UpdateTodo {
     pub title: Option<String>,
     pub description: Option<String>,
+    pub status: Option<String>,
 }
 
 impl From<UpdateTodo> for lunar::adapters::todo::UpdateTodo {
@@ -48,6 +49,7 @@ impl From<UpdateTodo> for lunar::adapters::todo::UpdateTodo {
         Self {
             title: t.title,
             description: t.description,
+            status: t.status,
         }
     }
 }
