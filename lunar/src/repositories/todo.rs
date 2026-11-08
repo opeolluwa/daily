@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -11,7 +12,7 @@ use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::adapters::meta::RequestMeta;
-use crate::entities::sea_orm_active_enums::{ItemType, Priority};
+use crate::entities::sea_orm_active_enums::{ItemType, Priority, TodoStatus};
 use crate::types::EntitySyncResult;
 use crate::utils::{extract_req_meta, js_err, mock_connection, to_js};
 use crate::{
@@ -36,6 +37,20 @@ pub struct TodoRepository {
     workspace_repository: WorkspaceRepository,
 }
 
+impl FromStr for TodoStatus {
+    type Err = LunarError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let source = s.trim().to_lowercase();
+        match source.as_str() {
+            "planned" => Ok(TodoStatus::Planned),
+            "in_progress" => Ok(TodoStatus::InProgress),
+            "done" => Ok(TodoStatus::Done),
+            _ => Err(LunarError::DbOperationError(
+                "invalid value for todo status".to_string(),
+            )),
+        }
+    }
+}
 #[async_trait]
 pub trait TodoRepositoryExt {
     fn new(conn: Arc<DatabaseConnection>) -> Self;
@@ -173,6 +188,11 @@ impl TodoRepositoryExt for TodoRepository {
             active_model.description = Set(Some(description.clone()));
         }
         active_model.updated_at = Set(Utc::now().fixed_offset());
+
+        if let Some(status) = &payload.status {
+            let status = TodoStatus::from_str(status)?;
+            active_model.status = Set(status);
+        }
 
         active_model
             .update(self.conn.as_ref())

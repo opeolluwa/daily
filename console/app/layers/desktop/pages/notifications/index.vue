@@ -99,7 +99,10 @@ function relativeTime(iso: string) {
 <template>
   <NuxtLayout name="default">
     <template #page_title>
-      <h1 v-if="notificationStore.notifications.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      <h1
+        v-if="notificationStore.notifications.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Notifications
       </h1>
     </template>
@@ -141,7 +144,11 @@ function relativeTime(iso: string) {
       <RyderEmptyState
         v-if="filtered.length === 0"
         :title="filter === 'unread' ? 'All caught up' : 'No notifications'"
-        :description="filter === 'unread' ? 'You have no unread notifications.' : 'Nothing here yet.'"
+        :description="
+          filter === 'unread'
+            ? 'You have no unread notifications.'
+            : 'Nothing here yet.'
+        "
         icon="heroicons:bell-slash"
       />
 
@@ -153,8 +160,12 @@ function relativeTime(iso: string) {
           :ui="{
             root: [
               'group relative flex items-start gap-3 transition-all cursor-pointer',
-              item.isRead ? '' : '!border-primary-100 dark:!border-primary-900 hover:!border-primary-200 dark:hover:!border-primary-800'
-            ].filter(Boolean).join(' ')
+              item.isRead
+                ? ''
+                : '!border-primary-100 dark:!border-primary-900 hover:!border-primary-200 dark:hover:!border-primary-800',
+            ]
+              .filter(Boolean)
+              .join(' '),
           }"
           @click="markRead(item.identifier)"
         >

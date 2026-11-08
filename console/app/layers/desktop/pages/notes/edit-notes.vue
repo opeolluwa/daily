@@ -91,8 +91,6 @@ onBeforeRouteLeave(async () => {
   }
 });
 
-
-
 onMounted(async () => {
   if (noteStore.notes.length === 0) {
     await noteStore.fetchNotes();
@@ -217,8 +215,6 @@ onMounted(async () => {
             }}
           </p>
         </div>
-
-
 
         <!-- Tips -->
         <div>

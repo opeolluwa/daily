@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ layout: false });
+import { DnDProvider } from "@vue-dnd-kit/core";
 import TodoCard from "@desktop/components/todo/todo-card.vue";
 import TodoDialog from "@desktop/components/todo/TodoDialog.vue";
 import { useTodoStore } from "@shared/stores/todo";
@@ -8,20 +10,34 @@ import {
   type TodoSort,
 } from "@shared/utils/sorting";
 
-definePageMeta({ layout: false });
-
 const todoStore = useTodoStore();
+
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "active" | "completed">("all");
 const sortBy = ref<TodoSort>("priority-high");
 const dialogOpen = ref(false);
 const editingTodo = ref<any>(null);
+const activeTab = ref("1");
+const isListViewMode = computed(() => activeTab.value === "0");
+const isEmptyList = computed(() => !todoStore.todos.length);
+import type { TabsItem } from "@nuxt/ui";
+
+const items = [
+  {
+    label: "List",
+    slot: "list" as const,
+  },
+  {
+    label: "Board",
+    slot: "board" as const,
+  },
+] satisfies TabsItem[];
 
 const filteredTodos = computed(() => {
   let list = todoStore.todos;
 
-  if (filter.value === "active") list = list.filter((t) => !t.done);
-  if (filter.value === "completed") list = list.filter((t) => t.done);
+  if (filter.value === "active") list = list.filter((t: Todo) => !t.done);
+  if (filter.value === "completed") list = list.filter((t: Todo) => t.done);
 
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
@@ -50,7 +66,8 @@ async function deleteCompleted() {
 }
 
 function handleEdit(identifier: string) {
-  editingTodo.value = todoStore.todos.find(t => t.identifier === identifier) ?? null;
+  editingTodo.value =
+    todoStore.todos.find((t: Todo) => t.identifier === identifier) ?? null;
   dialogOpen.value = true;
 }
 
@@ -63,26 +80,26 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <NuxtLayout name="default">
+  <NuxtLayout name="default" :show-side-content="isListViewMode ^isEmptyList">
     <template #page_title>
-      <h1 v-if="todoStore.todos.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-        Todo
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <AppPrimaryCta
-        v-if="todoStore.todos.length !== 0"
-        label="New Todo"
-        icon="heroicons:plus"
-        @click="editingTodo = null; dialogOpen = true"
+      <RyderPageHeader
+        title="Task"
+        v-if="todoStore.todos.length"
+        subtitle="Plan you tasks"
+        cta-text="New Todo"
+        cta-icon="heroicons:plus"
+        @cta="
+          editingTodo = null;
+          dialogOpen = true;
+        "
       />
     </template>
 
     <template #main_content>
-      <!-- Filter tabs -->
       <div
-        v-if="!todoStore.loading && todoStore.todos.length > 0"
+        v-if="
+          !todoStore.loading && todoStore.todos.length > 0 && isListViewMode
+        "
         class="flex items-center gap-2 mb-4"
       >
         <div class="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
@@ -122,93 +139,109 @@ onUnmounted(() => clearSearch());
         description="Create your first todo to get started."
         icon="heroicons:check-circle"
         action-label="Create todo"
-        @action="editingTodo = null; dialogOpen = true"
-      />
-
-      <RyderEmptyState
-        v-else-if="filteredTodos.length === 0"
-        title="No results found"
-        description="Try a different search or filter."
-        icon="heroicons:magnifying-glass"
-        action-label="Clear filters"
-        @action="searchQuery = ''; filter = 'all'"
+        @action="
+          editingTodo = null;
+          dialogOpen = true;
+        "
       />
 
       <!-- Todo list -->
-      <div v-else class="flex flex-col gap-2">
-        <TodoCard
-          v-for="todo in filteredTodos"
-          :key="todo.identifier"
-          :todo="todo"
-          @toggle="handleToggle"
-          @edit="handleEdit"
-          @delete="handleDelete"
-        />
-      </div>
+      <UTabs
+        v-if="todoStore.todos.length"
+        color="neutral"
+        variant="link"
+        :items="items"
+        :content="true"
+        class="w-full"
+        v-model:model-value="activeTab"
+      >
+        <template #list>
+          <div class="flex flex-col gap-2">
+            <TodoCard
+              v-for="todo in filteredTodos"
+              :key="todo.identifier"
+              :todo="todo"
+              @toggle="handleToggle"
+              @edit="handleEdit"
+              @delete="handleDelete"
+            /></div
+        ></template>
+        <template #board>
+          <DnDProvider>
+            <TaskBoard
+              @edit="handleEdit"
+              @delete="handleDelete"
+              @toggle="handleToggle"
+            />
+          </DnDProvider>
+        </template>
+      </UTabs>
     </template>
 
     <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Summary
-      </h2>
-      <div class="flex flex-col gap-3 mb-6">
-        <div class="bg-primary-50 dark:bg-primary-950 rounded-lg p-3">
-          <p
-            class="text-2xl font-semibold text-primary-700 dark:text-primary-300"
-          >
-            {{ todoStore.activeTodos.length }}
-          </p>
-          <p class="text-xs text-primary-500 dark:text-primary-400">
-            Active tasks
-          </p>
-        </div>
-        <div class="bg-emerald-50 dark:bg-emerald-950 rounded-lg p-3">
-          <p
-            class="text-2xl font-semibold text-emerald-700 dark:text-emerald-300"
-          >
-            {{ todoStore.completedTodos.length }}
-          </p>
-          <p class="text-xs text-emerald-500 dark:text-emerald-400">
-            Completed
-          </p>
-        </div>
-      </div>
 
-      <USeparator class="my-4" />
+        <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+          Summary
+        </h2>
+        <div class="flex flex-col gap-3 mb-6">
+          <div class="bg-primary-50 dark:bg-primary-950 rounded-lg p-3">
+            <p
+              class="text-2xl font-semibold text-primary-700 dark:text-primary-300"
+            >
+              {{ todoStore.activeTodos.length }}
+            </p>
+            <p class="text-xs text-primary-500 dark:text-primary-400">
+              Active tasks
+            </p>
+          </div>
+          <div class="bg-emerald-50 dark:bg-emerald-950 rounded-lg p-3">
+            <p
+              class="text-2xl font-semibold text-emerald-700 dark:text-emerald-300"
+            >
+              {{ todoStore.completedTodos.length }}
+            </p>
+            <p class="text-xs text-emerald-500 dark:text-emerald-400">
+              Completed
+            </p>
+          </div>
+        </div>
 
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Priority
-      </h2>
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center gap-2">
-            <UIcon name="heroicons:flag" class="size-4 text-rose-500" />
-            <span class="text-gray-600 dark:text-gray-400">High</span>
+        <USeparator class="my-4" />
+
+        <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+          Priority
+        </h2>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <UIcon name="heroicons:flag" class="size-4 text-rose-500" />
+              <span class="text-gray-600 dark:text-gray-400">High</span>
+            </div>
+            <span class="text-xs text-gray-400">{{
+              todoStore.highPriorityCount
+            }}</span>
           </div>
-          <span class="text-xs text-gray-400">{{
-            todoStore.highPriorityCount
-          }}</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center gap-2">
-            <UIcon name="heroicons:flag" class="size-4 text-amber-500" />
-            <span class="text-gray-600 dark:text-gray-400">Medium</span>
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <UIcon name="heroicons:flag" class="size-4 text-amber-500" />
+              <span class="text-gray-600 dark:text-gray-400">Medium</span>
+            </div>
+            <span class="text-xs text-gray-400">{{
+              todoStore.mediumPriorityCount
+            }}</span>
           </div>
-          <span class="text-xs text-gray-400">{{
-            todoStore.mediumPriorityCount
-          }}</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center gap-2">
-            <UIcon name="heroicons:flag" class="size-4 text-emerald-500" />
-            <span class="text-gray-600 dark:text-gray-400">Low</span>
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <UIcon name="heroicons:flag" class="size-4 text-emerald-500" />
+              <span class="text-gray-600 dark:text-gray-400">Low</span>
+            </div>
+            <span class="text-xs text-gray-400">{{
+              todoStore.lowPriorityCount
+            }}</span>
           </div>
-          <span class="text-xs text-gray-400">{{
-            todoStore.lowPriorityCount
-          }}</span>
         </div>
-      </div>
-    </template>
+      </template>
+
 
     <template #modal_content>
       <TodoDialog v-model:open="dialogOpen" :todo="editingTodo" />

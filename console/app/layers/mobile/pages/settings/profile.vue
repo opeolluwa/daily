@@ -82,7 +82,12 @@ async function handleSave() {
         name="email"
       />
 
-      <RyderButton size="md" class="w-full justify-center" :disabled="saving" @click="handleSave">
+      <RyderButton
+        size="md"
+        class="w-full justify-center"
+        :disabled="saving"
+        @click="handleSave"
+      >
         {{ saving ? "Saving…" : "Save changes" }}
       </RyderButton>
     </form>

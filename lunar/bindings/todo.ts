@@ -8,4 +8,8 @@ export type CreateTodo = {
   priority: Priority;
 };
 
-export type UpdateTodo = { title: string | null; description: string | null };
+export type UpdateTodo = {
+  title: string | null;
+  description: string | null;
+  status: string | null;
+};

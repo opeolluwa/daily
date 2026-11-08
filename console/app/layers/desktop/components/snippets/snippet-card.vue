@@ -148,7 +148,9 @@ const handleTransfer = async (targetWorkspaceId: string) => {
 
 <template>
   <RyderCard
-    :ui="{ root: '!p-0 overflow-hidden cursor-pointer hover:shadow-sm transition-shadow' }"
+    :ui="{
+      root: '!p-0 overflow-hidden cursor-pointer hover:shadow-sm transition-shadow',
+    }"
     @click="router.push(`/snippets/view-snippet?id=${identifier}`)"
   >
     <div class="p-4">

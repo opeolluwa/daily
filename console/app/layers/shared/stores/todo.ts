@@ -1,4 +1,4 @@
-import type { CreateTodo, Todo, UpdateTodo } from "lunar";
+import type { CreateTodo, Todo, TodoStatus, UpdateTodo } from "lunar";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 
@@ -9,21 +9,31 @@ export type CreateTodoPayload = Partial<CreateTodo> &
 
 export type UpdateTodoPayload = Partial<UpdateTodo>;
 
+interface State {
+  todos: Todo[];
+  loading: boolean;
+}
 export const useTodoStore = defineStore("todo_store", {
-  state: () => ({
+  state: (): State => ({
     todos: [] as Todo[],
     loading: false,
   }),
 
   getters: {
-    activeTodos: (state) => state.todos.filter((t) => !t.done),
-    completedTodos: (state) => state.todos.filter((t) => t.done),
-    highPriorityCount: (state) =>
+    activeTodos: (state: State) => state.todos.filter((t) => !t.done),
+    completedTodos: (state: State) => state.todos.filter((t) => t.done),
+    highPriorityCount: (state: State) =>
       state.todos.filter((t) => t.priority === "high").length,
-    mediumPriorityCount: (state) =>
+    mediumPriorityCount: (state: State) =>
       state.todos.filter((t) => t.priority === "medium").length,
-    lowPriorityCount: (state) =>
+    lowPriorityCount: (state: State) =>
       state.todos.filter((t) => t.priority === "low").length,
+    plannedTasks: (state: State) =>
+      state.todos.filter((t) => t.status == "planned"),
+    completedTasks: (state: State) =>
+      state.todos.filter((t) => t.status == "done"),
+    activeTasks: (state: State) =>
+      state.todos.filter((t) => t.status == "in_progress"),
   },
 
   actions: {
@@ -67,11 +77,51 @@ export const useTodoStore = defineStore("todo_store", {
     },
 
     async toggleDone(identifier: string, done: boolean): Promise<Todo> {
-      const updated = await invoke<Todo>("mark_todo_done", {
+      let updated = await invoke<Todo>("mark_todo_done", {
         identifier,
         done,
         meta: await getWorkspaceMeta(),
       });
+
+      const nextStatus: TodoStatus = done
+        ? "done"
+        : updated.status === "done"
+          ? "planned"
+          : updated.status;
+
+      if (nextStatus !== updated.status) {
+        updated = await invoke<Todo>("update_todo", {
+          identifier,
+          todo: { status: nextStatus },
+          meta: await getWorkspaceMeta(),
+        });
+      }
+
+      const idx = this.todos.findIndex((t) => t.identifier === identifier);
+      if (idx !== -1) this.todos[idx] = updated;
+
+      return updated;
+    },
+
+    async updateTodoStatus(
+      identifier: string,
+      status: TodoStatus,
+    ): Promise<Todo> {
+      let updated = await invoke<Todo>("update_todo", {
+        identifier,
+        todo: { status },
+        meta: await getWorkspaceMeta(),
+      });
+
+      const shouldBeDone = status === "done";
+
+      if (updated.done !== shouldBeDone) {
+        updated = await invoke<Todo>("mark_todo_done", {
+          identifier,
+          done: shouldBeDone,
+          meta: await getWorkspaceMeta(),
+        });
+      }
 
       const idx = this.todos.findIndex((t) => t.identifier === identifier);
       if (idx !== -1) this.todos[idx] = updated;

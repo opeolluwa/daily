@@ -48,7 +48,13 @@ const {
 
         <p v-if="submitError" class="text-sm text-red-500">{{ submitError }}</p>
 
-        <RyderButton type="submit" size="md" class="w-full dark:text-white font-medium" :loading="loading" :disabled="loading">
+        <RyderButton
+          type="submit"
+          size="md"
+          class="w-full dark:text-white font-medium"
+          :loading="loading"
+          :disabled="loading"
+        >
           Send reset code
         </RyderButton>
       </template>

@@ -74,6 +74,10 @@ async function handleSubmit() {
     loading.value = false;
   }
 }
+
+onMounted(async () => {
+  await preferenceStore.fetchPreference();
+});
 </script>
 
 <template>

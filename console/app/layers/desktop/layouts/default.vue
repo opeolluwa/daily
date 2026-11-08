@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import _ from "lodash";
-
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
 const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
-
+withDefaults(defineProps<{ showSideContent?: boolean }>(), {
+  showSideContent: true,
+});
 const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
 </script>
@@ -81,7 +81,7 @@ const { mobileNavOpen } = useMobileNav();
 
         <!-- Inline aside: always visible on desktop -->
         <aside
-          v-if="$slots.side_content"
+          v-if="$slots.side_content && showSideContent"
           class="hidden md:flex flex-col w-72 shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
         >
           <div

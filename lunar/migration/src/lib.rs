@@ -44,6 +44,7 @@ mod m20260826_000000_add_user_identifier_to_workspaces;
 mod m20260901_000000_rebuild_todo_with_due_time;
 mod m20261105_000000_create_paste_bins;
 mod m20261105_100000_drop_sync_queue;
+mod m20261108_113612_add_status_to_tasks;
 
 pub use sea_orm_migration::prelude::*;
 pub mod exporter;
@@ -99,6 +100,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260901_000000_rebuild_todo_with_due_time::Migration),
             Box::new(m20261105_000000_create_paste_bins::Migration),
             Box::new(m20261105_100000_drop_sync_queue::Migration),
+            Box::new(m20261108_113612_add_status_to_tasks::Migration),
         ]
     }
 }

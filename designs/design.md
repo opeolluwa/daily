@@ -33,3 +33,7 @@ https://dribbble.com/shots/22950923-Mobile-Settings-Screen
 
 mobile todo future 
 https://dribbble.com/search/mobile-todo-list
+
+
+desktop todo:
+  https://dribbble.com/shots/25817216-Task-Management-Saas-Web-App-Kanban-Board-Task-Lists

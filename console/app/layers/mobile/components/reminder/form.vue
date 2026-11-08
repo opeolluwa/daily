@@ -232,15 +232,14 @@ async function handleSubmit() {
       </p>
     </div>
 
-
-      <RyderButton
-        type="submit"
-        size="md"
-        block
-        :loading="loading"
-        :disabled="loading"
-      >
-        {{ editing ? "Save changes" : "Create reminder" }}
-      </RyderButton>
+    <RyderButton
+      type="submit"
+      size="md"
+      block
+      :loading="loading"
+      :disabled="loading"
+    >
+      {{ editing ? "Save changes" : "Create reminder" }}
+    </RyderButton>
   </form>
 </template>

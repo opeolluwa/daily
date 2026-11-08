@@ -47,4 +47,5 @@ seaography::register_active_enums!([
     sea_orm_active_enums::NotificationType,
     sea_orm_active_enums::Priority,
     sea_orm_active_enums::Tag,
+    sea_orm_active_enums::TodoStatus,
 ]);

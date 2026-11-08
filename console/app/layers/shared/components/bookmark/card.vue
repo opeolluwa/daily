@@ -45,7 +45,11 @@ const handleTransfer = async (targetWorkspaceId: string) => {
 </script>
 
 <template>
-  <RyderCard :ui="{ root: 'group flex items-center gap-4 hover:shadow-sm transition-shadow' }">
+  <RyderCard
+    :ui="{
+      root: 'group flex items-center gap-4 hover:shadow-sm transition-shadow',
+    }"
+  >
     <UIcon
       name="heroicons:bookmark-solid"
       class="size-5 text-primary-500 shrink-0"

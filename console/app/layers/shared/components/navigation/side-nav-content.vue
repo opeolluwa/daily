@@ -159,7 +159,7 @@ function onNavigate() {
             <UAvatar :icon="'i-lucide-user'" size="sm" class="shrink-0" />
             <div v-if="!collapsed" class="min-w-0 flex-1">
               <p
-                class="text-sm font-medium text-gray-900 dark:text-white truncate"
+                class="text-sm font-medium text-gray-900 dark:text-white truncate capitalize"
               >
                 {{ preferenceStore.fullName || "User" }}
               </p>

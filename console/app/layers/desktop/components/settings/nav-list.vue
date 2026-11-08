@@ -3,7 +3,7 @@ import tabs from "@shared/data/settings-tabs";
 </script>
 
 <template>
-  <nav class="space-y-2 ">
+  <nav class="space-y-2">
     <NuxtLink
       v-for="tab in tabs"
       :key="tab.key"

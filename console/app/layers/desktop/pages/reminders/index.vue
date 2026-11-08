@@ -43,7 +43,8 @@ async function handleDelete(identifier: string) {
 }
 
 function handleEdit(identifier: string) {
-  editingReminder.value = reminderStore.reminders.find(r => r.identifier === identifier) ?? null;
+  editingReminder.value =
+    reminderStore.reminders.find((r) => r.identifier === identifier) ?? null;
   dialogOpen.value = true;
 }
 
@@ -58,7 +59,10 @@ onUnmounted(() => clearSearch());
 <template>
   <NuxtLayout name="default">
     <template #page_title>
-      <h1 v-if="reminderStore.reminders.length > 0" class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      <h1
+        v-if="reminderStore.reminders.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+      >
         Reminders
       </h1>
     </template>
@@ -68,7 +72,10 @@ onUnmounted(() => clearSearch());
         v-if="reminderStore.reminders.length !== 0"
         label="New Reminder"
         icon="heroicons:plus"
-        @click="editingReminder = null; dialogOpen = true"
+        @click="
+          editingReminder = null;
+          dialogOpen = true;
+        "
       />
     </template>
 
@@ -104,7 +111,10 @@ onUnmounted(() => clearSearch());
         description="Create your first reminder to stay on track."
         icon="heroicons:clock"
         action-label="Create reminder"
-        @action="editingReminder = null; dialogOpen = true"
+        @action="
+          editingReminder = null;
+          dialogOpen = true;
+        "
       />
 
       <RyderEmptyState
@@ -113,7 +123,10 @@ onUnmounted(() => clearSearch());
         description="Try a different search or filter."
         icon="heroicons:magnifying-glass"
         action-label="Clear filters"
-        @action="searchQuery = ''; filter = 'all'"
+        @action="
+          searchQuery = '';
+          filter = 'all';
+        "
       />
 
       <!-- Reminder list -->
