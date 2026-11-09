@@ -38,6 +38,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  horizontalControls: {
+    type: Boolean,
+    default: false,
+  },
   extraItems: {
     type: Array as PropType<DropdownMenuItem[]>,
     default: () => [],
@@ -181,7 +185,11 @@ const workspaces = computed<DropdownMenuItem[]>(() => [
       class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150 focus:outline-none"
     >
       <UIcon
-        name="heroicons:ellipsis-vertical"
+        :name="
+          horizontalControls
+            ? 'heroicons:ellipsis-horizontal'
+            : 'heroicons:ellipsis-vertical'
+        "
         class="size-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 shrink-0 transition-colors"
       />
     </button>
