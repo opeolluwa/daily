@@ -47,7 +47,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UApp>
+  <UApp :toaster="{ progress: false, duration: 1500, position: 'top-right' }">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -66,13 +66,9 @@ onMounted(async () => {
     >
       <AppSplashScreen v-if="initializing || workspaceInitializing" />
     </Transition>
-  </UApp>
 
-  <Body>
-    <UApp>
-      <AppTitlebar :authenticated="authenticated" />
-    </UApp>
-  </Body>
+    <AppTitlebar :authenticated="authenticated" />
+  </UApp>
 </template>
 
 <style>

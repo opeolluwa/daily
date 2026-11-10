@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CalendarDate, Time } from "@internationalized/date";
 import { useTodoStore } from "@shared/stores/todo";
 
 const props = defineProps<{
@@ -7,7 +8,7 @@ const props = defineProps<{
     title: string;
     description?: string | null;
     dueDate?: string | null;
-    time?: string | null;
+    dueTime?: string | null;
     priority: "high" | "medium" | "low";
     done: boolean;
   } | null;
@@ -23,37 +24,41 @@ const editing = computed(() => !!props.todo);
 const form = reactive({
   title: "",
   description: "",
-  dueDate: null as Date | null,
+  dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
   done: false,
 });
 
-const selectedTime = shallowRef<{ hour: number; minute: number } | undefined>();
+const selectedTime = shallowRef<Time | undefined>();
 const submitting = ref(false);
 const deleting = ref(false);
 
-function toIsoDate(date: Date | null): string | null {
+function toIsoDate(date: CalendarDate | undefined): string | null {
   if (!date) return null;
   return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
+    date.year,
+    String(date.month).padStart(2, "0"),
+    String(date.day).padStart(2, "0"),
   ].join("-");
 }
 
-function formatDisplayDate(date: Date | null): string {
-  if (!date) return "";
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function fromIsoDate(
+  value: string | null | undefined,
+): CalendarDate | undefined {
+  if (!value) return undefined;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  return new CalendarDate(year, month, day);
+}
+
+function formatTime(time: Time): string {
+  return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
 }
 
 function resetForm() {
   form.title = "";
   form.description = "";
-  form.dueDate = null;
+  form.dueDate = undefined;
   form.priority = "medium";
   form.done = false;
   selectedTime.value = undefined;
@@ -65,12 +70,12 @@ watch(
     if (todo) {
       form.title = todo.title;
       form.description = todo.description ?? "";
-      form.dueDate = todo.dueDate ? new Date(todo.dueDate) : null;
+      form.dueDate = fromIsoDate(todo.dueDate);
       form.priority = todo.priority;
       form.done = todo.done;
-      if (todo.time) {
-        const [h, m] = todo.time.split(":").map(Number);
-        selectedTime.value = { hour: h, minute: m };
+      if (todo.dueTime) {
+        const [h, m] = todo.dueTime.split(":").map(Number);
+        selectedTime.value = new Time(h, m);
       } else {
         selectedTime.value = undefined;
       }
@@ -106,9 +111,7 @@ async function handleSubmit() {
           await todoStore.changePriority(props.todo.identifier, form.priority);
         }
         const newDate = toIsoDate(form.dueDate);
-        const existingDate = current.dueDate
-          ? toIsoDate(new Date(current.dueDate))
-          : null;
+        const existingDate = current.dueDate ?? null;
         if (newDate !== existingDate) {
           await todoStore.updateDueDate(props.todo.identifier, newDate);
         }
@@ -125,9 +128,7 @@ async function handleSubmit() {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         dueDate: toIsoDate(form.dueDate) ?? undefined,
-        time: selectedTime.value
-          ? `${String(selectedTime.value.hour).padStart(2, "0")}:${String(selectedTime.value.minute).padStart(2, "0")}`
-          : undefined,
+        time: selectedTime.value ? formatTime(selectedTime.value) : undefined,
         priority: form.priority,
       });
       toast.add({
@@ -204,63 +205,19 @@ async function handleDelete() {
         :rows="3"
       />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Due date
-        </label>
-        <div class="flex items-center gap-2">
-          <UPopover class="flex-1">
-            <button
-              type="button"
-              class="w-full flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors text-left"
-              :class="
-                form.dueDate
-                  ? 'text-gray-700 dark:text-gray-200'
-                  : 'text-gray-400 dark:text-gray-500'
-              "
-            >
-              <UIcon
-                name="heroicons:calendar"
-                class="size-4 shrink-0 text-gray-400"
-              />
-              {{
-                form.dueDate ? formatDisplayDate(form.dueDate) : "Pick a date"
-              }}
-            </button>
-            <template #content="{ close }">
-              <AppDatePicker
-                v-model="form.dueDate"
-                @update:model-value="close"
-              />
-            </template>
-          </UPopover>
-          <button
-            v-if="form.dueDate"
-            type="button"
-            class="p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            @click="form.dueDate = null"
-          >
-            <UIcon name="heroicons:x-mark" class="size-4" />
-          </button>
-        </div>
-      </div>
+      <RyderDateInput
+        v-model="form.dueDate"
+        label="Date"
+        name="todo-date"
+        placeholder="Pick a date"
+      />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Time
-        </label>
-        <div class="flex items-center gap-2">
-          <AppTimePicker v-model="selectedTime" class="flex-1" />
-          <button
-            v-if="selectedTime"
-            type="button"
-            class="p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            @click="selectedTime = undefined"
-          >
-            <UIcon name="heroicons:x-mark" class="size-4" />
-          </button>
-        </div>
-      </div>
+      <RyderTimeInput
+        v-model="selectedTime"
+        label="Time"
+        name="todo-time"
+        size="sm"
+      />
 
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
