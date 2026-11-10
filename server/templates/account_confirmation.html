@@ -2,51 +2,51 @@
 
 {% block title %}Verify your Almonds account{% endblock %}
 
+{% block preheader %}Your verification code is inside — it expires in 25 minutes.{% endblock %}
+
+{% block greeting %}Hi {{ name }},{% endblock %}
+
 {% block content %}
-  <h1 style="margin: 0 0 16px; font-size: 24px; color: #1a1a1a; font-weight: bold;">
-    Verify your account
-  </h1>
   <p style="margin: 0 0 16px; color: #55575d;">
-    Welcome to Almonds! Use the verification code below to confirm your email address:
+    Confirm that this inbox belongs to you to finish setting up your Almonds
+    account. Enter the code below in the app.
   </p>
-  <table
-    border="0"
-    cellpadding="0"
-    cellspacing="0"
-    role="presentation"
-    style="margin: 24px 0;"
-  >
-    <tbody>
-      <tr>
-        <td
-          style="
-            border-radius: 6px;
-            background-color: #8b5cf6;
-            text-align: center;
-          "
-        >
-          <span
+
+  <div style="text-align: center;">
+    <table
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      role="presentation"
+      style="margin: 24px auto 0;"
+    >
+      <tbody>
+        <tr>
+          <td
+            align="center"
             style="
-              display: inline-block;
-              padding: 12px 28px;
+              padding: 16px 32px;
+              border-radius: 8px;
+              background-color: #f5f3ff;
               font-family: 'Courier New', monospace;
-              font-size: 24px;
+              font-size: 34px;
               font-weight: bold;
-              letter-spacing: 4px;
-              color: #ffffff;
-              text-decoration: none;
-              border-radius: 6px;
+              letter-spacing: 8px;
+              color: #8b5cf6;
             "
-          >{{ otp }}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <p style="margin: 0 0 8px; color: #999999; font-size: 13px;">
-    This code expires in 25 minutes. If you did not create an account, please ignore this email.
+          >{{ otp }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin: 28px 0 8px; color: #999999; font-size: 13px;">
+    This code expires in 25 minutes and can be used once. If it expires, request
+    a new confirmation email from the sign-in screen.
   </p>
-  <p style="margin: 0; color: #999999; font-size: 13px;">
-    If the code doesn't work, please contact support at
-    <a href="mailto:support@almonds.app" style="color: #8b5cf6; text-decoration: none;">support@almonds.app</a>.
+
+  <p style="margin: 20px 0 0; color: #999999; font-size: 13px;">
+    We will never ask you for this code. You can safely ignore this email if you
+    didn't create an Almonds account.
   </p>
 {% endblock %}
