@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { PasteBin } from "@shared/stores/paste-bin";
+import { usePasteBinStore, type PasteBin } from "@shared/stores/paste-bin";
+import { deriveTitle } from "@shared/utils/markdown";
 
 const props = defineProps<{
   paste?: PasteBin | null;
@@ -11,42 +12,48 @@ const pasteBinStore = usePasteBinStore();
 const toast = useToast();
 
 const form = reactive({
+  title: "",
   content: "",
   isPinned: false,
 });
 
+const titleDirty = ref(false);
 const submitting = ref(false);
 
-function deriveTitle(text: string) {
-  const firstLine = text
-    .split("\n")
-    .map((line) => line.trim())
-    .find(Boolean);
-  if (!firstLine) return "";
-  return firstLine.replace(/^#+\s*/, "").slice(0, 60);
-}
-
 function resetForm() {
+  form.title = "";
   form.content = "";
   form.isPinned = false;
+  titleDirty.value = false;
+}
+
+function populateFromPaste(paste: PasteBin) {
+  const derived = deriveTitle(paste.content);
+  titleDirty.value = !!paste.title && paste.title !== derived;
+  form.title = paste.title ?? derived;
+  form.content = paste.content;
+  form.isPinned = paste.isPinned;
 }
 
 watch(
-  () => props.paste,
-  (p) => {
-    if (p) {
-      form.content = p.content;
-      form.isPinned = p.isPinned;
-    } else {
-      resetForm();
-    }
+  [open, () => props.paste],
+  ([isOpen, paste]) => {
+    if (isOpen && paste) populateFromPaste(paste);
+    else if (!isOpen) resetForm();
   },
   { immediate: true },
 );
 
-watch(open, (val) => {
-  if (!val) resetForm();
-});
+watch(
+  () => form.content,
+  (value) => {
+    if (!titleDirty.value) form.title = deriveTitle(value);
+  },
+);
+
+function handleTitleInput() {
+  titleDirty.value = true;
+}
 
 async function handleSubmit() {
   if (!form.content.trim()) return;
@@ -54,7 +61,7 @@ async function handleSubmit() {
   try {
     if (props.paste) {
       await pasteBinStore.updatePasteBin(props.paste.identifier, {
-        title: deriveTitle(form.content),
+        title: form.title.trim() || null,
         content: form.content,
         isPinned: form.isPinned,
       });
@@ -63,7 +70,6 @@ async function handleSubmit() {
         icon: "heroicons:check-circle",
         title: "Paste Updated",
         description: "Your changes have been saved",
-        
       });
     }
     open.value = false;
@@ -92,14 +98,26 @@ async function handleSubmit() {
     @cancel="resetForm"
   >
     <div class="flex flex-col gap-4">
-      <div class="font-mono">
-        <RyderTextarea
+      <RyderInput
+        v-model="form.title"
+        label="Title"
+        type="text"
+        name="paste-title"
+        placeholder="Untitled paste"
+        :disabled="submitting"
+        @input="handleTitleInput"
+      />
+
+      <div class="rounded-md border border-gray-200 dark:border-gray-700">
+        <UEditor
           v-model="form.content"
-          label="Content"
-          name="paste-content"
-          placeholder="Paste content..."
-          :rows="12"
-          :disabled="submitting"
+          content-type="markdown"
+          :placeholder="{
+            placeholder: 'Paste or type anything...',
+            mode: 'firstLine',
+          }"
+          :editable="!submitting"
+          :ui="{ content: 'min-h-64 max-h-[50vh] overflow-y-auto' }"
         />
       </div>
 

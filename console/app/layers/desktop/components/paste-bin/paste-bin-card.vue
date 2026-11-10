@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePasteBinStore } from "@shared/stores/paste-bin";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
+import { stripMarkdown } from "@shared/utils/markdown";
 
 const props = defineProps<{
   identifier: string;
@@ -25,7 +26,7 @@ const copied = ref(false);
 const displayTitle = computed(() => props.title?.trim() || "Untitled paste");
 
 const preview = computed(() => {
-  const text = props.content.replace(/\s+/g, " ").trim();
+  const text = stripMarkdown(props.content);
   return text.length > 220 ? `${text.slice(0, 220)}…` : text;
 });
 

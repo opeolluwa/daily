@@ -3,6 +3,7 @@ import {
   useRecycleBinStore,
   type RecycleBinItemType,
 } from "@shared/stores/recycle-bin";
+import WarningModal from "@shared/components/app/WarningModal.vue";
 
 definePageMeta({ layout: false });
 
@@ -11,7 +12,35 @@ const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const toast = useToast();
 
 const typeFilter = ref<RecycleBinItemType | "all">("all");
-const confirmPurgeAll = ref(false);
+const purgeTargetId = ref<string | null>(null);
+const confirmEmptyBin = ref(false);
+const purging = ref(false);
+
+const purgeTarget = computed(
+  () =>
+    recycleBinStore.entries.find((e) => e.identifier === purgeTargetId.value) ??
+    null,
+);
+
+const confirmPurge = computed({
+  get: () => purgeTargetId.value !== null,
+  set: (value) => {
+    if (!value) purgeTargetId.value = null;
+  },
+});
+
+const purgeMessage = computed(() => {
+  const itemType = (purgeTarget.value?.itemType ?? "item").replace("_", " ");
+
+  return `This ${itemType} will be permanently deleted. This action cannot be undone.`;
+});
+
+const emptyBinMessage = computed(() => {
+  const count = recycleBinStore.entries.length;
+  const items = count === 1 ? "item" : "items";
+
+  return `All ${count} ${items} will be permanently deleted. This action cannot be undone.`;
+});
 
 const itemTypeOptions: Array<{
   label: string;
@@ -63,7 +92,13 @@ function itemTypeIcon(type: RecycleBinItemType): string {
   return icons[type] ?? "heroicons:document";
 }
 
-async function handlePurge(identifier: string) {
+async function handlePurge() {
+  const identifier = purgeTargetId.value;
+
+  if (!identifier) return;
+
+  purging.value = true;
+
   try {
     await recycleBinStore.purgeEntry(identifier);
     toast.add({
@@ -72,6 +107,7 @@ async function handlePurge(identifier: string) {
       title: "Permanently Deleted",
       description: "The item has been removed",
     });
+    purgeTargetId.value = null;
   } catch {
     toast.add({
       color: "error",
@@ -79,6 +115,8 @@ async function handlePurge(identifier: string) {
       title: "Something Went Wrong",
       description: "Failed to delete the item",
     });
+  } finally {
+    purging.value = false;
   }
 }
 
@@ -102,10 +140,8 @@ async function handleRestore(identifier: string) {
 }
 
 async function handlePurgeAll() {
-  if (!confirmPurgeAll.value) {
-    confirmPurgeAll.value = true;
-    return;
-  }
+  purging.value = true;
+
   try {
     await recycleBinStore.purgeAll();
     toast.add({
@@ -114,6 +150,7 @@ async function handlePurgeAll() {
       title: "Recycle Bin Emptied",
       description: "All items have been permanently removed",
     });
+    confirmEmptyBin.value = false;
   } catch {
     toast.add({
       color: "error",
@@ -122,7 +159,7 @@ async function handlePurgeAll() {
       description: "Failed to empty the recycle bin",
     });
   } finally {
-    confirmPurgeAll.value = false;
+    purging.value = false;
   }
 }
 
@@ -133,7 +170,9 @@ onMounted(async () => {
 
 onUnmounted(() => {
   clearSearch();
-  confirmPurgeAll.value = false;
+  purgeTargetId.value = null;
+  confirmEmptyBin.value = false;
+  purging.value = false;
 });
 </script>
 
@@ -151,16 +190,11 @@ onUnmounted(() => {
     <template #primary_cta>
       <button
         v-if="recycleBinStore.entries.length !== 0"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-        :class="
-          confirmPurgeAll
-            ? 'bg-rose-500 text-white hover:bg-rose-600'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-        "
-        @click="handlePurgeAll"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+        @click="confirmEmptyBin = true"
       >
         <UIcon name="heroicons:trash" class="size-4" />
-        {{ confirmPurgeAll ? "Confirm empty" : "Empty bin" }}
+        Empty bin
       </button>
     </template>
 
@@ -251,12 +285,34 @@ onUnmounted(() => {
           <button
             class="p-1.5 rounded-md text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors shrink-0"
             title="Permanently delete"
-            @click="handlePurge(entry.identifier)"
+            @click="purgeTargetId = entry.identifier"
           >
             <UIcon name="heroicons:trash" class="size-4" />
           </button>
         </RyderCard>
       </div>
+
+      <WarningModal
+        v-model:open="confirmPurge"
+        title="Delete permanently?"
+        :message="purgeMessage"
+        icon="heroicons:trash"
+        confirm-label="Delete"
+        confirm-color="error"
+        :loading="purging"
+        @confirm="handlePurge"
+      />
+
+      <WarningModal
+        v-model:open="confirmEmptyBin"
+        title="Empty recycle bin?"
+        :message="emptyBinMessage"
+        icon="heroicons:trash"
+        confirm-label="Empty bin"
+        confirm-color="error"
+        :loading="purging"
+        @confirm="handlePurgeAll"
+      />
     </template>
 
     <template #side_content>
