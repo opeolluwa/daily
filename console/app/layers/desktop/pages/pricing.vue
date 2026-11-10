@@ -14,7 +14,7 @@ const plans = computed(() => [
     highlight: false,
     features: [
       "Local storage only",
-      "All core modules (Notes, Tasks, Todo, Calendar)",
+      "All core modules (Notes, Tasks, Calendar)",
       "Unlimited entries",
     ],
     missing: ["Cloud sync", "Multi-device access", "Priority support"],

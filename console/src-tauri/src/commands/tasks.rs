@@ -1,81 +1,81 @@
 use lunar::{
     adapters::meta::RequestMeta,
-    entities::sea_orm_active_enums::Priority as TodoPriority,
+    entities::sea_orm_active_enums::Priority as TaskPriority,
     entities::todo,
-    repositories::todo::TodoRepositoryExt,
+    repositories::tasks::TaskRepositoryExt,
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
 use uuid::Uuid;
 
 use crate::{
-    adapters::todo::{CreateTodo, UpdateTodo},
+    adapters::tasks::{CreateTask, UpdateTask},
     errors::AppError,
     state::app::AppState,
 };
 
 #[tauri::command]
-pub async fn create_todo(
+pub async fn create_task(
     state: State<'_, AppState>,
-    todo: CreateTodo,
+    task: CreateTask,
     meta: Option<RequestMeta>,
 ) -> Result<todo::Model, AppError> {
     let model = state
-        .todo_repository
-        .create_todo(&todo.into(), &meta)
+        .task_repository
+        .create_task(&task.into(), &meta)
         .await
         .map_err(AppError::from)?;
     Ok(model)
 }
 
 #[tauri::command]
-pub async fn get_todo(
+pub async fn get_task(
     state: State<'_, AppState>,
     identifier: Uuid,
     meta: Option<RequestMeta>,
 ) -> Result<Option<todo::Model>, AppError> {
     state
-        .todo_repository
+        .task_repository
         .find_by_id(&identifier, &meta)
         .await
         .map_err(Into::into)
 }
 
 #[tauri::command]
-pub async fn get_all_todos(
+pub async fn get_all_tasks(
     state: State<'_, AppState>,
     meta: Option<RequestMeta>,
 ) -> Result<Vec<todo::Model>, AppError> {
     state
-        .todo_repository
+        .task_repository
         .find_all(&meta)
         .await
         .map_err(Into::into)
 }
 
 #[tauri::command]
-pub async fn update_todo(
+pub async fn update_task(
     state: State<'_, AppState>,
     identifier: Uuid,
-    todo: UpdateTodo,
+    task: UpdateTask,
     meta: Option<RequestMeta>,
 ) -> Result<todo::Model, AppError> {
     let model = state
-        .todo_repository
-        .update(&identifier, &todo.into(), &meta)
+        .task_repository
+        .update(&identifier, &task.into(), &meta)
         .await
         .map_err(AppError::from)?;
     Ok(model)
 }
 
 #[tauri::command]
-pub async fn delete_todo(
+pub async fn delete_task(
     state: State<'_, AppState>,
     identifier: Uuid,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
-        .todo_repository
+        .task_repository
         .delete(&identifier, &meta)
         .await
         .map_err(AppError::from)?;
@@ -83,14 +83,14 @@ pub async fn delete_todo(
 }
 
 #[tauri::command]
-pub async fn mark_todo_done(
+pub async fn mark_task_done(
     state: State<'_, AppState>,
     identifier: Uuid,
     done: bool,
     meta: Option<RequestMeta>,
 ) -> Result<todo::Model, AppError> {
     let model = state
-        .todo_repository
+        .task_repository
         .mark_done(&identifier, done, &meta)
         .await
         .map_err(AppError::from)?;
@@ -98,19 +98,19 @@ pub async fn mark_todo_done(
 }
 
 #[tauri::command]
-pub async fn change_todo_priority(
+pub async fn change_task_priority(
     state: State<'_, AppState>,
     identifier: Uuid,
     priority: String,
     meta: Option<RequestMeta>,
 ) -> Result<todo::Model, AppError> {
     let priority = match priority.as_str() {
-        "high" => TodoPriority::High,
-        "low" => TodoPriority::Low,
-        _ => TodoPriority::Medium,
+        "high" => TaskPriority::High,
+        "low" => TaskPriority::Low,
+        _ => TaskPriority::Medium,
     };
     let model = state
-        .todo_repository
+        .task_repository
         .change_priority(&identifier, &priority, &meta)
         .await
         .map_err(AppError::from)?;
@@ -118,7 +118,7 @@ pub async fn change_todo_priority(
 }
 
 #[tauri::command]
-pub async fn update_todo_due_date(
+pub async fn update_task_due_date(
     state: State<'_, AppState>,
     identifier: Uuid,
     due_date: Option<String>,
@@ -131,7 +131,7 @@ pub async fn update_todo_due_date(
         .and_then(|d| NaiveDate::parse_from_str(d, "%Y-%m-%d").ok());
 
     let model = state
-        .todo_repository
+        .task_repository
         .update_due_date(&identifier, date, &meta)
         .await
         .map_err(AppError::from)?;
@@ -139,7 +139,7 @@ pub async fn update_todo_due_date(
 }
 
 #[tauri::command]
-pub async fn transfer_todo(
+pub async fn transfer_task(
     state: State<'_, AppState>,
     record_identifier: Uuid,
     previous_workspace_identifier: Uuid,
@@ -147,7 +147,7 @@ pub async fn transfer_todo(
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
-        .todo_repository
+        .task_repository
         .transfer_record(
             &record_identifier,
             &previous_workspace_identifier,
@@ -159,7 +159,7 @@ pub async fn transfer_todo(
 }
 
 #[tauri::command]
-pub async fn duplicate_todo(
+pub async fn duplicate_task(
     state: State<'_, AppState>,
     record_identifier: Uuid,
     previous_workspace_identifier: Uuid,
@@ -167,7 +167,7 @@ pub async fn duplicate_todo(
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state
-        .todo_repository
+        .task_repository
         .duplicate_record(
             &record_identifier,
             &previous_workspace_identifier,
@@ -179,7 +179,7 @@ pub async fn duplicate_todo(
         workspace_identifier: target_workspace_identifier,
     };
     let _ = state
-        .todo_repository
+        .task_repository
         .find_by_id(&new_identifier, &Some(meta))
         .await
         .map_err(AppError::from)?;

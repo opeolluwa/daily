@@ -5,9 +5,9 @@ import {
   type BookmarkTag,
   type CreateBookmarkPayload,
 } from "@shared/stores/bookmarks";
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
-import TodoDialog from "@desktop/components/todo/TodoDialog.vue";
+import TaskDialog from "@desktop/components/task/Dialog.vue";
 import ReminderDialog from "@desktop/components/reminders/ReminderDialog.vue";
 import BookmarkAddModal from "@desktop/components/bookmark/add-modal.vue";
 
@@ -15,13 +15,13 @@ definePageMeta({ layout: false });
 
 const noteStore = useNoteStore();
 const bookmarkStore = useBookmarkStore();
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const userPreferenceStore = useUserPreferenceStore();
 
 const router = useRouter();
 const query = ref("");
 
-const todoDialogOpen = ref(false);
+const taskDialogOpen = ref(false);
 const reminderDialogOpen = ref(false);
 const bookmarkDialogOpen = ref(false);
 
@@ -42,7 +42,7 @@ onMounted(async () => {
   await Promise.all([
     noteStore.fetchNotes(),
     bookmarkStore.fetchBookmarks(),
-    todoStore.fetchTodos(),
+    taskStore.fetchTasks(),
     userPreferenceStore.fetchPreference(),
   ]);
   setSearch({ placeholder: "Search everything…" });
@@ -84,7 +84,7 @@ const today = computed(() =>
   <NuxtLayout name="default">
     <template #main_content>
       <div
-        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-col items-center justify-center flex-1 gap-6 px-5 relative overflow-hidden"
+        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-col items-center justify-center flex-1 gap-6 px-5 relative"
       >
           <!-- tint -->
           
@@ -94,7 +94,7 @@ const today = computed(() =>
 
         <!-- tint -->
         <div
-          class="pointer-events-none absolute -bottom-24 -right-24 size-96 rounded-full bg-violet-300/20 dark:bg-violet-500/10 blur-3xl hidden md:block"
+          class="pointer-events-none absolute -bottom-24 -right-24 rounded-full bg-violet-300/20 dark:bg-violet-500/10 blur-3xl hidden md:block"
         />
 
         <div
@@ -123,7 +123,7 @@ const today = computed(() =>
             class="w-full max-w-xl"
             icon="heroicons:plus"
             size="lg"
-            placeholder="Search notes, bookmarks, todos…"
+            placeholder="Search notes, bookmarks, tasks…"
             :ui="{
               root: 'pl-3',
               base: 'py-4 shadow-sm bg-transparent placeholder:text-sm text-sm rounded-full',
@@ -170,7 +170,7 @@ const today = computed(() =>
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="todoDialogOpen = true"
+            @click="taskDialogOpen = true"
           >
             <span
               class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
@@ -210,7 +210,7 @@ const today = computed(() =>
     </template>
 
     <template #modal_content>
-      <TodoDialog v-model:open="todoDialogOpen" />
+      <TaskDialog v-model:open="taskDialogOpen" />
       <ReminderDialog v-model:open="reminderDialogOpen" />
       <BookmarkAddModal
         v-model:open="bookmarkDialogOpen"

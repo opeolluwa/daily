@@ -8,7 +8,7 @@ import type {
   CreateRecycleBinEntry,
   CreateReminder,
   CreateSnippet,
-  CreateTodo,
+  CreateTask,
   CreateWorkspace,
   CreateWorkspaceProfile,
   LunarConsoleApi,
@@ -18,7 +18,7 @@ import type {
   UpdatePasteBin,
   UpdateReminder,
   UpdateSnippet,
-  UpdateTodo,
+  UpdateTask,
   UpdateWorkspace,
   UpdateWorkspaceProfile,
 } from "./lunar";
@@ -38,7 +38,7 @@ const duplicate = (
   api: LunarConsoleApi,
   a: InvokeArgs,
   kind:
-    "notes" | "todos" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
+    | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
 ) => {
   const repo = api[kind];
   return repo.duplicate_record(
@@ -52,7 +52,7 @@ const transfer = (
   api: LunarConsoleApi,
   a: InvokeArgs,
   kind:
-    "notes" | "todos" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
+    | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
 ) => {
   const repo = api[kind];
   return repo.transfer_record(
@@ -106,23 +106,23 @@ const COMMANDS: Record<string, CommandHandler> = {
   duplicate_note: (api, a) => duplicate(api, a, "notes"),
   transfer_note: (api, a) => transfer(api, a, "notes"),
 
-  get_all_todos: (api, a) => api.todos.find_all(asMeta(a)),
-  create_todo: (api, a) =>
-    api.todos.create_todo(a.todo as CreateTodo, asMeta(a)),
-  update_todo: (api, a) =>
-    api.todos.update(
+  get_all_tasks: (api, a) => api.tasks.find_all(asMeta(a)),
+  create_task: (api, a) =>
+    api.tasks.create_task(a.task as CreateTask, asMeta(a)),
+  update_task: (api, a) =>
+    api.tasks.update(
       asString(a, "identifier"),
-      a.todo as UpdateTodo,
+      a.task as UpdateTask,
       asMeta(a),
     ),
-  mark_todo_done: (api, a) =>
-    api.todos.mark_done(
+  mark_task_done: (api, a) =>
+    api.tasks.mark_done(
       asString(a, "identifier"),
       a.done as boolean,
       asMeta(a),
     ),
-  change_todo_priority: (api, a) =>
-    api.todos.change_priority(
+  change_task_priority: (api, a) =>
+    api.tasks.change_priority(
       asString(a, "identifier"),
       // Stores send lowercase priorities, matching the DB enum string values
       // (`#[sea_orm(string_value)]`); the generated `Priority` binding exposes
@@ -130,16 +130,16 @@ const COMMANDS: Record<string, CommandHandler> = {
       a.priority as unknown as Priority,
       asMeta(a),
     ),
-  update_todo_due_date: (api, a) =>
-    api.todos.update_due_date(
+  update_task_due_date: (api, a) =>
+    api.tasks.update_due_date(
       asString(a, "identifier"),
       a.dueDate as string | null,
       asMeta(a),
     ),
-  delete_todo: (api, a) =>
-    api.todos.delete(asString(a, "identifier"), asMeta(a)),
-  duplicate_todo: (api, a) => duplicate(api, a, "todos"),
-  transfer_todo: (api, a) => transfer(api, a, "todos"),
+  delete_task: (api, a) =>
+    api.tasks.delete(asString(a, "identifier"), asMeta(a)),
+  duplicate_task: (api, a) => duplicate(api, a, "tasks"),
+  transfer_task: (api, a) => transfer(api, a, "tasks"),
 
   get_all_bookmarks: (api, a) => api.bookmarks.find_all(asMeta(a)),
   create_bookmark: (api, a) =>
@@ -229,7 +229,7 @@ const UNSYNCED = new Set([
   "get_unsynced_workspaces",
   "get_unsynced_workspace_profiles",
   "get_unsynced_notes",
-  "get_unsynced_todos",
+  "get_unsynced_tasks",
   "get_unsynced_bookmarks",
   "get_unsynced_snippets",
   "get_unsynced_reminders",
@@ -240,7 +240,7 @@ const CLEAR_SYNCED = new Set([
   "clear_synced_workspaces",
   "clear_synced_workspace_profiles",
   "clear_synced_notes",
-  "clear_synced_todos",
+  "clear_synced_tasks",
   "clear_synced_bookmarks",
   "clear_synced_snippets",
   "clear_synced_reminders",

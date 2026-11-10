@@ -12,13 +12,13 @@ use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::adapters::meta::RequestMeta;
-use crate::entities::sea_orm_active_enums::{ItemType, Priority, TodoStatus};
+use crate::entities::sea_orm_active_enums::{ItemType, Priority, TaskStatus};
 use crate::types::EntitySyncResult;
 use crate::utils::{extract_req_meta, js_err, mock_connection, to_js};
 use crate::{
     adapters::{
         recycle_bin::CreateRecycleBinEntry,
-        todo::{CreateTodo, UpdateTodo},
+        tasks::{CreateTask, UpdateTask},
     },
     entities::{recycle_bin, todo},
     error::LunarError,
@@ -32,32 +32,32 @@ use crate::{
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct TodoRepository {
+pub struct TaskRepository {
     conn: Arc<DatabaseConnection>,
     workspace_repository: WorkspaceRepository,
 }
 
-impl FromStr for TodoStatus {
+impl FromStr for TaskStatus {
     type Err = LunarError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let source = s.trim().to_lowercase();
         match source.as_str() {
-            "planned" => Ok(TodoStatus::Planned),
-            "in_progress" => Ok(TodoStatus::InProgress),
-            "done" => Ok(TodoStatus::Done),
+            "planned" => Ok(TaskStatus::Planned),
+            "in_progress" => Ok(TaskStatus::InProgress),
+            "done" => Ok(TaskStatus::Done),
             _ => Err(LunarError::DbOperationError(
-                "invalid value for todo status".to_string(),
+                "invalid value for task status".to_string(),
             )),
         }
     }
 }
 #[async_trait]
-pub trait TodoRepositoryExt {
+pub trait TaskRepositoryExt {
     fn new(conn: Arc<DatabaseConnection>) -> Self;
 
-    async fn create_todo(
+    async fn create_task(
         &self,
-        payload: &CreateTodo,
+        payload: &CreateTask,
         meta: &Option<RequestMeta>,
     ) -> Result<todo::Model, LunarError>;
 
@@ -72,7 +72,7 @@ pub trait TodoRepositoryExt {
     async fn update(
         &self,
         identifier: &Uuid,
-        payload: &UpdateTodo,
+        payload: &UpdateTask,
         meta: &Option<RequestMeta>,
     ) -> Result<todo::Model, LunarError>;
 
@@ -110,7 +110,7 @@ pub trait TodoRepositoryExt {
 }
 
 #[async_trait]
-impl TodoRepositoryExt for TodoRepository {
+impl TaskRepositoryExt for TaskRepository {
     fn new(conn: Arc<DatabaseConnection>) -> Self {
         Self {
             conn: conn.clone(),
@@ -118,9 +118,9 @@ impl TodoRepositoryExt for TodoRepository {
         }
     }
 
-    async fn create_todo(
+    async fn create_task(
         &self,
-        payload: &CreateTodo,
+        payload: &CreateTask,
         meta: &Option<RequestMeta>,
     ) -> Result<todo::Model, LunarError> {
         let mut active_model: todo::ActiveModel = payload.to_owned().into();
@@ -166,7 +166,7 @@ impl TodoRepositoryExt for TodoRepository {
     async fn update(
         &self,
         identifier: &Uuid,
-        payload: &UpdateTodo,
+        payload: &UpdateTask,
         meta: &Option<RequestMeta>,
     ) -> Result<todo::Model, LunarError> {
         let meta = extract_req_meta(meta)?;
@@ -177,7 +177,7 @@ impl TodoRepositoryExt for TodoRepository {
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-            .ok_or_else(|| LunarError::DbOperationError("todo not found".to_string()))?;
+            .ok_or_else(|| LunarError::DbOperationError("task not found".to_string()))?;
 
         let mut active_model = model.into_active_model();
 
@@ -190,7 +190,7 @@ impl TodoRepositoryExt for TodoRepository {
         active_model.updated_at = Set(Utc::now().fixed_offset());
 
         if let Some(status) = &payload.status {
-            let status = TodoStatus::from_str(status)?;
+            let status = TaskStatus::from_str(status)?;
             active_model.status = Set(status);
         }
 
@@ -213,7 +213,7 @@ impl TodoRepositoryExt for TodoRepository {
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-            .ok_or_else(|| LunarError::DbOperationError("todo not found".to_string()))?;
+            .ok_or_else(|| LunarError::DbOperationError("task not found".to_string()))?;
 
         let payload = serde_json::to_string(&model)
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?;
@@ -252,7 +252,7 @@ impl TodoRepositoryExt for TodoRepository {
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-            .ok_or_else(|| LunarError::DbOperationError("todo not found".to_string()))?;
+            .ok_or_else(|| LunarError::DbOperationError("task not found".to_string()))?;
 
         let mut active_model = model.into_active_model();
         active_model.priority = Set(priority.to_owned());
@@ -278,7 +278,7 @@ impl TodoRepositoryExt for TodoRepository {
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-            .ok_or_else(|| LunarError::DbOperationError("todo not found".to_string()))?;
+            .ok_or_else(|| LunarError::DbOperationError("task not found".to_string()))?;
 
         let mut active_model = model.into_active_model();
         active_model.due_date = Set(due_date);
@@ -304,7 +304,7 @@ impl TodoRepositoryExt for TodoRepository {
             .one(self.conn.as_ref())
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
-            .ok_or_else(|| LunarError::DbOperationError("todo not found".to_string()))?;
+            .ok_or_else(|| LunarError::DbOperationError("task not found".to_string()))?;
 
         let mut active_model = model.into_active_model();
         active_model.done = Set(done);
@@ -369,7 +369,7 @@ impl TodoRepositoryExt for TodoRepository {
 }
 #[async_trait::async_trait]
 
-impl TransferRecord for TodoRepository {
+impl TransferRecord for TaskRepository {
     async fn transfer_record(
         &self,
         record_identifier: &Uuid,
@@ -402,7 +402,7 @@ impl TransferRecord for TodoRepository {
             .record_exists_in_workspace(record_identifier, previous_workspace_identifier)
             .await?
         {
-            return Err(LunarError::TodoNotFound(record_identifier.to_string()));
+            return Err(LunarError::TaskNotFound(record_identifier.to_string()));
         }
 
         let Some(record) = todo::Entity::find()
@@ -411,7 +411,7 @@ impl TransferRecord for TodoRepository {
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
         else {
-            return Err(LunarError::TodoNotFound(record_identifier.to_string()));
+            return Err(LunarError::TaskNotFound(record_identifier.to_string()));
         };
 
         let mut active_model = record.into_active_model();
@@ -429,7 +429,7 @@ impl TransferRecord for TodoRepository {
 }
 #[async_trait::async_trait]
 
-impl RecordExistInWorkspace for TodoRepository {
+impl RecordExistInWorkspace for TaskRepository {
     async fn record_exists_in_workspace(
         &self,
         record_identifier: &Uuid,
@@ -446,7 +446,7 @@ impl RecordExistInWorkspace for TodoRepository {
     }
 }
 #[async_trait::async_trait]
-impl DuplicateRecord for TodoRepository {
+impl DuplicateRecord for TaskRepository {
     async fn duplicate_record(
         &self,
         record_identifier: &Uuid,
@@ -482,7 +482,7 @@ impl DuplicateRecord for TodoRepository {
             .await
             .map_err(|err| LunarError::DbOperationError(err.to_string()))?
         else {
-            return Err(LunarError::TodoNotFound(record_identifier.to_string()));
+            return Err(LunarError::TaskNotFound(record_identifier.to_string()));
         };
 
         let mut new_record = record.into_active_model();
@@ -503,21 +503,21 @@ impl DuplicateRecord for TodoRepository {
 }
 
 #[wasm_bindgen]
-impl TodoRepository {
+impl TaskRepository {
     #[wasm_bindgen(constructor)]
     pub fn new_wasm() -> Self {
         Self::new(mock_connection())
     }
 
-    #[wasm_bindgen(js_name = "create_todo")]
-    pub async fn create_todo_js(
+    #[wasm_bindgen(js_name = "create_task")]
+    pub async fn create_task_js(
         &self,
         payload: JsValue,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let payload: CreateTodo = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
+        let payload: CreateTask = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let model = <Self as TodoRepositoryExt>::create_todo(self, &payload, &meta).await?;
+        let model = <Self as TaskRepositoryExt>::create_task(self, &payload, &meta).await?;
         to_js(&model)
     }
 
@@ -525,14 +525,14 @@ impl TodoRepository {
     pub async fn find_by_id_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let model = <Self as TodoRepositoryExt>::find_by_id(self, &id, &meta).await?;
+        let model = <Self as TaskRepositoryExt>::find_by_id(self, &id, &meta).await?;
         to_js(&model)
     }
 
     #[wasm_bindgen(js_name = "find_all")]
     pub async fn find_all_js(&self, meta: JsValue) -> Result<JsValue, JsValue> {
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let models = <Self as TodoRepositoryExt>::find_all(self, &meta).await?;
+        let models = <Self as TaskRepositoryExt>::find_all(self, &meta).await?;
         to_js(&models)
     }
 
@@ -544,9 +544,9 @@ impl TodoRepository {
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
-        let payload: UpdateTodo = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
+        let payload: UpdateTask = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let model = <Self as TodoRepositoryExt>::update(self, &id, &payload, &meta).await?;
+        let model = <Self as TaskRepositoryExt>::update(self, &id, &payload, &meta).await?;
         to_js(&model)
     }
 
@@ -554,7 +554,7 @@ impl TodoRepository {
     pub async fn delete_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        <Self as TodoRepositoryExt>::delete(self, &id, &meta).await?;
+        <Self as TaskRepositoryExt>::delete(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
     }
 
@@ -569,7 +569,7 @@ impl TodoRepository {
         let priority: Priority = serde_wasm_bindgen::from_value(priority).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model =
-            <Self as TodoRepositoryExt>::change_priority(self, &id, &priority, &meta).await?;
+            <Self as TaskRepositoryExt>::change_priority(self, &id, &priority, &meta).await?;
         to_js(&model)
     }
 
@@ -584,7 +584,7 @@ impl TodoRepository {
         let due_date: Option<Date> = serde_wasm_bindgen::from_value(due_date).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model =
-            <Self as TodoRepositoryExt>::update_due_date(self, &id, due_date, &meta).await?;
+            <Self as TaskRepositoryExt>::update_due_date(self, &id, due_date, &meta).await?;
         to_js(&model)
     }
 
@@ -597,7 +597,7 @@ impl TodoRepository {
     ) -> Result<JsValue, JsValue> {
         let id = Uuid::parse_str(identifier).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
-        let model = <Self as TodoRepositoryExt>::mark_done(self, &id, done, &meta).await?;
+        let model = <Self as TaskRepositoryExt>::mark_done(self, &id, done, &meta).await?;
         to_js(&model)
     }
 

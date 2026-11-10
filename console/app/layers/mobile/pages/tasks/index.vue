@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 
 definePageMeta({ name: "Tasks" });
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const router = useRouter();
 
 function openCreate() {
-  router.push("/todo/create-todo");
+  router.push("/tasks/create");
 }
 
 function openEdit(identifier: string) {
-  router.push({ path: "/todo/edit-todo", query: { id: identifier } });
+  router.push({ path: "/tasks/edit", query: { id: identifier } });
 }
 
 onMounted(() => {
-  todoStore.fetchTodos();
+  taskStore.fetchTasks();
 });
 </script>
 
 <template>
-  <RyderPullToRefresh @refresh="() => todoStore.fetchTodos()">
+  <RyderPullToRefresh @refresh="() => taskStore.fetchTasks()">
     <div>
       <!-- Create task FAB -->
       <RyderFab
-        v-if="todoStore.todos.length !== 0"
+        v-if="taskStore.tasks.length !== 0"
         class="!bottom-24"
         @click="openCreate"
       />
       <!-- Loading -->
-      <div v-if="todoStore.loading" class="flex flex-col gap-2">
+      <div v-if="taskStore.loading" class="flex flex-col gap-2">
         <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-lg" />
       </div>
 
-      <!-- Empty state: no todos at all -->
-      <div v-else-if="todoStore.todos.length === 0">
+      <!-- Empty state: no tasks at all -->
+      <div v-else-if="taskStore.tasks.length === 0">
         <RyderEmptyState
           title="No task yet"
           description="Create your first task to get started."
@@ -44,15 +44,15 @@ onMounted(() => {
         />
       </div>
 
-      <!-- Todo list -->
+      <!-- Task list -->
       <div v-else class="flex flex-col gap-2">
-        <TodoCard
-          v-for="todo in todoStore.todos"
-          :key="todo.identifier"
-          :todo="todo"
-          @toggle="(id, done) => todoStore.toggleDone(id, done)"
+        <TaskCard
+          v-for="task in taskStore.tasks"
+          :key="task.identifier"
+          :task="task"
+          @toggle="(id, done) => taskStore.toggleDone(id, done)"
           @edit="openEdit"
-          @delete="(id) => todoStore.deleteTodo(id)"
+          @delete="(id) => taskStore.deleteTask(id)"
         />
       </div>
     </div>

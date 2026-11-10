@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { CalendarDate, Time } from "@internationalized/date";
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 
 const props = defineProps<{
-  todo?: {
+  task?: {
     identifier: string;
     title: string;
     description?: string | null;
@@ -16,10 +16,10 @@ const props = defineProps<{
 
 const open = defineModel<boolean>("open", { required: true });
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const toast = useToast();
 
-const editing = computed(() => !!props.todo);
+const editing = computed(() => !!props.task);
 
 const form = reactive({
   title: "",
@@ -65,16 +65,16 @@ function resetForm() {
 }
 
 watch(
-  () => props.todo,
-  (todo) => {
-    if (todo) {
-      form.title = todo.title;
-      form.description = todo.description ?? "";
-      form.dueDate = fromIsoDate(todo.dueDate);
-      form.priority = todo.priority;
-      form.done = todo.done;
-      if (todo.dueTime) {
-        const [h, m] = todo.dueTime.split(":").map(Number);
+  () => props.task,
+  (task) => {
+    if (task) {
+      form.title = task.title;
+      form.description = task.description ?? "";
+      form.dueDate = fromIsoDate(task.dueDate);
+      form.priority = task.priority;
+      form.done = task.done;
+      if (task.dueTime) {
+        const [h, m] = task.dueTime.split(":").map(Number);
         selectedTime.value = new Time(h, m);
       } else {
         selectedTime.value = undefined;
@@ -94,37 +94,37 @@ async function handleSubmit() {
   if (!form.title.trim()) return;
   submitting.value = true;
   try {
-    if (editing.value && props.todo) {
-      await todoStore.updateTodo(props.todo.identifier, {
+    if (editing.value && props.task) {
+      await taskStore.updateTask(props.task.identifier, {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
       });
 
-      const current = todoStore.todos.find(
-        (t) => t.identifier === props.todo!.identifier,
+      const current = taskStore.tasks.find(
+        (t) => t.identifier === props.task!.identifier,
       );
       if (current) {
         if (current.done !== form.done) {
-          await todoStore.toggleDone(props.todo.identifier, form.done);
+          await taskStore.toggleDone(props.task.identifier, form.done);
         }
         if (current.priority !== form.priority) {
-          await todoStore.changePriority(props.todo.identifier, form.priority);
+          await taskStore.changePriority(props.task.identifier, form.priority);
         }
         const newDate = toIsoDate(form.dueDate);
         const existingDate = current.dueDate ?? null;
         if (newDate !== existingDate) {
-          await todoStore.updateDueDate(props.todo.identifier, newDate);
+          await taskStore.updateDueDate(props.task.identifier, newDate);
         }
       }
 
       toast.add({
         color: "success",
         icon: "heroicons:check-circle",
-        title: "Todo Updated",
+        title: "Task Updated",
         description: "Your changes have been saved",
       });
     } else {
-      await todoStore.createTodo({
+      await taskStore.createTask({
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         dueDate: toIsoDate(form.dueDate) ?? undefined,
@@ -134,8 +134,8 @@ async function handleSubmit() {
       toast.add({
         color: "success",
         icon: "heroicons:check-circle",
-        title: "Todo Created",
-        description: "Your todo has been saved",
+        title: "Task Created",
+        description: "Your task has been saved",
       });
     }
     open.value = false;
@@ -145,8 +145,8 @@ async function handleSubmit() {
       icon: "heroicons:x-circle",
       title: "Something Went Wrong",
       description: editing.value
-        ? "Failed to update todo"
-        : "Failed to create todo",
+        ? "Failed to update task"
+        : "Failed to create task",
     });
   } finally {
     submitting.value = false;
@@ -154,15 +154,15 @@ async function handleSubmit() {
 }
 
 async function handleDelete() {
-  if (!props.todo) return;
+  if (!props.task) return;
   deleting.value = true;
   try {
-    await todoStore.deleteTodo(props.todo.identifier);
+    await taskStore.deleteTask(props.task.identifier);
     toast.add({
       color: "success",
       icon: "heroicons:check-circle",
-      title: "Todo Deleted",
-      description: "The todo has been removed",
+      title: "Task Deleted",
+      description: "The task has been removed",
     });
     open.value = false;
   } catch {
@@ -170,7 +170,7 @@ async function handleDelete() {
       color: "error",
       icon: "heroicons:x-circle",
       title: "Something Went Wrong",
-      description: "Failed to delete todo",
+      description: "Failed to delete task",
     });
   } finally {
     deleting.value = false;
@@ -181,7 +181,7 @@ async function handleDelete() {
 <template>
   <RyderCreateDialog
     v-model:open="open"
-    :title="editing ? 'Edit Todo' : 'New Todo'"
+    :title="editing ? 'Edit Task' : 'New Task'"
     :loading="submitting"
     :submit-label="editing ? 'Save' : 'Create'"
     :submit-disabled="!form.title.trim()"
@@ -194,13 +194,13 @@ async function handleDelete() {
         label="Title"
         :required="true"
         placeholder="What needs to be done?"
-        name="todo-title"
+        name="task-title"
       />
 
       <RyderTextarea
         v-model="form.description"
         label="Description"
-        name="todo-description"
+        name="task-description"
         placeholder="Add more details..."
         :rows="3"
       />
@@ -208,14 +208,14 @@ async function handleDelete() {
       <RyderDateInput
         v-model="form.dueDate"
         label="Date"
-        name="todo-date"
+        name="task-date"
         placeholder="Pick a date"
       />
 
       <RyderTimeInput
         v-model="selectedTime"
         label="Time"
-        name="todo-time"
+        name="task-time"
         size="sm"
       />
 
@@ -283,7 +283,7 @@ async function handleDelete() {
         @click="handleDelete"
       >
         <UIcon name="heroicons:trash" class="size-4" />
-        {{ deleting ? "Deleting..." : "Delete todo" }}
+        {{ deleting ? "Deleting..." : "Delete task" }}
       </button>
     </div>
   </RyderCreateDialog>

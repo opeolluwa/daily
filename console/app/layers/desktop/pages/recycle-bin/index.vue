@@ -19,7 +19,7 @@ const itemTypeOptions: Array<{
 }> = [
   { label: "All", value: "all" },
   { label: "Notes", value: "note" },
-  { label: "Todos", value: "todo" },
+  { label: "Tasks", value: "todo" },
   { label: "Bookmarks", value: "bookmark" },
   { label: "Reminders", value: "reminder" },
   { label: "Snippets", value: "snippet" },

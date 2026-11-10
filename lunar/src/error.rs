@@ -20,8 +20,8 @@ pub enum LunarError {
     #[error("Note does not exist: {0}")]
     NotesNotFound(String),
 
-    #[error("Todo does not exist: {0}")]
-    TodoNotFound(String),
+    #[error("Task does not exist: {0}")]
+    TaskNotFound(String),
 
     #[error("Snippet does not exist: {0}")]
     SnippetNotFound(String),

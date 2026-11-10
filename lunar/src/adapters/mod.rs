@@ -6,7 +6,7 @@ pub mod paste_bins;
 pub mod recycle_bin;
 pub mod reminder;
 pub mod snippets;
-pub mod todo;
+pub mod tasks;
 pub mod user_preferences;
 pub mod workspace;
 pub mod workspace_profiles;

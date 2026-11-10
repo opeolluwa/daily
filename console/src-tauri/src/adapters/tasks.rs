@@ -1,10 +1,10 @@
 use lunar::adapters::meta::RequestMeta;
-use lunar::entities::sea_orm_active_enums::Priority as TodoPriority;
+use lunar::entities::sea_orm_active_enums::Priority as TaskPriority;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateTodo {
+pub struct CreateTask {
     pub title: String,
     pub description: Option<String>,
     pub due_date: Option<String>,
@@ -12,8 +12,8 @@ pub struct CreateTodo {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<CreateTodo> for lunar::adapters::todo::CreateTodo {
-    fn from(t: CreateTodo) -> Self {
+impl From<CreateTask> for lunar::adapters::tasks::CreateTask {
+    fn from(t: CreateTask) -> Self {
         use chrono::NaiveDate;
 
         let due_date = t
@@ -22,9 +22,9 @@ impl From<CreateTodo> for lunar::adapters::todo::CreateTodo {
             .and_then(|d| NaiveDate::parse_from_str(d, "%Y-%m-%d").ok());
 
         let priority = match t.priority.as_str() {
-            "high" => TodoPriority::High,
-            "low" => TodoPriority::Low,
-            _ => TodoPriority::Medium,
+            "high" => TaskPriority::High,
+            "low" => TaskPriority::Low,
+            _ => TaskPriority::Medium,
         };
 
         Self {
@@ -38,14 +38,14 @@ impl From<CreateTodo> for lunar::adapters::todo::CreateTodo {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateTodo {
+pub struct UpdateTask {
     pub title: Option<String>,
     pub description: Option<String>,
     pub status: Option<String>,
 }
 
-impl From<UpdateTodo> for lunar::adapters::todo::UpdateTodo {
-    fn from(t: UpdateTodo) -> Self {
+impl From<UpdateTask> for lunar::adapters::tasks::UpdateTask {
+    fn from(t: UpdateTask) -> Self {
         Self {
             title: t.title,
             description: t.description,

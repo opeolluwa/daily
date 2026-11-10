@@ -3,7 +3,7 @@ import { useBookmarkStore } from "@shared/stores/bookmarks";
 import { useNoteStore } from "@shared/stores/notes";
 import { useReminderStore } from "@shared/stores/reminder";
 import { useSnippetStore } from "@shared/stores/snippets";
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 import { safeOpenUrl as openUrl } from "@shared/utils/safe-open-url";
 import { onClickOutside } from "@vueuse/core";
 
@@ -13,7 +13,7 @@ const router = useRouter();
 const noteStore = useNoteStore();
 const bookmarkStore = useBookmarkStore();
 const snippetStore = useSnippetStore();
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const reminderStore = useReminderStore();
 const { searchQuery } = useAppSearch();
 
@@ -29,7 +29,7 @@ onMounted(async () => {
         ? bookmarkStore.fetchBookmarks()
         : null,
       snippetStore.snippets.length === 0 ? snippetStore.fetchSnippets() : null,
-      todoStore.todos.length === 0 ? todoStore.fetchTodos() : null,
+      taskStore.tasks.length === 0 ? taskStore.fetchTasks() : null,
       reminderStore.reminders.length === 0
         ? reminderStore.fetchReminders()
         : null,
@@ -62,7 +62,7 @@ const typeConfig = {
     icon: "heroicons:check-circle",
     color: "text-emerald-500 dark:text-emerald-400",
     bg: "bg-emerald-50 dark:bg-emerald-950/60",
-    label: "Todos",
+    label: "Tasks",
   },
   reminder: {
     icon: "heroicons:bell",
@@ -143,7 +143,7 @@ const sections = computed(() => {
   if (snippets.length)
     out.push({ label: "Snippets", type: "snippet", items: snippets });
 
-  const todos = todoStore.todos
+  const tasks = taskStore.tasks
     .filter(
       (t) =>
         t.title?.toLowerCase().includes(q) ||
@@ -155,9 +155,9 @@ const sections = computed(() => {
       type: "todo",
       title: t.title,
       sub: t.priority,
-      href: `/todo/edit-todo?id=${t.identifier}`,
+      href: `/tasks?id=${t.identifier}`,
     }));
-  if (todos.length) out.push({ label: "Todos", type: "todo", items: todos });
+  if (tasks.length) out.push({ label: "Tasks", type: "todo", items: tasks });
 
   const reminders = reminderStore.reminders
     .filter(

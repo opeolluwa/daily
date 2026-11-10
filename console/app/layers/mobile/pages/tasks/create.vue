@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TodoForm from "@mobile/components/todo/form.vue";
+import TaskForm from "@mobile/components/task/Form.vue";
 
 definePageMeta({ name: "New task" });
 
@@ -8,10 +8,10 @@ const { notify } = useAppNotification();
 
 function handleSaved() {
   notify({ message: "Task created", type: "success" });
-  router.replace("/todo");
+  router.replace("/tasks");
 }
 </script>
 
 <template>
-  <TodoForm @saved="handleSaved" />
+  <TaskForm @saved="handleSaved" />
 </template>

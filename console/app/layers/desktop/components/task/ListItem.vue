@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
-import type { Todo } from "@shared/stores/todo";
+import type { Task } from "@shared/stores/tasks";
 
-const { todo } = defineProps<{
-  todo: Todo;
+const { task } = defineProps<{
+  task: Task;
 }>();
 
 const emit = defineEmits<{
@@ -45,18 +45,18 @@ function isToday(dateStr: string | null) {
 }
 const workspaceStore = useWorkspacesStore();
 const currentWorkspaceId = computed(() => workspaceStore.activeWorkspaceId);
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const handleDuplicate = async (targetWorkspaceId: string) => {
-  await todoStore.duplicateTodo(
-    todo.identifier,
+  await taskStore.duplicateTask(
+    task.identifier,
     currentWorkspaceId.value,
     targetWorkspaceId,
   );
 };
 
 const handleTransfer = async (targetWorkspaceId: string) => {
-  await todoStore.transferTodo(
-    todo.identifier,
+  await taskStore.transferTask(
+    task.identifier,
     currentWorkspaceId.value,
     targetWorkspaceId,
   );
@@ -69,12 +69,12 @@ const handleTransfer = async (targetWorkspaceId: string) => {
       root: 'flex items-center gap-4 hover:shadow-sm transition-shadow group',
     }"
   >
-    <button @click="emit('toggle', todo.identifier, !todo.done)">
+    <button @click="emit('toggle', task.identifier, !task.done)">
       <UIcon
-        :name="todo.done ? 'heroicons:check-circle-solid' : 'lucide:circle'"
+        :name="task.done ? 'heroicons:check-circle-solid' : 'lucide:circle'"
         class="size-5 transition-colors"
         :class="
-          todo.done
+          task.done
             ? 'text-primary-500'
             : 'text-gray-300 dark:text-gray-600 hover:text-gray-400'
         "
@@ -85,45 +85,45 @@ const handleTransfer = async (targetWorkspaceId: string) => {
       <p
         class="text-sm transition-colors"
         :class="
-          todo.done
+          task.done
             ? 'line-through text-gray-400'
             : 'text-gray-700 dark:text-gray-200'
         "
       >
-        {{ todo.title }}
+        {{ task.title }}
       </p>
-      <p v-if="todo.description" class="text-xs text-gray-400 truncate mt-0.5">
-        {{ todo.description }}
+      <p v-if="task.description" class="text-xs text-gray-400 truncate mt-0.5">
+        {{ task.description }}
       </p>
     </div>
 
     <span
-      v-if="todo.dueDate"
+      v-if="task.dueDate"
       class="text-xs shrink-0 px-1.5 py-0.5 rounded-md"
       :class="
-        isToday(todo.dueDate)
+        isToday(task.dueDate)
           ? 'bg-primary-100 dark:bg-primary-950 text-primary-600 dark:text-primary-300 font-medium'
           : 'text-gray-400'
       "
     >
-      {{ formatDueDate(todo.dueDate) }}
+      {{ formatDueDate(task.dueDate) }}
     </span>
 
     <div
       class="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
     >
       <button
-        v-if="!todo.done"
+        v-if="!task.done"
         class="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors"
-        @click="emit('toggle', todo.identifier, true)"
+        @click="emit('toggle', task.identifier, true)"
       >
         <UIcon name="heroicons:check" class="size-3.5" />
         Done
       </button>
       <MetaControls
-        item-name="todo"
-        @edit-record="emit('edit', todo.identifier)"
-        @delete-record="emit('delete', todo.identifier)"
+        item-name="task"
+        @edit-record="emit('edit', task.identifier)"
+        @delete-record="emit('delete', task.identifier)"
         @duplicate-record="
           (targetWorkspaceId) => handleDuplicate(targetWorkspaceId)
         "

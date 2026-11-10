@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useTemplateRef } from "vue";
 import { makeSortableItem } from "@vue-dnd-kit/core";
-import { useTodoStore, type Todo } from "@shared/stores/todo";
+import { useTaskStore, type Task } from "@shared/stores/tasks";
 import { useWorkspacesStore } from "@shared/stores/workspaces";
 
 const props = defineProps<{
-  todo: Todo;
+  task: Task;
 }>();
 
 const emit = defineEmits<{
@@ -19,8 +19,8 @@ const el = useTemplateRef<HTMLElement>("el");
 const grip = useTemplateRef<HTMLElement>("grip");
 
 makeSortableItem(el, {
-  id: () => props.todo.identifier,
-  item: () => props.todo,
+  id: () => props.task.identifier,
+  item: () => props.task,
   handle: grip,
 });
 
@@ -70,21 +70,21 @@ function isToday(dateStr: string | null) {
 
 // Workspace actions
 const workspaceStore = useWorkspacesStore();
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 
 const currentWorkspaceId = computed(() => workspaceStore.activeWorkspaceId);
 
 async function handleDuplicate(targetWorkspaceId: string) {
-  await todoStore.duplicateTodo(
-    props.todo.identifier,
+  await taskStore.duplicateTask(
+    props.task.identifier,
     currentWorkspaceId.value,
     targetWorkspaceId,
   );
 }
 
 async function handleTransfer(targetWorkspaceId: string) {
-  await todoStore.transferTodo(
-    props.todo.identifier,
+  await taskStore.transferTask(
+    props.task.identifier,
     currentWorkspaceId.value,
     targetWorkspaceId,
   );
@@ -94,50 +94,50 @@ async function handleTransfer(targetWorkspaceId: string) {
 <template>
   <li ref="el" class="list-none">
     <RyderCard
-      :title="todo.title"
+      :title="task.title"
       class="rounded-sm! border-l-2 cursor-grab"
-      :class="priorityBorderClass[todo.priority]"
+      :class="priorityBorderClass[task.priority]"
       :ui="{ title: 'mb-1', header: 'gap-y-1' }"
       ref="grip"
     >
       <template #trailing>
         <MetaControls
           horizontal-controls
-          item-name="todo"
-          @edit-record="emit('edit', todo.identifier)"
-          @delete-record="emit('delete', todo.identifier)"
+          item-name="task"
+          @edit-record="emit('edit', task.identifier)"
+          @delete-record="emit('delete', task.identifier)"
           @duplicate-record="handleDuplicate"
           @transfer-record="handleTransfer"
         />
       </template>
 
       <template #default>
-        <!-- Todo information -->
+        <!-- Task information -->
         <div class="min-w-0 flex flex-col">
           <p
-            v-if="todo.description"
+            v-if="task.description"
             class="mt-0.5 truncate text-xs text-gray-400"
           >
-            {{ todo.description }}
+            {{ task.description }}
           </p>
 
           <div class="flex justify-between items-center mt-3 text-xs">
             <span
-              v-if="todo.dueDate"
+              v-if="task.dueDate"
               class="shrink-0 rounded-md px-1.5 py-0.5"
               :class="
-                isToday(todo.dueDate)
+                isToday(task.dueDate)
                   ? 'bg-primary-100 font-medium text-primary-600 dark:bg-primary-950 dark:text-primary-300'
                   : 'text-gray-400'
               "
             >
-              {{ formatDueDate(todo.dueDate) }}
+              {{ formatDueDate(task.dueDate) }}
             </span>
 
             <span
               class="uppercase shrink-0 rounded-md ml-auto px-1.5 py-0.5"
-              :class="priorityBgClass[todo.priority]"
-              >{{ todo.priority }}</span
+              :class="priorityBgClass[task.priority]"
+              >{{ task.priority }}</span
             >
           </div>
         </div>

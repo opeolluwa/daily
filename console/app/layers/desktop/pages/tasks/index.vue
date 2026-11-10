@@ -1,25 +1,25 @@
 <script setup lang="ts">
 definePageMeta({ layout: false });
 import { DnDProvider } from "@vue-dnd-kit/core";
-import TodoCard from "@desktop/components/todo/todo-card.vue";
-import TodoDialog from "@desktop/components/todo/TodoDialog.vue";
-import { useTodoStore } from "@shared/stores/todo";
+import TaskListItem from "@desktop/components/task/ListItem.vue";
+import TaskDialog from "@desktop/components/task/Dialog.vue";
+import { useTaskStore, type Task } from "@shared/stores/tasks";
 import {
-  TODO_SORT_OPTIONS,
-  sortTodos,
-  type TodoSort,
+  TASK_SORT_OPTIONS,
+  sortTasks,
+  type TaskSort,
 } from "@shared/utils/sorting";
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "active" | "completed">("all");
-const sortBy = ref<TodoSort>("priority-high");
+const sortBy = ref<TaskSort>("priority-high");
 const dialogOpen = ref(false);
-const editingTodo = ref<any>(null);
+const editingTask = ref<any>(null);
 const activeTab = ref("1");
 const isListViewMode = computed(() => activeTab.value === "0");
-const isEmptyList = computed(() => !todoStore.todos.length);
+const isEmptyList = computed(() => !taskStore.tasks.length);
 import type { TabsItem } from "@nuxt/ui";
 
 const items = [
@@ -33,11 +33,11 @@ const items = [
   },
 ] satisfies TabsItem[];
 
-const filteredTodos = computed(() => {
-  let list = todoStore.todos;
+const filteredTasks = computed(() => {
+  let list = taskStore.tasks;
 
-  if (filter.value === "active") list = list.filter((t: Todo) => !t.done);
-  if (filter.value === "completed") list = list.filter((t: Todo) => t.done);
+  if (filter.value === "active") list = list.filter((t: Task) => !t.done);
+  if (filter.value === "completed") list = list.filter((t: Task) => t.done);
 
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
@@ -48,32 +48,32 @@ const filteredTodos = computed(() => {
     );
   }
 
-  return sortTodos(list, sortBy.value);
+  return sortTasks(list, sortBy.value);
 });
 
 async function handleToggle(identifier: string, done: boolean) {
-  await todoStore.toggleDone(identifier, done);
+  await taskStore.toggleDone(identifier, done);
 }
 
 async function handleDelete(identifier: string) {
-  await todoStore.deleteTodo(identifier);
+  await taskStore.deleteTask(identifier);
 }
 
 async function deleteCompleted() {
   await Promise.all(
-    todoStore.completedTodos.map((t) => todoStore.deleteTodo(t.identifier)),
+    taskStore.doneTasks.map((t) => taskStore.deleteTask(t.identifier)),
   );
 }
 
 function handleEdit(identifier: string) {
-  editingTodo.value =
-    todoStore.todos.find((t: Todo) => t.identifier === identifier) ?? null;
+  editingTask.value =
+    taskStore.tasks.find((t: Task) => t.identifier === identifier) ?? null;
   dialogOpen.value = true;
 }
 
 onMounted(async () => {
-  setSearch({ placeholder: "Search todos..." });
-  await todoStore.fetchTodos();
+  setSearch({ placeholder: "Search tasks..." });
+  await taskStore.fetchTasks();
 });
 
 onUnmounted(() => clearSearch());
@@ -84,12 +84,12 @@ onUnmounted(() => clearSearch());
     <template #page_title>
       <RyderPageHeader
         title="Task"
-        v-if="todoStore.todos.length"
-        subtitle="Plan you tasks"
-        cta-text="New Todo"
+        v-if="taskStore.tasks.length"
+        subtitle="Plan your tasks"
+        cta-text="New Task"
         cta-icon="heroicons:plus"
         @cta="
-          editingTodo = null;
+          editingTask = null;
           dialogOpen = true;
         "
       />
@@ -98,7 +98,7 @@ onUnmounted(() => clearSearch());
     <template #main_content>
       <div
         v-if="
-          !todoStore.loading && todoStore.todos.length > 0 && isListViewMode
+          !taskStore.loading && taskStore.tasks.length > 0 && isListViewMode
         "
         class="flex items-center gap-2 mb-4"
       >
@@ -117,37 +117,37 @@ onUnmounted(() => clearSearch());
             {{ f }}
           </button>
         </div>
-        <AppSortMenu v-model="sortBy" :options="TODO_SORT_OPTIONS" />
+        <AppSortMenu v-model="sortBy" :options="TASK_SORT_OPTIONS" />
         <button
-          v-if="todoStore.completedTodos.length > 0"
+          v-if="taskStore.doneTasks.length > 0"
           class="ml-auto flex items-center gap-1.5 text-xs text-red-400 hover:text-red-500 transition-colors"
           @click="deleteCompleted"
         >
           <UIcon name="heroicons:trash" class="size-3.5" />
-          Clear done ({{ todoStore.completedTodos.length }})
+          Clear done ({{ taskStore.doneTasks.length }})
         </button>
       </div>
 
       <!-- Loading -->
-      <div v-if="todoStore.loading" class="flex flex-col gap-2">
+      <div v-if="taskStore.loading" class="flex flex-col gap-2">
         <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-lg" />
       </div>
 
       <RyderEmptyState
-        v-else-if="todoStore.todos.length === 0"
-        title="No todos yet"
-        description="Create your first todo to get started."
+        v-else-if="taskStore.tasks.length === 0"
+        title="No tasks yet"
+        description="Create your first task to get started."
         icon="heroicons:check-circle"
-        action-label="Create todo"
+        action-label="Create task"
         @action="
-          editingTodo = null;
+          editingTask = null;
           dialogOpen = true;
         "
       />
 
-      <!-- Todo list -->
+      <!-- Task list -->
       <UTabs
-        v-if="todoStore.todos.length"
+        v-if="taskStore.tasks.length"
         color="neutral"
         variant="link"
         :items="items"
@@ -157,10 +157,10 @@ onUnmounted(() => clearSearch());
       >
         <template #list>
           <div class="flex flex-col gap-2">
-            <TodoCard
-              v-for="todo in filteredTodos"
-              :key="todo.identifier"
-              :todo="todo"
+            <TaskListItem
+              v-for="task in filteredTasks"
+              :key="task.identifier"
+              :task="task"
               @toggle="handleToggle"
               @edit="handleEdit"
               @delete="handleDelete"
@@ -188,7 +188,7 @@ onUnmounted(() => clearSearch());
             <p
               class="text-2xl font-semibold text-primary-700 dark:text-primary-300"
             >
-              {{ todoStore.activeTodos.length }}
+              {{ taskStore.pendingTasks.length }}
             </p>
             <p class="text-xs text-primary-500 dark:text-primary-400">
               Active tasks
@@ -198,7 +198,7 @@ onUnmounted(() => clearSearch());
             <p
               class="text-2xl font-semibold text-emerald-700 dark:text-emerald-300"
             >
-              {{ todoStore.completedTodos.length }}
+              {{ taskStore.doneTasks.length }}
             </p>
             <p class="text-xs text-emerald-500 dark:text-emerald-400">
               Completed
@@ -218,7 +218,7 @@ onUnmounted(() => clearSearch());
               <span class="text-gray-600 dark:text-gray-400">High</span>
             </div>
             <span class="text-xs text-gray-400">{{
-              todoStore.highPriorityCount
+              taskStore.highPriorityCount
             }}</span>
           </div>
           <div class="flex items-center justify-between text-sm">
@@ -227,7 +227,7 @@ onUnmounted(() => clearSearch());
               <span class="text-gray-600 dark:text-gray-400">Medium</span>
             </div>
             <span class="text-xs text-gray-400">{{
-              todoStore.mediumPriorityCount
+              taskStore.mediumPriorityCount
             }}</span>
           </div>
           <div class="flex items-center justify-between text-sm">
@@ -236,7 +236,7 @@ onUnmounted(() => clearSearch());
               <span class="text-gray-600 dark:text-gray-400">Low</span>
             </div>
             <span class="text-xs text-gray-400">{{
-              todoStore.lowPriorityCount
+              taskStore.lowPriorityCount
             }}</span>
           </div>
         </div>
@@ -244,7 +244,7 @@ onUnmounted(() => clearSearch());
 
 
     <template #modal_content>
-      <TodoDialog v-model:open="dialogOpen" :todo="editingTodo" />
+      <TaskDialog v-model:open="dialogOpen" :task="editingTask" />
     </template>
   </NuxtLayout>
 </template>
