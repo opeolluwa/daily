@@ -1,21 +1,5 @@
-import { resolve } from "path";
-
-const isMobile = process.env.NUXT_APP_TARGET === "mobile";
-// const isMobile = true
-
 export default defineNuxtConfig({
   srcDir: "app",
-  extends: [
-    "./app/layers/shared",
-    isMobile ? "./app/layers/mobile" : "./app/layers/desktop",
-  ],
-
-  alias: {
-    "@desktop": resolve(__dirname, "app/layers/desktop"),
-    "@mobile": resolve(__dirname, "app/layers/mobile"),
-    "@shared": resolve(__dirname, "app/layers/shared"),
-    "@features": resolve(__dirname, "app/layers/desktop/features"),
-  },
 
   icon: {
     // Fully offline: never fall back to the remote Iconify API.
@@ -60,9 +44,9 @@ export default defineNuxtConfig({
 
   modules: [
     "@nuxt/eslint",
+    "@nuxt/hints",
     "@nuxt/image",
     "@nuxt/ui",
-    "@nuxt/eslint",
     "@nuxtjs/device",
     "@nuxtjs/google-fonts",
     "@nuxtjs/i18n",
@@ -70,13 +54,20 @@ export default defineNuxtConfig({
     "pinia-plugin-persistedstate/nuxt",
     "@vueuse/nuxt",
     "nuxt-seo-utils",
+    "@opeolluwa/ryder",
   ],
+
+  ryder: {
+    components: true,
+    layouts: true,
+    prefix: "Ryder",
+  },
 
   css: [
     "~/assets/css/main.css",
     "highlight.js/styles/atom-one-dark.css",
     "@domternal/theme",
-    isMobile ? "~/assets/css/mobile.css" : "~/assets/css/desktop.css",
+    "~/assets/css/desktop.css",
   ],
 
   i18n: {

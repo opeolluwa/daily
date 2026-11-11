@@ -1,9 +1,0 @@
-<script setup lang="ts">
-definePageMeta({ name: "Calendar" });
-</script>
-
-<template>
-  <div class="flex items-center justify-center h-full">
-    <h1 class="text-lg font-semibold text-gray-500">Calendar</h1>
-  </div>
-</template>

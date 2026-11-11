@@ -8,7 +8,6 @@ export default withNuxt({
       {
         ignores: [
           "index",
-          "search",
           "pricing",
           "login",
           "signup",
@@ -16,10 +15,6 @@ export default withNuxt({
           "header",
           "default",
           "Fab",
-          "viewport",
-          "create",
-          "edit",
-          "walkthrough",
         ],
       },
     ],

@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 @import "tailwind-animations";
-@import "konsta/vue/theme.css";
 @import "@drawvue/core/theme.css";
 
 @plugin 'tailwind-scrollbar' {
@@ -65,8 +64,6 @@
   --color-primary-950: #14081c;
 
   --color-primary: var(--color-primary-500);
-  --font-ios: "Lato", sans-serif;
-  --font-material: "Lato", sans-serif;
 
   --color-base: var(--ui-bg);
   --color-surface: var(--ui-bg-elevated);
