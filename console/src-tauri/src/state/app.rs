@@ -6,7 +6,7 @@ use kernel::{
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
         recycle_bin::RecycleBinRepository,
         reminder::ReminderRepository, snippets::SnippetRepository, tasks::TaskRepository,
-        workspace::WorkspaceRepository,
+        whiteboards::WhiteboardRepository, workspace::WorkspaceRepository,
         workspace_profiles::WorkspaceProfileRepository,
     },
     sea_orm::DatabaseConnection,
@@ -21,6 +21,7 @@ pub struct AppState {
     pub reminder_repository: ReminderRepository,
     pub snippet_repository: SnippetRepository,
     pub task_repository: TaskRepository,
+    pub whiteboards_repository: WhiteboardRepository,
     pub workspace_profile_repository: WorkspaceProfileRepository,
     pub workspace_repository: WorkspaceRepository,
 }
@@ -35,6 +36,7 @@ impl AppState {
         let reminder_repository = ReminderRepository::new(conn.clone());
         let snippet_repository = SnippetRepository::new(conn.clone());
         let task_repository = TaskRepository::new(conn.clone());
+        let whiteboards_repository = WhiteboardRepository::new(conn.clone());
         let workspace_repository = WorkspaceRepository::new(conn.clone());
         let workspace_profile_repository = WorkspaceProfileRepository::new(conn.clone());
 
@@ -47,6 +49,7 @@ impl AppState {
             reminder_repository,
             snippet_repository,
             task_repository,
+            whiteboards_repository,
             workspace_repository,
             workspace_profile_repository,
         }

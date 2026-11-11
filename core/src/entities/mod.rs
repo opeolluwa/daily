@@ -18,6 +18,8 @@ pub mod snippets;
 pub mod todo;
 pub mod user_preferences;
 pub mod users;
+pub mod whiteboard_files;
+pub mod whiteboards;
 pub mod workspace_members;
 pub mod workspace_profiles;
 pub mod workspaces;
@@ -38,6 +40,8 @@ seaography::register_entity_modules!([
     todo,
     user_preferences,
     users,
+    whiteboard_files,
+    whiteboards,
     workspace_members,
     workspace_profiles,
     workspaces,

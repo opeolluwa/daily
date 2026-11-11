@@ -1,15 +1,10 @@
-import type { ExcalidrawElement, BinaryFiles } from "@drawvue/core";
+import type { ExcalidrawElement } from "@drawvue/core";
 import type { ComputedRef, InjectionKey, Ref, ShallowRef } from "vue";
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-export const DB_NAME = "drawvue-scene-db";
-export const STORE_NAME = "scene-store";
-export const FILES_DB_NAME = "drawvue-files-db";
-export const FILES_STORE_NAME = "files-store";
-export const EMERGENCY_BACKUP_KEY = "drawvue-emergency-backup";
 export const ELEMENT_COUNT_WARN_THRESHOLD = 3000;
 export const CURRENT_SCHEMA_VERSION = 1 as const;
 
@@ -39,28 +34,6 @@ export type MigrationMap = {
 };
 
 // ---------------------------------------------------------------------------
-// Store key schemas
-// ---------------------------------------------------------------------------
-
-export type SceneStoreSchema = {
-  "scene:current": PersistedScene;
-  "scene:backup": PersistedScene;
-};
-
-export type FilesStoreSchema = {
-  "files:current": BinaryFiles;
-};
-
-// ---------------------------------------------------------------------------
-// Emergency backup (localStorage)
-// ---------------------------------------------------------------------------
-
-export type EmergencyBackup = {
-  timestamp: number;
-  elements: ExcalidrawElement[];
-};
-
-// ---------------------------------------------------------------------------
 // Save status state machine
 // ---------------------------------------------------------------------------
 
@@ -73,11 +46,9 @@ export type SaveStatus = "idle" | "pending" | "saving" | "unavailable" | "error"
 export type PersistenceEventType =
   | "save"
   | "save-skip"
-  | "backup"
   | "debounce"
   | "change"
   | "restore"
-  | "probe"
   | "error"
   | "clear"
   | "export";
@@ -90,26 +61,22 @@ export type PersistenceEvent = {
 };
 
 // ---------------------------------------------------------------------------
-// Store metadata (for inspector display)
+// Store metadata (for inspector display) — read back from the database
 // ---------------------------------------------------------------------------
 
 export type StoreMetadata = {
-  current: {
+  whiteboard: {
+    identifier: string;
+    title: string | null;
     schemaVersion: number;
     elementCount: number;
     savedAt: number;
     dataSize: number;
+    updatedAt: string;
   } | null;
-  backup: {
-    schemaVersion: number;
-    elementCount: number;
-    savedAt: number;
-    deltaVsCurrent: number;
-  } | null;
-  emergency: {
-    timestamp: number;
-    elementCount: number;
-    dataSize: number;
+  files: {
+    count: number;
+    totalSize: number;
   } | null;
 };
 
@@ -121,7 +88,6 @@ export type PersistenceDiagnostics = {
   lastSavedHash: Readonly<Ref<number>>;
   sceneHash: Readonly<ComputedRef<number>>;
   forwardVersionMode: Readonly<Ref<boolean>>;
-  hasPersistedStorage: Readonly<Ref<boolean>>;
   events: Readonly<ShallowRef<readonly PersistenceEvent[]>>;
   flushSave: () => void;
   clearStorage: () => Promise<void>;

@@ -5,7 +5,10 @@ import { PERSISTENCE_INSPECTOR_KEY } from "./types";
 
 defineSlots<{ default?: () => unknown }>();
 const emit = defineEmits<{ restored: [] }>();
-const { isRestored, saveStatus, error, diagnostics } = usePersistence();
+const props = defineProps<{ whiteboardId: string }>();
+const { isRestored, saveStatus, error, diagnostics } = usePersistence(
+  () => props.whiteboardId,
+);
 
 provide(PERSISTENCE_INSPECTOR_KEY, { saveStatus, isRestored, error, diagnostics });
 

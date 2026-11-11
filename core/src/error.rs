@@ -29,6 +29,9 @@ pub enum KernelError {
     #[error("Paste bin does not exist: {0}")]
     PasteBinNotFound(String),
 
+    #[error("Whiteboard does not exist: {0}")]
+    WhiteboardNotFound(String),
+
     #[error("Reminder does not exists ")]
     ReminderNotFound(String),
 

@@ -11,6 +11,8 @@ import { RecycleBinRepository } from "./repositories/recycle_bin";
 import { WorkspaceRepository } from "./repositories/workspace";
 import { WorkspaceProfileRepository } from "./repositories/workspace_profiles";
 import { UserPreferencesRepository } from "./repositories/user_preferences";
+import { WhiteboardRepository } from "./repositories/whiteboards";
+import { WhiteboardFileRepository } from "./repositories/whiteboard_files";
 
 export interface CoreConsoleApi {
   db: PGlite;
@@ -25,6 +27,8 @@ export interface CoreConsoleApi {
   workspaces: WorkspaceRepository;
   workspaceProfiles: WorkspaceProfileRepository;
   userPreferences: UserPreferencesRepository;
+  whiteboards: WhiteboardRepository;
+  whiteboardFiles: WhiteboardFileRepository;
 }
 
 /** Builds the in-browser core API, applying pending migrations on first use. */
@@ -43,6 +47,8 @@ export async function createCoreConsoleApi(): Promise<CoreConsoleApi> {
     workspaces: new WorkspaceRepository(),
     workspaceProfiles: new WorkspaceProfileRepository(),
     userPreferences: new UserPreferencesRepository(),
+    whiteboards: new WhiteboardRepository(),
+    whiteboardFiles: new WhiteboardFileRepository(),
   };
 }
 
@@ -67,3 +73,8 @@ export type {
   CreateUserPreferences,
   UpdateUserPreferences,
 } from "./repositories/user_preferences";
+export type {
+  CreateWhiteboard,
+  UpdateWhiteboard,
+} from "./repositories/whiteboards";
+export type { WhiteboardFiles } from "./repositories/whiteboard_files";

@@ -9,6 +9,7 @@ import type {
   CreateReminder,
   CreateSnippet,
   CreateTask,
+  CreateWhiteboard,
   CreateWorkspace,
   CreateWorkspaceProfile,
   CoreConsoleApi,
@@ -19,6 +20,7 @@ import type {
   UpdateReminder,
   UpdateSnippet,
   UpdateTask,
+  UpdateWhiteboard,
   UpdateWorkspace,
   UpdateWorkspaceProfile,
 } from "./core";
@@ -52,7 +54,7 @@ const transfer = (
   api: CoreConsoleApi,
   a: InvokeArgs,
   kind:
-    | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
+    | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins" | "whiteboards",
 ) => {
   const repo = api[kind];
   return repo.transfer_record(
@@ -186,6 +188,38 @@ const COMMANDS: Record<string, CommandHandler> = {
     api.pasteBins.delete(asString(a, "identifier"), asMeta(a)),
   duplicate_paste_bin: (api, a) => duplicate(api, a, "pasteBins"),
   transfer_paste_bin: (api, a) => transfer(api, a, "pasteBins"),
+
+  get_all_whiteboards: (api, a) => api.whiteboards.find_all(asMeta(a)),
+  get_whiteboard: (api, a) =>
+    api.whiteboards.find_by_id(asString(a, "identifier"), asMeta(a)),
+  get_recently_added_whiteboards: (api, a) =>
+    api.whiteboards.recently_added(asMeta(a)),
+  create_whiteboard: (api, a) =>
+    api.whiteboards.create(a.whiteboard as CreateWhiteboard, asMeta(a)),
+  update_whiteboard: (api, a) =>
+    api.whiteboards.update(
+      asString(a, "identifier"),
+      a.whiteboard as UpdateWhiteboard,
+      asMeta(a),
+    ),
+  delete_whiteboard: (api, a) =>
+    api.whiteboards.delete(asString(a, "identifier"), asMeta(a)),
+  transfer_whiteboard: (api, a) => transfer(api, a, "whiteboards"),
+  save_whiteboard_file: (api, a) =>
+    api.whiteboardFiles.save(
+      asString(a, "whiteboardIdentifier"),
+      asString(a, "fileId"),
+      asString(a, "mimeType"),
+      asString(a, "data"),
+      asMeta(a),
+    ),
+  get_whiteboard_files: (api, a) =>
+    api.whiteboardFiles.find_all_for(
+      asString(a, "whiteboardIdentifier"),
+      asMeta(a),
+    ),
+  delete_whiteboard_file: (api, a) =>
+    api.whiteboardFiles.delete(asString(a, "fileId"), asMeta(a)),
 
   get_all_reminders: (api, a) => api.reminders.find_all(asMeta(a)),
   create_reminder: (api, a) =>

@@ -15,6 +15,8 @@ pub use super::snippets::Entity as Snippets;
 pub use super::todo::Entity as Todo;
 pub use super::user_preferences::Entity as UserPreferences;
 pub use super::users::Entity as Users;
+pub use super::whiteboard_files::Entity as WhiteboardFiles;
+pub use super::whiteboards::Entity as Whiteboards;
 pub use super::workspace_members::Entity as WorkspaceMembers;
 pub use super::workspace_profiles::Entity as WorkspaceProfiles;
 pub use super::workspaces::Entity as Workspaces;
