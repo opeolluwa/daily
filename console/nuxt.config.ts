@@ -10,11 +10,11 @@ export default defineNuxtConfig({
     isMobile ? "./app/layers/mobile" : "./app/layers/desktop",
   ],
 
-
   alias: {
     "@desktop": resolve(__dirname, "app/layers/desktop"),
     "@mobile": resolve(__dirname, "app/layers/mobile"),
     "@shared": resolve(__dirname, "app/layers/shared"),
+    "@features": resolve(__dirname, "app/layers/desktop/features"),
   },
 
   icon: {
@@ -62,7 +62,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/image",
     "@nuxt/ui",
-    '@nuxt/eslint',
+    "@nuxt/eslint",
     "@nuxtjs/device",
     "@nuxtjs/google-fonts",
     "@nuxtjs/i18n",
@@ -105,6 +105,15 @@ export default defineNuxtConfig({
 
   vite: {
     clearScreen: false,
+    resolve: {
+      alias: {
+        // @excalidraw/math only exposes "./*" subpaths for types, not runtime JS.
+        // @excalidraw/element imports "@excalidraw/math/ellipse" at runtime,
+        // which the bundler can't resolve. The main entry re-exports everything,
+        // so we alias the subpath to the main package.
+        "@excalidraw/math/ellipse": "@excalidraw/math",
+      },
+    },
     envPrefix: ["VITE_", "TAURI_"],
     server: {
       strictPort: true,
@@ -125,7 +134,6 @@ export default defineNuxtConfig({
         "@nuxt/ui > prosemirror-model",
         "@nuxt/ui > prosemirror-view",
         "@nuxt/ui > prosemirror-gapcursor",
-
       ],
       // PGlite ships its own wasm + FS assets; pre-bundling it breaks
       // `new PGlite("idb://lunar")` in dev ("Invalid FS bundle size").
