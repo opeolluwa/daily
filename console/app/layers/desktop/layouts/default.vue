@@ -84,13 +84,7 @@ const { mobileNavOpen } = useMobileNav();
           v-if="$slots.side_content && showSideContent"
           class="hidden md:flex flex-col w-72 shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
         >
-          <div
-            class="flex items-center justify-between px-4 py-3 shrink-0 border-b border-gray-200 dark:border-gray-800"
-          >
-            <span class="font-semibold text-sm text-gray-900 dark:text-white"
-              >Panel</span
-            >
-          </div>
+
           <div class="flex-1 overflow-y-scroll scrollbar-config p-4">
             <slot
               v-if="!workspaceStore.isCurrentWorkspaceLocked"

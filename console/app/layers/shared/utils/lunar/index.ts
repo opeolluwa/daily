@@ -1,7 +1,7 @@
 import type { PGlite } from "@electric-sql/pglite";
 import { lunarDb } from "./pglite";
 import { NotesRepository } from "./repositories/notes";
-import { TodoRepository } from "./repositories/todo";
+import { TaskRepository } from "./repositories/tasks";
 import { BookmarkRepository } from "./repositories/bookmarks";
 import { SnippetRepository } from "./repositories/snippets";
 import { PasteBinRepository } from "./repositories/paste_bins";
@@ -15,7 +15,7 @@ import { UserPreferencesRepository } from "./repositories/user_preferences";
 export interface LunarConsoleApi {
   db: PGlite;
   notes: NotesRepository;
-  todos: TodoRepository;
+  tasks: TaskRepository;
   bookmarks: BookmarkRepository;
   snippets: SnippetRepository;
   pasteBins: PasteBinRepository;
@@ -33,7 +33,7 @@ export async function createLunarConsoleApi(): Promise<LunarConsoleApi> {
   return {
     db,
     notes: new NotesRepository(),
-    todos: new TodoRepository(),
+    tasks: new TaskRepository(),
     bookmarks: new BookmarkRepository(),
     snippets: new SnippetRepository(),
     pasteBins: new PasteBinRepository(),
@@ -48,7 +48,7 @@ export async function createLunarConsoleApi(): Promise<LunarConsoleApi> {
 
 export type { RequestMeta } from "./base";
 export type { CreateNote, UpdateNote } from "./repositories/notes";
-export type { CreateTodo, UpdateTodo } from "./repositories/todo";
+export type { CreateTask, UpdateTask } from "./repositories/tasks";
 export type { CreateBookmark, UpdateBookmark } from "./repositories/bookmarks";
 export type { CreateSnippet, UpdateSnippet } from "./repositories/snippets";
 export type { CreatePasteBin, UpdatePasteBin } from "./repositories/paste_bins";

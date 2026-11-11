@@ -2,43 +2,45 @@
 import { useAuthStore } from "@shared/stores/auth";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform } from "@tauri-apps/plugin-os";
-import { useEventListener } from "@vueuse/core";
-import { computed, } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { IS_WEB } from "@shared/env";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
-const iconSize = "md";
+const iconSize = "sm";
 const authStore = useAuthStore();
 const router = useRouter();
 
-const colorMode = useColorMode();
 const { searchQuery, isOpen } = useAppSearch();
 const appWindow = getCurrentWindow();
-const searchInputRef = ref<HTMLInputElement | null>(null);
+const searchContainerRef = useTemplateRef<HTMLElement>("searchContainerRef");
+const globalSearchRef = useTemplateRef<{
+  handleKeydown: (e: KeyboardEvent) => void;
+}>("globalSearchRef");
 const currentPlatform = platform();
 const { toggleMobileNav } = useMobileNav();
 
-const themeLabel = computed(() => (isDark.value ? "Light mode" : "Dark mode"));
-const isMacOS = computed(() => {
-  return currentPlatform.toLowerCase() === "macos";
-});
-const isDark = computed({
-  get: () => colorMode.value === "dark",
-  set: (v) => (colorMode.preference = v ? "dark" : "light"),
-});
+const colorMode = useColorMode();
+const themeLabel = computed(() =>
+  colorMode.value === "dark" ? "Light mode" : "Dark mode",
+);
+const isMacOS = currentPlatform.toLowerCase() === "macos";
 
 const preferenceStore = useUserPreferenceStore();
-
+const route = useRoute();
+const authPagesPrefix = "/auth";
+const isAuthPage = computed(() => route.path.startsWith(authPagesPrefix));
 const userMenuItems = computed(() => [
   [
     {
       label: "Profile",
       icon: "i-lucide-user",
+      kbds: ["g", "p"],
       onSelect: () => navigateTo("/settings?section=profile"),
     },
     {
       label: "Workspaces",
       icon: "heroicons:briefcase",
+      kbds: ["g", "w"],
       onSelect: () => navigateTo("/settings?section=workspaces"),
     },
   ],
@@ -47,6 +49,7 @@ const userMenuItems = computed(() => [
       label: authStore.isGuest ? "Exit" : "Logout",
       icon: "heroicons:arrow-right-start-on-rectangle",
       class: "text-red-500 dark:text-red-400",
+      kbds: ["g", "l"],
       onSelect: () => {
         authStore.clearSession();
         authStore.exitGuestMode();
@@ -56,39 +59,63 @@ const userMenuItems = computed(() => [
   ],
 ]);
 
-function onSearchInput(val: string) {
-  searchQuery.value = val;
-  isOpen.value = val.trim().length > 0;
+const search = computed<string | number | null | undefined>({
+  get: () => searchQuery.value,
+  set: (value) => {
+    const next = value == null ? "" : String(value);
+    searchQuery.value = next;
+    isOpen.value = next.trim().length > 0;
+  },
+});
+
+function focusSearch() {
+  isOpen.value = searchQuery.value.trim().length > 0;
+  const input = searchContainerRef.value?.querySelector("input");
+  input?.focus();
+  input?.select();
 }
 
-useEventListener("keydown", (e: KeyboardEvent) => {
-  const mod = isMacOS.value ? e.metaKey : e.ctrlKey;
-  if (!mod) return;
+function clearSearch() {
+  search.value = "";
+}
 
-  if (e.key === "f") {
-    e.preventDefault();
-    searchInputRef.value?.focus();
-    searchInputRef.value?.select();
-  } else if (e.key === "<" || e.key === "[") {
-    e.preventDefault();
-    router.back();
-  } else if (e.key === ">" || e.key === "]") {
-    e.preventDefault();
-    router.forward();
+function resetSearch() {
+  clearSearch();
+  focusSearch();
+}
+
+function onSearchKeydown(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    isOpen.value = false;
+    searchContainerRef.value?.querySelector("input")?.blur();
+    return;
   }
-});
+  globalSearchRef.value?.handleKeydown(event);
+}
+
+const shortcuts = computed(() => ({
+  meta_k: { handler: focusSearch, usingInput: true },
+  meta_f: { handler: focusSearch, usingInput: true },
+  "meta_[": { handler: () => router.back(), usingInput: true },
+  "meta_]": { handler: () => router.forward(), usingInput: true },
+  ...extractShortcuts(userMenuItems.value, "-"),
+}));
+
+defineShortcuts(shortcuts);
 </script>
 
 <template>
   <div
-    class="titlebar flex items-center gap-2 px-2 h-12"
+    class="titlebar flex items-center gap-1.5 px-2 h-10"
     data-tauri-drag-region
     :class="{ 'rounded-t-2xl': !IS_WEB }"
+    v-if="!$device.isMobile"
   >
     <!-- mobile nav toggle -->
-    <div v-if="authenticated">
+    <div v-if="!isAuthPage">
       <UButton
-        size="lg"
+        :size="iconSize"
         color="neutral"
         variant="ghost"
         class="md:hidden"
@@ -120,18 +147,20 @@ useEventListener("keydown", (e: KeyboardEvent) => {
 
       <!-- web control/mobile -->
 
-      <RyderButton
-        size="xl"
-        color="neutral"
-        variant="ghost"
-        icon="lucide:maximize"
-        aria-label="Maximize"
-        @click="appWindow.maximize()"
-      />
+      <UTooltip text="Maximize">
+        <UButton
+          :size="iconSize"
+          color="neutral"
+          variant="ghost"
+          icon="lucide:maximize"
+          aria-label="Maximize"
+          @click="appWindow.maximize()"
+        />
+      </UTooltip>
 
       <UTooltip text="Close">
         <UButton
-          size="xl"
+          :size="iconSize"
           color="neutral"
           variant="ghost"
           icon="heroicons:x-mark"
@@ -162,66 +191,61 @@ useEventListener("keydown", (e: KeyboardEvent) => {
       />
     </div>
 
-    <WorkspaceSelect class="cursor-pointer hidden md:block" />
+    <WorkspaceSelect
+      class="cursor-pointer hidden md:block"
+      v-if="!isAuthPage"
+    />
 
     <!-- Search -->
     <div
-      class="flex-1 min-w-0 flex items-center md:max-w-sm md:mx-auto md:relative"
+      v-if="!isAuthPage"
+      ref="searchContainerRef"
+      class="relative flex flex-1 min-w-0 items-center md:mx-auto md:max-w-sm"
     >
-      <div
-        class="flex items-center gap-2 h-9 px-3 w-full rounded-md transition-colors bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus-within:border-primary-400 dark:focus-within:border-primary-500"
+      <UInput
+        v-model="search"
+        size="sm"
+        icon="heroicons:magnifying-glass"
+        placeholder="Search..."
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        :ui="{ base: 'ps-8 pe-10 py-3 bg-gray-50/30' }"
+        class="w-full cursor-text"
+        @keydown="onSearchKeydown"
       >
-        <UIcon
-          name="heroicons:magnifying-glass"
-          class="size-5 shrink-0 text-gray-400 dark:text-gray-500"
-        />
-        <input
-          ref="searchInputRef"
-          :value="searchQuery"
-          placeholder="Search..."
-          autocapitalize="off"
-          autocorrect="off"
-          spellcheck="false"
-          class="flex-1 w-full md:min-w-0 outline-none text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
-          @input="onSearchInput(($event.target as HTMLInputElement).value)"
-          @keydown.escape="
-            isOpen = false;
-            searchInputRef?.blur();
-          "
-        />
-        <kbd
-          v-if="!searchQuery"
-          class="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono select-none"
-        />
-        <button
-          v-if="searchQuery"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          aria-label="Clear search"
-          @click="
-            onSearchInput('');
-            searchInputRef?.focus();
-          "
-        >
-          <UIcon name="heroicons:x-mark" class="size-5" />
-        </button>
-      </div>
+        <template #trailing>
+          <UButton
+            v-if="searchQuery"
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="heroicons:x-mark"
+            class="cursor-pointer"
+            aria-label="Clear search"
+            @click="resetSearch"
+          />
+          <div v-else class="hidden items-center gap-0.5 sm:flex">
+            <UKbd value="meta" size="xs" />
+            <UKbd value="k" size="xs" />
+          </div>
+        </template>
+      </UInput>
 
       <AppGlobalSearch
         v-if="isOpen"
-        @close="
-          isOpen = false;
-          searchQuery = '';
-        "
+        ref="globalSearchRef"
+        @close="clearSearch"
       />
     </div>
 
     <!-- Right actions -->
-    <div class="flex items-center gap-1 ml-auto">
+    <div class="flex items-center gap-0.5 ml-auto">
       <UTooltip :text="themeLabel">
         <UColorModeButton :size="iconSize" />
       </UTooltip>
 
-      <UTooltip text="Notifications">
+      <UTooltip text="Notifications" v-if="!isAuthPage">
         <UButton
           :size="iconSize"
           color="neutral"
@@ -233,7 +257,7 @@ useEventListener("keydown", (e: KeyboardEvent) => {
         />
       </UTooltip>
 
-      <div class="items-center gap-1.5 flex">
+      <div class="items-center gap-0.5 flex" v-if="!isAuthPage">
         <UDropdownMenu
           :items="userMenuItems"
           :ui="{
@@ -243,7 +267,7 @@ useEventListener("keydown", (e: KeyboardEvent) => {
             separator: 'my-0.5 mx-1.5',
           }"
         >
-          <UAvatar icon="i-lucide-user" size="md" class="cursor-pointer" />
+          <UAvatar icon="i-lucide-user" size="sm" class="cursor-pointer" />
 
           <template #header>
             <div
@@ -277,7 +301,7 @@ useEventListener("keydown", (e: KeyboardEvent) => {
 .traffic-lights {
   display: flex;
   gap: 8px;
-  padding: 10px;
+  padding: 8px;
 }
 
 .btn {

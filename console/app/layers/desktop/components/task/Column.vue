@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { useTemplateRef } from "vue";
 import { makeSortableList } from "@vue-dnd-kit/core";
-import type { TodoStatus } from "lunar";
+import type { TaskStatus } from "lunar";
 import Card from "./Card.vue";
-import type { Todo } from "@shared/stores/todo";
+import type { Task } from "@shared/stores/tasks";
 
 const props = defineProps<{
-  status: TodoStatus;
+  status: TaskStatus;
   title: string;
   color: string;
-  cards: Todo[];
+  cards: Task[];
 }>();
 
 const emit = defineEmits<{
-  move: [payload: { items: Todo[]; status: TodoStatus }];
+  move: [payload: { items: Task[]; status: TaskStatus }];
   edit: [identifier: string];
   delete: [identifier: string];
   toggle: [identifier: string, done: boolean];
@@ -34,10 +34,10 @@ function forwardToggle(identifier: string, done: boolean) {
 const zone = useTemplateRef<HTMLElement>("zone");
 const list = useTemplateRef<HTMLElement>("list");
 
-const { items, isOver } = makeSortableList<Todo>(list, {
+const { items, isOver } = makeSortableList<Task>(list, {
   id: props.status,
   items: () => props.cards,
-  getKey: (todo) => todo.identifier,
+  getKey: (task) => task.identifier,
   group: "board",
   dropzone: zone,
   onDrop(event) {
@@ -85,7 +85,7 @@ const { items, isOver } = makeSortableList<Todo>(list, {
       <Card
         v-for="card in items"
         :key="card.identifier"
-        :todo="card"
+        :task="card"
         @edit="forwardEdit"
         @delete="forwardDelete"
         @toggle="forwardToggle"

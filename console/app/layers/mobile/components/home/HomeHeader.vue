@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const userPreferenceStore = useUserPreferenceStore();
 
 const now = ref(new Date());
@@ -34,7 +34,7 @@ const firstName = computed(
   () => userPreferenceStore.preference?.firstName || "there",
 );
 
-const activeTodoCount = computed(() => todoStore.activeTodos.length);
+const activeTaskCount = computed(() => taskStore.pendingTasks.length);
 </script>
 
 <template>
@@ -60,11 +60,11 @@ const activeTodoCount = computed(() => todoStore.activeTodos.length);
         {{ greeting }}, {{ firstName }}
       </h1>
       <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
-        <template v-if="activeTodoCount > 0">
+        <template v-if="activeTaskCount > 0">
           <strong class="text-gray-700 dark:text-gray-300">{{
-            activeTodoCount
+            activeTaskCount
           }}</strong>
-          active {{ activeTodoCount === 1 ? "todo" : "todos" }} today.
+          active {{ activeTaskCount === 1 ? "task" : "tasks" }} today.
         </template>
         <template v-else> You're all caught up. </template>
       </p>

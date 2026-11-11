@@ -35,8 +35,8 @@ export const workspaceRoutes: Route[] = [
     activeIcon: "ri:bookmark-fill",
   },
   {
-    path: "/todo",
-    name: "Todos",
+    path: "/tasks",
+    name: "Tasks",
     icon: "ri:calendar-todo-line",
     activeIcon: "ri:calendar-todo-fill",
   },
@@ -104,7 +104,7 @@ export const mobileBottomNavRoutes: Route[] = [
     activeIcon: "ri:bookmark-fill",
   },
   {
-    path: "/todo",
+    path: "/tasks",
     name: "Tasks",
     icon: "ri:calendar-todo-line",
     activeIcon: "ri:calendar-todo-fill",

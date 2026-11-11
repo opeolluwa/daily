@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { useTodoStore } from "@shared/stores/todo";
+import { useTaskStore } from "@shared/stores/tasks";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
 import HomeHeader from "@mobile/components/home/HomeHeader.vue";
 
 definePageMeta({ layout: "default", name: "Home" });
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const userPreferenceStore = useUserPreferenceStore();
 
 async function refreshAll() {
   await Promise.all([
-    todoStore.fetchTodos(),
+    taskStore.fetchTasks(),
     userPreferenceStore.fetchPreference(),
   ]);
 }

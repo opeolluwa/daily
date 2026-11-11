@@ -1,7 +1,7 @@
-import type { CreateTodo, Priority, Todo, UpdateTodo } from "lunar";
+import type { CreateTask, Priority, Task, UpdateTask } from "lunar";
 import { BaseRepository, type RequestMeta } from "../base";
 
-export type { CreateTodo, UpdateTodo };
+export type { CreateTask, UpdateTask };
 
 const COLUMNS = [
   "title",
@@ -15,11 +15,11 @@ const COLUMNS = [
   "updated_at",
 ];
 
-export class TodoRepository extends BaseRepository {
-  async create_todo(payload: CreateTodo, meta?: RequestMeta): Promise<Todo> {
+export class TaskRepository extends BaseRepository {
+  async create_task(payload: CreateTask, meta?: RequestMeta): Promise<Task> {
     const m = this.requireMeta(meta);
     const now = this.now();
-    return this.mustRow<Todo>(
+    return this.mustRow<Task>(
       `INSERT INTO todo
          (identifier, title, description, due_date, priority, done, created_at, updated_at, workspace_identifier)
        VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)
@@ -40,17 +40,17 @@ export class TodoRepository extends BaseRepository {
   async find_by_id(
     identifier: string,
     meta?: RequestMeta,
-  ): Promise<Todo | null> {
+  ): Promise<Task | null> {
     const m = this.requireMeta(meta);
-    return this.row<Todo>(
+    return this.row<Task>(
       `SELECT * FROM todo WHERE identifier = $1 AND workspace_identifier = $2`,
       [identifier, m.workspaceIdentifier],
     );
   }
 
-  async find_all(meta?: RequestMeta): Promise<Todo[]> {
+  async find_all(meta?: RequestMeta): Promise<Task[]> {
     const m = this.requireMeta(meta);
-    return this.rows<Todo>(
+    return this.rows<Task>(
       `SELECT * FROM todo WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
       [m.workspaceIdentifier],
     );
@@ -60,15 +60,15 @@ export class TodoRepository extends BaseRepository {
     identifier: string,
     priority: Priority,
     meta?: RequestMeta,
-  ): Promise<Todo> {
+  ): Promise<Task> {
     const m = this.requireMeta(meta);
-    const row = await this.row<Todo>(
+    const row = await this.row<Task>(
       `UPDATE todo SET priority = $2, updated_at = $3
        WHERE identifier = $1 AND workspace_identifier = $4
        RETURNING *`,
       [identifier, priority, this.now(), m.workspaceIdentifier],
     );
-    if (!row) throw new Error("todo not found");
+    if (!row) throw new Error("task not found");
     return row;
   }
 
@@ -76,15 +76,15 @@ export class TodoRepository extends BaseRepository {
     identifier: string,
     done: boolean,
     meta?: RequestMeta,
-  ): Promise<Todo> {
+  ): Promise<Task> {
     const m = this.requireMeta(meta);
-    const row = await this.row<Todo>(
+    const row = await this.row<Task>(
       `UPDATE todo SET done = $2, updated_at = $3
        WHERE identifier = $1 AND workspace_identifier = $4
        RETURNING *`,
       [identifier, done, this.now(), m.workspaceIdentifier],
     );
-    if (!row) throw new Error("todo not found");
+    if (!row) throw new Error("task not found");
     return row;
   }
 
@@ -92,23 +92,23 @@ export class TodoRepository extends BaseRepository {
     identifier: string,
     due_date: string | null,
     meta?: RequestMeta,
-  ): Promise<Todo> {
+  ): Promise<Task> {
     const m = this.requireMeta(meta);
-    const row = await this.row<Todo>(
+    const row = await this.row<Task>(
       `UPDATE todo SET due_date = $2, updated_at = $3
        WHERE identifier = $1 AND workspace_identifier = $4
        RETURNING *`,
       [identifier, due_date, this.now(), m.workspaceIdentifier],
     );
-    if (!row) throw new Error("todo not found");
+    if (!row) throw new Error("task not found");
     return row;
   }
 
   async update(
     identifier: string,
-    payload: UpdateTodo,
+    payload: UpdateTask,
     meta?: RequestMeta,
-  ): Promise<Todo> {
+  ): Promise<Task> {
     const m = this.requireMeta(meta);
     const sets: string[] = ["updated_at = $2"];
     const params: unknown[] = [identifier, this.now()];
@@ -127,19 +127,19 @@ export class TodoRepository extends BaseRepository {
       params.push(payload.status);
     }
 
-    const row = await this.row<Todo>(
+    const row = await this.row<Task>(
       `UPDATE todo SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );
-    if (!row) throw new Error("todo not found");
+    if (!row) throw new Error("task not found");
     return row;
   }
 
   async delete(identifier: string, meta?: RequestMeta): Promise<void> {
     const m = this.requireMeta(meta);
     const model = await this.find_by_id(identifier, m);
-    if (!model) throw new Error("todo not found");
+    if (!model) throw new Error("task not found");
 
     await this.run(
       `INSERT INTO recycle_bin

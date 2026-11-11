@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { TodoStatus } from "lunar";
+import type { TaskStatus } from "lunar";
 import Column from "./Column.vue";
-import { useTodoStore, type Todo } from "@shared/stores/todo";
+import { useTaskStore, type Task } from "@shared/stores/tasks";
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 
 const emit = defineEmits<{
   edit: [identifier: string];
@@ -26,29 +26,29 @@ function forwardToggle(identifier: string, done: boolean) {
 
 const columns = computed<
   {
-    status: TodoStatus;
+    status: TaskStatus;
     title: string;
     color: string;
-    cards: Todo[];
+    cards: Task[];
   }[]
 >(() => [
   {
     status: "planned",
     title: "Planned",
     color: "#a1a1aa",
-    cards: todoStore.plannedTasks,
+    cards: taskStore.plannedTasks,
   },
   {
     status: "in_progress",
     title: "In Progress",
     color: "#f59e0b",
-    cards: todoStore.activeTasks,
+    cards: taskStore.activeTasks,
   },
   {
     status: "done",
     title: "Done",
     color: "#42b883",
-    cards: todoStore.completedTasks,
+    cards: taskStore.completedTasks,
   },
 ]);
 
@@ -56,11 +56,11 @@ async function handleMove({
   items,
   status,
 }: {
-  items: Todo[];
-  status: TodoStatus;
+  items: Task[];
+  status: TaskStatus;
 }) {
   await Promise.all(
-    items.map((todo) => todoStore.updateTodoStatus(todo.identifier, status)),
+    items.map((task) => taskStore.updateTaskStatus(task.identifier, status)),
   );
 }
 </script>

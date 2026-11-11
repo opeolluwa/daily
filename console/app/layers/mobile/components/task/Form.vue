@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { useTodoStore, type Todo } from "@shared/stores/todo";
+import { useTaskStore, type Task } from "@shared/stores/tasks";
 
 const props = defineProps<{
-  todo?: Todo | null;
+  task?: Task | null;
 }>();
 
 const emit = defineEmits<{
   saved: [];
 }>();
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 
 const priorityOptions = [
   { label: "Low", value: "low" },
@@ -17,7 +17,7 @@ const priorityOptions = [
   { label: "High", value: "high" },
 ];
 
-const editing = computed(() => !!props.todo);
+const editing = computed(() => !!props.task);
 
 const form = reactive({
   title: "",
@@ -60,13 +60,13 @@ function formatTime(value: { hour: number; minute: number }): string {
 }
 
 watch(
-  () => props.todo,
-  (todo) => {
-    if (!todo) return;
-    form.title = todo.title;
-    form.description = todo.description ?? "";
-    form.dueDate = fromIsoDate(todo.dueDate);
-    form.priority = todo.priority;
+  () => props.task,
+  (task) => {
+    if (!task) return;
+    form.title = task.title;
+    form.description = task.description ?? "";
+    form.dueDate = fromIsoDate(task.dueDate);
+    form.priority = task.priority;
     errors.title = "";
     submitError.value = "";
   },
@@ -80,23 +80,23 @@ async function handleSubmit() {
   loading.value = true;
   submitError.value = "";
   try {
-    if (editing.value && props.todo) {
-      const current = props.todo;
-      await todoStore.updateTodo(current.identifier, {
+    if (editing.value && props.task) {
+      const current = props.task;
+      await taskStore.updateTask(current.identifier, {
         title: form.title.trim(),
         description: form.description.trim(),
       });
 
       if (form.priority !== current.priority) {
-        await todoStore.changePriority(current.identifier, form.priority);
+        await taskStore.changePriority(current.identifier, form.priority);
       }
 
       const dueDate = toIsoDate(form.dueDate);
       if (dueDate !== current.dueDate) {
-        await todoStore.updateDueDate(current.identifier, dueDate);
+        await taskStore.updateDueDate(current.identifier, dueDate);
       }
     } else {
-      await todoStore.createTodo({
+      await taskStore.createTask({
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         dueDate: toIsoDate(form.dueDate) ?? undefined,
@@ -133,7 +133,7 @@ async function handleSubmit() {
           v-model="form.title"
           label="Title"
           type="text"
-          name="todo-title"
+          name="task-title"
           placeholder="What needs to be done?"
           :disabled="loading"
         />
@@ -145,7 +145,7 @@ async function handleSubmit() {
       <RyderTextarea
         v-model="form.description"
         label="Description"
-        name="todo-description"
+        name="task-description"
         placeholder="Add more details..."
         :rows="3"
         :disabled="loading"

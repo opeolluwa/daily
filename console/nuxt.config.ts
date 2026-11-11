@@ -10,9 +10,6 @@ export default defineNuxtConfig({
     isMobile ? "./app/layers/mobile" : "./app/layers/desktop",
   ],
 
-  ui: {
-    eslint: true,
-  },
 
   alias: {
     "@desktop": resolve(__dirname, "app/layers/desktop"),
@@ -128,7 +125,7 @@ export default defineNuxtConfig({
         "@nuxt/ui > prosemirror-model",
         "@nuxt/ui > prosemirror-view",
         "@nuxt/ui > prosemirror-gapcursor",
-        "rehackt",
+
       ],
       // PGlite ships its own wasm + FS assets; pre-bundling it breaks
       // `new PGlite("idb://lunar")` in dev ("Invalid FS bundle size").

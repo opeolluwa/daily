@@ -178,7 +178,8 @@ impl AuthenticationServiceTrait for AuthenticationService {
             .new_otp_for_user(&user_identifier.to_string())
             .await?;
 
-        let template = AccountConfirmationTemplate { otp: &otp };
+        let name = user.email.split('@').next().unwrap_or(&user.email);
+        let template = AccountConfirmationTemplate { name, otp: &otp };
         let html_body = template
             .render()
             .unwrap_or_else(|_| format!("Your verification code is: {otp}"));
@@ -187,12 +188,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
             from_address: "noreply@almonds.app".to_string(),
             from_name: "Almonds".to_string(),
             to_address: user.email.clone(),
-            to_name: user
-                .email
-                .split('@')
-                .next()
-                .unwrap_or(&user.email)
-                .to_string(),
+            to_name: name.to_string(),
             subject: "Verify your Almonds account".to_string(),
             html_body,
         };
@@ -262,7 +258,8 @@ impl AuthenticationServiceTrait for AuthenticationService {
             .new_otp_for_user(&user.identifier.to_string())
             .await?;
 
-        let template = PasswordResetTemplate { otp: &otp };
+        let name = user.email.split('@').next().unwrap_or(&user.email);
+        let template = PasswordResetTemplate { name, otp: &otp };
         let html_body = template
             .render()
             .unwrap_or_else(|_| format!("Your password reset code is: {otp}"));
@@ -271,12 +268,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
             from_address: "noreply@almonds.app".to_string(),
             from_name: "Almonds".to_string(),
             to_address: user.email.clone(),
-            to_name: user
-                .email
-                .split('@')
-                .next()
-                .unwrap_or(&user.email)
-                .to_string(),
+            to_name: name.to_string(),
             subject: "Reset your Almonds password".to_string(),
             html_body,
         };
@@ -498,15 +490,16 @@ impl AuthenticationServiceTrait for AuthenticationService {
             .new_otp_for_user(&user.identifier.to_string())
             .await?;
 
+        let name = user.email.split('@').next().unwrap_or(&user.email);
         let html_body = match flow {
             "reset" => {
-                let template = PasswordResetTemplate { otp: &otp };
+                let template = PasswordResetTemplate { name, otp: &otp };
                 template
                     .render()
                     .unwrap_or_else(|_| format!("Your password reset code is: {otp}"))
             }
             _ => {
-                let template = AccountConfirmationTemplate { otp: &otp };
+                let template = AccountConfirmationTemplate { name, otp: &otp };
                 template
                     .render()
                     .unwrap_or_else(|_| format!("Your verification code is: {otp}"))

@@ -8,15 +8,15 @@ use crate::entities::{self, sea_orm_active_enums::Priority, todo::ActiveModel};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
-#[ts(export, export_to = "todo.ts")]
-pub struct CreateTodo {
+#[ts(export, export_to = "task.ts")]
+pub struct CreateTask {
     pub title: String,
     pub description: Option<String>,
     pub due_date: Option<Date>,
     pub priority: Priority,
 }
 
-impl Into<entities::todo::ActiveModel> for CreateTodo {
+impl Into<entities::todo::ActiveModel> for CreateTask {
     fn into(self) -> entities::todo::ActiveModel {
         ActiveModel {
             identifier: Set(Uuid::new_v4()),
@@ -34,8 +34,8 @@ impl Into<entities::todo::ActiveModel> for CreateTodo {
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
-#[ts(export, export_to = "todo.ts")]
-pub struct UpdateTodo {
+#[ts(export, export_to = "task.ts")]
+pub struct UpdateTask {
     pub title: Option<String>,
     pub description: Option<String>,
     pub status: Option<String>,

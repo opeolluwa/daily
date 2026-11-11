@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { useTodoStore } from "@shared/stores/todo";
+import { CalendarDate, Time } from "@internationalized/date";
+import { useTaskStore } from "@shared/stores/tasks";
 
 const props = defineProps<{
-  todo?: {
+  task?: {
     identifier: string;
     title: string;
     description?: string | null;
     dueDate?: string | null;
-    time?: string | null;
+    dueTime?: string | null;
     priority: "high" | "medium" | "low";
     done: boolean;
   } | null;
@@ -15,62 +16,66 @@ const props = defineProps<{
 
 const open = defineModel<boolean>("open", { required: true });
 
-const todoStore = useTodoStore();
+const taskStore = useTaskStore();
 const toast = useToast();
 
-const editing = computed(() => !!props.todo);
+const editing = computed(() => !!props.task);
 
 const form = reactive({
   title: "",
   description: "",
-  dueDate: null as Date | null,
+  dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
   done: false,
 });
 
-const selectedTime = shallowRef<{ hour: number; minute: number } | undefined>();
+const selectedTime = shallowRef<Time | undefined>();
 const submitting = ref(false);
 const deleting = ref(false);
 
-function toIsoDate(date: Date | null): string | null {
+function toIsoDate(date: CalendarDate | undefined): string | null {
   if (!date) return null;
   return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
+    date.year,
+    String(date.month).padStart(2, "0"),
+    String(date.day).padStart(2, "0"),
   ].join("-");
 }
 
-function formatDisplayDate(date: Date | null): string {
-  if (!date) return "";
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function fromIsoDate(
+  value: string | null | undefined,
+): CalendarDate | undefined {
+  if (!value) return undefined;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  return new CalendarDate(year, month, day);
+}
+
+function formatTime(time: Time): string {
+  return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
 }
 
 function resetForm() {
   form.title = "";
   form.description = "";
-  form.dueDate = null;
+  form.dueDate = undefined;
   form.priority = "medium";
   form.done = false;
   selectedTime.value = undefined;
 }
 
 watch(
-  () => props.todo,
-  (todo) => {
-    if (todo) {
-      form.title = todo.title;
-      form.description = todo.description ?? "";
-      form.dueDate = todo.dueDate ? new Date(todo.dueDate) : null;
-      form.priority = todo.priority;
-      form.done = todo.done;
-      if (todo.time) {
-        const [h, m] = todo.time.split(":").map(Number);
-        selectedTime.value = { hour: h, minute: m };
+  () => props.task,
+  (task) => {
+    if (task) {
+      form.title = task.title;
+      form.description = task.description ?? "";
+      form.dueDate = fromIsoDate(task.dueDate);
+      form.priority = task.priority;
+      form.done = task.done;
+      if (task.dueTime) {
+        const [h, m] = task.dueTime.split(":").map(Number);
+        selectedTime.value = new Time(h, m);
       } else {
         selectedTime.value = undefined;
       }
@@ -89,52 +94,48 @@ async function handleSubmit() {
   if (!form.title.trim()) return;
   submitting.value = true;
   try {
-    if (editing.value && props.todo) {
-      await todoStore.updateTodo(props.todo.identifier, {
+    if (editing.value && props.task) {
+      await taskStore.updateTask(props.task.identifier, {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
       });
 
-      const current = todoStore.todos.find(
-        (t) => t.identifier === props.todo!.identifier,
+      const current = taskStore.tasks.find(
+        (t) => t.identifier === props.task!.identifier,
       );
       if (current) {
         if (current.done !== form.done) {
-          await todoStore.toggleDone(props.todo.identifier, form.done);
+          await taskStore.toggleDone(props.task.identifier, form.done);
         }
         if (current.priority !== form.priority) {
-          await todoStore.changePriority(props.todo.identifier, form.priority);
+          await taskStore.changePriority(props.task.identifier, form.priority);
         }
         const newDate = toIsoDate(form.dueDate);
-        const existingDate = current.dueDate
-          ? toIsoDate(new Date(current.dueDate))
-          : null;
+        const existingDate = current.dueDate ?? null;
         if (newDate !== existingDate) {
-          await todoStore.updateDueDate(props.todo.identifier, newDate);
+          await taskStore.updateDueDate(props.task.identifier, newDate);
         }
       }
 
       toast.add({
         color: "success",
         icon: "heroicons:check-circle",
-        title: "Todo Updated",
+        title: "Task Updated",
         description: "Your changes have been saved",
       });
     } else {
-      await todoStore.createTodo({
+      await taskStore.createTask({
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         dueDate: toIsoDate(form.dueDate) ?? undefined,
-        time: selectedTime.value
-          ? `${String(selectedTime.value.hour).padStart(2, "0")}:${String(selectedTime.value.minute).padStart(2, "0")}`
-          : undefined,
+        time: selectedTime.value ? formatTime(selectedTime.value) : undefined,
         priority: form.priority,
       });
       toast.add({
         color: "success",
         icon: "heroicons:check-circle",
-        title: "Todo Created",
-        description: "Your todo has been saved",
+        title: "Task Created",
+        description: "Your task has been saved",
       });
     }
     open.value = false;
@@ -144,8 +145,8 @@ async function handleSubmit() {
       icon: "heroicons:x-circle",
       title: "Something Went Wrong",
       description: editing.value
-        ? "Failed to update todo"
-        : "Failed to create todo",
+        ? "Failed to update task"
+        : "Failed to create task",
     });
   } finally {
     submitting.value = false;
@@ -153,15 +154,15 @@ async function handleSubmit() {
 }
 
 async function handleDelete() {
-  if (!props.todo) return;
+  if (!props.task) return;
   deleting.value = true;
   try {
-    await todoStore.deleteTodo(props.todo.identifier);
+    await taskStore.deleteTask(props.task.identifier);
     toast.add({
       color: "success",
       icon: "heroicons:check-circle",
-      title: "Todo Deleted",
-      description: "The todo has been removed",
+      title: "Task Deleted",
+      description: "The task has been removed",
     });
     open.value = false;
   } catch {
@@ -169,7 +170,7 @@ async function handleDelete() {
       color: "error",
       icon: "heroicons:x-circle",
       title: "Something Went Wrong",
-      description: "Failed to delete todo",
+      description: "Failed to delete task",
     });
   } finally {
     deleting.value = false;
@@ -180,7 +181,7 @@ async function handleDelete() {
 <template>
   <RyderCreateDialog
     v-model:open="open"
-    :title="editing ? 'Edit Todo' : 'New Todo'"
+    :title="editing ? 'Edit Task' : 'New Task'"
     :loading="submitting"
     :submit-label="editing ? 'Save' : 'Create'"
     :submit-disabled="!form.title.trim()"
@@ -193,74 +194,30 @@ async function handleDelete() {
         label="Title"
         :required="true"
         placeholder="What needs to be done?"
-        name="todo-title"
+        name="task-title"
       />
 
       <RyderTextarea
         v-model="form.description"
         label="Description"
-        name="todo-description"
+        name="task-description"
         placeholder="Add more details..."
         :rows="3"
       />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Due date
-        </label>
-        <div class="flex items-center gap-2">
-          <UPopover class="flex-1">
-            <button
-              type="button"
-              class="w-full flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors text-left"
-              :class="
-                form.dueDate
-                  ? 'text-gray-700 dark:text-gray-200'
-                  : 'text-gray-400 dark:text-gray-500'
-              "
-            >
-              <UIcon
-                name="heroicons:calendar"
-                class="size-4 shrink-0 text-gray-400"
-              />
-              {{
-                form.dueDate ? formatDisplayDate(form.dueDate) : "Pick a date"
-              }}
-            </button>
-            <template #content="{ close }">
-              <AppDatePicker
-                v-model="form.dueDate"
-                @update:model-value="close"
-              />
-            </template>
-          </UPopover>
-          <button
-            v-if="form.dueDate"
-            type="button"
-            class="p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            @click="form.dueDate = null"
-          >
-            <UIcon name="heroicons:x-mark" class="size-4" />
-          </button>
-        </div>
-      </div>
+      <RyderDateInput
+        v-model="form.dueDate"
+        label="Date"
+        name="task-date"
+        placeholder="Pick a date"
+      />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Time
-        </label>
-        <div class="flex items-center gap-2">
-          <AppTimePicker v-model="selectedTime" class="flex-1" />
-          <button
-            v-if="selectedTime"
-            type="button"
-            class="p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            @click="selectedTime = undefined"
-          >
-            <UIcon name="heroicons:x-mark" class="size-4" />
-          </button>
-        </div>
-      </div>
+      <RyderTimeInput
+        v-model="selectedTime"
+        label="Time"
+        name="task-time"
+        size="sm"
+      />
 
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -326,7 +283,7 @@ async function handleDelete() {
         @click="handleDelete"
       >
         <UIcon name="heroicons:trash" class="size-4" />
-        {{ deleting ? "Deleting..." : "Delete todo" }}
+        {{ deleting ? "Deleting..." : "Delete task" }}
       </button>
     </div>
   </RyderCreateDialog>

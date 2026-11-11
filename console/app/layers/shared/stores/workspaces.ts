@@ -2,7 +2,7 @@ import type { CreateWorkspace, UpdateWorkspace, Workspaces } from "lunar";
 import { defineStore } from "pinia";
 import { invoke } from "@shared/utils/invoke";
 import { useNoteStore } from "./notes";
-import { useTodoStore } from "./todo";
+import { useTaskStore } from "./tasks";
 import { useBookmarkStore } from "./bookmarks";
 import { useRecycleBinStore } from "./recycle-bin";
 import { useReminderStore } from "./reminder";
@@ -128,7 +128,7 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
       }
 
       const noteStore = useNoteStore();
-      const todoStore = useTodoStore();
+      const taskStore = useTaskStore();
       const bookmarksStore = useBookmarkStore();
       const recycleBinStore = useRecycleBinStore();
       const reminderStore = useReminderStore();
@@ -138,7 +138,7 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
       await Promise.all([
         noteStore.fetchNotes(),
         noteStore.fetchRecentNotes(),
-        todoStore.fetchTodos(),
+        taskStore.fetchTasks(),
         bookmarksStore.fetchBookmarks(),
         recycleBinStore.fetchEntries(),
         reminderStore.fetchReminders(),

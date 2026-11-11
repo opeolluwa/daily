@@ -2,7 +2,7 @@ import type { Bookmark } from "@shared/stores/bookmarks";
 import type { Note } from "@shared/stores/notes";
 import type { PasteBin } from "@shared/stores/paste-bin";
 import type { Snippet } from "@shared/stores/snippets";
-import type { Todo } from "@shared/stores/todo";
+import type { Task } from "@shared/stores/tasks";
 
 export interface SortOption<T extends string = string> {
   label: string;
@@ -14,7 +14,7 @@ export type NoteSort = "name-asc" | "name-desc" | "date-newest" | "date-oldest";
 export type BookmarkSort = NoteSort;
 export type SnippetSort = NoteSort;
 export type PasteBinSort = NoteSort;
-export type TodoSort = NoteSort | "priority-high" | "priority-low";
+export type TaskSort = NoteSort | "priority-high" | "priority-low";
 
 export const NOTE_SORT_OPTIONS: SortOption<NoteSort>[][] = [
   [
@@ -84,7 +84,7 @@ export const PASTE_BIN_SORT_OPTIONS: SortOption<PasteBinSort>[][] = [
   ],
 ];
 
-export const TODO_SORT_OPTIONS: SortOption<TodoSort>[][] = [
+export const TASK_SORT_OPTIONS: SortOption<TaskSort>[][] = [
   [
     {
       label: "Priority (high → low)",
@@ -196,7 +196,7 @@ export function sortPasteBins(
   });
 }
 
-export function sortTodos(list: Todo[], sortBy: TodoSort): Todo[] {
+export function sortTasks(list: Task[], sortBy: TaskSort): Task[] {
   return [...list].sort((a, b) => {
     switch (sortBy) {
       case "priority-high":
