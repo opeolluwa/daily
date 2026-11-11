@@ -1,7 +1,7 @@
 use std::{env, str::FromStr};
 
 use dotenv::dotenv;
-use lunar::{error::LunarError, utils::extract_env};
+use kernel::{error::KernelError, utils::extract_env};
 use tower_http::cors::AllowOrigin;
 
 use crate::errors::app_error::AppError;
@@ -84,7 +84,7 @@ impl std::fmt::Debug for AppConfig {
 }
 
 impl AppConfig {
-    pub fn from_env() -> Result<Self, LunarError> {
+    pub fn from_env() -> Result<Self, KernelError> {
         dotenv().ok();
 
         let port = extract_env::<u16>("PORT")?;
@@ -103,7 +103,7 @@ impl AppConfig {
             .ok()
             .map(|v| {
                 v.parse::<usize>().map_err(|_| {
-                    LunarError::EnvError("DEPTH_LIMIT must be a valid number".to_string())
+                    KernelError::EnvError("DEPTH_LIMIT must be a valid number".to_string())
                 })
             })
             .transpose()?;
@@ -112,7 +112,7 @@ impl AppConfig {
             .ok()
             .map(|v| {
                 v.parse::<usize>().map_err(|_| {
-                    LunarError::EnvError("COMPLEXITY_LIMIT must be a valid number".to_string())
+                    KernelError::EnvError("COMPLEXITY_LIMIT must be a valid number".to_string())
                 })
             })
             .transpose()?;

@@ -9,7 +9,7 @@ withDefaults(
     collapsed?: boolean;
     showUserCard?: boolean;
   }>(),
-  { collapsed: false, showUserCard: true },
+  { collapsed: true, showUserCard: true },
 );
 
 const emit = defineEmits<{

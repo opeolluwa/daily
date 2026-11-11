@@ -222,7 +222,7 @@ Current `extract_unsynced()` tries to fetch records by identifier from the entit
 
 ### 4.8 — Fix bookmark sync bug
 
-**File:** `lunar/src/repositories/bookmarks.rs` line ~270
+**File:** `core/src/repositories/bookmarks.rs` line ~270
 
 The `TableName` filter is commented out:
 
@@ -308,14 +308,14 @@ Phase 6 (Testing/Release) ████░░░░░░░░░░░░░░
 | `components/navigation/app.vue` | Desktop sidebar (`hidden md:flex`) |
 | `components/app/primary-cta.vue` | Desktop CTA + mobile FAB |
 | `composables/useMobileNav.ts` | Mobile nav toggle state |
-| `app/plugins/lunar.client.ts` | IS_WEB / IS_TAURI detection |
+| `app/plugins/core.client.ts` | IS_WEB / IS_TAURI detection |
 | `app/utils/invoke.ts` | UNSUPPORTED set, command routing |
 | `app/stores/sync-queue.ts` | Sync orchestrator — needs pull logic |
-| `lunar/src/sync_engine.rs` | Sync engine types |
-| `lunar/src/entities/sync_queue.rs` | Sync queue entity |
-| `lunar/src/repositories/sync_queue.rs` | Sync queue repository |
-| `lunar/src/repositories/notes.rs` | extract_unsynced / clear_synced pattern |
-| `lunar/src/repositories/bookmarks.rs` | Has table_name filter bug |
+| `core/src/sync_engine.rs` | Sync engine types |
+| `core/src/entities/sync_queue.rs` | Sync queue entity |
+| `core/src/repositories/sync_queue.rs` | Sync queue repository |
+| `core/src/repositories/notes.rs` | extract_unsynced / clear_synced pattern |
+| `core/src/repositories/bookmarks.rs` | Has table_name filter bug |
 | `server/src/mutations/sync_queue.rs` | Stale filtering (incomplete) |
 | `server/src/query_root.rs` | GraphQL schema registration |
 | `scripts/console.just` | Build commands — needs mobile targets |
@@ -327,7 +327,7 @@ Phase 6 (Testing/Release) ████░░░░░░░░░░░░░░
 ## Known Issues to Fix
 
 1. **Version drift:** `tauri.conf.json` = 0.8.32, `tauri.properties` = 0.8.31, `Info.plist` = 0.8.31
-2. **Bookmark sync bug:** Table name filter commented out in `lunar/src/repositories/bookmarks.rs:270`
+2. **Bookmark sync bug:** Table name filter commented out in `core/src/repositories/bookmarks.rs:270`
 3. **Stronghold dead code:** Declared but never initialized
 4. **DELETE handling:** `extract_unsynced()` fails for deleted records (tries to fetch non-existent rows)
 5. **Server sync_queue.rs:** `filter_stale_items` compares timestamps but doesn't apply the results

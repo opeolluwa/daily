@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Local;
-use lunar::entities::invitation::{self, ActiveModel, Entity as InvitationEntity};
+use kernel::entities::invitation::{self, ActiveModel, Entity as InvitationEntity};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use uuid::Uuid;
 

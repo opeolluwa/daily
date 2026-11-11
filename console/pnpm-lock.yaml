@@ -122,6 +122,9 @@ importers:
       '@vueuse/nuxt':
         specifier: ^14.4.0
         version: 14.4.0(580a2af178ffbe6122e8789615ac3b74)
+      core:
+        specifier: file:../core
+        version: file:../core
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -146,9 +149,6 @@ importers:
       lowlight:
         specifier: ^3.3.0
         version: 3.3.0
-      lunar:
-        specifier: file:../lunar
-        version: file:../lunar
       nanoid:
         specifier: ^5.1.16
         version: 5.1.16
@@ -4154,6 +4154,9 @@ packages:
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
+  core@file:../core:
+    resolution: {directory: ../core, type: directory}
+
   crc-32@1.2.2:
     resolution: {integrity: sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==}
     engines: {node: '>=0.8'}
@@ -5497,9 +5500,6 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
-
-  lunar@file:../lunar:
-    resolution: {directory: ../lunar, type: directory}
 
   magic-regexp@0.10.0:
     resolution: {integrity: sha512-Uly1Bu4lO1hwHUW0CQeSWuRtzCMNO00CmXtS8N6fyvB3B979GOEEeAkiTUDsmbYLAbvpUS/Kt5c4ibosAzVyVg==}
@@ -11770,6 +11770,8 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
+  core@file:../core: {}
+
   crc-32@1.2.2: {}
 
   crc32-stream@7.0.1:
@@ -13174,8 +13176,6 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lunar@file:../lunar: {}
 
   magic-regexp@0.10.0:
     dependencies:

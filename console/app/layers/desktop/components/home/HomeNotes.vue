@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NotesInterface } from "lunar";
+import type { NotesInterface } from "@daily/core";
 
 defineProps<{
   notes: NotesInterface[];

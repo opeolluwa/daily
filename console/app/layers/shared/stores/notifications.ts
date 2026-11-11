@@ -2,7 +2,7 @@ import type {
   CreateNotification,
   NotificationType,
   Notifications,
-} from "lunar";
+} from "@daily/core";
 import { invoke } from "../utils/invoke";
 import { defineStore } from "pinia";
 

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Local;
-use lunar::entities::users;
+use kernel::entities::users;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
 };

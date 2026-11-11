@@ -1,4 +1,4 @@
-use lunar::adapters::meta::RequestMeta;
+use kernel::adapters::meta::RequestMeta;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -12,7 +12,7 @@ pub struct CreateNote {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<CreateNote> for lunar::adapters::notes::CreateNote {
+impl From<CreateNote> for kernel::adapters::notes::CreateNote {
     fn from(note: CreateNote) -> Self {
         Self {
             title: note.title,
@@ -32,7 +32,7 @@ pub struct UpdateNote {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<UpdateNote> for lunar::adapters::notes::UpdateNote {
+impl From<UpdateNote> for kernel::adapters::notes::UpdateNote {
     fn from(note: UpdateNote) -> Self {
         Self {
             title: note.title,

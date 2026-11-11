@@ -1,4 +1,4 @@
-import type { CreateRecycleBinEntry, ItemType, RecycleBin } from "lunar";
+import type { CreateRecycleBinEntry, ItemType, RecycleBin } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 

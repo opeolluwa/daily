@@ -1,5 +1,5 @@
 import { invoke as tauriInvoke } from "@tauri-apps/api/core";
-import type { NotificationType, Priority } from "lunar";
+import type { NotificationType, Priority } from "@daily/core";
 import type {
   CreateBookmark,
   CreateNote,
@@ -11,7 +11,7 @@ import type {
   CreateTask,
   CreateWorkspace,
   CreateWorkspaceProfile,
-  LunarConsoleApi,
+  CoreConsoleApi,
   RequestMeta,
   UpdateBookmark,
   UpdateNote,
@@ -21,12 +21,12 @@ import type {
   UpdateTask,
   UpdateWorkspace,
   UpdateWorkspaceProfile,
-} from "./lunar";
+} from "./core";
 
 type InvokeArgs = Record<string, unknown>;
 
 type CommandHandler = (
-  api: LunarConsoleApi,
+  api: CoreConsoleApi,
   args: InvokeArgs,
 ) => Promise<unknown>;
 
@@ -35,7 +35,7 @@ const asMeta = (args: InvokeArgs): RequestMeta | undefined =>
   args.meta as RequestMeta | undefined;
 
 const duplicate = (
-  api: LunarConsoleApi,
+  api: CoreConsoleApi,
   a: InvokeArgs,
   kind:
     | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
@@ -49,7 +49,7 @@ const duplicate = (
 };
 
 const transfer = (
-  api: LunarConsoleApi,
+  api: CoreConsoleApi,
   a: InvokeArgs,
   kind:
     | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
@@ -262,10 +262,10 @@ async function dispatchBrowser(
   cmd: string,
   args: InvokeArgs,
 ): Promise<unknown> {
-  const api = window?.lunar;
+  const api = window?.core;
   if (!api) {
     throw new Error(
-      `[invoke] "${cmd}" — the in-browser lunar data layer is not initialized`,
+      `[invoke] "${cmd}" — the in-browser core data layer is not initialized`,
     );
   }
 
@@ -289,11 +289,11 @@ async function dispatchBrowser(
 /**
  * Drop-in replacement for `invoke` from `@tauri-apps/api/core` that talks to
  * the native Rust backend over IPC in the Tauri webview, and to the in-browser
- * PGlite layer (`window.lunar`, installed by plugins/lunar.client.ts) in a
+ * PGlite layer (`window.core`, installed by plugins/core.client.ts) in a
  * plain browser.
  */
 export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
-  if (typeof window !== "undefined" && window?.lunar) {
+  if (typeof window !== "undefined" && window?.core) {
     return (await dispatchBrowser(cmd, args ?? {})) as T;
   }
   return tauriInvoke<T>(cmd, args);

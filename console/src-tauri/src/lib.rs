@@ -4,7 +4,7 @@ mod errors;
 mod state;
 use std::sync::Arc;
 
-use lunar::{adapters::notifications::CreateNotification, DataEngine};
+use kernel::{adapters::notifications::CreateNotification, DataEngine};
 use tauri::Listener;
 use tauri::Manager;
 

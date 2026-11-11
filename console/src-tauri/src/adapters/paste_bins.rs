@@ -1,4 +1,4 @@
-use lunar::{adapters::meta::RequestMeta, sea_orm::sea_query::prelude::Local};
+use kernel::{adapters::meta::RequestMeta, sea_orm::sea_query::prelude::Local};
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -13,7 +13,7 @@ pub struct CreatePasteBin {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<CreatePasteBin> for lunar::adapters::paste_bins::CreatePasteBin {
+impl From<CreatePasteBin> for kernel::adapters::paste_bins::CreatePasteBin {
     fn from(paste_bin: CreatePasteBin) -> Self {
         Self {
             title: paste_bin.title,
@@ -35,7 +35,7 @@ pub struct UpdatePasteBin {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<UpdatePasteBin> for lunar::adapters::paste_bins::UpdatePasteBin {
+impl From<UpdatePasteBin> for kernel::adapters::paste_bins::UpdatePasteBin {
     fn from(paste_bin: UpdatePasteBin) -> Self {
         Self {
             title: paste_bin.title,

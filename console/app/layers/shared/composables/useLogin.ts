@@ -1,6 +1,6 @@
 import { useAuthStore } from "@shared/stores/auth";
 import type { MaybeRefOrGetter } from "vue";
-import type { LoginRequest } from "lunar";
+import type { LoginRequest } from "@daily/core";
 
 export function useLogin(
   prefillEmail?: MaybeRefOrGetter<string>,

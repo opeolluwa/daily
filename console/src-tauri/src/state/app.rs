@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use lunar::{
+use kernel::{
     repositories::{
         bookmarks::BookmarkRepository, notes::NotesRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,

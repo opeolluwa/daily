@@ -1,5 +1,5 @@
 use axum::{http::StatusCode, response::IntoResponse};
-use lunar::error::LunarError;
+use kernel::error::KernelError;
 
 use crate::errors::app_error::AppError;
 use crate::response::ApiResponseBuilder;
@@ -21,7 +21,7 @@ pub enum AuthenticationError {
     #[error("{0}")]
     ValidationError(String),
     #[error(transparent)]
-    LunarError(#[from] LunarError),
+    KernelError(#[from] KernelError),
 }
 
 impl AuthenticationError {

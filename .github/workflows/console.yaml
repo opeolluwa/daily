@@ -67,7 +67,7 @@ jobs:
         with:
           workspaces: "./console/src-tauri -> target"
 
-      # wasm-pack (needed for lunar build)
+      # wasm-pack (needed for core build)
       - name: install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 

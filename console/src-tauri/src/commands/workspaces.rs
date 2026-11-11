@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::{
         meta::RequestMeta,
         workspace::{CreateWorkspace, UpdateWorkspace},
@@ -13,7 +13,7 @@ use crate::{errors::AppError, state::app::AppState};
 pub async fn create_workspace(
     state: State<'_, AppState>,
     workspace: CreateWorkspace,
-) -> Result<lunar::entities::workspaces::Model, AppError> {
+) -> Result<kernel::entities::workspaces::Model, AppError> {
     let workspace = state
         .workspace_repository
         .create_workspace(workspace)
@@ -24,7 +24,7 @@ pub async fn create_workspace(
 #[tauri::command]
 pub async fn list_workspaces(
     state: State<'_, AppState>,
-) -> Result<Vec<lunar::entities::workspaces::Model>, AppError> {
+) -> Result<Vec<kernel::entities::workspaces::Model>, AppError> {
     let workspaces = state.workspace_repository.list_workspaces().await?;
     Ok(workspaces)
 }
@@ -33,7 +33,7 @@ pub async fn list_workspaces(
 pub async fn get_workspace_by_id(
     state: State<'_, AppState>,
     id: String,
-) -> Result<lunar::entities::workspaces::Model, AppError> {
+) -> Result<kernel::entities::workspaces::Model, AppError> {
     let uuid = uuid::Uuid::parse_str(&id)
         .map_err(|_| AppError::Io(format!("Invalid UUID string: {}", id)))?;
     let workspace = state.workspace_repository.get_workspace_by_id(uuid).await?;
@@ -45,7 +45,7 @@ pub async fn update_workspace(
     state: State<'_, AppState>,
     identifier: String,
     workspace: UpdateWorkspace,
-) -> Result<lunar::entities::workspaces::Model, AppError> {
+) -> Result<kernel::entities::workspaces::Model, AppError> {
     let uuid = uuid::Uuid::parse_str(&identifier)
         .map_err(|_| AppError::Io(format!("Invalid UUID string: {}", identifier)))?;
     let updated = state

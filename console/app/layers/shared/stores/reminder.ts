@@ -1,4 +1,4 @@
-import type { CreateReminder, Reminder, UpdateReminder } from "lunar";
+import type { CreateReminder, Reminder, UpdateReminder } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 

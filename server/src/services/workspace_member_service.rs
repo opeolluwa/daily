@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use lunar::entities::workspace_members;
+use kernel::entities::workspace_members;
 use sea_orm::DatabaseConnection;
 use uuid::Uuid;
 

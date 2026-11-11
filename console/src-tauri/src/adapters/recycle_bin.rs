@@ -1,5 +1,5 @@
-use lunar::adapters::meta::RequestMeta;
-use lunar::entities::sea_orm_active_enums::ItemType as RecycleBinItemType;
+use kernel::adapters::meta::RequestMeta;
+use kernel::entities::sea_orm_active_enums::ItemType as RecycleBinItemType;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -13,7 +13,7 @@ pub struct CreateRecycleBinEntry {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<CreateRecycleBinEntry> for lunar::adapters::recycle_bin::CreateRecycleBinEntry {
+impl From<CreateRecycleBinEntry> for kernel::adapters::recycle_bin::CreateRecycleBinEntry {
     fn from(e: CreateRecycleBinEntry) -> Self {
         Self {
             item_id: e.item_id,

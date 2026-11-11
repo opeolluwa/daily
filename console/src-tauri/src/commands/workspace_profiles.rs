@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::meta::RequestMeta,
     entities::workspace_profiles,
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},

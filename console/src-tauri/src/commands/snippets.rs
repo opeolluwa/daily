@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::meta::RequestMeta,
     entities::snippets,
     repositories::snippets::SnippetRepositoryExt,

@@ -2,7 +2,7 @@ import type {
   CreateWorkspaceProfile,
   UpdateWorkspaceProfile,
   WorkspaceProfiles,
-} from "lunar";
+} from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 import { getWorkspaceMeta } from "#imports";

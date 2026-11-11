@@ -1,5 +1,5 @@
-use lunar::entities;
-use lunar::entities::sea_orm_active_enums::ItemType;
+use kernel::entities;
+use kernel::entities::sea_orm_active_enums::ItemType;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};

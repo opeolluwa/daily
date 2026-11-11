@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::meta::RequestMeta,
     entities::bookmark,
     entities::sea_orm_active_enums::Tag as BookmarkTag,

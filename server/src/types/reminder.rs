@@ -1,4 +1,4 @@
-use lunar::entities;
+use kernel::entities;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};

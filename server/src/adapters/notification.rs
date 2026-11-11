@@ -1,1 +1,1 @@
-pub use lunar::adapters::notifications::CreateNotification;
+pub use kernel::adapters::notifications::CreateNotification;

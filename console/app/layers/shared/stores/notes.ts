@@ -1,4 +1,4 @@
-import type { CreateNote, Notes, UpdateNote } from "lunar";
+import type { CreateNote, Notes, UpdateNote } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 

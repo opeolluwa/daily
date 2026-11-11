@@ -15,7 +15,7 @@ import type {
   SetNewPasswordResponse,
   VerifyAccountRequest,
   VerifyAccountResponse,
-} from "lunar";
+} from "@daily/core";
 
 interface ApiErrorBody {
   message?: string;

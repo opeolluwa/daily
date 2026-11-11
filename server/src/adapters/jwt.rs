@@ -2,7 +2,7 @@ use std::fmt::Display;
 use std::time::Duration;
 
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
-use lunar::utils::extract_env;
+use kernel::utils::extract_env;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

@@ -1,4 +1,4 @@
-import type { CreateTask, Task, TaskStatus, UpdateTask } from "lunar";
+import type { CreateTask, Task, TaskStatus, UpdateTask } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 

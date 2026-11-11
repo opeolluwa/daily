@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Utc;
-use lunar::entities::{workspace_members, workspaces};
+use kernel::entities::{workspace_members, workspaces};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use uuid::Uuid;
 

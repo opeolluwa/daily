@@ -1,4 +1,4 @@
-use lunar::adapters::meta::RequestMeta;
+use kernel::adapters::meta::RequestMeta;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -10,7 +10,7 @@ pub struct CreateWorkspaceProfile {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<CreateWorkspaceProfile> for lunar::adapters::workspace_profiles::CreateWorkspaceProfile {
+impl From<CreateWorkspaceProfile> for kernel::adapters::workspace_profiles::CreateWorkspaceProfile {
     fn from(p: CreateWorkspaceProfile) -> Self {
         Self {
             first_name: p.first_name,
@@ -29,7 +29,7 @@ pub struct UpdateWorkspaceProfile {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<UpdateWorkspaceProfile> for lunar::adapters::workspace_profiles::UpdateWorkspaceProfile {
+impl From<UpdateWorkspaceProfile> for kernel::adapters::workspace_profiles::UpdateWorkspaceProfile {
     fn from(p: UpdateWorkspaceProfile) -> Self {
         Self {
             first_name: p.first_name,

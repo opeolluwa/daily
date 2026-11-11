@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::meta::RequestMeta,
     entities::notes,
     repositories::notes::NotesRepositoryExt,
@@ -178,7 +178,7 @@ pub async fn export_notes_as_pdf(
     let overwrite = overwrite.unwrap_or(false);
 
     let target = download_dir.join(format!("{}.pdf", file_name));
-    if let Some(existing) = lunar::utils::detect_duplicate(&target)
+    if let Some(existing) = kernel::utils::detect_duplicate(&target)
         .await
         .map_err(|err| AppError::Io(err.to_string()))?
     {
@@ -190,7 +190,7 @@ pub async fn export_notes_as_pdf(
     }
 
     let path =
-        lunar::ironpress::render_html_to_pdf(&note.content, &file_name, &download_dir, overwrite)
+        kernel::ironpress::render_html_to_pdf(&note.content, &file_name, &download_dir, overwrite)
             .await
             .map_err(|err| AppError::Io(err.to_string()))?;
 

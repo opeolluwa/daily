@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::meta::RequestMeta, entities::recycle_bin,
     entities::sea_orm_active_enums::ItemType as RecycleBinItemType,
     repositories::recycle_bin::RecycleBinRepositoryExt,

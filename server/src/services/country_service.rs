@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use lunar::entities::country;
+use kernel::entities::country;
 use sea_orm::DatabaseConnection;
 
 use crate::{

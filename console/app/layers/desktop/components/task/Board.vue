@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { TaskStatus } from "lunar";
+import type { TaskStatus } from "@daily/core";
 import Column from "./Column.vue";
 import { useTaskStore, type Task } from "@shared/stores/tasks";
 

@@ -1,4 +1,4 @@
-import type { Bookmark, CreateBookmark, Tag, UpdateBookmark } from "lunar";
+import type { Bookmark, CreateBookmark, Tag, UpdateBookmark } from "@daily/core";
 import { invoke } from "@shared/utils/invoke";
 import { defineStore } from "pinia";
 
