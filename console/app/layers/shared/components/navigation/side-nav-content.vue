@@ -17,6 +17,24 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
+const colorMode = useColorMode();
+
+const isDark = computed({
+  get: () => colorMode.value === "dark",
+  set: (value) => {
+    colorMode.preference = value ? "dark" : "light";
+  },
+});
+
+function toggleTheme() {
+  isDark.value = !isDark.value;
+}
+
+const themeIcon = computed(() =>
+  isDark.value ? "heroicons:sun" : "heroicons:moon",
+);
+
+const themeLabel = computed(() => (isDark.value ? "Light mode" : "Dark mode"));
 
 function isActive(path: string): boolean {
   if (path === "/") {
@@ -73,6 +91,25 @@ function onNavigate() {
     <!-- Footer -->
     <div class="shrink-0 px-3 pt-1 pb-4 mt-auto">
       <USeparator class="mb-3" />
+
+      <!-- THEME -->
+      <UTooltip :text="themeLabel" :disabled="!collapsed" side="right">
+        <button
+          type="button"
+          class="flex items-center w-full h-11 gap-2 px-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white transition-colors"
+          :class="collapsed ? 'justify-center px-0' : ''"
+          @click="toggleTheme"
+        >
+          <UIcon
+            :name="themeIcon"
+            class="size-5 shrink-0 text-gray-500 dark:text-gray-400"
+          />
+
+          <span v-if="!collapsed" class="text-sm font-medium">
+            {{ themeLabel }}
+          </span>
+        </button>
+      </UTooltip>
 
       <!-- SECONDARY -->
       <div class="mt-auto">

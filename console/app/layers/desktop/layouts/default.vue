@@ -12,7 +12,12 @@ const { mobileNavOpen } = useMobileNav();
 </script>
 
 <template>
-  <UDashboardGroup id="wild_almonds_app" as="div">
+  <UDashboardGroup
+    id="wild_almonds_app"
+    as="div"
+    unit="rem"
+    :persistent="false"
+  >
     <!-- Sidebar: icons-only strip when collapsed -->
     <NavigationApp />
 

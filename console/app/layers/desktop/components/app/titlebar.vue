@@ -6,7 +6,7 @@ import { computed, useTemplateRef } from "vue";
 import { IS_WEB } from "@shared/env";
 import { useUserPreferenceStore } from "@shared/stores/workspace-profile";
 
-const iconSize = "sm";
+const iconSize = "md";
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -210,7 +210,7 @@ defineShortcuts(shortcuts);
         autocapitalize="off"
         autocorrect="off"
         spellcheck="false"
-        :ui="{ base: 'ps-8 pe-10 py-3 bg-gray-50/30' }"
+        :ui="{ base: 'ps-8 pe-10 py-3 bg-gray-50/30 dark:bg-transparent' }"
         class="w-full cursor-text"
         @keydown="onSearchKeydown"
       >
