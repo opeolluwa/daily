@@ -4,7 +4,10 @@ import { useTimeAgo } from "@vueuse/core";
 import { useDrawVue, getNonDeletedElements, tryCatch } from "@drawvue/core";
 import { PERSISTENCE_INSPECTOR_KEY } from "@features/persistence/types";
 import type { PersistenceEvent, StoreMetadata } from "@features/persistence/types";
-import { getScene } from "@features/persistence/stores";
+import {
+  buildPersistedScene,
+  serializeElements,
+} from "@features/persistence/sceneStorage";
 
 const ctx = useDrawVue();
 const persistence = inject(PERSISTENCE_INSPECTOR_KEY);
@@ -23,15 +26,15 @@ function toggleSection(id: string): void {
   openSections.value.add(id);
 }
 
-// ── IDB store metadata ────────────────────────────────────────────────
-const storeMetadata = ref<StoreMetadata>({ current: null, backup: null, emergency: null });
+// ── Database metadata (whiteboard row + files) ────────────────────────
+const storeMetadata = ref<StoreMetadata>({ whiteboard: null, files: null });
 
 async function refreshMetadata(): Promise<void> {
   if (!persistence) return;
   storeMetadata.value = await persistence.diagnostics.readStoreMetadata();
 }
 
-// ── Storage quota ─────────────────────────────────────────────────────
+// ── Storage quota (browser quota backs the PGlite database) ────────────
 const quotaUsed = ref<number | null>(null);
 const quotaAvailable = ref<number | null>(null);
 const quotaPersisted = ref<boolean | null>(null);
@@ -154,7 +157,6 @@ function eventDotColor(type: PersistenceEvent["type"]): string {
   const map: Record<string, string> = {
     save: "bg-green-400",
     "save-skip": "bg-green-400",
-    backup: "bg-purple-400",
     debounce: "bg-amber-400",
     change: "bg-foreground/20",
     restore: "bg-blue-400",
@@ -162,6 +164,7 @@ function eventDotColor(type: PersistenceEvent["type"]): string {
     error: "bg-red-400",
     clear: "bg-red-400",
     export: "bg-accent",
+    backup: "bg-purple-400",
   };
   return map[type] ?? "bg-foreground/20";
 }
@@ -202,8 +205,9 @@ function handleForceSave(): void {
 }
 
 async function handleExport(): Promise<void> {
-  const [err, data] = await getScene("scene:current");
-  if (err || data === undefined) return;
+  const [serializeError, serialized] = serializeElements(ctx.elements.elements.value);
+  if (serializeError) return;
+  const data = buildPersistedScene(serialized);
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -223,7 +227,7 @@ async function handleClear(): Promise<void> {
 const forceSaveDisabled = computed(
   () => forwardVersionMode.value || saveStatus.value === "unavailable" || !isRestored.value,
 );
-const exportDisabled = computed(() => storeMetadata.value.current === null);
+const exportDisabled = computed(() => inMemoryCount.value === 0);
 </script>
 
 <template>
@@ -258,7 +262,7 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
             {{ statusConfig.label }}
           </div>
           <div class="font-mono text-[10px] text-foreground/35">
-            Last save {{ lastSavedAgo }} · scene:current
+            Last save {{ lastSavedAgo }} · database
           </div>
         </div>
 
@@ -375,13 +379,13 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
           <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
             <span class="text-[11px] text-foreground/40">persisted</span>
             <span class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground">
-              {{ storeMetadata.current?.elementCount ?? "—" }} elements
+              {{ storeMetadata.whiteboard?.elementCount ?? "—" }} elements
             </span>
           </div>
           <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
             <span class="text-[11px] text-foreground/40">schemaVersion</span>
             <span class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground/60">
-              {{ storeMetadata.current?.schemaVersion ?? 1 }}
+              {{ storeMetadata.whiteboard?.schemaVersion ?? 1 }}
             </span>
           </div>
           <div class="flex items-center justify-between py-[3px]">
@@ -398,7 +402,7 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
         </div>
       </div>
 
-      <!-- ── IndexedDB Stores Section ──────────────────────────── -->
+      <!-- ── Database Section ──────────────────────────────────── -->
       <div class="overflow-hidden rounded-md">
         <div
           class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
@@ -419,7 +423,7 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
             </svg>
           </div>
           <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
-            >IndexedDB Stores</span
+            >Database</span
           >
           <svg
             class="h-3.5 w-3.5 text-foreground/30 transition-transform duration-200"
@@ -433,14 +437,14 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
           </svg>
         </div>
         <div v-if="openSections.has('stores')" class="space-y-1.5 px-2 pb-2 pl-9">
-          <!-- scene:current card -->
+          <!-- whiteboards row card -->
           <div class="overflow-hidden rounded-md border border-white/[0.06] bg-white/[0.02]">
             <div class="flex items-center justify-between border-b border-white/[0.04] px-2 py-1.5">
               <span
                 class="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-green-400"
               >
                 <span class="inline-block h-2 w-2 rounded-full bg-green-400/30" />
-                scene:current
+                whiteboards.payload
               </span>
               <span
                 class="rounded bg-green-400/[0.12] px-1.5 py-px font-mono text-[9px] font-semibold uppercase text-green-400"
@@ -448,29 +452,29 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
                 active
               </span>
             </div>
-            <div v-if="storeMetadata.current" class="px-2 py-1.5">
+            <div v-if="storeMetadata.whiteboard" class="px-2 py-1.5">
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">schemaVersion</span>
+                <span class="font-mono text-[10px] text-foreground/35">title</span>
                 <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.current.schemaVersion
+                  storeMetadata.whiteboard.title ?? "Untitled"
                 }}</span>
               </div>
               <div class="flex items-center justify-between py-0.5">
                 <span class="font-mono text-[10px] text-foreground/35">elementCount</span>
                 <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.current.elementCount
+                  storeMetadata.whiteboard.elementCount
                 }}</span>
               </div>
               <div class="flex items-center justify-between py-0.5">
                 <span class="font-mono text-[10px] text-foreground/35">savedAt</span>
                 <span class="font-mono text-[10px] font-medium text-foreground/60">{{
-                  formatTime(storeMetadata.current.savedAt)
+                  formatTime(storeMetadata.whiteboard.savedAt)
                 }}</span>
               </div>
               <div class="flex items-center justify-between py-0.5">
                 <span class="font-mono text-[10px] text-foreground/35">dataSize</span>
                 <span class="font-mono text-[10px] font-medium text-foreground/40"
-                  >~{{ formatBytes(storeMetadata.current.dataSize) }}</span
+                  >~{{ formatBytes(storeMetadata.whiteboard.dataSize) }}</span
                 >
               </div>
             </div>
@@ -482,99 +486,41 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
             </div>
           </div>
 
-          <!-- scene:backup card -->
+          <!-- whiteboard_files card -->
           <div class="overflow-hidden rounded-md border border-white/[0.06] bg-white/[0.02]">
             <div class="flex items-center justify-between border-b border-white/[0.04] px-2 py-1.5">
               <span
                 class="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-amber-400"
               >
                 <span class="inline-block h-2 w-2 rounded-full bg-amber-400/20" />
-                scene:backup
+                whiteboard_files
               </span>
               <span
                 class="rounded bg-amber-400/[0.12] px-1.5 py-px font-mono text-[9px] font-semibold uppercase text-amber-400"
               >
-                rolling
+                images
               </span>
             </div>
-            <div v-if="storeMetadata.backup" class="px-2 py-1.5">
+            <div v-if="storeMetadata.files" class="px-2 py-1.5">
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">schemaVersion</span>
+                <span class="font-mono text-[10px] text-foreground/35">files</span>
                 <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.backup.schemaVersion
+                  storeMetadata.files.count
                 }}</span>
               </div>
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">elementCount</span>
-                <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.backup.elementCount
-                }}</span>
-              </div>
-              <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">savedAt</span>
-                <span class="font-mono text-[10px] font-medium text-foreground/60">{{
-                  formatTime(storeMetadata.backup.savedAt)
-                }}</span>
-              </div>
-              <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">delta</span>
-                <span class="font-mono text-[10px] font-medium text-foreground/40">
-                  {{ storeMetadata.backup.deltaVsCurrent >= 0 ? "+" : ""
-                  }}{{ storeMetadata.backup.deltaVsCurrent }} el vs current
-                </span>
+                <span class="font-mono text-[10px] text-foreground/35">totalSize</span>
+                <span class="font-mono text-[10px] font-medium text-foreground/40"
+                  >~{{ formatBytes(storeMetadata.files.totalSize) }}</span
+                >
               </div>
             </div>
             <div
               v-else
               class="px-2 py-2 text-center font-mono text-[10px] italic text-foreground/25"
             >
-              No backup
+              No files
             </div>
-          </div>
-
-          <!-- Emergency localStorage card -->
-          <div
-            v-if="storeMetadata.emergency"
-            class="rounded-md border border-dashed border-amber-400/25 bg-amber-400/[0.04] px-2.5 py-2"
-          >
-            <div class="mb-1 flex items-center gap-1.5">
-              <svg
-                class="h-[11px] w-[11px] text-amber-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <path
-                  d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-                />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span class="font-mono text-[10px] font-semibold text-amber-400"
-                >localStorage emergency</span
-              >
-            </div>
-            <div class="flex items-center justify-between py-0.5">
-              <span class="font-mono text-[10px] text-foreground/35">timestamp</span>
-              <span class="font-mono text-[10px] font-medium text-foreground/60">{{
-                formatTime(storeMetadata.emergency.timestamp)
-              }}</span>
-            </div>
-            <div class="flex items-center justify-between py-0.5">
-              <span class="font-mono text-[10px] text-foreground/35">elements</span>
-              <span class="font-mono text-[10px] font-medium text-foreground/40"
-                >{{ storeMetadata.emergency.elementCount }} elements · ~{{
-                  formatBytes(storeMetadata.emergency.dataSize)
-                }}</span
-              >
-            </div>
-          </div>
-          <div
-            v-else
-            class="rounded-md border border-dashed border-white/[0.08] bg-white/[0.02] px-2.5 py-2 text-center font-mono text-[10px] italic text-foreground/25"
-          >
-            No emergency backup
           </div>
         </div>
       </div>
@@ -634,7 +580,7 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
           <div v-else class="py-1.5 text-center font-mono text-[10px] italic text-foreground/25">
             Not available
           </div>
-          <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+          <div class="flex items-center justify-between py-[3px]">
             <span class="text-[11px] text-foreground/40">persisted</span>
             <span
               class="flex items-center gap-1 rounded px-1 py-px font-mono text-[11px] font-medium"
@@ -649,25 +595,6 @@ const exportDisabled = computed(() => storeMetadata.value.current === null);
               <template v-if="quotaPersisted === true">&#10003; granted</template>
               <template v-else-if="quotaPersisted === false">not granted</template>
               <template v-else>N/A</template>
-            </span>
-          </div>
-          <div class="flex items-center justify-between py-[3px]">
-            <span class="text-[11px] text-foreground/40">IDB available</span>
-            <span
-              class="flex items-center gap-1 rounded px-1 py-px font-mono text-[11px] font-medium"
-              :class="saveStatus !== 'unavailable' ? 'text-green-400' : 'text-red-400'"
-            >
-              <svg
-                v-if="saveStatus !== 'unavailable'"
-                class="h-2.5 w-2.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-              {{ saveStatus !== "unavailable" ? "yes" : "no" }}
             </span>
           </div>
         </div>

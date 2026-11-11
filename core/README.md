@@ -85,7 +85,7 @@ pkg/
 Any of:
 
 - copy `pkg/` into your app (e.g. `libs/core/`),
-- add it as a workspace dependency (`"core": "file:../core/pkg"` or a pnpm workspace member),
+- add it as a workspace dependency (`"@daily/core": "file:../core/pkg"` or a pnpm workspace member),
 - publish it to a registry.
 
 ---

@@ -7,5 +7,6 @@ pub mod recycle_bin;
 pub mod reminder;
 pub mod snippets;
 pub mod tasks;
+pub mod whiteboards;
 pub mod workspace_profiles;
 pub mod workspaces;

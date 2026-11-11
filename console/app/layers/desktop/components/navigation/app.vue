@@ -2,6 +2,15 @@
 import { useSidebarStore } from "@shared/stores/sidebar";
 
 const sidebarStore = useSidebarStore();
+const route = useRoute();
+
+watch(
+  () => route.path,
+  (path) => {
+    sidebarStore.collapsed = path.startsWith("/whiteboard/");
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -10,6 +19,7 @@ const sidebarStore = useSidebarStore();
     v-model:collapsed="sidebarStore.collapsed"
     class="hidden md:flex"
     :collapsible="true"
+    :toggle="false"
     :collapsed-size="4"
     :default-size="18"
     :min-size="4"

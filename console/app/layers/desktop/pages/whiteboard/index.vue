@@ -1,96 +1,93 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from "vue";
-import { DrawVue, useTheme, THEME } from "@drawvue/core";
-import CommandPalette from "@features/command-palette/CommandPalette.vue";
-import LinkEditor from "@features/link/components/LinkEditor.vue";
-import DevInspector from "@features/dev-inspector/DevInspector.vue";
-import ImageActions from "@features/image/ImageActions.vue";
-import EmbeddableOverlay from "@features/embeddable/EmbeddableOverlay.vue";
-import PersistenceProvider from "@features/persistence/PersistenceProvider.vue";
-import DrawingToolbar from "@features/tools/components/DrawingToolbar.vue";
-import PropertiesPanel from "@features/properties/components/PropertiesPanel.vue";
-import BottomBar from "@features/canvas/components/BottomBar.vue";
+import { useWhiteboardStore } from "@shared/stores/whiteboards";
+import WhiteboardCard from "@desktop/components/whiteboards/whiteboard-card.vue";
 
-const drawvueRef = useTemplateRef<InstanceType<typeof DrawVue>>("drawvue");
-const isRestored = ref(false);
 definePageMeta({ layout: false });
 
-// The app's color mode owns light/dark; mirror it into the whiteboard.
-const colorMode = useColorMode();
-const { theme } = useTheme();
+const router = useRouter();
+const whiteboardStore = useWhiteboardStore();
+const { searchQuery, setSearch, clearSearch } = useAppSearch();
 
-watch(
-  () => colorMode.value,
-  (mode) => {
-    theme.value = mode === "dark" ? THEME.DARK : THEME.LIGHT;
-  },
-  { immediate: true },
-);
+const filteredWhiteboards = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!q) return whiteboardStore.whiteboards;
+  return whiteboardStore.whiteboards.filter((w) =>
+    (w.title ?? "Untitled").toLowerCase().includes(q),
+  );
+});
+
+async function createWhiteboard() {
+  const created = await whiteboardStore.createWhiteboard({ title: null });
+  await router.push(`/whiteboard/${created.identifier}`);
+}
+
+onMounted(async () => {
+  setSearch({ placeholder: "Search whiteboards..." });
+  await whiteboardStore.fetchWhiteboards();
+});
+
+onUnmounted(() => clearSearch());
 </script>
 
 <template>
   <NuxtLayout name="default">
-    <template #main_content>
-      <div
-        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-1 flex-col"
-        :style="{ pointerEvents: isRestored ? 'auto' : 'none' }"
+    <template #page_title>
+      <h1
+        v-if="whiteboardStore.whiteboards.length > 0"
+        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
       >
-        <UContextMenu :items="drawvueRef?.contextMenuItems ?? []">
-          <DrawVue ref="drawvue">
-            <template #toolbar>
-              <DrawingToolbar />
-            </template>
+        Whiteboards
+      </h1>
+    </template>
 
-            <template
-              #bottom-bar="{
-                zoom,
-                canUndo,
-                canRedo,
-                zoomIn,
-                zoomOut,
-                zoomReset,
-                undo,
-                redo,
-              }"
-            >
-              <BottomBar
-                :zoom="zoom"
-                :can-undo="canUndo"
-                :can-redo="canRedo"
-                @zoom-in="zoomIn"
-                @zoom-out="zoomOut"
-                @zoom-reset="zoomReset"
-                @undo="undo"
-                @redo="redo"
-              />
-            </template>
+    <template #primary_cta>
+      <div
+        v-if="whiteboardStore.whiteboards.length !== 0"
+        class="hidden md:flex items-center justify-end"
+        @click="createWhiteboard"
+      >
+        <button
+          class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
+        >
+          <UIcon name="heroicons:plus" class="size-4" />
+          New Whiteboard
+        </button>
+      </div>
+      <RyderFab aria-label="New Whiteboard" @click="createWhiteboard" />
+    </template>
 
-            <template
-              #properties="{
-                selectedElements,
-                activeTool,
-                showToolProperties,
-                onWillChange,
-                onMarkDirty,
-              }"
-            >
-              <PropertiesPanel
-                v-if="selectedElements.length > 0 || showToolProperties"
-                :selected-elements="selectedElements"
-                :active-tool="activeTool"
-                @will-change="onWillChange"
-                @mark-dirty="onMarkDirty"
-              />
-            </template>
-            <CommandPalette />
-            <LinkEditor />
-            <EmbeddableOverlay />
-            <PersistenceProvider @restored="isRestored = true">
-              <DevInspector />
-            </PersistenceProvider>
-            <ImageActions />
-          </DrawVue>
-        </UContextMenu>
+    <template #main_content>
+      <!-- Loading skeletons -->
+      <div v-if="whiteboardStore.loading" class="flex flex-col gap-3">
+        <USkeleton v-for="i in 3" :key="i" class="h-24 rounded-lg" />
+      </div>
+
+      <RyderEmptyState
+        v-else-if="whiteboardStore.whiteboards.length === 0"
+        title="No whiteboards yet"
+        description="Create your first whiteboard to start drawing."
+        icon="i-lucide-pen-tool"
+        action-label="New whiteboard"
+        @action="createWhiteboard"
+      />
+
+      <RyderEmptyState
+        v-else-if="filteredWhiteboards.length === 0"
+        title="No results found"
+        description="Try a different search."
+        icon="heroicons:funnel"
+        action-label="Clear search"
+        @action="searchQuery = ''"
+      />
+
+      <!-- Whiteboard list -->
+      <div v-else class="flex flex-col gap-3">
+        <WhiteboardCard
+          v-for="whiteboard in filteredWhiteboards"
+          :key="whiteboard.identifier"
+          :whiteboard="whiteboard"
+          :search-query="searchQuery"
+        />
       </div>
     </template>
   </NuxtLayout>
