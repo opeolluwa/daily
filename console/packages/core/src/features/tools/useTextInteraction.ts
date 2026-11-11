@@ -203,9 +203,15 @@ export function useTextInteraction(options: UseTextInteractionOptions): UseTextI
     if (!editorContainer) return;
     editorContainer.append(textarea);
     activeTextarea = textarea;
-    textarea.focus();
 
-    if (element.text.length > 0) textarea.select();
+    // Defer focus to the next frame — focusing synchronously inside the
+    // pointerdown handler lets the browser's default mousedown focus step
+    // steal focus back, firing blur and discarding the empty text element.
+    requestAnimationFrame(() => {
+      if (activeTextarea !== textarea) return;
+      textarea.focus();
+      if (element.text.length > 0) textarea.select();
+    });
   }
 
   function handleStandaloneTextInput(

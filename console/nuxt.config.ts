@@ -57,6 +57,13 @@ export default defineNuxtConfig({
     "@opeolluwa/ryder",
   ],
 
+  eslint: {
+    config: {
+      // Ensure the TypeScript parser is wired up for .ts and <script lang="ts">.
+      typescript: true,
+    },
+  },
+
   ryder: {
     components: true,
     layouts: true,
