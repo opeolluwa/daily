@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NotificationType } from "lunar";
+import type { NotificationType } from "@daily/core";
 import type { Notification } from "@shared/stores/notifications";
 import { useTimeAgo } from "@vueuse/core";
 

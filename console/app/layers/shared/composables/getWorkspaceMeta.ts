@@ -1,5 +1,5 @@
 import { useWorkspacesStore } from "@shared/stores/workspaces";
-import type { RequestMeta } from "lunar";
+import type { RequestMeta } from "@daily/core";
 export async function getWorkspaceMeta(): Promise<RequestMeta> {
   const workspaceStore = useWorkspacesStore();
 

@@ -2,7 +2,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use axum_typed_multipart::TypedMultipart;
-use lunar::entities::users;
+use kernel::entities::users;
 use sea_orm::DatabaseConnection;
 use uuid::Uuid;
 

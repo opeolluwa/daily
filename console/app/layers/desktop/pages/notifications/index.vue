@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NotificationType } from "lunar";
+import type { NotificationType } from "@daily/core";
 
 definePageMeta({ layout: false });
 

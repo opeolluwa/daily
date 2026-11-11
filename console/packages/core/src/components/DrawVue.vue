@@ -307,7 +307,7 @@ function deactivateEmbeddable(): void {
 }
 
 // Theme (stays global)
-const { theme, toggleTheme } = useTheme();
+const { theme } = useTheme();
 
 // Tool keyboard shortcuts
 useKeyboardShortcuts(
@@ -770,14 +770,6 @@ register([
     kbds: ["meta", "shift", "["],
     handler: () => history.recordAction(() => applyLayerAction(layerOrder.sendToBack)),
     enabled: () => selectedElements.value.length > 0,
-  },
-  // Settings
-  {
-    id: "settings:toggle-theme",
-    label: "Toggle Theme",
-    icon: "i-lucide-sun-moon",
-    kbds: ["alt", "shift", "D"],
-    handler: toggleTheme,
   },
   // Styles
   {

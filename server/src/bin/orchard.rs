@@ -18,7 +18,7 @@ use axum_governor::{
     BodyPreset, GovernorConfigBuilder, GovernorLayer, Quota, extractor::PeerIp, nz,
 };
 use dotenv::dotenv;
-use lunar::{data_engine, error::LunarError};
+use kernel::{data_engine, error::KernelError};
 use orchard_lib::{
     config::{AppConfig, Environment},
     errors::app_error::AppError,
@@ -132,19 +132,19 @@ async fn main() -> Result<(), AppError> {
     };
 
 //db
-    let lunar = data_engine::DataEngine::new(&app_config.database_url).await?;
+    let engine = data_engine::DataEngine::new(&app_config.database_url).await?;
 
-    lunar
+    engine
         .run_migrations()
         .await
-        .map_err(|e| LunarError::DbConnectError(e.to_string()))?;
+        .map_err(|e| KernelError::DbConnectError(e.to_string()))?;
 
-    let db = lunar.connection().to_owned();
+    let db = engine.connection().to_owned();
     let db_conn = Arc::new(db.clone());
 
     Migrator::up(&db, None)
         .await
-        .map_err(|e| LunarError::DbConnectError(e.to_string()))?;
+        .map_err(|e| KernelError::DbConnectError(e.to_string()))?;
 
     let schema = orchard_lib::query_root::schema(db, Some(100), app_config.complexity_limit)
         .map_err(|err| AppError::GraphQLError(err.to_string()))?;

@@ -1,4 +1,4 @@
-import type { CreateWorkspace, UpdateWorkspace, Workspaces } from "lunar";
+import type { CreateWorkspace, UpdateWorkspace, Workspaces } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "@shared/utils/invoke";
 import { useNoteStore } from "./notes";

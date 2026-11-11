@@ -3,7 +3,7 @@ use serde::Serialize;
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     #[error("{0}")]
-    Kernel(#[from] lunar::error::LunarError),
+    Kernel(#[from] kernel::error::KernelError),
     #[error("IO error: {0}")]
     Io(String),
 }

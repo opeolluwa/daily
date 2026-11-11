@@ -1,5 +1,5 @@
 use async_graphql::dynamic::*;
-use lunar::entities::{register_active_enums, register_entity_modules};
+use kernel::entities::{register_active_enums, register_entity_modules};
 use sea_orm::DatabaseConnection;
 use seaography::{
     async_graphql, lazy_static::lazy_static, Builder, BuilderContext, DecimalLibrary, TimeLibrary,

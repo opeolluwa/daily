@@ -7,7 +7,7 @@
 
 # Allow the two crates
 !server/**
-!lunar/**
+!core/**
 
 # Allow the console web app (docker/prod/Dockerfile.web)
 !console/**
@@ -16,8 +16,8 @@
 server/target
 server/migration/target
 **/target
-lunar/node_modules
-lunar/dist
+core/node_modules
+core/dist
 
 # Tauri desktop app (not used by any Docker build)
 console/src-tauri
@@ -31,10 +31,10 @@ console/.data
 console/.cache
 console/dist
 console/src-tauri/target
-console/app/assets/lunar
+console/app/assets/core
 
-# lunar wasm bundle (not consumed by the web build)
-lunar/pkg
+# core wasm bundle (not consumed by the web build)
+core/pkg
 
 # Optional common ignores
 **/*.db

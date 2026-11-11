@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BookmarkInterface } from "lunar";
+import type { BookmarkInterface } from "@daily/core";
 import { safeOpenUrl as openUrl } from "@shared/utils/safe-open-url";
 
 defineProps<{

@@ -67,6 +67,17 @@
   --color-primary: var(--color-primary-500);
   --font-ios: "Lato", sans-serif;
   --font-material: "Lato", sans-serif;
+
+  --color-base: var(--ui-bg);
+  --color-surface: var(--ui-bg-elevated);
+  --color-foreground: var(--ui-text);
+  --color-accent: var(--color-primary-500);
+  --color-subdued: var(--ui-bg-accented);
+  --color-edge: var(--ui-border-accented);
+}
+
+.dark {
+  --color-accent: var(--color-primary-400);
 }
 
 html {

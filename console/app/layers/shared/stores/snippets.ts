@@ -1,4 +1,4 @@
-import type { CreateSnippet, Snippets, UpdateSnippet } from "lunar";
+import type { CreateSnippet, Snippets, UpdateSnippet } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 

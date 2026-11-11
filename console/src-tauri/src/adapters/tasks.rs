@@ -1,5 +1,5 @@
-use lunar::adapters::meta::RequestMeta;
-use lunar::entities::sea_orm_active_enums::Priority as TaskPriority;
+use kernel::adapters::meta::RequestMeta;
+use kernel::entities::sea_orm_active_enums::Priority as TaskPriority;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -12,7 +12,7 @@ pub struct CreateTask {
     pub meta: Option<RequestMeta>,
 }
 
-impl From<CreateTask> for lunar::adapters::tasks::CreateTask {
+impl From<CreateTask> for kernel::adapters::tasks::CreateTask {
     fn from(t: CreateTask) -> Self {
         use chrono::NaiveDate;
 
@@ -44,7 +44,7 @@ pub struct UpdateTask {
     pub status: Option<String>,
 }
 
-impl From<UpdateTask> for lunar::adapters::tasks::UpdateTask {
+impl From<UpdateTask> for kernel::adapters::tasks::UpdateTask {
     fn from(t: UpdateTask) -> Self {
         Self {
             title: t.title,

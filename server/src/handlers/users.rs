@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use axum::extract::State;
 use axum_typed_multipart::TypedMultipart;
-use lunar::entities::users;
+use kernel::entities::users;
 
 use crate::services::user_service::UserServiceTrait;
 use crate::{

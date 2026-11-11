@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::{meta::RequestMeta, notifications::CreateNotification},
     entities::notifications,
     entities::sea_orm_active_enums::NotificationType,

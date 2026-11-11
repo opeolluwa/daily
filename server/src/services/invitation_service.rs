@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Local;
-use lunar::{
+use kernel::{
     entities::workspaces,
     repositories::workspace::{WorkspaceRepository, WorkspaceRepositoryExt},
 };
@@ -203,6 +203,6 @@ impl InvitationService {
         WorkspaceRepository::new(self.db_conn.clone())
             .get_workspace_by_id(identifier)
             .await
-            .map_err(AppError::LunarError)
+            .map_err(AppError::KernelError)
     }
 }

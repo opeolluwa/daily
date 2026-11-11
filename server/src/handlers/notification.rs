@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::extract::{Path, Query, State};
-use lunar::entities::notifications;
+use kernel::entities::notifications;
 use uuid::Uuid;
 
 use crate::{

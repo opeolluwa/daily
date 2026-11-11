@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTemplateRef } from "vue";
 import { makeSortableList } from "@vue-dnd-kit/core";
-import type { TaskStatus } from "lunar";
+import type { TaskStatus } from "@daily/core";
 import Card from "./Card.vue";
 import type { Task } from "@shared/stores/tasks";
 

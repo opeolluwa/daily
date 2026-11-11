@@ -1,30 +1,15 @@
-import { computed, watchEffect, type Ref } from "vue";
-import { createGlobalState, useLocalStorage } from "@vueuse/core";
-import { useKeyboardShortcuts } from "../../shared/useKeyboardShortcuts";
+import { computed, ref, type Ref } from "vue";
+import { createGlobalState } from "@vueuse/core";
 import { THEME } from "./types";
 import type { Theme } from "./types";
 
+/**
+ * In-memory theme mirror for the canvas renderer. The host app owns the
+ * actual light/dark mode and keeps `theme` in sync from outside.
+ */
 export const useTheme = createGlobalState(() => {
-  const theme: Ref<Theme> = useLocalStorage<Theme>("excalidraw-theme", THEME.LIGHT);
+  const theme: Ref<Theme> = ref(THEME.LIGHT);
   const isDark = computed(() => theme.value === THEME.DARK);
 
-  function toggleTheme(): void {
-    theme.value = theme.value === THEME.LIGHT ? THEME.DARK : THEME.LIGHT;
-  }
-
-  useKeyboardShortcuts({
-    alt_shift_d: () => toggleTheme(),
-  });
-
-  if (typeof document !== "undefined") {
-    watchEffect(() => {
-      document.documentElement.classList.toggle("dark", theme.value === THEME.DARK);
-    });
-  }
-
-  function $reset(): void {
-    theme.value = THEME.LIGHT;
-  }
-
-  return { theme, isDark, toggleTheme, $reset };
+  return { theme, isDark };
 });

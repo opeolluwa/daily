@@ -1,1 +1,1 @@
-cp "$HOME/Library/Application Support/com.opeolluwa.lunar/almonds.db" ./lunar.db
+cp "$HOME/Library/Application Support/com.opeolluwa.daily/almonds.db" ./core.db

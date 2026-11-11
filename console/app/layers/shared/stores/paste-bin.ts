@@ -1,4 +1,4 @@
-import type { CreatePasteBin, PasteBins, UpdatePasteBin } from "lunar";
+import type { CreatePasteBin, PasteBins, UpdatePasteBin } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 

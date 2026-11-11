@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * Regenerates the TypeScript export surface for the lunar package:
+ * Regenerates the TypeScript export surface for the core package:
  *
- * 1. lunar/index.ts           — re-exports entity interfaces (under their short
+ * 1. core/index.ts           — re-exports entity interfaces (under their short
  *                               table names), per-enum types and JsonValue.
- * 2. lunar/bindings/index.ts  — barrel re-exporting every binding type.
- * 3. lunar/package.json       — exports map for "./bindings", "./pkg" and
+ * 2. core/bindings/index.ts  — barrel re-exporting every binding type.
+ * 3. core/package.json       — exports map for "./bindings", "./pkg" and
  *                               "./pkg/*", plus the "pkg" entry in "files".
  *
  * Type-to-file mapping is derived deterministically from the Rust sources so the
  * generated files stay correct regardless of when cargo rebuilds the bindings.
  *
- * Usage (from inside lunar/):
+ * Usage (from inside core/):
  *     node ../scripts/fix-ts-exports.mjs [entities_dir]
  *
  * entities_dir defaults to src/entities.
@@ -198,7 +198,7 @@ function updatePackageJson() {
     ".": { types: "./index.ts" },
     "./index": { types: "./index.ts" },
     "./bindings": { types: "./bindings/index.ts" },
-    "./pkg": "./pkg/lunar.js",
+    "./pkg": "./pkg/kernel.js",
     "./pkg/*": "./pkg/*",
   };
 

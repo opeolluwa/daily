@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::extract::{Path, State};
-use lunar::entities::country;
+use kernel::entities::country;
 
 use crate::{
     adapters::country::FetchCountriesResponse, errors::service_error::ServiceError,

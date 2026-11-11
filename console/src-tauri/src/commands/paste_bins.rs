@@ -1,4 +1,4 @@
-use lunar::{
+use kernel::{
     adapters::meta::RequestMeta,
     entities::paste_bins,
     repositories::paste_bins::PasteBinRepositoryExt,

@@ -26,7 +26,7 @@ type ClipboardActionId = "clipboard:copy" | "clipboard:cut" | "clipboard:paste";
 
 type StyleActionId = "style:copy-styles" | "style:paste-styles";
 
-type SettingsActionId = "settings:toggle-theme" | "settings:toggle-grid";
+type SettingsActionId = "settings:toggle-grid";
 
 type FlipActionId = "flip:horizontal" | "flip:vertical";
 

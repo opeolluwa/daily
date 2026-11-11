@@ -1,4 +1,4 @@
-use lunar::entities::country;
+use kernel::entities::country;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use lunar::entities::notifications;
+use kernel::entities::notifications;
 use sea_orm::DatabaseConnection;
 use uuid::Uuid;
 

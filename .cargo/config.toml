@@ -1,6 +1,6 @@
 [env]
-TS_RS_EXPORT_DIR = { value = "lunar/bindings", relative = true }
+TS_RS_EXPORT_DIR = { value = "core/bindings", relative = true }
 TS_RS_LARGE_INT = "number"
 
 
-# ls "$HOME/Library/Application Support/com.opeolluwa.lunar/"
+# ls "$HOME/Library/Application Support/com.opeolluwa.daily/"

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use lunar::entities::{country, country::Column, prelude::Country};
+use kernel::entities::{country, country::Column, prelude::Country};
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
 use crate::errors::database_error::DatabaseError;

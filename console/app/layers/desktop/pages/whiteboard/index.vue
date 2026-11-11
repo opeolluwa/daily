@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from "vue";
-import { DrawVue } from "@drawvue/core";
+import { ref, useTemplateRef, watch } from "vue";
+import { DrawVue, useTheme, THEME } from "@drawvue/core";
 import CommandPalette from "@features/command-palette/CommandPalette.vue";
 import LinkEditor from "@features/link/components/LinkEditor.vue";
 import DevInspector from "@features/dev-inspector/DevInspector.vue";
@@ -14,6 +14,18 @@ import BottomBar from "@features/canvas/components/BottomBar.vue";
 const drawvueRef = useTemplateRef<InstanceType<typeof DrawVue>>("drawvue");
 const isRestored = ref(false);
 definePageMeta({ layout: false });
+
+// The app's color mode owns light/dark; mirror it into the whiteboard.
+const colorMode = useColorMode();
+const { theme } = useTheme();
+
+watch(
+  () => colorMode.value,
+  (mode) => {
+    theme.value = mode === "dark" ? THEME.DARK : THEME.LIGHT;
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
