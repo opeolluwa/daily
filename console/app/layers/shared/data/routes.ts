@@ -62,6 +62,12 @@ export const toolRoutes: Route[] = [
     activeIcon: "ri:layout-grid-fill",
   },
   {
+    path: "/whiteboard",
+    name: "Whiteboard",
+    icon: "lucide:line-squiggle",
+    activeIcon: "lucide:line-squiggle",
+  },
+  {
     path: "/paste-bin",
     name: "Paste Bin",
     icon: "ri:clipboard-line",
