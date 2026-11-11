@@ -30,7 +30,10 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <NuxtLayout name="default">
+  <NuxtLayout
+    name="default"
+    :show-primary-cta="whiteboardStore.whiteboards.length > 0"
+  >
     <template #page_title>
       <h1
         v-if="whiteboardStore.whiteboards.length > 0"
@@ -62,23 +65,33 @@ onUnmounted(() => clearSearch());
         <USkeleton v-for="i in 3" :key="i" class="h-24 rounded-lg" />
       </div>
 
-      <RyderEmptyState
+      <div
         v-else-if="whiteboardStore.whiteboards.length === 0"
-        title="No whiteboards yet"
-        description="Create your first whiteboard to start drawing."
-        icon="i-lucide-pen-tool"
-        action-label="New whiteboard"
-        @action="createWhiteboard"
-      />
+        class="-mt-5 flex min-h-0 flex-1 items-center justify-center"
+      >
+        <RyderEmptyState
+          title="No whiteboards yet"
+          description="Create your first whiteboard to start drawing."
+          icon="i-lucide-pen-tool"
+          action-label="New whiteboard"
+          :ui="{ root: '!h-auto' }"
+          @action="createWhiteboard"
+        />
+      </div>
 
-      <RyderEmptyState
+      <div
         v-else-if="filteredWhiteboards.length === 0"
-        title="No results found"
-        description="Try a different search."
-        icon="heroicons:funnel"
-        action-label="Clear search"
-        @action="searchQuery = ''"
-      />
+        class="-mt-5 flex min-h-0 flex-1 items-center justify-center"
+      >
+        <RyderEmptyState
+          title="No results found"
+          description="Try a different search."
+          icon="heroicons:funnel"
+          action-label="Clear search"
+          :ui="{ root: '!h-auto' }"
+          @action="searchQuery = ''"
+        />
+      </div>
 
       <!-- Whiteboard list -->
       <div v-else class="flex flex-col gap-3">

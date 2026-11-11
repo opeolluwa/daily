@@ -96,6 +96,7 @@
     "eslint-plugin-better-tailwindcss": "^4.10.0",
     "eslint-plugin-prettier": "^5.5.7",
     "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
     "vue-eslint-parser": "^10.4.1"
   },
   "overrides": {

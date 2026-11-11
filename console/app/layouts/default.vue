@@ -4,9 +4,13 @@ import { useWorkspacesStore } from "~/stores/workspaces";
 const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
-withDefaults(defineProps<{ showSideContent?: boolean }>(), {
-  showSideContent: true,
-});
+withDefaults(
+  defineProps<{ showSideContent?: boolean; showPrimaryCta?: boolean }>(),
+  {
+    showSideContent: true,
+    showPrimaryCta: true,
+  },
+);
 const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
 </script>
@@ -33,7 +37,9 @@ const { mobileNavOpen } = useMobileNav();
 
           <div
             v-if="
-              !workspaceStore.isCurrentWorkspaceLocked && $slots.primary_cta
+              showPrimaryCta &&
+              !workspaceStore.isCurrentWorkspaceLocked &&
+              $slots.primary_cta
             "
             class="hidden md:flex items-center justify-end mt-5 my-6"
           >
@@ -89,7 +95,6 @@ const { mobileNavOpen } = useMobileNav();
           v-if="$slots.side_content && showSideContent"
           class="hidden md:flex flex-col w-72 shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
         >
-
           <div class="flex-1 overflow-y-scroll scrollbar-config p-4">
             <slot
               v-if="!workspaceStore.isCurrentWorkspaceLocked"
