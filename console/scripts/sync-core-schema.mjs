@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const consoleDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sourceDir = resolve(consoleDir, "../core/generated/pglite/migrations");
-const destDir = resolve(consoleDir, "app/layers/shared/data/core/migrations");
+const destDir = resolve(consoleDir, "app/data/core/migrations");
 const manifestPath = resolve(consoleDir, "../core/migration/Cargo.toml");
 
 const hasSqlFiles = () => {
@@ -63,5 +63,5 @@ for (const file of files) {
 }
 
 console.log(
-  `[core] synced ${files.length} migration files → app/layers/shared/data/core/migrations`,
+  `[core] synced ${files.length} migration files → app/data/core/migrations`,
 );

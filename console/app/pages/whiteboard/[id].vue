@@ -1,0 +1,100 @@
+<script setup lang="ts">
+import { ref, useTemplateRef, watch } from "vue";
+import { DrawVue, useTheme, THEME } from "@drawvue/core";
+import CommandPalette from "~/features/command-palette/CommandPalette.vue";
+import LinkEditor from "~/features/link/components/LinkEditor.vue";
+import DevInspector from "~/features/dev-inspector/DevInspector.vue";
+import ImageActions from "~/features/image/ImageActions.vue";
+import EmbeddableOverlay from "~/features/embeddable/EmbeddableOverlay.vue";
+import PersistenceProvider from "~/features/persistence/PersistenceProvider.vue";
+import DrawingToolbar from "~/features/tools/components/DrawingToolbar.vue";
+import PropertiesPanel from "~/features/properties/components/PropertiesPanel.vue";
+import BottomBar from "~/features/canvas/components/BottomBar.vue";
+
+const route = useRoute();
+const drawvueRef = useTemplateRef<InstanceType<typeof DrawVue>>("drawvue");
+const isRestored = ref(false);
+definePageMeta({ layout: false });
+
+const whiteboardId = computed(() => String(route.params.id));
+
+// The app's color mode owns light/dark; mirror it into the whiteboard.
+const colorMode = useColorMode();
+const { theme } = useTheme();
+
+watch(
+  () => colorMode.value,
+  (mode) => {
+    theme.value = mode === "dark" ? THEME.DARK : THEME.LIGHT;
+  },
+  { immediate: true },
+);
+</script>
+
+<template>
+  <NuxtLayout name="default">
+    <template #main_content>
+      <div
+        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-1 flex-col"
+        :style="{ pointerEvents: isRestored ? 'auto' : 'none' }"
+      >
+        <UContextMenu :items="drawvueRef?.contextMenuItems ?? []">
+          <DrawVue ref="drawvue">
+            <template #toolbar>
+              <DrawingToolbar />
+            </template>
+
+            <template
+              #bottom-bar="{
+                zoom,
+                canUndo,
+                canRedo,
+                zoomIn,
+                zoomOut,
+                zoomReset,
+                undo,
+                redo,
+              }"
+            >
+              <BottomBar
+                :zoom="zoom"
+                :can-undo="canUndo"
+                :can-redo="canRedo"
+                @zoom-in="zoomIn"
+                @zoom-out="zoomOut"
+                @zoom-reset="zoomReset"
+                @undo="undo"
+                @redo="redo"
+              />
+            </template>
+
+            <template
+              #properties="{
+                selectedElements,
+                activeTool,
+                showToolProperties,
+                onWillChange,
+                onMarkDirty,
+              }"
+            >
+              <PropertiesPanel
+                v-if="selectedElements.length > 0 || showToolProperties"
+                :selected-elements="selectedElements"
+                :active-tool="activeTool"
+                @will-change="onWillChange"
+                @mark-dirty="onMarkDirty"
+              />
+            </template>
+            <CommandPalette />
+            <LinkEditor />
+            <EmbeddableOverlay />
+            <PersistenceProvider :whiteboard-id="whiteboardId" @restored="isRestored = true">
+              <DevInspector />
+            </PersistenceProvider>
+            <ImageActions />
+          </DrawVue>
+        </UContextMenu>
+      </div>
+    </template>
+  </NuxtLayout>
+</template>
