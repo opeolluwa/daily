@@ -26,6 +26,7 @@ import type {
   StoreMetadata,
   UsePersistenceReturn,
 } from "./types";
+import { CURRENT_SCHEMA_VERSION } from "./types";
 
 export function usePersistence(
   whiteboardId: MaybeRefOrGetter<string>,
