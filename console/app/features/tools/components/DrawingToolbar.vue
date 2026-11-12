@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useToolStore } from "@drawvue/core";
 import { TOOL_ICONS } from "./toolIcons";
-import { sanitizeSvg } from "~/composables/useSanitize";
+
 import type { ToolType } from "@drawvue/core";
 
 const { activeTool, setTool } = useToolStore();
@@ -64,12 +64,18 @@ const tools: Array<{
           "
           @click="setTool(tool.type)"
         >
+          <UIcon
+            v-if="TOOL_ICONS[tool.type].name"
+            :name="TOOL_ICONS[tool.type].name!"
+            class="h-5 w-5"
+          />
           <!-- eslint-disable vue/no-v-html -->
           <svg
+            v-else
             aria-hidden="true"
             class="h-5 w-5"
             :viewBox="TOOL_ICONS[tool.type].viewBox"
-            v-html="sanitizeSvg(TOOL_ICONS[tool.type].paths)"
+            v-html="TOOL_ICONS[tool.type].paths"
           />
           <!-- eslint-enable vue/no-v-html -->
           <span

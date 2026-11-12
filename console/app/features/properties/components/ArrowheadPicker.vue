@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Arrowhead } from "@drawvue/core";
-import { sanitizeSvg } from "~/composables/useSanitize";
+
 
 const { modelValue, label } = defineProps<{
   modelValue: Arrowhead | null | "mixed";
@@ -120,7 +120,7 @@ function isActive(optionValue: Arrowhead | null): boolean {
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            v-html="sanitizeSvg(option.icon)"
+            v-html="option.icon"
           />
           <!-- eslint-enable vue/no-v-html -->
         </UTooltip>

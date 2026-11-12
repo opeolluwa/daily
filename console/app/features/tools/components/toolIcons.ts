@@ -3,6 +3,7 @@ import type { ToolType } from "@drawvue/core";
 interface ToolIconDef {
   viewBox: string;
   paths: string;
+  name?: string;
 }
 
 export const TOOL_ICONS: Record<ToolType, ToolIconDef> = {
@@ -61,32 +62,22 @@ export const TOOL_ICONS: Record<ToolType, ToolIconDef> = {
   },
   code: {
     viewBox: "0 0 24 24",
-    paths: `<g stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="16,18 22,12 16,6"/>
-      <polyline points="8,6 2,12 8,18"/>
-    </g>`,
+    paths: "",
+    name: "lucide:code",
   },
   freedraw: {
     viewBox: "0 0 24 24",
-    paths: `<g stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-      <path d="m15 5 4 4"/>
-    </g>`,
+    paths: "",
+    name: "lucide:pencil",
   },
   image: {
     viewBox: "0 0 24 24",
-    paths: `<g stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21,15 16,10 5,21"/>
-    </g>`,
+    paths: "",
+    name: "lucide:image",
   },
   eraser: {
     viewBox: "0 0 24 24",
-    paths: `<g stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
-      <path d="M22 21H7"/>
-      <path d="m5 11 9 9"/>
-    </g>`,
+    paths: "",
+    name: "lucide:eraser",
   },
 };
