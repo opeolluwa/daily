@@ -12,7 +12,7 @@ pub use super::recycle_bin::Entity as RecycleBin;
 pub use super::reminder::Entity as Reminder;
 pub use super::revoked_token::Entity as RevokedToken;
 pub use super::snippets::Entity as Snippets;
-pub use super::todo::Entity as Todo;
+pub use super::task::Entity as Task;
 pub use super::user_preferences::Entity as UserPreferences;
 pub use super::users::Entity as Users;
 pub use super::whiteboard_files::Entity as WhiteboardFiles;

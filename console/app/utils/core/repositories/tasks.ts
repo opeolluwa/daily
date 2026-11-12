@@ -20,7 +20,7 @@ export class TaskRepository extends BaseRepository {
     const m = this.requireMeta(meta);
     const now = this.now();
     return this.mustRow<Task>(
-      `INSERT INTO todo
+      `INSERT INTO task
          (identifier, title, description, due_date, priority, done, created_at, updated_at, workspace_identifier)
        VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)
        RETURNING *`,
@@ -43,7 +43,7 @@ export class TaskRepository extends BaseRepository {
   ): Promise<Task | null> {
     const m = this.requireMeta(meta);
     return this.row<Task>(
-      `SELECT * FROM todo WHERE identifier = $1 AND workspace_identifier = $2`,
+      `SELECT * FROM task WHERE identifier = $1 AND workspace_identifier = $2`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -51,7 +51,7 @@ export class TaskRepository extends BaseRepository {
   async find_all(meta?: RequestMeta): Promise<Task[]> {
     const m = this.requireMeta(meta);
     return this.rows<Task>(
-      `SELECT * FROM todo WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM task WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
       [m.workspaceIdentifier],
     );
   }
@@ -63,7 +63,7 @@ export class TaskRepository extends BaseRepository {
   ): Promise<Task> {
     const m = this.requireMeta(meta);
     const row = await this.row<Task>(
-      `UPDATE todo SET priority = $2, updated_at = $3
+      `UPDATE task SET priority = $2, updated_at = $3
        WHERE identifier = $1 AND workspace_identifier = $4
        RETURNING *`,
       [identifier, priority, this.now(), m.workspaceIdentifier],
@@ -79,7 +79,7 @@ export class TaskRepository extends BaseRepository {
   ): Promise<Task> {
     const m = this.requireMeta(meta);
     const row = await this.row<Task>(
-      `UPDATE todo SET done = $2, updated_at = $3
+      `UPDATE task SET done = $2, updated_at = $3
        WHERE identifier = $1 AND workspace_identifier = $4
        RETURNING *`,
       [identifier, done, this.now(), m.workspaceIdentifier],
@@ -95,7 +95,7 @@ export class TaskRepository extends BaseRepository {
   ): Promise<Task> {
     const m = this.requireMeta(meta);
     const row = await this.row<Task>(
-      `UPDATE todo SET due_date = $2, updated_at = $3
+      `UPDATE task SET due_date = $2, updated_at = $3
        WHERE identifier = $1 AND workspace_identifier = $4
        RETURNING *`,
       [identifier, due_date, this.now(), m.workspaceIdentifier],
@@ -123,12 +123,12 @@ export class TaskRepository extends BaseRepository {
       params.push(payload.description);
     }
     if (payload.status !== undefined && payload.status !== null) {
-      sets.push(`status = $${idx++}::todo_status`);
+      sets.push(`status = $${idx++}::task_status`);
       params.push(payload.status);
     }
 
     const row = await this.row<Task>(
-      `UPDATE todo SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE task SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );
@@ -144,7 +144,7 @@ export class TaskRepository extends BaseRepository {
     await this.run(
       `INSERT INTO recycle_bin
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
-       VALUES ($1, $2, 'todo', $3, $4, $5)`,
+       VALUES ($1, $2, 'task', $3, $4, $5)`,
       [
         this.newUuid(),
         identifier,
@@ -155,7 +155,7 @@ export class TaskRepository extends BaseRepository {
     );
 
     await this.run(
-      `DELETE FROM todo WHERE identifier = $1 AND workspace_identifier = $2`,
+      `DELETE FROM task WHERE identifier = $1 AND workspace_identifier = $2`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -166,7 +166,7 @@ export class TaskRepository extends BaseRepository {
     target_workspace_identifier: string,
   ): Promise<void> {
     await this.transferWorkspaceRecord(
-      "todo",
+      "task",
       record_identifier,
       previous_workspace_identifier,
       target_workspace_identifier,
@@ -179,7 +179,7 @@ export class TaskRepository extends BaseRepository {
     target_workspace_identifier: string,
   ): Promise<void> {
     await this.duplicateWorkspaceRecord(
-      "todo",
+      "task",
       record_identifier,
       previous_workspace_identifier,
       target_workspace_identifier,
@@ -192,7 +192,7 @@ export class TaskRepository extends BaseRepository {
     workspace_identifier: string,
   ): Promise<boolean> {
     return this.recordExistsInWorkspace(
-      "todo",
+      "task",
       record_identifier,
       workspace_identifier,
     );

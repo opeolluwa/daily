@@ -1,7 +1,7 @@
 use kernel::{
     adapters::meta::RequestMeta,
     entities::sea_orm_active_enums::Priority as TaskPriority,
-    entities::todo,
+    entities::task,
     repositories::tasks::TaskRepositoryExt,
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
@@ -19,7 +19,7 @@ pub async fn create_task(
     state: State<'_, AppState>,
     task: CreateTask,
     meta: Option<RequestMeta>,
-) -> Result<todo::Model, AppError> {
+) -> Result<task::Model, AppError> {
     let model = state
         .task_repository
         .create_task(&task.into(), &meta)
@@ -33,7 +33,7 @@ pub async fn get_task(
     state: State<'_, AppState>,
     identifier: Uuid,
     meta: Option<RequestMeta>,
-) -> Result<Option<todo::Model>, AppError> {
+) -> Result<Option<task::Model>, AppError> {
     state
         .task_repository
         .find_by_id(&identifier, &meta)
@@ -45,7 +45,7 @@ pub async fn get_task(
 pub async fn get_all_tasks(
     state: State<'_, AppState>,
     meta: Option<RequestMeta>,
-) -> Result<Vec<todo::Model>, AppError> {
+) -> Result<Vec<task::Model>, AppError> {
     state
         .task_repository
         .find_all(&meta)
@@ -59,7 +59,7 @@ pub async fn update_task(
     identifier: Uuid,
     task: UpdateTask,
     meta: Option<RequestMeta>,
-) -> Result<todo::Model, AppError> {
+) -> Result<task::Model, AppError> {
     let model = state
         .task_repository
         .update(&identifier, &task.into(), &meta)
@@ -88,7 +88,7 @@ pub async fn mark_task_done(
     identifier: Uuid,
     done: bool,
     meta: Option<RequestMeta>,
-) -> Result<todo::Model, AppError> {
+) -> Result<task::Model, AppError> {
     let model = state
         .task_repository
         .mark_done(&identifier, done, &meta)
@@ -103,7 +103,7 @@ pub async fn change_task_priority(
     identifier: Uuid,
     priority: String,
     meta: Option<RequestMeta>,
-) -> Result<todo::Model, AppError> {
+) -> Result<task::Model, AppError> {
     let priority = match priority.as_str() {
         "high" => TaskPriority::High,
         "low" => TaskPriority::Low,
@@ -123,7 +123,7 @@ pub async fn update_task_due_date(
     identifier: Uuid,
     due_date: Option<String>,
     meta: Option<RequestMeta>,
-) -> Result<todo::Model, AppError> {
+) -> Result<task::Model, AppError> {
     use chrono::NaiveDate;
 
     let date = due_date

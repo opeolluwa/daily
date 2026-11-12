@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 #[ts(export)]
 #[serde(rename_all = "snake_case")]
 pub enum ItemType {
-    #[sea_orm(string_value = "todo")]
-    Todo,
+    #[sea_orm(string_value = "task")]
+    Task,
     #[sea_orm(string_value = "note")]
     Note,
     #[sea_orm(string_value = "reminder")]
@@ -88,10 +88,10 @@ pub enum Tag {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ts_rs :: TS,
 )]
-#[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "todo_status")]
+#[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "task_status")]
 #[ts(export)]
 #[serde(rename_all = "snake_case")]
-pub enum TodoStatus {
+pub enum TaskStatus {
     #[sea_orm(string_value = "planned")]
     Planned,
     #[sea_orm(string_value = "in_progress")]

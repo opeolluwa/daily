@@ -1,5 +1,5 @@
 use kernel::entities;
-use kernel::entities::sea_orm_active_enums::Priority;
+use kernel::entities::sea_orm_active_enums::{Priority, TaskStatus};
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
@@ -21,11 +21,11 @@ pub struct SyncTodoInput {
     pub workspace_identifier: Option<Uuid>,
 }
 
-impl TryFrom<SyncTodoInput> for entities::todo::Model {
+impl TryFrom<SyncTodoInput> for entities::task::Model {
     type Error = async_graphql::Error;
 
     fn try_from(val: SyncTodoInput) -> Result<Self, Self::Error> {
-        Ok(entities::todo::Model {
+        Ok(entities::task::Model {
             identifier: val.identifier,
             title: val.title,
             description: val.description,
@@ -54,6 +54,7 @@ impl TryFrom<SyncTodoInput> for entities::todo::Model {
                 })
                 .transpose()?,
             workspace_identifier: val.workspace_identifier,
+            status: TaskStatus::Planned,
         })
     }
 }

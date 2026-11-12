@@ -152,12 +152,12 @@ const sections = computed(() => {
     .slice(0, 4)
     .map<SearchResult>((t) => ({
       id: t.identifier,
-      type: "todo",
+      type: "task",
       title: t.title,
       sub: t.priority,
       href: `/tasks?id=${t.identifier}`,
     }));
-  if (tasks.length) out.push({ label: "Tasks", type: "todo", items: tasks });
+  if (tasks.length) out.push({ label: "Tasks", type: "task", items: tasks });
 
   const reminders = reminderStore.reminders
     .filter(

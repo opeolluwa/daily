@@ -20,7 +20,7 @@ use crate::{
         recycle_bin::CreateRecycleBinEntry,
         tasks::{CreateTask, UpdateTask},
     },
-    entities::{recycle_bin, todo},
+    entities::{recycle_bin, task},
     error::KernelError,
     repositories::{
         prelude::WorkspaceRepositoryExt,
@@ -59,22 +59,22 @@ pub trait TaskRepositoryExt {
         &self,
         payload: &CreateTask,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError>;
+    ) -> Result<task::Model, KernelError>;
 
     async fn find_by_id(
         &self,
         identifier: &Uuid,
         meta: &Option<RequestMeta>,
-    ) -> Result<Option<todo::Model>, KernelError>;
+    ) -> Result<Option<task::Model>, KernelError>;
 
-    async fn find_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<todo::Model>, KernelError>;
+    async fn find_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<task::Model>, KernelError>;
 
     async fn update(
         &self,
         identifier: &Uuid,
         payload: &UpdateTask,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError>;
+    ) -> Result<task::Model, KernelError>;
 
     async fn delete(
         &self,
@@ -87,25 +87,25 @@ pub trait TaskRepositoryExt {
         identifier: &Uuid,
         priority: &Priority,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError>;
+    ) -> Result<task::Model, KernelError>;
 
     async fn update_due_date(
         &self,
         identifier: &Uuid,
         due_date: Option<Date>,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError>;
+    ) -> Result<task::Model, KernelError>;
 
     async fn mark_done(
         &self,
         identifier: &Uuid,
         done: bool,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError>;
+    ) -> Result<task::Model, KernelError>;
 
     async fn upsert_many(
         &self,
-        models: Vec<todo::Model>,
+        models: Vec<task::Model>,
     ) -> Result<Vec<EntitySyncResult>, KernelError>;
 }
 
@@ -122,8 +122,8 @@ impl TaskRepositoryExt for TaskRepository {
         &self,
         payload: &CreateTask,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError> {
-        let mut active_model: todo::ActiveModel = payload.to_owned().into();
+    ) -> Result<task::Model, KernelError> {
+        let mut active_model: task::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
             active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
@@ -142,22 +142,22 @@ impl TaskRepositoryExt for TaskRepository {
         &self,
         identifier: &Uuid,
         meta: &Option<RequestMeta>,
-    ) -> Result<Option<todo::Model>, KernelError> {
+    ) -> Result<Option<task::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        todo::Entity::find()
-            .filter(todo::Column::Identifier.eq(*identifier))
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+        task::Entity::find()
+            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
     }
 
-    async fn find_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<todo::Model>, KernelError> {
+    async fn find_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<task::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        todo::Entity::find()
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+        task::Entity::find()
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -168,12 +168,12 @@ impl TaskRepositoryExt for TaskRepository {
         identifier: &Uuid,
         payload: &UpdateTask,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError> {
+    ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let model = todo::Entity::find()
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
-            .filter(todo::Column::Identifier.eq(*identifier))
+        let model = task::Entity::find()
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -207,9 +207,9 @@ impl TaskRepositoryExt for TaskRepository {
     ) -> Result<recycle_bin::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let model = todo::Entity::find()
-            .filter(todo::Column::Identifier.eq(*identifier))
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+        let model = task::Entity::find()
+            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -222,7 +222,7 @@ impl TaskRepositoryExt for TaskRepository {
             .store(
                 &CreateRecycleBinEntry {
                     item_id: model.identifier,
-                    item_type: ItemType::Todo,
+                    item_type: ItemType::Task,
                     workspace_identifier: model.workspace_identifier,
                     payload,
                 },
@@ -230,8 +230,8 @@ impl TaskRepositoryExt for TaskRepository {
             )
             .await?;
 
-        todo::Entity::delete_many()
-            .filter(todo::Column::Identifier.eq(*identifier))
+        task::Entity::delete_many()
+            .filter(task::Column::Identifier.eq(*identifier))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -243,12 +243,12 @@ impl TaskRepositoryExt for TaskRepository {
         identifier: &Uuid,
         priority: &Priority,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError> {
+    ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let model = todo::Entity::find()
-            .filter(todo::Column::Identifier.eq(*identifier))
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+        let model = task::Entity::find()
+            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -269,12 +269,12 @@ impl TaskRepositoryExt for TaskRepository {
         identifier: &Uuid,
         due_date: Option<Date>,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError> {
+    ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let model = todo::Entity::find()
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
-            .filter(todo::Column::Identifier.eq(*identifier))
+        let model = task::Entity::find()
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -295,12 +295,12 @@ impl TaskRepositoryExt for TaskRepository {
         identifier: &Uuid,
         done: bool,
         meta: &Option<RequestMeta>,
-    ) -> Result<todo::Model, KernelError> {
+    ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let model = todo::Entity::find()
-            .filter(todo::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
-            .filter(todo::Column::Identifier.eq(*identifier))
+        let model = task::Entity::find()
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -318,7 +318,7 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn upsert_many(
         &self,
-        models: Vec<todo::Model>,
+        models: Vec<task::Model>,
     ) -> Result<Vec<EntitySyncResult>, KernelError> {
         let mut sync_results: Vec<EntitySyncResult> = Vec::new();
         for chunk in models.chunks(20) {
@@ -331,8 +331,8 @@ impl TaskRepositoryExt for TaskRepository {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), KernelError> =
                             async {
-                                let exists = todo::Entity::find()
-                                    .filter(todo::Column::Identifier.eq(model.identifier))
+                                let exists = task::Entity::find()
+                                    .filter(task::Column::Identifier.eq(model.identifier))
                                     .one(conn.as_ref())
                                     .await
                                     .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -405,8 +405,8 @@ impl TransferRecord for TaskRepository {
             return Err(KernelError::TaskNotFound(record_identifier.to_string()));
         }
 
-        let Some(record) = todo::Entity::find()
-            .filter(todo::Column::Identifier.eq(*record_identifier))
+        let Some(record) = task::Entity::find()
+            .filter(task::Column::Identifier.eq(*record_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -435,9 +435,9 @@ impl RecordExistInWorkspace for TaskRepository {
         record_identifier: &Uuid,
         workspace_identifier: &Uuid,
     ) -> Result<bool, KernelError> {
-        let record = todo::Entity::find()
-            .filter(todo::Column::Identifier.eq(*record_identifier))
-            .filter(todo::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+        let record = task::Entity::find()
+            .filter(task::Column::Identifier.eq(*record_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(*workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -475,9 +475,9 @@ impl DuplicateRecord for TaskRepository {
             ));
         }
 
-        let Some(record) = todo::Entity::find()
-            .filter(todo::Column::Identifier.eq(*record_identifier))
-            .filter(todo::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+        let Some(record) = task::Entity::find()
+            .filter(task::Column::Identifier.eq(*record_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?

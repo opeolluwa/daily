@@ -4,6 +4,7 @@ import "highlight.js/styles/github.css"; // light
 import "highlight.js/styles/github-dark.css"; // dark
 import { useWorkspacesStore } from "~/stores/workspaces";
 import { useSnippetStore } from "~/stores/snippets";
+import { sanitizeHtml } from "~/composables/useSanitize";
 
 const hlLanguageMap: Record<string, string> = {
   C: "c",
@@ -183,15 +184,16 @@ const handleTransfer = async (targetWorkspaceId: string) => {
           line {{ codeMatchInfo.startLine }}
         </div>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <pre class="p-3"><code v-html="codeMatchHtml" /></pre>
+        <pre class="p-3"><code v-html="sanitizeHtml(codeMatchHtml)" /></pre>
       </div>
 
       <!-- Normal syntax-highlighted preview -->
-      <!-- eslint-disable-next-line vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <pre
         v-else
         :class="[codeThemeClass, 'rounded-md p-3 text-xs overflow-x-auto']"
-      ><code v-html="highlighted"/></pre>
+      ><code v-html="sanitizeHtml(highlighted)"/></pre>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div
       class="px-4 py-2 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between"

@@ -46,6 +46,7 @@ mod m20261105_000000_create_paste_bins;
 mod m20261105_100000_drop_sync_queue;
 mod m20261108_113612_add_status_to_tasks;
 mod m20261111_000000_create_whiteboards;
+mod m20261112_000000_rename_todo_table_to_task;
 
 pub use sea_orm_migration::prelude::*;
 pub mod exporter;
@@ -103,6 +104,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20261105_100000_drop_sync_queue::Migration),
             Box::new(m20261108_113612_add_status_to_tasks::Migration),
             Box::new(m20261111_000000_create_whiteboards::Migration),
+            Box::new(m20261112_000000_rename_todo_table_to_task::Migration),
         ]
     }
 }

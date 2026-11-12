@@ -4,7 +4,7 @@ use sea_orm::prelude::Date;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::entities::{self, sea_orm_active_enums::Priority, todo::ActiveModel};
+use crate::entities::{self, sea_orm_active_enums::Priority, task::ActiveModel};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -16,8 +16,8 @@ pub struct CreateTask {
     pub priority: Priority,
 }
 
-impl Into<entities::todo::ActiveModel> for CreateTask {
-    fn into(self) -> entities::todo::ActiveModel {
+impl Into<entities::task::ActiveModel> for CreateTask {
+    fn into(self) -> entities::task::ActiveModel {
         ActiveModel {
             identifier: Set(Uuid::new_v4()),
             title: Set(self.title),

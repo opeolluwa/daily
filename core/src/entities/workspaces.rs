@@ -40,8 +40,8 @@ pub enum Relation {
     Reminder,
     #[sea_orm(has_many = "super::snippets::Entity")]
     Snippets,
-    #[sea_orm(has_many = "super::todo::Entity")]
-    Todo,
+    #[sea_orm(has_many = "super::task::Entity")]
+    Task,
     #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::UserIdentifier",
@@ -106,9 +106,9 @@ impl Related<super::snippets::Entity> for Entity {
     }
 }
 
-impl Related<super::todo::Entity> for Entity {
+impl Related<super::task::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Todo.def()
+        Relation::Task.def()
     }
 }
 
@@ -156,8 +156,8 @@ pub enum RelatedEntity {
     Reminder,
     #[sea_orm(entity = "super::snippets::Entity")]
     Snippets,
-    #[sea_orm(entity = "super::todo::Entity")]
-    Todo,
+    #[sea_orm(entity = "super::task::Entity")]
+    Task,
     #[sea_orm(entity = "super::users::Entity")]
     Users,
     #[sea_orm(entity = "super::whiteboards::Entity")]

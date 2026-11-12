@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="T extends string | number">
+import { sanitizeSvg } from "~/composables/useSanitize";
+
 const { options, modelValue } = defineProps<{
   options: { label: string; value: T; icon?: string }[];
   modelValue: T | "mixed" | null;
@@ -32,6 +34,7 @@ function isActive(optionValue: T): boolean {
       "
       @click="emit('update:modelValue', option.value)"
     >
+      <!-- eslint-disable vue/no-v-html -->
       <svg
         v-if="option.icon"
         aria-hidden="true"
@@ -42,8 +45,9 @@ function isActive(optionValue: T): boolean {
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        v-html="option.icon"
+        v-html="sanitizeSvg(option.icon!)"
       />
+      <!-- eslint-enable vue/no-v-html -->
       <span v-else class="leading-none">{{ option.label }}</span>
     </UButton>
   </div>
