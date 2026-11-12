@@ -59,19 +59,19 @@ const SECTION_ICONS = {
   },
   viewport: {
     svg: "M2 3h20v14H2zM8 21h8m-4-4v4",
-    classes: "bg-blue-400/[0.12] text-blue-400",
+    classes: "bg-blue-500/10 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-400",
   },
   selection: {
     svg: "M3 3h18v18H3zM8 8h8v8H8z",
-    classes: "bg-green-400/[0.12] text-green-400",
+    classes: "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
   },
   clipboard: {
     svg: "M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2M8 2h8v4H8z",
-    classes: "bg-amber-400/[0.12] text-amber-400",
+    classes: "bg-amber-500/10 text-amber-600 dark:bg-amber-400/[0.12] dark:text-amber-400",
   },
   style: {
     svg: "M12 2.69l5.66 5.66a8 8 0 11-11.31 0z",
-    classes: "bg-orange-400/[0.12] text-orange-400",
+    classes: "bg-orange-500/10 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-400",
   },
 };
 
@@ -105,7 +105,7 @@ const nonDeletedCount = computed(
     <!-- Tool section -->
     <div class="overflow-hidden rounded-md">
       <div
-        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
+        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-subdued/30"
         @click="toggleSection('tool')"
       >
         <div
@@ -137,30 +137,30 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('tool')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">activeTool</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-accent transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-accent transition-colors hover:bg-subdued/40"
             :class="{ 'animate-flash-val': flashingKey === 'tool.activeTool' }"
             @click="flashValue('tool.activeTool')"
           >
             {{ activeTool }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">newElement</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
             :class="newElement ? 'font-medium text-foreground' : 'italic text-foreground/30'"
             @click="flashValue('tool.newElement')"
           >
             {{ newElement ? `${newElement.type} (${newElement.id.slice(0, 6)})` : "null" }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">multiElement</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
             :class="multiElement ? 'font-medium text-foreground' : 'italic text-foreground/30'"
             @click="flashValue('tool.multiElement')"
           >
@@ -170,7 +170,7 @@ const nonDeletedCount = computed(
         <div class="flex items-center justify-between py-[3px]">
           <span class="text-[11px] text-foreground/40">editingText</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
             :class="
               editingTextElement ? 'font-medium text-foreground' : 'italic text-foreground/30'
             "
@@ -185,7 +185,7 @@ const nonDeletedCount = computed(
     <!-- Viewport section -->
     <div class="overflow-hidden rounded-md">
       <div
-        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
+        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-subdued/30"
         @click="toggleSection('viewport')"
       >
         <div
@@ -217,20 +217,20 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('viewport')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">scroll</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             :class="{ 'animate-flash-val': flashingKey === 'viewport.scroll' }"
             @click="flashValue('viewport.scroll')"
           >
             {{ Math.round(scrollX) }}, {{ Math.round(scrollY) }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">zoom</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('viewport.zoom')"
           >
             {{ Math.round(zoom * 100) }}%
@@ -239,7 +239,7 @@ const nonDeletedCount = computed(
         <div class="flex items-center justify-between py-[3px]">
           <span class="text-[11px] text-foreground/40">elements</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('viewport.elements')"
           >
             {{ nonDeletedCount }}
@@ -251,7 +251,7 @@ const nonDeletedCount = computed(
     <!-- Selection section -->
     <div class="overflow-hidden rounded-md">
       <div
-        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
+        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-subdued/30"
         @click="toggleSection('selection')"
       >
         <div
@@ -283,11 +283,13 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('selection')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">count</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium transition-colors hover:bg-surface"
-            :class="selectedIds.size > 0 ? 'text-green-400' : 'text-foreground'"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium transition-colors hover:bg-subdued/40"
+            :class="
+              selectedIds.size > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground'
+            "
             @click="flashValue('selection.count')"
           >
             {{ selectedIds.size }}
@@ -295,11 +297,11 @@ const nonDeletedCount = computed(
         </div>
         <div
           v-if="selectedIds.size > 0"
-          class="flex items-center justify-between border-b border-white/[0.02] py-[3px]"
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
         >
           <span class="text-[11px] text-foreground/40">IDs</span>
           <span
-            class="max-w-[200px] cursor-pointer truncate rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="max-w-[200px] cursor-pointer truncate rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('selection.ids')"
           >
             {{ [...selectedIds].map((id) => id.slice(0, 6)).join(", ") }}
@@ -308,7 +310,7 @@ const nonDeletedCount = computed(
         <div v-if="selectionBounds" class="flex items-center justify-between py-[3px]">
           <span class="text-[11px] text-foreground/40">bounds</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('selection.bounds')"
           >
             [{{ selectionBounds.x1 }},{{ selectionBounds.y1 }},{{ selectionBounds.x2 }},{{
@@ -322,7 +324,7 @@ const nonDeletedCount = computed(
     <!-- Clipboard & Theme section -->
     <div class="overflow-hidden rounded-md">
       <div
-        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
+        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-subdued/30"
         @click="toggleSection('clipboard')"
       >
         <div
@@ -354,10 +356,10 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('clipboard')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">clipboard</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
             :class="
               ctx.clipboard.clipboard.value.length > 0
                 ? 'font-medium text-foreground'
@@ -368,10 +370,10 @@ const nonDeletedCount = computed(
             {{ ctx.clipboard.clipboard.value.length }} elements
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">storedStyles</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
             :class="
               ctx.styleClipboard.hasStoredStyles.value
                 ? 'font-medium text-foreground'
@@ -385,7 +387,7 @@ const nonDeletedCount = computed(
         <div class="flex items-center justify-between py-[3px]">
           <span class="text-[11px] text-foreground/40">theme</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('clipboard.theme')"
           >
             {{ theme }}
@@ -397,7 +399,7 @@ const nonDeletedCount = computed(
     <!-- Style Defaults section -->
     <div class="overflow-hidden rounded-md">
       <div
-        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
+        class="flex cursor-pointer select-none items-center gap-[7px] px-2 py-[7px] transition-colors hover:bg-subdued/30"
         @click="toggleSection('style')"
       >
         <div
@@ -429,27 +431,27 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('style')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">stroke</span>
           <span
-            class="flex cursor-pointer items-center gap-1.5 rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="flex cursor-pointer items-center gap-1.5 rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('style.stroke')"
           >
             <span
-              class="inline-block h-2.5 w-2.5 rounded-sm border border-white/15"
+              class="inline-block h-2.5 w-2.5 rounded-sm border border-edge/40"
               :style="{ backgroundColor: ctx.styleDefaults.strokeColor.value }"
             />
             {{ ctx.styleDefaults.strokeColor.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">background</span>
           <span
-            class="flex cursor-pointer items-center gap-1.5 rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="flex cursor-pointer items-center gap-1.5 rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('style.bg')"
           >
             <span
-              class="inline-block h-2.5 w-2.5 rounded-sm border border-white/15"
+              class="inline-block h-2.5 w-2.5 rounded-sm border border-edge/40"
               :style="{
                 backgroundColor: ctx.styleDefaults.backgroundColor.value,
                 borderStyle:
@@ -459,28 +461,28 @@ const nonDeletedCount = computed(
             {{ ctx.styleDefaults.backgroundColor.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">fill</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('style.fill')"
           >
             {{ ctx.styleDefaults.fillStyle.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">strokeW</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('style.strokeW')"
           >
             {{ ctx.styleDefaults.strokeWidth.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-white/[0.02] py-[3px]">
+        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
           <span class="text-[11px] text-foreground/40">opacity</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('style.opacity')"
           >
             {{ ctx.styleDefaults.opacity.value }}%
@@ -489,7 +491,7 @@ const nonDeletedCount = computed(
         <div class="flex items-center justify-between py-[3px]">
           <span class="text-[11px] text-foreground/40">roughness</span>
           <span
-            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-surface"
+            class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('style.roughness')"
           >
             {{ ctx.styleDefaults.roughness.value }}
@@ -503,8 +505,8 @@ const nonDeletedCount = computed(
 <style scoped>
 @keyframes flash-val {
   0% {
-    background: rgb(255 107 237 / 0.15);
-    color: rgb(255 107 237);
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    color: var(--color-accent);
   }
   100% {
     background: transparent;

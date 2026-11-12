@@ -17,15 +17,15 @@ const expandedId = ref<string | null>(null);
 // ── Type icon color mapping ────────────────────────────────────────
 
 const TYPE_COLORS: Record<string, string> = {
-  rectangle: "bg-blue-400/[0.12] text-blue-400",
-  ellipse: "bg-amber-400/[0.12] text-amber-400",
-  diamond: "bg-purple-400/[0.12] text-purple-400",
-  arrow: "bg-green-400/[0.12] text-green-400",
-  line: "bg-green-400/[0.12] text-green-400",
-  text: "bg-red-400/[0.12] text-red-400",
-  freedraw: "bg-orange-400/[0.12] text-orange-400",
-  image: "bg-cyan-300/[0.12] text-cyan-300",
-  code: "bg-violet-400/[0.12] text-violet-400",
+  rectangle: "bg-blue-500/10 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-400",
+  ellipse: "bg-amber-500/10 text-amber-600 dark:bg-amber-400/[0.12] dark:text-amber-400",
+  diamond: "bg-purple-500/10 text-purple-600 dark:bg-purple-400/[0.12] dark:text-purple-400",
+  arrow: "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
+  line: "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
+  text: "bg-red-500/10 text-red-600 dark:bg-red-400/[0.12] dark:text-red-400",
+  freedraw: "bg-orange-500/10 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-400",
+  image: "bg-cyan-500/10 text-cyan-600 dark:bg-cyan-300/[0.12] dark:text-cyan-300",
+  code: "bg-violet-500/10 text-violet-600 dark:bg-violet-400/[0.12] dark:text-violet-400",
 };
 
 // SVG paths per element type
@@ -113,7 +113,7 @@ function minimapPositions(currentId: string) {
 <template>
   <div class="flex flex-col gap-0">
     <!-- Summary bar + filter pills -->
-    <div class="flex items-center gap-2 border-b border-white/[0.04] px-2 py-1.5">
+    <div class="flex items-center gap-2 border-b border-edge/20 px-2 py-1.5">
       <span class="font-mono text-[11px] text-foreground/60">
         Total:
         <strong class="font-semibold text-foreground">{{ nonDeletedElements.length }}</strong>
@@ -131,8 +131,8 @@ function minimapPositions(currentId: string) {
             filterType === pill.type
               ? 'border-accent text-accent bg-accent/15'
               : pill.type === 'all' || availableTypes.has(pill.type as ExcalidrawElement['type'])
-                ? 'border-white/[0.06] text-foreground/40 hover:border-white/15 hover:text-foreground/60 hover:bg-surface'
-                : 'border-white/[0.04] text-foreground/15 pointer-events-none'
+                ? 'border-edge/25 text-foreground/40 hover:border-edge/40 hover:text-foreground/60 hover:bg-subdued/40'
+                : 'border-edge/20 text-foreground/15 pointer-events-none'
           "
           :title="pill.label"
           @click="filterType = pill.type"
@@ -159,7 +159,7 @@ function minimapPositions(currentId: string) {
       >
         <!-- Element row -->
         <div
-          class="group flex cursor-pointer items-center gap-2 px-2 py-1.5 transition-colors hover:bg-white/[0.03]"
+          class="group flex cursor-pointer items-center gap-2 px-2 py-1.5 transition-colors hover:bg-subdued/30"
           @click="toggleExpand(el.id)"
         >
           <!-- Type icon (SVG) -->
@@ -200,7 +200,7 @@ function minimapPositions(currentId: string) {
           <!-- Hover action buttons -->
           <div class="flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
             <button
-              class="flex h-[22px] w-[22px] items-center justify-center rounded bg-surface text-foreground/60 transition-all hover:bg-accent/15 hover:text-accent"
+              class="flex h-[22px] w-[22px] items-center justify-center rounded bg-subdued/30 text-foreground/60 transition-all hover:bg-accent/15 hover:text-accent"
               title="Select on canvas"
               @click.stop="emit('select', el.id)"
             >
@@ -238,7 +238,7 @@ function minimapPositions(currentId: string) {
             <span class="py-0.5 text-foreground/40">stroke</span>
             <span class="flex items-center gap-1.5 py-0.5 font-mono text-foreground">
               <span
-                class="inline-block h-2.5 w-2.5 shrink-0 rounded-sm border border-white/15"
+                class="inline-block h-2.5 w-2.5 shrink-0 rounded-sm border border-edge/40"
                 :style="{ backgroundColor: el.strokeColor }"
               />
               {{ el.strokeColor }}
@@ -247,7 +247,7 @@ function minimapPositions(currentId: string) {
             <span class="py-0.5 text-foreground/40">background</span>
             <span class="flex items-center gap-1.5 py-0.5 font-mono text-foreground">
               <span
-                class="inline-block h-2.5 w-2.5 shrink-0 rounded-sm border border-white/15"
+                class="inline-block h-2.5 w-2.5 shrink-0 rounded-sm border border-edge/40"
                 :style="{
                   backgroundColor:
                     el.backgroundColor === 'transparent' ? 'transparent' : el.backgroundColor,
@@ -289,7 +289,7 @@ function minimapPositions(currentId: string) {
 
           <!-- Minimap -->
           <div
-            class="relative mt-1.5 h-12 overflow-hidden rounded border border-white/[0.04] bg-black/20"
+            class="relative mt-1.5 h-12 overflow-hidden rounded border border-edge/20 bg-subdued/30"
           >
             <div
               v-for="pos in minimapPositions(el.id)"
@@ -298,7 +298,7 @@ function minimapPositions(currentId: string) {
               :class="
                 pos.isCurrent
                   ? 'border-[1.5px] border-accent bg-accent/[0.08]'
-                  : 'border border-white/[0.12] bg-white/[0.03]'
+                  : 'border border-edge/30 bg-subdued/30'
               "
               :style="{ left: pos.left, top: pos.top, width: pos.width, height: pos.height }"
             />

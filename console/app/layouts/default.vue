@@ -13,6 +13,10 @@ withDefaults(
 );
 const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
+const noPaddingPatterns = [/^\/whiteboard\/[^/]+$/];
+const isNoPaddingNeededView = computed(() =>
+  noPaddingPatterns.some((pattern) => pattern.test(route.path)),
+);
 </script>
 
 <template>
@@ -30,7 +34,9 @@ const { mobileNavOpen } = useMobileNav();
       <!-- Page content + inline aside (fullscreen mode) -->
       <div class="flex flex-1 overflow-hidden">
         <main
-          class="flex flex-1 flex-col overflow-y-auto scrollbar-config p-6 dark:bg-app-dark-800"
+          :class="isNoPaddingNeededView ? 'p-0' : 'p-6'"
+          class="flex flex-1 flex-col overflow-y-auto scrollbar-config
+          dark:bg-app-dark-800"
         >
           <div class="flex items-center gap-3 mb-1" />
           <slot name="page_title" />

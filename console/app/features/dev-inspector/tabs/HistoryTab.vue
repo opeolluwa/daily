@@ -126,11 +126,11 @@ function detectDiff(before: HistoryEntry, after: HistoryEntry): DiffResult {
 // ── Operation icon/color mapping ───────────────────────────────────
 
 const OP_CONFIG: Record<OpType, { icon: string; classes: string }> = {
-  add: { icon: "+", classes: "bg-green-400/15 text-green-400" },
-  remove: { icon: "-", classes: "bg-red-400/15 text-red-400" },
-  move: { icon: "M", classes: "bg-blue-400/15 text-blue-400" },
-  resize: { icon: "R", classes: "bg-cyan-300/15 text-cyan-300" },
-  style: { icon: "S", classes: "bg-amber-400/15 text-amber-400" },
+  add: { icon: "+", classes: "bg-green-500/10 text-green-600 dark:bg-green-400/15 dark:text-green-400" },
+  remove: { icon: "-", classes: "bg-red-500/10 text-red-600 dark:bg-red-400/15 dark:text-red-400" },
+  move: { icon: "M", classes: "bg-blue-500/10 text-blue-600 dark:bg-blue-400/15 dark:text-blue-400" },
+  resize: { icon: "R", classes: "bg-cyan-500/10 text-cyan-600 dark:bg-cyan-300/15 dark:text-cyan-300" },
+  style: { icon: "S", classes: "bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400" },
   select: { icon: ".", classes: "bg-foreground/10 text-foreground/50" },
 };
 
@@ -184,7 +184,7 @@ function summarizeEntry(entry: HistoryEntry): string {
 <template>
   <div class="flex flex-col gap-0">
     <!-- Summary bar with undo/redo counters and nav buttons -->
-    <div class="flex items-center gap-3 border-b border-white/[0.04] px-2 py-2">
+    <div class="flex items-center gap-3 border-b border-edge/20 px-2 py-2">
       <div class="flex items-center gap-1.5 text-[11px] text-foreground/60">
         Undo:
         <span class="font-mono text-[13px] font-semibold text-foreground">{{
@@ -200,7 +200,7 @@ function summarizeEntry(entry: HistoryEntry): string {
       </div>
       <div class="ml-auto flex gap-1">
         <button
-          class="flex h-6 w-6 items-center justify-center rounded border border-white/[0.08] bg-surface text-foreground/60 transition-all hover:border-accent hover:bg-accent/15 hover:text-accent"
+          class="flex h-6 w-6 items-center justify-center rounded border border-edge/30 bg-subdued/30 text-foreground/60 transition-all hover:border-accent hover:bg-accent/15 hover:text-accent"
           :class="{ 'pointer-events-none opacity-30': !canUndo }"
           title="Undo"
         >
@@ -216,7 +216,7 @@ function summarizeEntry(entry: HistoryEntry): string {
           </svg>
         </button>
         <button
-          class="flex h-6 w-6 items-center justify-center rounded border border-white/[0.08] bg-surface text-foreground/60 transition-all hover:border-accent hover:bg-accent/15 hover:text-accent"
+          class="flex h-6 w-6 items-center justify-center rounded border border-edge/30 bg-subdued/30 text-foreground/60 transition-all hover:border-accent hover:bg-accent/15 hover:text-accent"
           :class="{ 'pointer-events-none opacity-30': !canRedo }"
           title="Redo"
         >
@@ -245,11 +245,11 @@ function summarizeEntry(entry: HistoryEntry): string {
         <!-- Timeline container -->
         <div class="relative pl-6">
           <!-- Vertical timeline line -->
-          <div class="absolute top-1 bottom-1 left-[11px] w-px bg-white/[0.06]" />
+          <div class="absolute top-1 bottom-1 left-[11px] w-px bg-subdued/50" />
           <div
             v-for="entry in redoEntries"
             :key="`redo-${entry.index}`"
-            class="relative mb-px cursor-pointer rounded-md px-2 py-1.5 opacity-50 transition-all hover:bg-white/[0.03]"
+            class="relative mb-px cursor-pointer rounded-md px-2 py-1.5 opacity-50 transition-all hover:bg-subdued/30"
           >
             <!-- Timeline dot -->
             <div
@@ -284,11 +284,11 @@ function summarizeEntry(entry: HistoryEntry): string {
         Current State
       </div>
       <div class="relative pl-6">
-        <div class="absolute top-1 bottom-1 left-[11px] w-px bg-white/[0.06]" />
+        <div class="absolute top-1 bottom-1 left-[11px] w-px bg-subdued/50" />
         <div class="relative mb-px rounded-md border border-accent/20 bg-accent/15 px-2 py-1.5">
           <!-- Glowing accent dot -->
           <div
-            class="absolute -left-[17px] top-3.5 z-[1] h-[7px] w-[7px] rounded-full border-[1.5px] border-accent bg-accent shadow-[0_0_8px_rgba(255,107,237,0.5)]"
+            class="absolute -left-[17px] top-3.5 z-[1] h-[7px] w-[7px] rounded-full border-[1.5px] border-accent bg-accent shadow-[0_0_8px_var(--color-accent)]"
           />
           <div class="flex items-center justify-between gap-2">
             <span class="flex items-center gap-1.5 text-xs font-medium text-accent">
@@ -314,11 +314,11 @@ function summarizeEntry(entry: HistoryEntry): string {
           Undo Stack
         </div>
         <div class="relative pl-6">
-          <div class="absolute top-1 bottom-1 left-[11px] w-px bg-white/[0.06]" />
+          <div class="absolute top-1 bottom-1 left-[11px] w-px bg-subdued/50" />
           <div
             v-for="entry in undoEntries"
             :key="`undo-${entry.index}`"
-            class="relative mb-px cursor-pointer rounded-md px-2 py-1.5 opacity-70 transition-all hover:bg-white/[0.03]"
+            class="relative mb-px cursor-pointer rounded-md px-2 py-1.5 opacity-70 transition-all hover:bg-subdued/30"
           >
             <!-- Timeline dot -->
             <div

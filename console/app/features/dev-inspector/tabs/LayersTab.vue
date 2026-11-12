@@ -48,10 +48,10 @@ const LAYERS: LayerInfo[] = [
   {
     id: "newElement",
     name: "NewElement",
-    colorClass: "text-cyan-400",
-    borderClass: "border-cyan-400/20",
-    bgClass: "bg-cyan-400/[0.04]",
-    dotColor: "bg-cyan-400",
+    colorClass: "text-cyan-600 dark:text-cyan-400",
+    borderClass: "border-cyan-500/20 dark:border-cyan-400/20",
+    bgClass: "bg-cyan-500/[0.04] dark:bg-cyan-400/[0.04]",
+    dotColor: "bg-cyan-500 dark:bg-cyan-400",
     zIndex: 1,
     pointerEvents: false,
     description:
@@ -61,10 +61,10 @@ const LAYERS: LayerInfo[] = [
   {
     id: "static",
     name: "Static",
-    colorClass: "text-green-400",
-    borderClass: "border-green-400/20",
-    bgClass: "bg-green-400/[0.04]",
-    dotColor: "bg-green-400",
+    colorClass: "text-green-600 dark:text-green-400",
+    borderClass: "border-green-500/20 dark:border-green-400/20",
+    bgClass: "bg-green-500/[0.04] dark:bg-green-400/[0.04]",
+    dotColor: "bg-green-500 dark:bg-green-400",
     zIndex: 1,
     pointerEvents: false,
     description:
@@ -175,7 +175,7 @@ function selectLayer(layerId: string): void {
 <template>
   <div class="flex flex-col gap-1 p-1.5">
     <!-- 3D Layer Stack Visualization -->
-    <div class="relative mb-1 overflow-hidden rounded-md bg-[rgb(22,26,38)]">
+    <div class="relative mb-1 overflow-hidden rounded-md bg-subdued/40">
       <!-- Dot grid background -->
       <div class="pointer-events-none absolute inset-0 layer-dots opacity-30" />
 
@@ -196,8 +196,8 @@ function selectLayer(layerId: string): void {
               class="h-full w-full object-cover"
               alt=""
             />
-            <span class="layer-label-3d bg-green-400/[0.15] text-green-400">Static</span>
-            <span class="layer-zbadge-3d text-green-400/70">z:1</span>
+            <span class="layer-label-3d bg-green-500/10 text-green-600 dark:bg-green-400/[0.15] dark:text-green-400">Static</span>
+            <span class="layer-zbadge-3d text-green-600/70 dark:text-green-400/70">z:1</span>
           </div>
 
           <!-- NewElement (middle) -->
@@ -215,8 +215,8 @@ function selectLayer(layerId: string): void {
               class="h-full w-full object-cover"
               alt=""
             />
-            <span class="layer-label-3d bg-cyan-400/[0.12] text-cyan-400">NewElement</span>
-            <span class="layer-zbadge-3d text-cyan-400/70">z:1</span>
+            <span class="layer-label-3d bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-400">NewElement</span>
+            <span class="layer-zbadge-3d text-cyan-600/70 dark:text-cyan-400/70">z:1</span>
           </div>
 
           <!-- Interactive (top) -->
@@ -251,16 +251,16 @@ function selectLayer(layerId: string): void {
     <div v-for="layer in LAYERS" :key="layer.id" class="overflow-hidden rounded-md">
       <!-- Row header -->
       <div
-        class="flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-[7px] transition-colors hover:bg-surface/60"
+        class="flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-[7px] transition-colors hover:bg-subdued/40"
         :class="{
-          'bg-surface/40': expandedLayer === layer.id,
-          'ring-1 ring-inset ring-white/10': selectedLayer === layer.id,
+          'bg-subdued/30': expandedLayer === layer.id,
+          'ring-1 ring-inset ring-edge/40': selectedLayer === layer.id,
         }"
         @click="selectLayer(layer.id)"
       >
         <!-- Eye toggle -->
         <button
-          class="flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/[0.06]"
+          class="flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-subdued/50"
           :class="[layer.colorClass, hiddenLayers.has(layer.id) ? 'opacity-30' : 'opacity-70']"
           title="Toggle visibility"
           @click.stop="toggleVisibility(layer.id)"
@@ -320,7 +320,7 @@ function selectLayer(layerId: string): void {
           <span class="text-[11px] font-semibold" :class="layer.colorClass">
             {{ layer.name }}
           </span>
-          <span class="rounded bg-white/[0.06] px-1 py-px font-mono text-[9px] text-foreground/40">
+          <span class="rounded bg-subdued/50 px-1 py-px font-mono text-[9px] text-foreground/40">
             z:{{ layer.zIndex }}
           </span>
           <span
@@ -328,7 +328,7 @@ function selectLayer(layerId: string): void {
             :class="
               layer.pointerEvents
                 ? 'bg-accent/[0.12] text-accent'
-                : 'bg-white/[0.04] text-foreground/30'
+                : 'bg-subdued/30 text-foreground/30'
             "
           >
             {{ layer.pointerEvents ? "events" : "no-ptr" }}
@@ -351,12 +351,12 @@ function selectLayer(layerId: string): void {
       <!-- Expanded detail -->
       <div
         v-if="expandedLayer === layer.id"
-        class="mx-2 mb-1 rounded border border-white/[0.04] bg-white/[0.02] px-3 py-2.5"
+        class="mx-2 mb-1 rounded border border-edge/20 bg-subdued/20 px-3 py-2.5"
       >
         <p class="text-[10px] leading-relaxed text-foreground/50">
           {{ layer.description }}
         </p>
-        <div class="mt-2 border-t border-white/[0.04] pt-2">
+        <div class="mt-2 border-t border-edge/20 pt-2">
           <div
             v-for="item in layer.renders"
             :key="item"
@@ -374,14 +374,14 @@ function selectLayer(layerId: string): void {
       <div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/30">
         Render Order
       </div>
-      <div class="flex h-6 overflow-hidden rounded border border-white/[0.04] bg-white/[0.03]">
+      <div class="flex h-6 overflow-hidden rounded border border-edge/20 bg-subdued/30">
         <div
-          class="flex flex-1 items-center justify-center bg-green-400/[0.12] font-mono text-[9px] font-semibold text-green-400"
+          class="flex flex-1 items-center justify-center bg-green-500/10 font-mono text-[9px] font-semibold text-green-600 dark:bg-green-400/[0.12] dark:text-green-400"
         >
           STATIC
         </div>
         <div
-          class="flex flex-1 items-center justify-center border-x border-white/[0.04] bg-cyan-400/[0.12] font-mono text-[9px] font-semibold text-cyan-400"
+          class="flex flex-1 items-center justify-center border-x border-edge/20 bg-cyan-500/10 font-mono text-[9px] font-semibold text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-400"
         >
           NEW
         </div>
@@ -401,19 +401,19 @@ function selectLayer(layerId: string): void {
     </div>
 
     <!-- Legend -->
-    <div class="mt-2 border-t border-white/[0.04] px-2 pt-2">
+    <div class="mt-2 border-t border-edge/20 px-2 pt-2">
       <div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/30">
         How It Works
       </div>
       <div class="flex items-start gap-2 py-1">
-        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-green-400" />
+        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-green-500 dark:bg-green-400" />
         <span class="text-[10px] leading-relaxed text-foreground/40">
           <span class="font-medium text-foreground/60">Static</span> — Grid + committed shapes.
           Cached; re-renders only on mutation.
         </span>
       </div>
       <div class="flex items-start gap-2 py-1">
-        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-cyan-400" />
+        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-cyan-500 dark:bg-cyan-400" />
         <span class="text-[10px] leading-relaxed text-foreground/40">
           <span class="font-medium text-foreground/60">NewElement</span> — Element being drawn.
           Isolated to avoid full scene re-renders.
@@ -432,7 +432,10 @@ function selectLayer(layerId: string): void {
 
 <style scoped>
 .layer-dots {
-  background-image: radial-gradient(rgba(234, 237, 243, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-foreground) 6%, transparent) 1px,
+    transparent 1px
+  );
   background-size: 16px 16px;
 }
 
@@ -473,11 +476,11 @@ function selectLayer(layerId: string): void {
 }
 
 .layer-3d-interactive {
-  border-color: rgba(255, 107, 237, 0.45);
-  background: rgba(255, 107, 237, 0.03);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 3%, transparent);
   transform: rotateX(55deg) rotateZ(-2deg) translateZ(50px);
   box-shadow:
-    0 0 24px rgba(255, 107, 237, 0.08),
+    0 0 24px color-mix(in srgb, var(--color-accent) 8%, transparent),
     0 16px 40px rgba(0, 0, 0, 0.25);
 }
 
@@ -500,9 +503,9 @@ function selectLayer(layerId: string): void {
 }
 
 .layer-3d-interactive.layer-3d-selected {
-  border-color: rgb(255, 107, 237);
+  border-color: var(--color-accent);
   box-shadow:
-    0 0 28px rgba(255, 107, 237, 0.22),
+    0 0 28px color-mix(in srgb, var(--color-accent) 22%, transparent),
     0 16px 40px rgba(0, 0, 0, 0.25);
 }
 
@@ -534,7 +537,7 @@ function selectLayer(layerId: string): void {
   font-weight: 500;
   padding: 1px 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--color-foreground) 6%, transparent);
   pointer-events: none;
 }
 </style>
