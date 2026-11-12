@@ -25,17 +25,7 @@ const BTN =
     >
       <UTooltip text="Zoom out" :content="{ side: 'top' }">
         <button :class="BTN" aria-label="Zoom out" @click="emit('zoom-out')">
-          <svg
-            aria-hidden="true"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          >
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <UIcon name="lucide:minus" class="h-4 w-4" />
         </button>
       </UTooltip>
 
@@ -51,18 +41,7 @@ const BTN =
 
       <UTooltip text="Zoom in" :content="{ side: 'top' }">
         <button :class="BTN" aria-label="Zoom in" @click="emit('zoom-in')">
-          <svg
-            aria-hidden="true"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <UIcon name="lucide:plus" class="h-4 w-4" />
         </button>
       </UTooltip>
     </div>
@@ -78,19 +57,7 @@ const BTN =
           aria-label="Undo"
           @click="emit('undo')"
         >
-          <svg
-            aria-hidden="true"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M3 7v6h6" />
-            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
-          </svg>
+          <UIcon name="lucide:undo-2" class="h-4 w-4" />
         </button>
       </UTooltip>
 
@@ -105,19 +72,7 @@ const BTN =
           aria-label="Redo"
           @click="emit('redo')"
         >
-          <svg
-            aria-hidden="true"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M21 7v6h-6" />
-            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
-          </svg>
+          <UIcon name="lucide:redo-2" class="h-4 w-4" />
         </button>
       </UTooltip>
     </div>

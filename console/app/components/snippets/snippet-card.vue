@@ -5,6 +5,7 @@ import "highlight.js/styles/github-dark.css"; // dark
 import { useWorkspacesStore } from "~/stores/workspaces";
 import { useSnippetStore } from "~/stores/snippets";
 
+
 const hlLanguageMap: Record<string, string> = {
   C: "c",
   "C++": "cpp",
@@ -187,11 +188,12 @@ const handleTransfer = async (targetWorkspaceId: string) => {
       </div>
 
       <!-- Normal syntax-highlighted preview -->
-      <!-- eslint-disable-next-line vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <pre
         v-else
         :class="[codeThemeClass, 'rounded-md p-3 text-xs overflow-x-auto']"
       ><code v-html="highlighted"/></pre>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div
       class="px-4 py-2 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between"

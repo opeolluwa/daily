@@ -269,22 +269,14 @@ const roundnessOptions: { label: string; value: Roundness; icon: string }[] = [
   },
 ];
 
-const textAlignOptions: { label: string; value: TextAlign; icon: string }[] = [
-  {
-    label: "Left",
-    value: "left",
-    icon: '<line x1="4" y1="6" x2="16" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/>',
-  },
-  {
-    label: "Center",
-    value: "center",
-    icon: '<line x1="6" y1="6" x2="18" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="7" y1="18" x2="17" y2="18"/>',
-  },
-  {
-    label: "Right",
-    value: "right",
-    icon: '<line x1="8" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/>',
-  },
+const textAlignOptions: {
+  label: string;
+  value: TextAlign;
+  iconName: string;
+}[] = [
+  { label: "Left", value: "left", iconName: "lucide:align-left" },
+  { label: "Center", value: "center", iconName: "lucide:align-center" },
+  { label: "Right", value: "right", iconName: "lucide:align-right" },
 ];
 
 const arrowSubtypeOptions: {
@@ -522,25 +514,11 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:arrow-down-to-line"
             aria-label="Send to back"
             class="text-foreground/70 hover:bg-subdued/20 hover:text-foreground"
             @click="execute('layer:send-to-back')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <polyline points="7 14 12 19 17 14" />
-              <line x1="5" y1="21" x2="19" y2="21" />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
         <UTooltip text="Send backward" :content="{ side: 'bottom' }">
           <UButton
@@ -548,24 +526,11 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:arrow-down"
             aria-label="Send backward"
             class="text-foreground/70 hover:bg-subdued/20 hover:text-foreground"
             @click="execute('layer:send-backward')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="7" x2="12" y2="19" />
-              <polyline points="7 14 12 19 17 14" />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
         <UTooltip text="Bring forward" :content="{ side: 'bottom' }">
           <UButton
@@ -573,24 +538,11 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:arrow-up"
             aria-label="Bring forward"
             class="text-foreground/70 hover:bg-subdued/20 hover:text-foreground"
             @click="execute('layer:bring-forward')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="17" x2="12" y2="5" />
-              <polyline points="7 10 12 5 17 10" />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
         <UTooltip text="Bring to front" :content="{ side: 'bottom' }">
           <UButton
@@ -598,25 +550,11 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:arrow-up-to-line"
             aria-label="Bring to front"
             class="text-foreground/70 hover:bg-subdued/20 hover:text-foreground"
             @click="execute('layer:bring-to-front')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="19" x2="12" y2="5" />
-              <polyline points="7 10 12 5 17 10" />
-              <line x1="5" y1="3" x2="19" y2="3" />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
       </div>
 
@@ -630,26 +568,11 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:copy"
             aria-label="Duplicate"
             class="text-foreground/70 hover:bg-subdued/20 hover:text-foreground"
             @click="execute('action:duplicate')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="9" y="9" width="13" height="13" rx="2" />
-              <path
-                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-              />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
         <UTooltip text="Edit Link" :content="{ side: 'bottom' }">
           <UButton
@@ -657,6 +580,7 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:link"
             aria-label="Edit Link"
             :aria-pressed="
               selectedElements.length === 1 &&
@@ -669,25 +593,7 @@ function onFontSizeChange(event: Event): void {
             ]"
             :disabled="selectedElements.length !== 1"
             @click="execute('link:edit')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-              />
-              <path
-                d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-              />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
         <UTooltip text="Delete" :content="{ side: 'bottom' }">
           <UButton
@@ -695,26 +601,11 @@ function onFontSizeChange(event: Event): void {
             color="neutral"
             size="xs"
             square
+            icon="lucide:trash-2"
             aria-label="Delete"
             class="text-foreground/70 hover:bg-red-500/20 hover:text-red-400"
             @click="execute('action:delete')"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="3 6 5 6 21 6" />
-              <path
-                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-              />
-            </svg>
-          </UButton>
+          />
         </UTooltip>
       </div>
     </div>

@@ -15,7 +15,7 @@ pub mod reminder;
 pub mod revoked_token;
 pub mod sea_orm_active_enums;
 pub mod snippets;
-pub mod todo;
+pub mod task;
 pub mod user_preferences;
 pub mod users;
 pub mod whiteboard_files;
@@ -37,7 +37,7 @@ seaography::register_entity_modules!([
     reminder,
     revoked_token,
     snippets,
-    todo,
+    task,
     user_preferences,
     users,
     whiteboard_files,

@@ -3,7 +3,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "whiteboards")]
 #[serde(rename_all = "camelCase")]
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
@@ -19,6 +19,8 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::whiteboard_files::Entity")]
+    WhiteboardFiles,
     #[sea_orm(
         belongs_to = "super::workspaces::Entity",
         from = "Column::WorkspaceIdentifier",
@@ -27,6 +29,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Workspaces,
+}
+
+impl Related<super::whiteboard_files::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::WhiteboardFiles.def()
+    }
 }
 
 impl Related<super::workspaces::Entity> for Entity {
@@ -39,6 +47,8 @@ impl ActiveModelBehavior for ActiveModel {}
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
 pub enum RelatedEntity {
+    #[sea_orm(entity = "super::whiteboard_files::Entity")]
+    WhiteboardFiles,
     #[sea_orm(entity = "super::workspaces::Entity")]
     Workspaces,
 }

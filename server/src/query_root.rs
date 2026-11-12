@@ -43,7 +43,7 @@ pub fn schema_builder(
             types::bookmark::SyncBookmarkInput,
             types::note::SyncNoteInput,
             types::snippet::SyncSnippetInput,
-            types::todo::SyncTodoInput,
+            types::task::SyncTodoInput,
             types::reminder::SyncReminderInput,
             types::workspace::SyncWorkspaceInput,
             types::recycle_bin::SyncRecycleBinInput,

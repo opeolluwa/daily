@@ -117,7 +117,10 @@ async function handleSubmit() {
             mode: 'firstLine',
           }"
           :editable="!submitting"
-          :ui="{ content: 'min-h-64 max-h-[50vh] overflow-y-auto' }"
+          :ui="{
+            base: 'px-4 py-3 sm:px-4',
+            content: 'min-h-64 max-h-[50vh] overflow-y-auto',
+          }"
         />
       </div>
 

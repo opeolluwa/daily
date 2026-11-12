@@ -3,7 +3,7 @@ export type { ItemType } from "./bindings/ItemType";
 export type { NotificationType } from "./bindings/NotificationType";
 export type { Priority } from "./bindings/Priority";
 export type { Tag } from "./bindings/Tag";
-export type { TaskStatus } from "./bindings/TaskStatus";
+export type { TodoStatus } from "./bindings/TodoStatus";
 export type { JsonValue } from "./bindings/serde_json/JsonValue";
 
 export type { BookmarkInterface } from "./bindings/BookmarkInterface";

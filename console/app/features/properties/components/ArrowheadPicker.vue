@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Arrowhead } from "@drawvue/core";
 
+
 const { modelValue, label } = defineProps<{
   modelValue: Arrowhead | null | "mixed";
   label: string;
@@ -109,6 +110,7 @@ function isActive(optionValue: Arrowhead | null): boolean {
         @click="emit('update:modelValue', option.value)"
       >
         <UTooltip :text="option.label" :content="{ side: 'bottom' }">
+          <!-- eslint-disable vue/no-v-html -->
           <svg
             aria-hidden="true"
             class="h-4 w-4"
@@ -120,6 +122,7 @@ function isActive(optionValue: Arrowhead | null): boolean {
             stroke-linejoin="round"
             v-html="option.icon"
           />
+          <!-- eslint-enable vue/no-v-html -->
         </UTooltip>
       </UButton>
     </div>

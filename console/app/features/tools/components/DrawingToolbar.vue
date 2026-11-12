@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useToolStore } from "@drawvue/core";
 import { TOOL_ICONS } from "./toolIcons";
+
 import type { ToolType } from "@drawvue/core";
 
 const { activeTool, setTool } = useToolStore();
@@ -63,12 +64,20 @@ const tools: Array<{
           "
           @click="setTool(tool.type)"
         >
+          <UIcon
+            v-if="TOOL_ICONS[tool.type].name"
+            :name="TOOL_ICONS[tool.type].name!"
+            class="h-5 w-5"
+          />
+          <!-- eslint-disable vue/no-v-html -->
           <svg
+            v-else
             aria-hidden="true"
             class="h-5 w-5"
             :viewBox="TOOL_ICONS[tool.type].viewBox"
             v-html="TOOL_ICONS[tool.type].paths"
           />
+          <!-- eslint-enable vue/no-v-html -->
           <span
             v-if="tool.shortcutNumber !== null"
             class="absolute right-0.5 bottom-0 text-[10px] opacity-40"

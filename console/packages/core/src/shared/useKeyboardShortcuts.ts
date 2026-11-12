@@ -72,6 +72,7 @@ export function useKeyboardShortcuts(config: ShortcutsConfig): void {
 
       const parsed = parseShortcut(shortcut);
       if (matchesEvent(parsed, e)) {
+        e.preventDefault();
         handler(e);
         return;
       }

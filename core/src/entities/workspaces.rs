@@ -40,8 +40,8 @@ pub enum Relation {
     Reminder,
     #[sea_orm(has_many = "super::snippets::Entity")]
     Snippets,
-    #[sea_orm(has_many = "super::todo::Entity")]
-    Todo,
+    #[sea_orm(has_many = "super::task::Entity")]
+    Task,
     #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::UserIdentifier",
@@ -50,12 +50,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Users,
+    #[sea_orm(has_many = "super::whiteboards::Entity")]
+    Whiteboards,
     #[sea_orm(has_many = "super::workspace_members::Entity")]
     WorkspaceMembers,
     #[sea_orm(has_many = "super::workspace_profiles::Entity")]
     WorkspaceProfiles,
-    #[sea_orm(has_many = "super::whiteboards::Entity")]
-    Whiteboards,
 }
 
 impl Related<super::bookmark::Entity> for Entity {
@@ -106,15 +106,21 @@ impl Related<super::snippets::Entity> for Entity {
     }
 }
 
-impl Related<super::todo::Entity> for Entity {
+impl Related<super::task::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Todo.def()
+        Relation::Task.def()
     }
 }
 
 impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Users.def()
+    }
+}
+
+impl Related<super::whiteboards::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Whiteboards.def()
     }
 }
 
@@ -127,12 +133,6 @@ impl Related<super::workspace_members::Entity> for Entity {
 impl Related<super::workspace_profiles::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::WorkspaceProfiles.def()
-    }
-}
-
-impl Related<super::whiteboards::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Whiteboards.def()
     }
 }
 
@@ -156,14 +156,14 @@ pub enum RelatedEntity {
     Reminder,
     #[sea_orm(entity = "super::snippets::Entity")]
     Snippets,
-    #[sea_orm(entity = "super::todo::Entity")]
-    Todo,
+    #[sea_orm(entity = "super::task::Entity")]
+    Task,
     #[sea_orm(entity = "super::users::Entity")]
     Users,
+    #[sea_orm(entity = "super::whiteboards::Entity")]
+    Whiteboards,
     #[sea_orm(entity = "super::workspace_members::Entity")]
     WorkspaceMembers,
     #[sea_orm(entity = "super::workspace_profiles::Entity")]
     WorkspaceProfiles,
-    #[sea_orm(entity = "super::whiteboards::Entity")]
-    Whiteboards,
 }

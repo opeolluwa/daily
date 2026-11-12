@@ -23,6 +23,7 @@ const fontOptions: FontOption[] = [
     style: "font-family: Helvetica, Arial, sans-serif",
   },
   { label: "Cascadia", value: 3, style: "font-family: Cascadia, monospace" },
+  { label: "Lato", value: 4, style: "font-family: Lato, sans-serif" },
 ];
 
 const selected = computed({

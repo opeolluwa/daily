@@ -6,7 +6,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "todo")]
+#[sea_orm(table_name = "task")]
 #[serde(rename_all = "camelCase")]
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
 pub struct Model {
