@@ -8,6 +8,7 @@ import {
   tryCatch,
   serializeFiles,
   restoreImageCache,
+  toFileId,
 } from "@drawvue/core";
 import type { BinaryFiles, ExcalidrawElement } from "@drawvue/core";
 import { useWhiteboardStore } from "~/stores/whiteboards";
@@ -253,6 +254,7 @@ export function usePersistence(
     const binaryFiles: BinaryFiles = {};
     for (const file of files) {
       binaryFiles[file.identifier] = {
+        id: toFileId(file.identifier),
         mimeType: file.mimeType,
         dataURL: file.data,
         created: Date.parse(file.createdAt) || Date.now(),

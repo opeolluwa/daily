@@ -3,7 +3,7 @@ use std::path::Path;
 use base64::{Engine, engine::general_purpose::STANDARD};
 use reqwest::{
     Client, Method,
-    header::{AUTHORIZATION, HeaderMap, HeaderValue},
+    header::{AUTHORIZATION  , HeaderMap, HeaderValue},
     multipart,
 };
 use secrecy::{ExposeSecret, SecretString};

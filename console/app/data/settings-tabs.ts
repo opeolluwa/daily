@@ -34,11 +34,11 @@ const items: SettingsTab[] = [
     to: "/settings/workspaces",
   },
   {
-    key: "backup",
-    label: "Backup & Sync",
-    icon: "heroicons:cloud-arrow-up",
-    desc: "Backup configuration",
-    to: "/settings/backup",
+    key: "file-storage",
+    label: "File Storage",
+    icon: "heroicons:folder",
+    desc: "File storage configuration",
+    to: "/settings/file-storage",
   },
   {
     key: "about",

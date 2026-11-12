@@ -6,7 +6,6 @@ export type CloudProvider = "imagekit" | "s3";
 
 export interface ImagekitCloudConfig {
   publicKey: string;
-  privateKey: string;
   uploadUrl: string;
   folder?: string;
 }
@@ -14,8 +13,6 @@ export interface ImagekitCloudConfig {
 export interface S3CloudConfig {
   bucket: string;
   region: string;
-  accessKeyId: string;
-  secretAccessKey: string;
   endpoint?: string;
   publicBaseUrl?: string;
   keyPrefix?: string;
@@ -27,25 +24,41 @@ export interface CloudStorageConfig {
   s3?: S3CloudConfig;
 }
 
-interface BackupServerConfig {
-  provider: BackupProvider;
-  cloud?: CloudStorageConfig;
+export interface ImagekitCloudRequest extends ImagekitCloudConfig {
+  privateKey?: string;
 }
 
-interface CloudStorageStatus {
+export interface S3CloudRequest extends S3CloudConfig {
+  accessKeyId?: string;
+  secretAccessKey?: string;
+}
+
+export interface CloudStorageRequest {
+  provider: CloudProvider;
+  imagekit?: ImagekitCloudRequest;
+  s3?: S3CloudRequest;
+}
+
+export interface CloudStorageStatus {
   active: boolean;
+  enabled: boolean;
   provider: string | null;
+  hasCredentials: boolean;
+  config: CloudStorageConfig | null;
 }
-
-const STRONGHOLD_KEY = "sync-server";
 
 export const useBackupSettingsStore = defineStore("backup_settings", {
   state: () => ({
     initialized: false,
+    available: true,
+    error: null as string | null,
+
     provider: "local" as BackupProvider,
     cloudProvider: "s3" as CloudProvider,
-    savedConfig: null as BackupServerConfig | null,
     cloudActive: false,
+    hasStoredSecrets: false,
+    storedProvider: null as CloudProvider | null,
+
     testResult: null as string | null,
     testing: false,
     saving: false,
@@ -67,138 +80,105 @@ export const useBackupSettingsStore = defineStore("backup_settings", {
   }),
 
   getters: {
-    savedConfigExists: (state) => state.savedConfig !== null,
+    savedConfigExists: (state) => state.hasStoredSecrets,
     isCloudConfigured: (state) => state.cloudActive,
+    hasStoredSecretFor: (state) => (provider: CloudProvider) =>
+      state.hasStoredSecrets && state.storedProvider === provider,
   },
 
   actions: {
+    applyStatus(status: CloudStorageStatus) {
+      this.cloudActive = status.active;
+      this.provider = status.enabled ? "cloud" : "local";
+      this.hasStoredSecrets = status.hasCredentials;
+      this.storedProvider = (status.provider as CloudProvider | null) ?? null;
+
+      if (status.config) {
+        this.cloudProvider = status.config.provider;
+        this.restoreCloudFields(status.config);
+      }
+    },
+
     async init() {
       if (this.initialized) return;
 
-      const stronghold = useStronghold();
-
       try {
-        await stronghold.init(STRONGHOLD_KEY);
-        this.initialized = true;
-      } catch (error) {
-        console.error("Failed to initialize stronghold:", error);
-        return;
-      }
-
-      try {
-        const config =
-          await stronghold.getItem<BackupServerConfig>(STRONGHOLD_KEY);
-        if (config) {
-          this.savedConfig = config;
-          this.provider = config.provider;
-
-          if (config.cloud) {
-            this.cloudProvider = config.cloud.provider;
-            this.restoreCloudFields(config.cloud);
-
-            if (config.provider === "cloud") {
-              await this.activateCloudStorage();
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load backup config:", error);
-      }
-
-      // Check current cloud storage status from backend
-      try {
-        const status = await invoke<CloudStorageStatus>(
-          "get_cloud_storage_status",
-        );
-        this.cloudActive = status.active;
+        const status =
+          await invoke<CloudStorageStatus>("get_cloud_storage_status");
+        this.applyStatus(status);
       } catch {
-        // Backend not available (browser mode)
+        this.available = false;
+        this.error =
+          "Cloud backup is only available in the desktop app. Credentials are stored in your operating system's keychain.";
+      } finally {
+        this.initialized = true;
       }
     },
 
     restoreCloudFields(cloud: CloudStorageConfig) {
       if (cloud.imagekit) {
         this.imagekitPublicKey = cloud.imagekit.publicKey;
-        this.imagekitPrivateKey = cloud.imagekit.privateKey;
         this.imagekitUploadUrl = cloud.imagekit.uploadUrl;
         this.imagekitFolder = cloud.imagekit.folder ?? "";
       }
       if (cloud.s3) {
         this.s3Bucket = cloud.s3.bucket;
         this.s3Region = cloud.s3.region;
-        this.s3AccessKeyId = cloud.s3.accessKeyId;
-        this.s3SecretAccessKey = cloud.s3.secretAccessKey;
         this.s3Endpoint = cloud.s3.endpoint ?? "";
         this.s3PublicBaseUrl = cloud.s3.publicBaseUrl ?? "";
         this.s3KeyPrefix = cloud.s3.keyPrefix ?? "";
       }
     },
 
-    buildCloudConfig(): CloudStorageConfig {
-      const config: CloudStorageConfig = {
-        provider: this.cloudProvider,
-      };
+    clearSecretInputs() {
+      this.imagekitPrivateKey = "";
+      this.s3AccessKeyId = "";
+      this.s3SecretAccessKey = "";
+    },
 
+    buildCloudRequest(): CloudStorageRequest {
       if (this.cloudProvider === "imagekit") {
-        config.imagekit = {
-          publicKey: this.imagekitPublicKey,
-          privateKey: this.imagekitPrivateKey,
-          uploadUrl: this.imagekitUploadUrl,
-          folder: this.imagekitFolder || undefined,
+        return {
+          provider: "imagekit",
+          imagekit: {
+            publicKey: this.imagekitPublicKey,
+            uploadUrl: this.imagekitUploadUrl,
+            folder: this.imagekitFolder || undefined,
+            privateKey: this.imagekitPrivateKey || undefined,
+          },
         };
-      } else {
-        config.s3 = {
+      }
+
+      return {
+        provider: "s3",
+        s3: {
           bucket: this.s3Bucket,
           region: this.s3Region,
-          accessKeyId: this.s3AccessKeyId,
-          secretAccessKey: this.s3SecretAccessKey,
           endpoint: this.s3Endpoint || undefined,
           publicBaseUrl: this.s3PublicBaseUrl || undefined,
           keyPrefix: this.s3KeyPrefix || undefined,
-        };
-      }
-
-      return config;
-    },
-
-    async activateCloudStorage() {
-      const cloud = this.buildCloudConfig();
-      try {
-        const status = await invoke<CloudStorageStatus>(
-          "configure_cloud_storage",
-          { config: cloud },
-        );
-        this.cloudActive = status.active;
-      } catch (error) {
-        console.error("Failed to activate cloud storage:", error);
-        this.cloudActive = false;
-      }
+          accessKeyId: this.s3AccessKeyId || undefined,
+          secretAccessKey: this.s3SecretAccessKey || undefined,
+        },
+      };
     },
 
     async save() {
       this.saving = true;
-      const stronghold = useStronghold();
+      this.error = null;
 
       try {
-        const payload: BackupServerConfig = {
-          provider: this.provider,
-        };
+        const status =
+          this.provider === "cloud"
+            ? await invoke<CloudStorageStatus>("save_cloud_storage", {
+                config: this.buildCloudRequest(),
+              })
+            : await invoke<CloudStorageStatus>("disable_cloud_storage");
 
-        if (this.provider === "cloud") {
-          payload.cloud = this.buildCloudConfig();
-          await this.activateCloudStorage();
-        } else {
-          // Disable cloud storage in backend
-          try {
-            await invoke("disable_cloud_storage");
-            this.cloudActive = false;
-          } catch {
-            // Browser mode
-          }
-        }
-
-        await stronghold.setItem(STRONGHOLD_KEY, payload);
-        this.savedConfig = payload;
+        this.applyStatus(status);
+        this.clearSecretInputs();
+      } catch (error) {
+        this.error = `Could not save backup settings: ${error}`;
       } finally {
         this.saving = false;
       }
@@ -207,16 +187,34 @@ export const useBackupSettingsStore = defineStore("backup_settings", {
     async testConnection() {
       this.testing = true;
       this.testResult = null;
+      this.error = null;
 
       try {
-        // Temporarily activate so we can test
-        await this.activateCloudStorage();
-        const url = await invoke<string>("test_cloud_connection");
+        const url = await invoke<string>("test_cloud_storage", {
+          config: this.buildCloudRequest(),
+        });
         this.testResult = `Connected successfully. Test file: ${url}`;
       } catch (error) {
         this.testResult = `Connection failed: ${error}`;
       } finally {
         this.testing = false;
+      }
+    },
+
+    async removeCredentials() {
+      this.saving = true;
+      this.error = null;
+
+      try {
+        const status =
+          await invoke<CloudStorageStatus>("clear_cloud_storage");
+        this.applyStatus(status);
+        this.clearSecretInputs();
+        this.testResult = null;
+      } catch (error) {
+        this.error = `Could not remove credentials: ${error}`;
+      } finally {
+        this.saving = false;
       }
     },
   },

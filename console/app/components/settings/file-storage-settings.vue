@@ -51,7 +51,7 @@ onMounted(() => backupStore.init());
   <div class="flex flex-col gap-4 mt-4">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-5">
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
-        Backup & Sync
+        File Storage
       </h2>
       <p class="text-xs text-gray-400 mb-4">
         Choose where your whiteboard images are stored.
@@ -109,6 +109,14 @@ onMounted(() => backupStore.init());
         </button>
       </div>
 
+      <!-- Error -->
+      <div
+        v-if="backupStore.error"
+        class="text-xs p-3 mb-4 rounded-lg bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300"
+      >
+        {{ backupStore.error }}
+      </div>
+
       <!-- Cloud configuration -->
       <div v-if="backupStore.provider === 'cloud'" class="flex flex-col gap-4">
         <!-- Cloud provider selector -->
@@ -144,6 +152,11 @@ onMounted(() => backupStore.init());
             </button>
           </div>
         </div>
+
+        <p class="text-xs text-gray-400">
+          Secrets are stored in your operating system's keychain and are never
+          shown again after saving.
+        </p>
 
         <!-- S3 config fields -->
         <div
@@ -184,7 +197,13 @@ onMounted(() => backupStore.init());
             <input
               v-model="backupStore.s3AccessKeyId"
               type="password"
-              placeholder="AKIA..."
+              autocomplete="off"
+              spellcheck="false"
+              :placeholder="
+                backupStore.hasStoredSecretFor('s3')
+                  ? '•••••••• saved — leave blank to keep'
+                  : 'AKIA...'
+              "
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
             />
           </div>
@@ -196,7 +215,13 @@ onMounted(() => backupStore.init());
             <input
               v-model="backupStore.s3SecretAccessKey"
               type="password"
-              placeholder="secret"
+              autocomplete="off"
+              spellcheck="false"
+              :placeholder="
+                backupStore.hasStoredSecretFor('s3')
+                  ? '•••••••• saved — leave blank to keep'
+                  : 'secret'
+              "
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
             />
           </div>
@@ -269,7 +294,13 @@ onMounted(() => backupStore.init());
             <input
               v-model="backupStore.imagekitPrivateKey"
               type="password"
-              placeholder="private_..."
+              autocomplete="off"
+              spellcheck="false"
+              :placeholder="
+                backupStore.hasStoredSecretFor('imagekit')
+                  ? '•••••••• saved — leave blank to keep'
+                  : 'private_...'
+              "
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
             />
           </div>
@@ -309,6 +340,13 @@ onMounted(() => backupStore.init());
           <div class="size-2 rounded-full bg-green-500" />
           Cloud backup active
         </div>
+        <div
+          v-else-if="backupStore.hasStoredSecrets"
+          class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
+        >
+          <div class="size-2 rounded-full bg-gray-400" />
+          Credentials saved, cloud backup is off
+        </div>
 
         <!-- Test result -->
         <div
@@ -324,20 +362,28 @@ onMounted(() => backupStore.init());
         </div>
 
         <!-- Action buttons -->
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button
-            class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            :disabled="backupStore.testing"
+            class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+            :disabled="backupStore.testing || !backupStore.available"
             @click="backupStore.testConnection()"
           >
             {{ backupStore.testing ? "Testing..." : "Test connection" }}
           </button>
           <button
-            class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors"
-            :disabled="backupStore.saving"
+            class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-50"
+            :disabled="backupStore.saving || !backupStore.available"
             @click="backupStore.save()"
           >
             {{ backupStore.saving ? "Saving..." : "Save" }}
+          </button>
+          <button
+            v-if="backupStore.hasStoredSecrets"
+            class="px-4 py-2 text-sm font-medium rounded-lg border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50"
+            :disabled="backupStore.saving"
+            @click="backupStore.removeCredentials()"
+          >
+            Remove credentials
           </button>
         </div>
       </div>
@@ -345,8 +391,8 @@ onMounted(() => backupStore.init());
       <!-- Local mode: simple save -->
       <div v-if="backupStore.provider === 'local'" class="mt-2">
         <button
-          class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors"
-          :disabled="backupStore.saving"
+          class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-50"
+          :disabled="backupStore.saving || !backupStore.available"
           @click="backupStore.save()"
         >
           {{ backupStore.saving ? "Saving..." : "Save" }}

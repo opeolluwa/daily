@@ -1,6 +1,7 @@
 mod adapters;
 mod commands;
 mod errors;
+mod secrets;
 mod state;
 use std::sync::Arc;
 
@@ -82,6 +83,9 @@ pub async fn run() {
                     let state = AppState::new(conn).await;
 
                     app_handle.manage(state);
+
+                    let state = app_handle.state::<AppState>();
+                    commands::cloud_storage::load_saved_storage(&app_handle, state.inner()).await;
                 })
             });
 
@@ -176,10 +180,11 @@ pub async fn run() {
             commands::moodboard::save_moodboard_image,
             commands::moodboard::list_moodboard_images,
             commands::moodboard::delete_moodboard_image,
-            commands::cloud_storage::configure_cloud_storage,
+            commands::cloud_storage::save_cloud_storage,
             commands::cloud_storage::get_cloud_storage_status,
             commands::cloud_storage::disable_cloud_storage,
-            commands::cloud_storage::test_cloud_connection,
+            commands::cloud_storage::clear_cloud_storage,
+            commands::cloud_storage::test_cloud_storage,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

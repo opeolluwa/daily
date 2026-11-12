@@ -29,10 +29,6 @@
     }
   },
   "bundle": {
-    "android": {
-      "autoIncrementVersionCode": true,
-      "minSdkVersion": 24
-    },
     "active": true,
     "targets": "all",
     "resources": {

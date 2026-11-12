@@ -18,6 +18,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@daily/core": "file:../core",
     "@domternal/core": "^1.8.0",
     "@domternal/extension-block-controls": "^1.8.0",
     "@domternal/extension-block-menu": "^0.15.0",
@@ -29,6 +30,7 @@
     "@domternal/extension-table": "^1.8.0",
     "@domternal/theme": "^1.8.0",
     "@domternal/vue": "^1.8.0",
+    "@drawvue/core": "workspace:*",
     "@electric-sql/pglite": "^0.5.15",
     "@excalidraw/common": "0.18.0-f0063e113",
     "@excalidraw/element": "0.18.0-f0063e113",
@@ -50,7 +52,6 @@
     "@tauri-apps/plugin-notification": "^2.8.0",
     "@tauri-apps/plugin-opener": "^2.7.2",
     "@tauri-apps/plugin-os": "^2.4.0",
-    "@tauri-apps/plugin-stronghold": "^2.4.0",
     "@tauri-apps/plugin-window-state": "^2.5.0",
     "@vue-dnd-kit/core": "^3.1.0",
     "@vueuse/core": "^14.4.0",
@@ -62,7 +63,6 @@
     "katex": "^0.17.0",
     "lodash": "^4.18.1",
     "lowlight": "^3.3.0",
-    "@daily/core": "file:../core",
     "nanoid": "^5.1.16",
     "nuxt": "^4.6.4",
     "nuxt-seo-utils": "9.0.1",
@@ -79,7 +79,6 @@
     "uuid": "^14.0.3",
     "v-calendar": "^2.4.2",
     "vue": "^3.5.44",
-        "@drawvue/core": "workspace:*",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {

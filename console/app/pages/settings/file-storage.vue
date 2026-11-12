@@ -3,5 +3,5 @@ definePageMeta({ layout: "settings" });
 </script>
 
 <template>
-  <SettingsBackupSettings />
+  <SettingsFileStorageSettings />
 </template>
