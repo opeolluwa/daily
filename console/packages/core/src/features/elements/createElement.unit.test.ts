@@ -1,16 +1,26 @@
-import type { ExcalidrawElement, ExcalidrawArrowElement } from "./types";
+import type {
+  ExcalidrawElement,
+  ExcalidrawArrowElement,
+  ExcalidrawTextElement,
+} from "./types";
 import { createElement } from "./createElement";
 import {
   DEFAULT_BG_COLOR,
   DEFAULT_FILL_STYLE,
+  DEFAULT_FONT_SIZE,
   DEFAULT_OPACITY,
   DEFAULT_ROUGHNESS,
   DEFAULT_STROKE_COLOR,
   DEFAULT_STROKE_WIDTH,
 } from "./constants";
+import { getFontString } from "../rendering/textMeasurement";
 
 function assertIsArrow(el: ExcalidrawElement): asserts el is ExcalidrawArrowElement {
   expect(el.type).toBe("arrow");
+}
+
+function assertIsText(el: ExcalidrawElement): asserts el is ExcalidrawTextElement {
+  expect(el.type).toBe("text");
 }
 
 describe("createElement", () => {
@@ -121,6 +131,15 @@ describe("createElement", () => {
       expect(el.type).toBe("diamond");
       expect(el.x).toBe(50);
       expect(el.y).toBe(60);
+    });
+
+    it("creates text with Lato as the default font", () => {
+      const el = createElement("text", 0, 0);
+      assertIsText(el);
+      expect(el.fontFamily).toBe(4);
+      expect(getFontString(DEFAULT_FONT_SIZE, el.fontFamily)).toBe(
+        "20px Lato, sans-serif",
+      );
     });
 
     it("creates arrow with points and arrowheads", () => {
