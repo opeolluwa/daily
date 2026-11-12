@@ -20,7 +20,8 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 base64 = "0.22"
 chrono = { version = "0.4.43", features = ["serde"] }
 log = "0.4"
-kernel = { version = "0.1.0", path = "../../core", features = ["pdf"] }
+kernel = { version = "0.1.0", path = "../../core", features = ["pdf", "filestore"] }
+secrecy = "0.10"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 sanitizer = { version = "1.0.0", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }

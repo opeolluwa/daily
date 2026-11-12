@@ -176,6 +176,10 @@ pub async fn run() {
             commands::moodboard::save_moodboard_image,
             commands::moodboard::list_moodboard_images,
             commands::moodboard::delete_moodboard_image,
+            commands::cloud_storage::configure_cloud_storage,
+            commands::cloud_storage::get_cloud_storage_status,
+            commands::cloud_storage::disable_cloud_storage,
+            commands::cloud_storage::test_cloud_connection,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

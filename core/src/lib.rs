@@ -13,5 +13,7 @@ pub use sea_orm;
 pub mod cipher;
 #[cfg(feature = "pdf")]
 pub mod ironpress;
+#[cfg(all(not(target_arch = "wasm32"), feature = "filestore"))]
+pub mod filestore;
 #[cfg(not(target_arch = "wasm32"))]
 pub use migration;

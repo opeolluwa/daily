@@ -1,10 +1,15 @@
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use kernel::{
     adapters::meta::RequestMeta,
-    entities::whiteboards,
+    entities::{whiteboard_files, whiteboards},
+    filestore::FileStoreProvider,
     repositories::whiteboards::WhiteboardRepositoryExt,
     repositories::workspace_manager::TransferRecord,
+    sea_orm::{
+        ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set,
+    },
 };
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
@@ -168,9 +173,17 @@ fn system_time_to_rfc3339(time: Option<std::time::SystemTime>) -> String {
         .unwrap_or_else(|| chrono::Utc::now().to_rfc3339())
 }
 
+/// Decode a `data:<mime>;base64,<payload>` URL into raw bytes.
+fn decode_data_url(data: &str) -> Option<Vec<u8>> {
+    let after_comma = data.find(',').map(|i| &data[i + 1..])?;
+    use base64::{Engine, engine::general_purpose::STANDARD};
+    STANDARD.decode(after_comma).ok()
+}
+
 #[tauri::command]
 pub async fn save_whiteboard_file(
     app: AppHandle,
+    state: State<'_, AppState>,
     whiteboard_identifier: String,
     file_id: String,
     _mime_type: String,
@@ -192,6 +205,26 @@ pub async fn save_whiteboard_file(
     let path = file_path(&app, &whiteboard_id, &file_uuid)?;
     std::fs::write(&path, &data).map_err(|e| e.to_string())?;
 
+    // Background CDN upload when cloud storage is configured
+    let cloud_storage = state.cloud_storage.clone();
+    let db = state.db.clone();
+    let data_clone = data.clone();
+    let mime = mime_from_data_url(&data);
+    let file_name = format!("{file_uuid}.{}", extension_from_mime(&mime));
+
+    tokio::spawn(async move {
+        upload_to_cloud(
+            cloud_storage,
+            db,
+            file_uuid,
+            whiteboard_id,
+            &data_clone,
+            &mime,
+            &file_name,
+        )
+        .await;
+    });
+
     let now = chrono::Utc::now().to_rfc3339();
     Ok(WhiteboardFile {
         identifier: file_id,
@@ -203,9 +236,104 @@ pub async fn save_whiteboard_file(
     })
 }
 
+fn extension_from_mime(mime: &str) -> &str {
+    match mime {
+        "image/png" => "png",
+        "image/jpeg" | "image/jpg" => "jpg",
+        "image/gif" => "gif",
+        "image/webp" => "webp",
+        "image/svg+xml" => "svg",
+        _ => "bin",
+    }
+}
+
+async fn upload_to_cloud(
+    cloud_storage: Arc<tokio::sync::RwLock<Option<kernel::filestore::FileStoreEngine>>>,
+    db: Arc<DatabaseConnection>,
+    file_id: Uuid,
+    whiteboard_id: Uuid,
+    data: &str,
+    mime: &str,
+    file_name: &str,
+) {
+    let guard = cloud_storage.read().await;
+    let engine = match guard.as_ref() {
+        Some(e) => e,
+        None => return,
+    };
+
+    let bytes = match decode_data_url(data) {
+        Some(b) => b,
+        None => {
+            log::warn!("failed to decode data URL for cloud upload of {file_id}");
+            return;
+        }
+    };
+
+    let temp_dir = std::env::temp_dir();
+    let temp_path = temp_dir.join(format!("daily-upload-{file_name}"));
+    if let Err(e) = tokio::fs::write(&temp_path, &bytes).await {
+        log::warn!("failed to write temp file for cloud upload: {e}");
+        return;
+    }
+
+    let result = engine
+        .upload_file(&temp_path, file_name, Some(mime))
+        .await;
+
+    let _ = tokio::fs::remove_file(&temp_path).await;
+
+    let remote_url = match result {
+        Ok(url) => url,
+        Err(e) => {
+            log::warn!("cloud upload failed for {file_id}: {e}");
+            return;
+        }
+    };
+
+    // Upsert the remote_url into whiteboard_files table
+    let now = chrono::Utc::now().into();
+    let active = whiteboard_files::ActiveModel {
+        identifier: Set(file_id),
+        whiteboard_identifier: Set(whiteboard_id),
+        mime_type: Set(mime.to_string()),
+        data: Set(String::new()),
+        remote_url: Set(Some(remote_url.clone())),
+        created_at: Set(now),
+        updated_at: Set(now),
+    };
+
+    // Try insert first, update on conflict
+    let existing = whiteboard_files::Entity::find_by_id(file_id)
+        .one(db.as_ref())
+        .await;
+
+    match existing {
+        Ok(Some(_)) => {
+            let update = whiteboard_files::ActiveModel {
+                identifier: Set(file_id),
+                remote_url: Set(Some(remote_url)),
+                updated_at: Set(now),
+                ..Default::default()
+            };
+            if let Err(e) = update.update(db.as_ref()).await {
+                log::warn!("failed to update remote_url for {file_id}: {e}");
+            }
+        }
+        _ => {
+            if let Err(e) = active.insert(db.as_ref()).await {
+                log::warn!("failed to insert whiteboard_files row for {file_id}: {e}");
+            }
+        }
+    }
+
+    log::info!("cloud backup complete for file {file_id}");
+}
+
 #[tauri::command]
 pub async fn get_whiteboard_files(
     app: AppHandle,
+    state: State<'_, AppState>,
     whiteboard_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<Vec<WhiteboardFile>, String> {
@@ -214,62 +342,117 @@ pub async fn get_whiteboard_files(
 
     let dir = whiteboard_files_dir(&app, &whiteboard_id)?;
 
-    if !dir.exists() {
-        return Ok(vec![]);
+    // Collect local files
+    let mut files = vec![];
+    let mut local_ids = std::collections::HashSet::new();
+
+    if dir.exists() {
+        let mut entries: Vec<_> = std::fs::read_dir(&dir)
+            .map_err(|e| e.to_string())?
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().is_file())
+            .collect();
+        entries.sort_by_key(|e| {
+            e.metadata()
+                .and_then(|m| m.created().or_else(|_| m.modified()))
+                .unwrap_or(std::time::SystemTime::UNIX_EPOCH)
+        });
+
+        for entry in entries {
+            let path = entry.path();
+            let file_name = path
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+
+            if Uuid::parse_str(&file_name).is_err() {
+                continue;
+            }
+
+            let data = match std::fs::read_to_string(&path) {
+                Ok(data) => data,
+                Err(_) => continue,
+            };
+
+            local_ids.insert(file_name.clone());
+            let metadata = entry.metadata().ok();
+            files.push(WhiteboardFile {
+                identifier: file_name,
+                whiteboard_identifier: whiteboard_identifier.clone(),
+                mime_type: mime_from_data_url(&data),
+                data,
+                created_at: system_time_to_rfc3339(
+                    metadata.as_ref().and_then(|m| m.created().ok()),
+                ),
+                updated_at: system_time_to_rfc3339(
+                    metadata.as_ref().and_then(|m| m.modified().ok()),
+                ),
+            });
+        }
     }
 
-    let mut files = vec![];
+    // CDN fallback: check DB for files with remote_url not found locally
+    let db_files = whiteboard_files::Entity::find()
+        .filter(whiteboard_files::Column::WhiteboardIdentifier.eq(whiteboard_id))
+        .all(state.db.as_ref())
+        .await
+        .unwrap_or_default();
 
-    let mut entries: Vec<_> = std::fs::read_dir(&dir)
-        .map_err(|e| e.to_string())?
-        .filter_map(|e| e.ok())
-        .filter(|e| e.path().is_file())
-        .collect();
-    entries.sort_by_key(|e| {
-        e.metadata()
-            .and_then(|m| m.created().or_else(|_| m.modified()))
-            .unwrap_or(std::time::SystemTime::UNIX_EPOCH)
-    });
-
-    for entry in entries {
-        let path = entry.path();
-        let file_name = path
-            .file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string();
-
-        // Only accept UUID-named files created by save_whiteboard_file
-        if Uuid::parse_str(&file_name).is_err() {
+    for db_file in db_files {
+        let id_str = db_file.identifier.to_string();
+        if local_ids.contains(&id_str) {
             continue;
         }
 
-        let data = match std::fs::read_to_string(&path) {
-            Ok(data) => data,
-            Err(_) => continue,
+        let remote_url = match &db_file.remote_url {
+            Some(url) if !url.is_empty() => url,
+            _ => continue,
         };
 
-        let metadata = entry.metadata().ok();
+        // Download from CDN and reconstruct data URL
+        let data_url = match download_as_data_url(remote_url, &db_file.mime_type).await {
+            Some(d) => d,
+            None => continue,
+        };
+
+        // Re-cache locally for next time
+        if let Ok(local_dir) = whiteboard_files_dir(&app, &whiteboard_id) {
+            let _ = std::fs::create_dir_all(&local_dir);
+            let local_path = local_dir.join(id_str.clone());
+            let _ = std::fs::write(&local_path, &data_url);
+        }
+
         files.push(WhiteboardFile {
-            identifier: file_name,
+            identifier: id_str,
             whiteboard_identifier: whiteboard_identifier.clone(),
-            mime_type: mime_from_data_url(&data),
-            data,
-            created_at: system_time_to_rfc3339(
-                metadata.as_ref().and_then(|m| m.created().ok()),
-            ),
-            updated_at: system_time_to_rfc3339(
-                metadata.as_ref().and_then(|m| m.modified().ok()),
-            ),
+            mime_type: db_file.mime_type,
+            data: data_url,
+            created_at: db_file.created_at.to_rfc3339(),
+            updated_at: db_file.updated_at.to_rfc3339(),
         });
     }
 
     Ok(files)
 }
 
+async fn download_as_data_url(url: &str, mime_type: &str) -> Option<String> {
+    let response = reqwest::get(url).await.ok()?;
+    if !response.status().is_success() {
+        log::warn!("CDN download failed for {url}: {}", response.status());
+        return None;
+    }
+
+    let bytes = response.bytes().await.ok()?;
+    use base64::{Engine, engine::general_purpose::STANDARD};
+    let b64 = STANDARD.encode(&bytes);
+    Some(format!("data:{mime_type};base64,{b64}"))
+}
+
 #[tauri::command]
 pub async fn delete_whiteboard_file(
     app: AppHandle,
+    state: State<'_, AppState>,
     file_id: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), String> {
@@ -277,22 +460,25 @@ pub async fn delete_whiteboard_file(
         .map_err(|_| "invalid file identifier".to_string())?;
 
     let root = whiteboards_root(&app)?;
-    if !root.exists() {
-        return Ok(());
-    }
-
-    // The file id is unique; find it under any whiteboard directory.
-    for entry in std::fs::read_dir(&root)
-        .map_err(|e| e.to_string())?
-        .filter_map(|e| e.ok())
-        .filter(|e| e.path().is_dir())
-    {
-        let path = entry.path().join(file_uuid.to_string());
-        if path.is_file() {
-            std::fs::remove_file(&path).map_err(|e| e.to_string())?;
-            return Ok(());
+    if root.exists() {
+        // The file id is unique; find it under any whiteboard directory.
+        for entry in std::fs::read_dir(&root)
+            .map_err(|e| e.to_string())?
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().is_dir())
+        {
+            let path = entry.path().join(file_uuid.to_string());
+            if path.is_file() {
+                std::fs::remove_file(&path).map_err(|e| e.to_string())?;
+                break;
+            }
         }
     }
+
+    // Also remove from DB (cloud backup tracking)
+    let _ = whiteboard_files::Entity::delete_by_id(file_uuid)
+        .exec(state.db.as_ref())
+        .await;
 
     Ok(())
 }

@@ -9,8 +9,10 @@ crate-type = ["cdylib", "lib"]
 [features]
 pdf = ["dep:ironpress"]
 cipher = ["hex", "aes-gcm", "base64"]
+filestore = ["dep:aws-sdk-s3", "dep:secrecy", "dep:url", "reqwest/multipart", "reqwest/rustls", "base64"]
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+aws-sdk-s3 = { version = "1", features = ["behavior-version-latest"], optional = true }
 migration = { version = "0.1.0", path = "migration" }
 reqwest = { version = "0.13.2", features = ["json"] }
 sea-orm = { version = "2.0.0-rc.37", features = [
@@ -18,6 +20,8 @@ sea-orm = { version = "2.0.0-rc.37", features = [
     "sqlx-sqlite",
     "runtime-tokio-rustls",
 ] }
+secrecy = { version = "0.10", optional = true }
+url = { version = "2.5", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }
@@ -68,3 +72,4 @@ features = [
 
 [dev-dependencies]
 lazy_static = "1.5.0"
+tempfile = "3"

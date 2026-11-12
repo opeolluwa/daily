@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { useBackupSettingsStore } from "~/stores/backup-settings";
+import {
+  useBackupSettingsStore,
+  type BackupProvider,
+  type CloudProvider,
+} from "~/stores/backup-settings";
 
-type BackupProvider = "local" | "cloud";
-
-const options: {
+const providerOptions: {
   key: BackupProvider;
   label: string;
   desc: string;
@@ -12,14 +14,31 @@ const options: {
   {
     key: "local",
     label: "Local only",
-    desc: "Data stays on this device, no sync.",
+    desc: "Data stays on this device, no cloud backup.",
     icon: "heroicons:computer-desktop",
   },
   {
     key: "cloud",
-    label: "Almond Cloud",
-    desc: "Sync across devices via Almond Cloud.",
-    icon: "heroicons:cloud",
+    label: "Local + Cloud backup",
+    desc: "Save locally, back up images to your cloud storage.",
+    icon: "heroicons:cloud-arrow-up",
+  },
+];
+
+const cloudProviderOptions: {
+  key: CloudProvider;
+  label: string;
+  desc: string;
+}[] = [
+  {
+    key: "s3",
+    label: "Amazon S3",
+    desc: "AWS S3 or any S3-compatible service (MinIO, R2, etc.)",
+  },
+  {
+    key: "imagekit",
+    label: "ImageKit",
+    desc: "ImageKit CDN with automatic optimisation.",
   },
 ];
 
@@ -35,13 +54,13 @@ onMounted(() => backupStore.init());
         Backup & Sync
       </h2>
       <p class="text-xs text-gray-400 mb-4">
-        Choose where your data is stored and synced.
+        Choose where your whiteboard images are stored.
       </p>
 
       <!-- Provider options -->
       <div class="flex flex-col gap-2 mb-5">
         <button
-          v-for="opt in options"
+          v-for="opt in providerOptions"
           :key="opt.key"
           class="flex items-start gap-3 p-3 rounded-lg border transition-colors text-left"
           :class="
@@ -90,26 +109,248 @@ onMounted(() => backupStore.init());
         </button>
       </div>
 
-      <!-- Almond Cloud CTA -->
-      <div
-        v-if="backupStore.provider === 'cloud'"
-        class="rounded-lg bg-primary-50 dark:bg-primary-950 border border-primary-100 dark:border-primary-800 p-4 flex items-center justify-between gap-4"
-      >
+      <!-- Cloud configuration -->
+      <div v-if="backupStore.provider === 'cloud'" class="flex flex-col gap-4">
+        <!-- Cloud provider selector -->
         <div>
-          <p class="text-sm font-medium text-primary-700 dark:text-primary-300">
-            Almond Cloud
-          </p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Secure, encrypted sync. Plans start free.
-          </p>
+          <label
+            class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-2"
+          >
+            Cloud provider
+          </label>
+          <div class="flex gap-2">
+            <button
+              v-for="cp in cloudProviderOptions"
+              :key="cp.key"
+              class="flex-1 p-3 rounded-lg border text-left transition-colors"
+              :class="
+                backupStore.cloudProvider === cp.key
+                  ? 'border-primary-400 bg-primary-50 dark:bg-primary-950 dark:border-primary-600'
+                  : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+              "
+              @click="backupStore.cloudProvider = cp.key"
+            >
+              <p
+                class="text-sm font-medium"
+                :class="
+                  backupStore.cloudProvider === cp.key
+                    ? 'text-primary-700 dark:text-primary-300'
+                    : 'text-gray-700 dark:text-gray-200'
+                "
+              >
+                {{ cp.label }}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">{{ cp.desc }}</p>
+            </button>
+          </div>
         </div>
-        <NuxtLink
-          to="/pricing"
-          class="shrink-0 px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors flex items-center gap-1.5"
+
+        <!-- S3 config fields -->
+        <div
+          v-if="backupStore.cloudProvider === 's3'"
+          class="flex flex-col gap-3"
         >
-          View plans
-          <UIcon name="heroicons:arrow-top-right-on-square" class="size-3.5" />
-        </NuxtLink>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                >Bucket</label
+              >
+              <input
+                v-model="backupStore.s3Bucket"
+                type="text"
+                placeholder="my-bucket"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                >Region</label
+              >
+              <input
+                v-model="backupStore.s3Region"
+                type="text"
+                placeholder="us-east-1"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              >Access Key ID</label
+            >
+            <input
+              v-model="backupStore.s3AccessKeyId"
+              type="password"
+              placeholder="AKIA..."
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              >Secret Access Key</label
+            >
+            <input
+              v-model="backupStore.s3SecretAccessKey"
+              type="password"
+              placeholder="secret"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+            >
+              Custom endpoint
+              <span class="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              v-model="backupStore.s3Endpoint"
+              type="text"
+              placeholder="https://s3.example.com"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+            >
+              Public base URL / CDN
+              <span class="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              v-model="backupStore.s3PublicBaseUrl"
+              type="text"
+              placeholder="https://cdn.example.com"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+            >
+              Key prefix
+              <span class="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              v-model="backupStore.s3KeyPrefix"
+              type="text"
+              placeholder="uploads/whiteboards"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+        </div>
+
+        <!-- ImageKit config fields -->
+        <div
+          v-if="backupStore.cloudProvider === 'imagekit'"
+          class="flex flex-col gap-3"
+        >
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              >Public Key</label
+            >
+            <input
+              v-model="backupStore.imagekitPublicKey"
+              type="text"
+              placeholder="public_..."
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              >Private Key</label
+            >
+            <input
+              v-model="backupStore.imagekitPrivateKey"
+              type="password"
+              placeholder="private_..."
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              >Upload URL</label
+            >
+            <input
+              v-model="backupStore.imagekitUploadUrl"
+              type="text"
+              placeholder="https://upload.imagekit.io/api/v1/files/upload"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+            >
+              Folder
+              <span class="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              v-model="backupStore.imagekitFolder"
+              type="text"
+              placeholder="/whiteboards"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+            />
+          </div>
+        </div>
+
+        <!-- Status indicator -->
+        <div
+          v-if="backupStore.cloudActive"
+          class="flex items-center gap-2 text-xs text-green-600 dark:text-green-400"
+        >
+          <div class="size-2 rounded-full bg-green-500" />
+          Cloud backup active
+        </div>
+
+        <!-- Test result -->
+        <div
+          v-if="backupStore.testResult"
+          class="text-xs p-3 rounded-lg"
+          :class="
+            backupStore.testResult.startsWith('Connected')
+              ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300'
+              : 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300'
+          "
+        >
+          {{ backupStore.testResult }}
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex gap-2">
+          <button
+            class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            :disabled="backupStore.testing"
+            @click="backupStore.testConnection()"
+          >
+            {{ backupStore.testing ? "Testing..." : "Test connection" }}
+          </button>
+          <button
+            class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors"
+            :disabled="backupStore.saving"
+            @click="backupStore.save()"
+          >
+            {{ backupStore.saving ? "Saving..." : "Save" }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Local mode: simple save -->
+      <div v-if="backupStore.provider === 'local'" class="mt-2">
+        <button
+          class="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors"
+          :disabled="backupStore.saving"
+          @click="backupStore.save()"
+        >
+          {{ backupStore.saving ? "Saving..." : "Save" }}
+        </button>
       </div>
     </div>
   </div>
