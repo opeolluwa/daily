@@ -1,0 +1,19 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_crubit//bazel:rust_api_from_cpp.bzl", "rust_api_from_cpp")
+
+exports_files(["patches/rules_rust_transitive_repin.patch"])
+
+cc_library(
+    name = "dreamfs",
+    srcs = ["library.cpp"],
+    hdrs = ["library.h"],
+    aspect_hints = [":dreamfs_rust.hint"],
+    visibility = ["//visibility:public"],
+)
+
+rust_api_from_cpp(
+    name = "dreamfs_rust",
+    cpp_target = ":dreamfs",
+    root_namespaces = ["dreamfs"],
+    visibility = ["//visibility:public"],
+)

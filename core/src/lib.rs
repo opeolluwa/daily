@@ -17,3 +17,4 @@ pub mod ironpress;
 pub mod filestore;
 #[cfg(not(target_arch = "wasm32"))]
 pub use migration;
+pub mod dreamfs;
