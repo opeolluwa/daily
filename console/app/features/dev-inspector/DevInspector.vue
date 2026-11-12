@@ -11,9 +11,9 @@ import StorageTab from "./tabs/StorageTab.vue";
 import { useTestHook } from "./useTestHook";
 
 const isOpen = ref(false);
-const activeTab = ref<"history" | "elements" | "layers" | "state" | "actions" | "storage">(
-  "history",
-);
+const activeTab = ref<
+  "history" | "elements" | "layers" | "state" | "actions" | "storage"
+>("history");
 
 const ctx = useDrawVue();
 const h = useTestHook();
@@ -37,9 +37,13 @@ useEventListener(document, "keydown", (e: KeyboardEvent) => {
 });
 
 const selectedIds = computed(
-  () => (h?.selectedIds as { value: ReadonlySet<string> })?.value ?? new Set<string>(),
+  () =>
+    (h?.selectedIds as { value: ReadonlySet<string> })?.value ??
+    new Set<string>(),
 );
-const history = computed(() => h?.history as Record<string, unknown> | undefined);
+const history = computed(
+  () => h?.history as Record<string, unknown> | undefined,
+);
 
 const currentElementCount = computed(
   () => ctx.elements.elements.value.filter((el) => !el.isDeleted).length,
@@ -48,14 +52,19 @@ const currentSelectedCount = computed(() => selectedIds.value.size);
 
 const historyCount = computed(() => {
   if (!history.value) return 0;
-  const undoLen = (history.value.undoStack as { value: readonly unknown[] })?.value?.length ?? 0;
-  const redoLen = (history.value.redoStack as { value: readonly unknown[] })?.value?.length ?? 0;
+  const undoLen =
+    (history.value.undoStack as { value: readonly unknown[] })?.value?.length ??
+    0;
+  const redoLen =
+    (history.value.redoStack as { value: readonly unknown[] })?.value?.length ??
+    0;
   return undoLen + redoLen;
 });
 
 function tabBadge(tabId: string): number | null {
   if (tabId === "history" && historyCount.value > 0) return historyCount.value;
-  if (tabId === "elements" && currentElementCount.value > 0) return currentElementCount.value;
+  if (tabId === "elements" && currentElementCount.value > 0)
+    return currentElementCount.value;
   if (tabId === "layers") return 3;
   return null;
 }
@@ -204,7 +213,9 @@ function handleSelect(id: string): void {
         class="flex shrink-0 items-center justify-between border-t border-edge/30 bg-surface/40 px-3 py-1.5 font-mono text-[10px] text-foreground/40"
       >
         <span class="flex items-center gap-1.5">
-          <span class="inline-block h-1.5 w-1.5 rounded-full bg-green-500 dark:bg-green-400" />
+          <span
+            class="inline-block h-1.5 w-1.5 rounded-full bg-green-500 dark:bg-green-400"
+          />
           Live
         </span>
         <span>` to toggle</span>

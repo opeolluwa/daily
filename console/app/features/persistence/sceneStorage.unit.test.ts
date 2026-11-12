@@ -8,10 +8,7 @@ import {
   normalizeElements,
   serializeElements,
 } from "./sceneStorage";
-import {
-  CURRENT_SCHEMA_VERSION,
-  ELEMENT_COUNT_WARN_THRESHOLD,
-} from "./types";
+import { CURRENT_SCHEMA_VERSION, ELEMENT_COUNT_WARN_THRESHOLD } from "./types";
 import type { CurrentPersistedScene, PersistedScene } from "./types";
 
 describe("sceneStorage", () => {
@@ -46,25 +43,41 @@ describe("sceneStorage", () => {
     });
 
     it("returns false for wrong-type schemaVersion", () => {
-      expect(isValidPersistedScene({ schemaVersion: "1", elements: [], savedAt: 1 })).toBe(false);
+      expect(
+        isValidPersistedScene({ schemaVersion: "1", elements: [], savedAt: 1 }),
+      ).toBe(false);
     });
 
     it("returns false for missing elements", () => {
-      expect(isValidPersistedScene({ schemaVersion: 1, savedAt: 1 })).toBe(false);
-    });
-
-    it("returns false for wrong-type elements", () => {
-      expect(isValidPersistedScene({ schemaVersion: 1, elements: "not-array", savedAt: 1 })).toBe(
+      expect(isValidPersistedScene({ schemaVersion: 1, savedAt: 1 })).toBe(
         false,
       );
     });
 
+    it("returns false for wrong-type elements", () => {
+      expect(
+        isValidPersistedScene({
+          schemaVersion: 1,
+          elements: "not-array",
+          savedAt: 1,
+        }),
+      ).toBe(false);
+    });
+
     it("returns false for missing savedAt", () => {
-      expect(isValidPersistedScene({ schemaVersion: 1, elements: [] })).toBe(false);
+      expect(isValidPersistedScene({ schemaVersion: 1, elements: [] })).toBe(
+        false,
+      );
     });
 
     it("returns false for wrong-type savedAt", () => {
-      expect(isValidPersistedScene({ schemaVersion: 1, elements: [], savedAt: "now" })).toBe(false);
+      expect(
+        isValidPersistedScene({
+          schemaVersion: 1,
+          elements: [],
+          savedAt: "now",
+        }),
+      ).toBe(false);
     });
   });
 
@@ -154,7 +167,9 @@ describe("sceneStorage", () => {
       );
 
       serializeElements(elements);
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Element count"));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Element count"),
+      );
 
       warnSpy.mockRestore();
     });
@@ -222,7 +237,10 @@ describe("sceneStorage", () => {
 
     it("ignores deleted elements", () => {
       const alive = createTestElement({ id: "a", isDeleted: false });
-      const withDeleted = [alive, createTestElement({ id: "dead", isDeleted: true })];
+      const withDeleted = [
+        alive,
+        createTestElement({ id: "dead", isDeleted: true }),
+      ];
       expect(hashSceneElements(withDeleted)).toBe(hashSceneElements([alive]));
     });
   });

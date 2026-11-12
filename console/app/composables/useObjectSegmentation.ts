@@ -6,7 +6,10 @@ import type {
   MaskResult,
 } from "../workers/segmentation.types";
 
-export type { SegmentationStatus, SegmentationProgress } from "../workers/segmentation.types";
+export type {
+  SegmentationStatus,
+  SegmentationProgress,
+} from "../workers/segmentation.types";
 
 export interface ProcessedSegment {
   image: HTMLImageElement;
@@ -25,7 +28,8 @@ export function useObjectSegmentation() {
   const errorMessage = ref<string | null>(null);
   const progress = ref<SegmentationProgress>({ percent: null, file: null });
   let idleTimer: ReturnType<typeof setTimeout> | null = null;
-  let pendingResolve: ((value: ProcessedSegment[] | null) => void) | null = null;
+  let pendingResolve: ((value: ProcessedSegment[] | null) => void) | null =
+    null;
 
   function clearIdleTimer(): void {
     if (idleTimer !== null) {
@@ -45,7 +49,8 @@ export function useObjectSegmentation() {
   function handleWorkerError(e: ErrorEvent): void {
     console.error("[segmentation] Worker error:", e.message);
     status.value = "error";
-    errorMessage.value = e.message || "Object segmentation failed unexpectedly.";
+    errorMessage.value =
+      e.message || "Object segmentation failed unexpectedly.";
     worker.value = null;
     clearIdleTimer();
     // Resolve the pending segmentObjects promise so the caller doesn't hang
@@ -58,9 +63,12 @@ export function useObjectSegmentation() {
   function ensureWorker(): Worker {
     clearIdleTimer();
     if (!worker.value) {
-      worker.value = new Worker(new URL("../workers/segmentation.worker.ts", import.meta.url), {
-        type: "module",
-      });
+      worker.value = new Worker(
+        new URL("../workers/segmentation.worker.ts", import.meta.url),
+        {
+          type: "module",
+        },
+      );
       worker.value.addEventListener("error", handleWorkerError);
     }
     return worker.value;
@@ -72,7 +80,9 @@ export function useObjectSegmentation() {
     }
   }
 
-  function handleProgress(msg: Extract<WorkerOutMessage, { type: "progress" }>): void {
+  function handleProgress(
+    msg: Extract<WorkerOutMessage, { type: "progress" }>,
+  ): void {
     status.value = "downloading";
     if (msg.progress.status === "progress" && msg.progress.total > 0) {
       progress.value = {
@@ -82,7 +92,9 @@ export function useObjectSegmentation() {
     }
   }
 
-  function handleStatus(msg: Extract<WorkerOutMessage, { type: "status" }>): void {
+  function handleStatus(
+    msg: Extract<WorkerOutMessage, { type: "status" }>,
+  ): void {
     status.value = msg.status;
   }
 
@@ -90,7 +102,9 @@ export function useObjectSegmentation() {
     startIdleTimer();
   }
 
-  async function segmentObjects(img: HTMLImageElement): Promise<ProcessedSegment[] | null> {
+  async function segmentObjects(
+    img: HTMLImageElement,
+  ): Promise<ProcessedSegment[] | null> {
     return new Promise((resolve) => {
       const w = ensureWorker();
       // Settle any previous pending promise before starting a new one
@@ -125,7 +139,8 @@ export function useObjectSegmentation() {
               .catch((error: unknown) => {
                 console.error("[segmentation] Compositing failed:", error);
                 status.value = "error";
-                errorMessage.value = error instanceof Error ? error.message : "Compositing failed";
+                errorMessage.value =
+                  error instanceof Error ? error.message : "Compositing failed";
                 resetAfterDone();
                 resolve(null);
               });
@@ -151,7 +166,10 @@ export function useObjectSegmentation() {
           }
           default: {
             const _exhaustive: never = msg;
-            console.error("[segmentation] Unhandled message type:", _exhaustive);
+            console.error(
+              "[segmentation] Unhandled message type:",
+              _exhaustive,
+            );
           }
         }
       }
@@ -159,7 +177,9 @@ export function useObjectSegmentation() {
       w.addEventListener("message", handleMessage);
 
       const { buffer, width, height } = imageToPixelBuffer(img, MAX_IMAGE_SIZE);
-      w.postMessage({ type: "process", imageData: buffer, width, height }, [buffer]);
+      w.postMessage({ type: "process", imageData: buffer, width, height }, [
+        buffer,
+      ]);
     });
   }
 
@@ -192,7 +212,6 @@ function imageToPixelBuffer(
   ctx.drawImage(img, 0, 0, width, height);
 
   const imageData = ctx.getImageData(0, 0, width, height);
-  // eslint-disable-next-line unicorn/prefer-spread -- ArrayBuffer.slice, not Array.slice
   return { buffer: imageData.data.buffer.slice(0), width, height };
 }
 

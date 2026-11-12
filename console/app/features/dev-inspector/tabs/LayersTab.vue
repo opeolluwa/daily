@@ -5,13 +5,18 @@ import { useTestHook } from "../useTestHook";
 const h = useTestHook();
 
 const staticCanvasRef = computed(
-  () => (h?.staticCanvasRef as { value: HTMLCanvasElement | null })?.value ?? null,
+  () =>
+    (h?.staticCanvasRef as { value: HTMLCanvasElement | null })?.value ?? null,
 );
 const newElementCanvasRef = computed(
-  () => (h?.newElementCanvasRef as { value: HTMLCanvasElement | null })?.value ?? null,
+  () =>
+    (h?.newElementCanvasRef as { value: HTMLCanvasElement | null })?.value ??
+    null,
 );
 const interactiveCanvasRef = computed(
-  () => (h?.interactiveCanvasRef as { value: HTMLCanvasElement | null })?.value ?? null,
+  () =>
+    (h?.interactiveCanvasRef as { value: HTMLCanvasElement | null })?.value ??
+    null,
 );
 
 interface LayerInfo {
@@ -37,7 +42,8 @@ const LAYERS: LayerInfo[] = [
     dotColor: "bg-accent",
     zIndex: 2,
     pointerEvents: true,
-    description: "Top layer — captures all pointer events. Renders ephemeral selection UI.",
+    description:
+      "Top layer — captures all pointer events. Renders ephemeral selection UI.",
     renders: [
       "Selection rectangle",
       "Resize handles (8 corners)",
@@ -179,7 +185,9 @@ function selectLayer(layerId: string): void {
       <!-- Dot grid background -->
       <div class="pointer-events-none absolute inset-0 layer-dots opacity-30" />
 
-      <div class="layer-perspective relative flex items-center justify-center py-8">
+      <div
+        class="layer-perspective relative flex items-center justify-center py-8"
+      >
         <div class="layer-stack relative h-[140px] w-[260px]">
           <!-- Static (bottom) -->
           <div
@@ -195,9 +203,15 @@ function selectLayer(layerId: string): void {
               :src="thumbnails.static"
               class="h-full w-full object-cover"
               alt=""
-            />
-            <span class="layer-label-3d bg-green-500/10 text-green-600 dark:bg-green-400/[0.15] dark:text-green-400">Static</span>
-            <span class="layer-zbadge-3d text-green-600/70 dark:text-green-400/70">z:1</span>
+            >
+            <span
+              class="layer-label-3d bg-green-500/10 text-green-600 dark:bg-green-400/[0.15] dark:text-green-400"
+              >Static</span
+            >
+            <span
+              class="layer-zbadge-3d text-green-600/70 dark:text-green-400/70"
+              >z:1</span
+            >
           </div>
 
           <!-- NewElement (middle) -->
@@ -214,9 +228,14 @@ function selectLayer(layerId: string): void {
               :src="thumbnails.newElement"
               class="h-full w-full object-cover"
               alt=""
-            />
-            <span class="layer-label-3d bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-400">NewElement</span>
-            <span class="layer-zbadge-3d text-cyan-600/70 dark:text-cyan-400/70">z:1</span>
+            >
+            <span
+              class="layer-label-3d bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-400"
+              >NewElement</span
+            >
+            <span class="layer-zbadge-3d text-cyan-600/70 dark:text-cyan-400/70"
+              >z:1</span
+            >
           </div>
 
           <!-- Interactive (top) -->
@@ -233,14 +252,16 @@ function selectLayer(layerId: string): void {
               :src="thumbnails.interactive"
               class="h-full w-full object-cover"
               alt=""
-            />
+            >
             <span
               v-if="!hasContent.interactive"
               class="absolute inset-0 flex items-center justify-center font-mono text-[9px] italic text-accent/25"
             >
               select an element to see content
             </span>
-            <span class="layer-label-3d bg-accent/[0.15] text-accent">Interactive</span>
+            <span class="layer-label-3d bg-accent/[0.15] text-accent"
+              >Interactive</span
+            >
             <span class="layer-zbadge-3d text-accent/70">z:2</span>
           </div>
         </div>
@@ -248,7 +269,11 @@ function selectLayer(layerId: string): void {
     </div>
 
     <!-- Layer rows -->
-    <div v-for="layer in LAYERS" :key="layer.id" class="overflow-hidden rounded-md">
+    <div
+      v-for="layer in LAYERS"
+      :key="layer.id"
+      class="overflow-hidden rounded-md"
+    >
       <!-- Row header -->
       <div
         class="flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-[7px] transition-colors hover:bg-subdued/40"
@@ -261,7 +286,10 @@ function selectLayer(layerId: string): void {
         <!-- Eye toggle -->
         <button
           class="flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-subdued/50"
-          :class="[layer.colorClass, hiddenLayers.has(layer.id) ? 'opacity-30' : 'opacity-70']"
+          :class="[
+            layer.colorClass,
+            hiddenLayers.has(layer.id) ? 'opacity-30' : 'opacity-70',
+          ]"
           title="Toggle visibility"
           @click.stop="toggleVisibility(layer.id)"
         >
@@ -306,7 +334,7 @@ function selectLayer(layerId: string): void {
             class="h-full w-full object-cover"
             :class="{ 'opacity-30': hiddenLayers.has(layer.id) }"
             alt=""
-          />
+          >
           <span
             v-if="!hasContent[layer.id] && layer.id !== 'static'"
             class="absolute inset-0 flex items-center justify-center text-[7px] italic text-foreground/20"
@@ -320,7 +348,9 @@ function selectLayer(layerId: string): void {
           <span class="text-[11px] font-semibold" :class="layer.colorClass">
             {{ layer.name }}
           </span>
-          <span class="rounded bg-subdued/50 px-1 py-px font-mono text-[9px] text-foreground/40">
+          <span
+            class="rounded bg-subdued/50 px-1 py-px font-mono text-[9px] text-foreground/40"
+          >
             z:{{ layer.zIndex }}
           </span>
           <span
@@ -362,7 +392,10 @@ function selectLayer(layerId: string): void {
             :key="item"
             class="flex items-center gap-1.5 py-0.5 font-mono text-[10px] text-foreground/40"
           >
-            <span class="inline-block h-[5px] w-[5px] rounded-full" :class="layer.dotColor" />
+            <span
+              class="inline-block h-[5px] w-[5px] rounded-full"
+              :class="layer.dotColor"
+            />
             {{ item }}
           </div>
         </div>
@@ -371,10 +404,14 @@ function selectLayer(layerId: string): void {
 
     <!-- Render Order bar -->
     <div class="mt-2 px-2">
-      <div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/30">
+      <div
+        class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/30"
+      >
         Render Order
       </div>
-      <div class="flex h-6 overflow-hidden rounded border border-edge/20 bg-subdued/30">
+      <div
+        class="flex h-6 overflow-hidden rounded border border-edge/20 bg-subdued/30"
+      >
         <div
           class="flex flex-1 items-center justify-center bg-green-500/10 font-mono text-[9px] font-semibold text-green-600 dark:bg-green-400/[0.12] dark:text-green-400"
         >
@@ -402,28 +439,36 @@ function selectLayer(layerId: string): void {
 
     <!-- Legend -->
     <div class="mt-2 border-t border-edge/20 px-2 pt-2">
-      <div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/30">
+      <div
+        class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/30"
+      >
         How It Works
       </div>
       <div class="flex items-start gap-2 py-1">
-        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-green-500 dark:bg-green-400" />
+        <span
+          class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-green-500 dark:bg-green-400"
+        />
         <span class="text-[10px] leading-relaxed text-foreground/40">
-          <span class="font-medium text-foreground/60">Static</span> — Grid + committed shapes.
-          Cached; re-renders only on mutation.
+          <span class="font-medium text-foreground/60">Static</span> — Grid +
+          committed shapes. Cached; re-renders only on mutation.
         </span>
       </div>
       <div class="flex items-start gap-2 py-1">
-        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-cyan-500 dark:bg-cyan-400" />
+        <span
+          class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-cyan-500 dark:bg-cyan-400"
+        />
         <span class="text-[10px] leading-relaxed text-foreground/40">
-          <span class="font-medium text-foreground/60">NewElement</span> — Element being drawn.
-          Isolated to avoid full scene re-renders.
+          <span class="font-medium text-foreground/60">NewElement</span> —
+          Element being drawn. Isolated to avoid full scene re-renders.
         </span>
       </div>
       <div class="flex items-start gap-2 py-1">
-        <span class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-accent" />
+        <span
+          class="mt-[3px] inline-block h-[8px] w-[8px] shrink-0 rounded-sm bg-accent"
+        />
         <span class="text-[10px] leading-relaxed text-foreground/40">
-          <span class="font-medium text-foreground/60">Interactive</span> — Selection UI + handles.
-          Only layer receiving pointer events.
+          <span class="font-medium text-foreground/60">Interactive</span> —
+          Selection UI + handles. Only layer receiving pointer events.
         </span>
       </div>
     </div>

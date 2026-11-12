@@ -94,11 +94,11 @@ async function handleTransfer(targetWorkspaceId: string) {
 <template>
   <li ref="el" class="list-none">
     <RyderCard
+      ref="grip"
       :title="task.title"
       class="rounded-sm! border-l-2 cursor-grab"
       :class="priorityBorderClass[task.priority]"
       :ui="{ title: 'mb-1', header: 'gap-y-1' }"
-      ref="grip"
     >
       <template #trailing>
         <MetaControls

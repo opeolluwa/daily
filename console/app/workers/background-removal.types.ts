@@ -2,7 +2,8 @@ import type { ProgressInfo } from "@huggingface/transformers";
 
 export type { ProgressInfo, ProgressCallback } from "@huggingface/transformers";
 
-export type BackgroundRemovalStatus = "idle" | "downloading" | "ready" | "processing" | "error";
+export type BackgroundRemovalStatus =
+  "idle" | "downloading" | "ready" | "processing" | "error";
 
 export type DownloadProgress = {
   /** 0-100 percentage, null when indeterminate */
@@ -35,7 +36,8 @@ type ErrorMessage = {
   error: string;
 };
 
-export type WorkerOutgoingMessage = ProgressMessage | StatusMessage | ResultMessage | ErrorMessage;
+export type WorkerOutgoingMessage =
+  ProgressMessage | StatusMessage | ResultMessage | ErrorMessage;
 
 // ── Main -> Worker (incoming) ────────────────────────────────────────
 

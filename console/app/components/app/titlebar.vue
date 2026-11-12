@@ -191,8 +191,8 @@ defineShortcuts(shortcuts);
     </div>
 
     <WorkspaceSelect
-      class="cursor-pointer hidden md:block"
       v-if="!isAuthPage"
+      class="cursor-pointer hidden md:block"
     />
 
     <!-- Search -->
@@ -244,7 +244,7 @@ defineShortcuts(shortcuts);
         <UColorModeButton :size="iconSize" />
       </UTooltip>
 
-      <UTooltip text="Notifications" v-if="!isAuthPage">
+      <UTooltip v-if="!isAuthPage" text="Notifications">
         <UButton
           :size="iconSize"
           color="neutral"
@@ -256,7 +256,7 @@ defineShortcuts(shortcuts);
         />
       </UTooltip>
 
-      <div class="items-center gap-0.5 flex" v-if="!isAuthPage">
+      <div v-if="!isAuthPage" class="items-center gap-0.5 flex">
         <UDropdownMenu
           :items="userMenuItems"
           :ui="{

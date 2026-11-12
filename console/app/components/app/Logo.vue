@@ -13,5 +13,5 @@ withDefaults(
     :alt="alt"
     draggable="false"
     class="object-contain select-none"
-  />
+  >
 </template>

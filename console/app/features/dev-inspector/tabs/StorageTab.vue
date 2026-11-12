@@ -3,7 +3,10 @@ import { computed, inject, onMounted, ref, watch } from "vue";
 import { useTimeAgo } from "@vueuse/core";
 import { useDrawVue, getNonDeletedElements, tryCatch } from "@drawvue/core";
 import { PERSISTENCE_INSPECTOR_KEY } from "~/features/persistence/types";
-import type { PersistenceEvent, StoreMetadata } from "~/features/persistence/types";
+import type {
+  PersistenceEvent,
+  StoreMetadata,
+} from "~/features/persistence/types";
 import {
   buildPersistedScene,
   serializeElements,
@@ -47,7 +50,9 @@ async function refreshQuota(): Promise<void> {
     quotaAvailable.value = estimate.quota ?? null;
   }
   if (navigator.storage?.persisted) {
-    const [persistErr, persisted] = await tryCatch(navigator.storage.persisted());
+    const [persistErr, persisted] = await tryCatch(
+      navigator.storage.persisted(),
+    );
     if (!persistErr) {
       quotaPersisted.value = persisted;
     }
@@ -59,15 +64,21 @@ const lastSavedAt = ref(Date.now());
 const lastSavedAgo = useTimeAgo(lastSavedAt);
 
 // ── Derived data ──────────────────────────────────────────────────────
-const saveStatus = computed(() => persistence?.saveStatus.value ?? "unavailable");
+const saveStatus = computed(
+  () => persistence?.saveStatus.value ?? "unavailable",
+);
 const isRestored = computed(() => persistence?.isRestored.value ?? false);
 const sceneHash = computed(() => persistence?.diagnostics.sceneHash.value ?? 0);
-const lastSavedHash = computed(() => persistence?.diagnostics.lastSavedHash.value ?? 0);
+const lastSavedHash = computed(
+  () => persistence?.diagnostics.lastSavedHash.value ?? 0,
+);
 const forwardVersionMode = computed(
   () => persistence?.diagnostics.forwardVersionMode.value ?? false,
 );
 const events = computed(() => persistence?.diagnostics.events.value ?? []);
-const inMemoryCount = computed(() => getNonDeletedElements(ctx.elements.elements.value).length);
+const inMemoryCount = computed(
+  () => getNonDeletedElements(ctx.elements.elements.value).length,
+);
 const hashSynced = computed(() => sceneHash.value === lastSavedHash.value);
 
 // ── Event flash tracking ──────────────────────────────────────────────
@@ -104,15 +115,18 @@ watch(events, (newEvents, oldEvents) => {
 const SECTION_ICONS = {
   version: {
     svg: "M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zM9 12l2 2 4-4",
-    classes: "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
+    classes:
+      "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
   },
   stores: {
     svg: "M12 2C6.48 2 3 3.34 3 5v14c0 1.66 3.48 3 9 3s9-1.34 9-3V5c0-1.66-3.48-3-9-3z",
-    classes: "bg-purple-500/10 text-purple-600 dark:bg-purple-400/[0.12] dark:text-purple-400",
+    classes:
+      "bg-purple-500/10 text-purple-600 dark:bg-purple-400/[0.12] dark:text-purple-400",
   },
   quota: {
     svg: "M2 6h20v12H2zM6 12h.01M10 12h.01",
-    classes: "bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-400",
+    classes:
+      "bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/[0.12] dark:text-cyan-400",
   },
 };
 
@@ -193,7 +207,11 @@ function formatEventTime(timestamp: number): string {
 }
 
 function quotaPercent(): number {
-  if (quotaUsed.value === null || quotaAvailable.value === null || quotaAvailable.value === 0)
+  if (
+    quotaUsed.value === null ||
+    quotaAvailable.value === null ||
+    quotaAvailable.value === 0
+  )
     return 0;
   return (quotaUsed.value / quotaAvailable.value) * 100;
 }
@@ -205,10 +223,14 @@ function handleForceSave(): void {
 }
 
 async function handleExport(): Promise<void> {
-  const [serializeError, serialized] = serializeElements(ctx.elements.elements.value);
+  const [serializeError, serialized] = serializeElements(
+    ctx.elements.elements.value,
+  );
   if (serializeError) return;
   const data = buildPersistedScene(serialized);
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -219,19 +241,28 @@ async function handleExport(): Promise<void> {
 
 async function handleClear(): Promise<void> {
   if (!persistence) return;
-  if (!confirm("Clear all persisted data? Your current drawing stays in memory.")) return;
+  if (
+    !confirm("Clear all persisted data? Your current drawing stays in memory.")
+  )
+    return;
   await persistence.diagnostics.clearStorage();
   await refreshMetadata();
 }
 
 const forceSaveDisabled = computed(
-  () => forwardVersionMode.value || saveStatus.value === "unavailable" || !isRestored.value,
+  () =>
+    forwardVersionMode.value ||
+    saveStatus.value === "unavailable" ||
+    !isRestored.value,
 );
 const exportDisabled = computed(() => inMemoryCount.value === 0);
 </script>
 
 <template>
-  <div v-if="!hasPersistence" class="p-4 text-center text-[11px] text-foreground/30 italic">
+  <div
+    v-if="!hasPersistence"
+    class="p-4 text-center text-[11px] text-foreground/30 italic"
+  >
     PersistenceProvider not found
   </div>
 
@@ -248,9 +279,11 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
             :class="[
               statusConfig.ring,
               saveStatus === 'pending' && 'animate-spin border-t-transparent',
-              saveStatus === 'saving' && 'animate-spin border-t-transparent border-r-transparent',
+              saveStatus === 'saving' &&
+                'animate-spin border-t-transparent border-r-transparent',
               saveStatus === 'error' && 'animate-pulse',
-              (saveStatus === 'idle' || saveStatus === 'unavailable') && 'opacity-40',
+              (saveStatus === 'idle' || saveStatus === 'unavailable') &&
+                'opacity-40',
             ]"
           />
           <div class="h-2.5 w-2.5 rounded-full" :class="statusConfig.dot" />
@@ -258,7 +291,10 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
 
         <!-- Status info -->
         <div class="min-w-0 flex-1">
-          <div class="font-mono text-xs font-semibold" :class="statusConfig.color">
+          <div
+            class="font-mono text-xs font-semibold"
+            :class="statusConfig.color"
+          >
             {{ statusConfig.label }}
           </div>
           <div class="font-mono text-[10px] text-foreground/35">
@@ -270,7 +306,9 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
         <div
           class="flex items-center gap-1 rounded-md border border-edge/25 bg-subdued/30 px-2 py-0.5 font-mono text-[10px] font-medium"
           :class="
-            hashSynced ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
+            hashSynced
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-amber-600 dark:text-amber-400'
           "
         >
           <span
@@ -321,7 +359,9 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
           <div
             v-if="state !== 'error'"
             class="h-px w-4 shrink-0"
-            :class="saveStatus === state ? 'bg-foreground/40' : 'bg-foreground/15'"
+            :class="
+              saveStatus === state ? 'bg-foreground/40' : 'bg-foreground/15'
+            "
           />
         </div>
       </div>
@@ -349,7 +389,8 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
               <path :d="SECTION_ICONS.version.svg" />
             </svg>
           </div>
-          <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+          <span
+            class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
             >Version & Hash</span
           >
           <svg
@@ -363,39 +404,62 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
             <path d="M9 18l6-6-6-6" />
           </svg>
         </div>
-        <div v-if="openSections.has('version')" class="space-y-0 px-2 pb-2 pl-9">
-          <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          v-if="openSections.has('version')"
+          class="space-y-0 px-2 pb-2 pl-9"
+        >
+          <div
+            class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+          >
             <span class="text-[11px] text-foreground/40">sceneHash</span>
             <span
               class="rounded px-1 py-px font-mono text-[11px] font-medium"
               :class="
-            hashSynced ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
-          "
+                hashSynced
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-amber-600 dark:text-amber-400'
+              "
             >
               {{ sceneHash }}
             </span>
           </div>
-          <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+          <div
+            class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+          >
             <span class="text-[11px] text-foreground/40">lastSavedHash</span>
-            <span class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground">
+            <span
+              class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground"
+            >
               {{ lastSavedHash }}
             </span>
           </div>
-          <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+          <div
+            class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+          >
             <span class="text-[11px] text-foreground/40">in-memory</span>
-            <span class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground">
+            <span
+              class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground"
+            >
               {{ inMemoryCount }} elements
             </span>
           </div>
-          <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+          <div
+            class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+          >
             <span class="text-[11px] text-foreground/40">persisted</span>
-            <span class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground">
+            <span
+              class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground"
+            >
               {{ storeMetadata.whiteboard?.elementCount ?? "—" }} elements
             </span>
           </div>
-          <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+          <div
+            class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+          >
             <span class="text-[11px] text-foreground/40">schemaVersion</span>
-            <span class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground/60">
+            <span
+              class="rounded px-1 py-px font-mono text-[11px] font-medium text-foreground/60"
+            >
               {{ storeMetadata.whiteboard?.schemaVersion ?? 1 }}
             </span>
           </div>
@@ -435,7 +499,8 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
               <path :d="SECTION_ICONS.stores.svg" />
             </svg>
           </div>
-          <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+          <span
+            class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
             >Database</span
           >
           <svg
@@ -449,10 +514,17 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
             <path d="M9 18l6-6-6-6" />
           </svg>
         </div>
-        <div v-if="openSections.has('stores')" class="space-y-1.5 px-2 pb-2 pl-9">
+        <div
+          v-if="openSections.has('stores')"
+          class="space-y-1.5 px-2 pb-2 pl-9"
+        >
           <!-- whiteboards row card -->
-          <div class="overflow-hidden rounded-md border border-edge/25 bg-subdued/20">
-            <div class="flex items-center justify-between border-b border-edge/20 px-2 py-1.5">
+          <div
+            class="overflow-hidden rounded-md border border-edge/25 bg-subdued/20"
+          >
+            <div
+              class="flex items-center justify-between border-b border-edge/20 px-2 py-1.5"
+            >
               <span
                 class="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-green-600 dark:text-green-400"
               >
@@ -469,26 +541,38 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
             </div>
             <div v-if="storeMetadata.whiteboard" class="px-2 py-1.5">
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">title</span>
-                <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.whiteboard.title ?? "Untitled"
-                }}</span>
+                <span class="font-mono text-[10px] text-foreground/35"
+                  >title</span
+                >
+                <span
+                  class="font-mono text-[10px] font-medium text-foreground"
+                  >{{ storeMetadata.whiteboard.title ?? "Untitled" }}</span
+                >
               </div>
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">elementCount</span>
-                <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.whiteboard.elementCount
-                }}</span>
+                <span class="font-mono text-[10px] text-foreground/35"
+                  >elementCount</span
+                >
+                <span
+                  class="font-mono text-[10px] font-medium text-foreground"
+                  >{{ storeMetadata.whiteboard.elementCount }}</span
+                >
               </div>
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">savedAt</span>
-                <span class="font-mono text-[10px] font-medium text-foreground/60">{{
-                  formatTime(storeMetadata.whiteboard.savedAt)
-                }}</span>
+                <span class="font-mono text-[10px] text-foreground/35"
+                  >savedAt</span
+                >
+                <span
+                  class="font-mono text-[10px] font-medium text-foreground/60"
+                  >{{ formatTime(storeMetadata.whiteboard.savedAt) }}</span
+                >
               </div>
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">dataSize</span>
-                <span class="font-mono text-[10px] font-medium text-foreground/40"
+                <span class="font-mono text-[10px] text-foreground/35"
+                  >dataSize</span
+                >
+                <span
+                  class="font-mono text-[10px] font-medium text-foreground/40"
                   >~{{ formatBytes(storeMetadata.whiteboard.dataSize) }}</span
                 >
               </div>
@@ -502,8 +586,12 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
           </div>
 
           <!-- whiteboard_files card -->
-          <div class="overflow-hidden rounded-md border border-edge/25 bg-subdued/20">
-            <div class="flex items-center justify-between border-b border-edge/20 px-2 py-1.5">
+          <div
+            class="overflow-hidden rounded-md border border-edge/25 bg-subdued/20"
+          >
+            <div
+              class="flex items-center justify-between border-b border-edge/20 px-2 py-1.5"
+            >
               <span
                 class="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-amber-600 dark:text-amber-400"
               >
@@ -520,14 +608,20 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
             </div>
             <div v-if="storeMetadata.files" class="px-2 py-1.5">
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">files</span>
-                <span class="font-mono text-[10px] font-medium text-foreground">{{
-                  storeMetadata.files.count
-                }}</span>
+                <span class="font-mono text-[10px] text-foreground/35"
+                  >files</span
+                >
+                <span
+                  class="font-mono text-[10px] font-medium text-foreground"
+                  >{{ storeMetadata.files.count }}</span
+                >
               </div>
               <div class="flex items-center justify-between py-0.5">
-                <span class="font-mono text-[10px] text-foreground/35">totalSize</span>
-                <span class="font-mono text-[10px] font-medium text-foreground/40"
+                <span class="font-mono text-[10px] text-foreground/35"
+                  >totalSize</span
+                >
+                <span
+                  class="font-mono text-[10px] font-medium text-foreground/40"
                   >~{{ formatBytes(storeMetadata.files.totalSize) }}</span
                 >
               </div>
@@ -562,7 +656,8 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
               <path :d="SECTION_ICONS.quota.svg" />
             </svg>
           </div>
-          <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+          <span
+            class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
             >Storage Quota</span
           >
           <svg
@@ -579,7 +674,9 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
         <div v-if="openSections.has('quota')" class="space-y-0 px-2 pb-2 pl-9">
           <template v-if="quotaAvailable !== null">
             <!-- Meter bar -->
-            <div class="my-1.5 h-1.5 overflow-hidden rounded-full bg-subdued/50">
+            <div
+              class="my-1.5 h-1.5 overflow-hidden rounded-full bg-subdued/50"
+            >
               <div
                 class="h-full rounded-full bg-gradient-to-r from-green-500 to-cyan-500 transition-[width] duration-400 dark:from-green-400 dark:to-cyan-400"
                 :style="{ width: `${Math.max(quotaPercent(), 0.5)}%` }"
@@ -587,14 +684,20 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
             </div>
             <div class="mb-1.5 flex justify-between">
               <span class="font-mono text-[9px] text-foreground/35"
-                >{{ quotaUsed !== null ? formatBytes(quotaUsed) : "?" }} used</span
+                >{{
+                  quotaUsed !== null ? formatBytes(quotaUsed) : "?"
+                }}
+                used</span
               >
               <span class="font-mono text-[9px] text-foreground/25"
                 >{{ formatBytes(quotaAvailable) }} available</span
               >
             </div>
           </template>
-          <div v-else class="py-1.5 text-center font-mono text-[10px] italic text-foreground/25">
+          <div
+            v-else
+            class="py-1.5 text-center font-mono text-[10px] italic text-foreground/25"
+          >
             Not available
           </div>
           <div class="flex items-center justify-between py-[3px]">
@@ -609,8 +712,12 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
                     : 'italic text-foreground/25'
               "
             >
-              <template v-if="quotaPersisted === true">&#10003; granted</template>
-              <template v-else-if="quotaPersisted === false">not granted</template>
+              <template v-if="quotaPersisted === true"
+                >&#10003; granted</template
+              >
+              <template v-else-if="quotaPersisted === false"
+                >not granted</template
+              >
               <template v-else>N/A</template>
             </span>
           </div>
@@ -622,10 +729,13 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
         <div
           class="sticky top-0 z-[1] flex items-center justify-between bg-surface/90 px-3 py-1.5 backdrop-blur-sm"
         >
-          <span class="text-[9px] font-semibold uppercase tracking-widest text-foreground/30"
+          <span
+            class="text-[9px] font-semibold uppercase tracking-widest text-foreground/30"
             >Persistence Log</span
           >
-          <span class="font-mono text-[9px] text-foreground/20">{{ events.length }} events</span>
+          <span class="font-mono text-[9px] text-foreground/20"
+            >{{ events.length }} events</span
+          >
         </div>
         <div
           v-for="event in [...events].reverse()"
@@ -691,7 +801,9 @@ const exportDisabled = computed(() => inMemoryCount.value === 0);
           stroke="currentColor"
           stroke-width="2.5"
         >
-          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+          <path
+            d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
+          />
         </svg>
         Export
       </button>

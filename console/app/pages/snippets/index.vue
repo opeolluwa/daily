@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSnippetStore } from "~/stores/snippets";
+import { useSnippetStore, type Snippet } from "~/stores/snippets";
 import SnippetCard from "~/components/snippets/snippet-card.vue";
 import SnippetDialog from "~/components/snippets/SnippetDialog.vue";
 import {
@@ -14,7 +14,7 @@ const activeLanguage = ref("All");
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const sortBy = ref<SnippetSort>("date-newest");
 const dialogOpen = ref(false);
-const editingSnippet = ref<any>(null);
+const editingSnippet = ref<Snippet | null>(null);
 
 const allLanguages = computed(() => ["All", ...snippetStore.languages]);
 

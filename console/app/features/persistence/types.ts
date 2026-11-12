@@ -28,7 +28,11 @@ export type CurrentPersistedScene = PersistedSceneV1;
 // ---------------------------------------------------------------------------
 
 export type MigrationMap = {
-  [V in PersistedScene["schemaVersion"] as V extends typeof CURRENT_SCHEMA_VERSION ? never : V]: (
+  [
+    V in PersistedScene["schemaVersion"] as V extends typeof CURRENT_SCHEMA_VERSION
+      ? never
+      : V
+  ]: (
     data: Extract<PersistedScene, { schemaVersion: V }>,
   ) => CurrentPersistedScene;
 };
@@ -37,7 +41,8 @@ export type MigrationMap = {
 // Save status state machine
 // ---------------------------------------------------------------------------
 
-export type SaveStatus = "idle" | "pending" | "saving" | "unavailable" | "error";
+export type SaveStatus =
+  "idle" | "pending" | "saving" | "unavailable" | "error";
 
 // ---------------------------------------------------------------------------
 // Persistence event log

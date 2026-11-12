@@ -58,12 +58,17 @@ const ALL_ACTION_IDS = [
 
 const CATEGORY_COLORS: Record<string, string> = {
   tool: "bg-accent/15 text-accent",
-  action: "bg-blue-500/10 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-400",
-  layer: "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
-  clipboard: "bg-amber-500/10 text-amber-600 dark:bg-amber-400/[0.12] dark:text-amber-400",
-  history: "bg-purple-500/10 text-purple-600 dark:bg-purple-400/[0.12] dark:text-purple-400",
+  action:
+    "bg-blue-500/10 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-400",
+  layer:
+    "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
+  clipboard:
+    "bg-amber-500/10 text-amber-600 dark:bg-amber-400/[0.12] dark:text-amber-400",
+  history:
+    "bg-purple-500/10 text-purple-600 dark:bg-purple-400/[0.12] dark:text-purple-400",
   settings: "bg-foreground/10 text-foreground/50",
-  style: "bg-orange-500/10 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-400",
+  style:
+    "bg-orange-500/10 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-400",
   flip: "bg-cyan-500/10 text-cyan-600 dark:bg-cyan-300/[0.12] dark:text-cyan-300",
 };
 
@@ -78,7 +83,15 @@ interface ActionGroup {
 
 const groups = computed((): ActionGroup[] => {
   const groupMap = new Map<string, ActionGroup>();
-  const order = ["tool", "action", "layer", "clipboard", "history", "settings", "style"];
+  const order = [
+    "tool",
+    "action",
+    "layer",
+    "clipboard",
+    "history",
+    "settings",
+    "style",
+  ];
 
   for (const prefix of order) {
     groupMap.set(prefix, {
@@ -108,7 +121,9 @@ const groups = computed((): ActionGroup[] => {
     }
   }
 
-  return order.map((prefix) => groupMap.get(prefix)!).filter((g) => g.actions.length > 0);
+  return order
+    .map((prefix) => groupMap.get(prefix)!)
+    .filter((g) => g.actions.length > 0);
 });
 
 // ── Recently used actions (resolved) ───────────────────────────────
@@ -138,7 +153,7 @@ function executeAction(id: string): void {
         type="text"
         placeholder="Search actions..."
         class="h-7 w-full rounded border border-edge/30 bg-surface/60 px-2 text-xs text-foreground/80 outline-none placeholder:text-foreground/30 focus:border-accent/50"
-      />
+      >
     </div>
 
     <!-- Recently used pills -->
@@ -146,7 +161,9 @@ function executeAction(id: string): void {
       v-if="recentActions.length > 0 && !searchQuery"
       class="border-b border-edge/20 px-2 py-1.5"
     >
-      <div class="mb-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-foreground/30">
+      <div
+        class="mb-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-foreground/30"
+      >
         Recently Used
       </div>
       <div class="flex flex-wrap gap-1">
@@ -165,7 +182,9 @@ function executeAction(id: string): void {
       <template v-for="group in groups" :key="group.prefix">
         <!-- Section divider with line -->
         <div class="flex items-center gap-1.5 px-2 pt-2.5 pb-1">
-          <span class="text-[9px] font-semibold uppercase tracking-[0.08em] text-foreground/30">
+          <span
+            class="text-[9px] font-semibold uppercase tracking-[0.08em] text-foreground/30"
+          >
             {{ group.label }}
           </span>
           <span class="h-px flex-1 bg-edge/40" />
@@ -182,7 +201,10 @@ function executeAction(id: string): void {
           <!-- Category-colored icon -->
           <div
             class="flex h-6 w-6 shrink-0 items-center justify-center rounded-[5px] font-mono text-[11px] font-semibold"
-            :class="CATEGORY_COLORS[group.prefix] ?? 'bg-foreground/10 text-foreground/50'"
+            :class="
+              CATEGORY_COLORS[group.prefix] ??
+              'bg-foreground/10 text-foreground/50'
+            "
           >
             {{ def.label.charAt(0) }}
           </div>
@@ -209,7 +231,11 @@ function executeAction(id: string): void {
           <!-- Status dot -->
           <span
             class="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
-            :class="enabled ? 'bg-green-500 dark:bg-green-400' : 'bg-foreground/20 opacity-30'"
+            :class="
+              enabled
+                ? 'bg-green-500 dark:bg-green-400'
+                : 'bg-foreground/20 opacity-30'
+            "
           />
 
           <!-- Play button (hover only) -->
@@ -219,7 +245,11 @@ function executeAction(id: string): void {
             :class="enabled ? 'text-foreground/40' : 'pointer-events-none'"
             @click.stop="executeAction(def.id)"
           >
-            <svg class="h-[10px] w-[10px]" viewBox="0 0 12 12" fill="currentColor">
+            <svg
+              class="h-[10px] w-[10px]"
+              viewBox="0 0 12 12"
+              fill="currentColor"
+            >
               <path d="M2 1l9 5-9 5z" />
             </svg>
           </button>
@@ -227,7 +257,10 @@ function executeAction(id: string): void {
       </template>
 
       <!-- Empty state -->
-      <div v-if="groups.length === 0" class="px-3 py-6 text-center text-xs text-foreground/30">
+      <div
+        v-if="groups.length === 0"
+        class="px-3 py-6 text-center text-xs text-foreground/30"
+      >
         No actions match "{{ searchQuery }}"
       </div>
     </div>

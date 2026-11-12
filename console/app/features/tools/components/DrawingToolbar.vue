@@ -14,8 +14,18 @@ const tools: Array<{
   shortcutKey: string;
 }> = [
   { type: "hand", label: "Hand", shortcutNumber: null, shortcutKey: "H" },
-  { type: "selection", label: "Selection", shortcutNumber: 1, shortcutKey: "V" },
-  { type: "rectangle", label: "Rectangle", shortcutNumber: 2, shortcutKey: "R" },
+  {
+    type: "selection",
+    label: "Selection",
+    shortcutNumber: 1,
+    shortcutKey: "V",
+  },
+  {
+    type: "rectangle",
+    label: "Rectangle",
+    shortcutNumber: 2,
+    shortcutKey: "R",
+  },
   { type: "diamond", label: "Diamond", shortcutNumber: 3, shortcutKey: "D" },
   { type: "ellipse", label: "Ellipse", shortcutNumber: 4, shortcutKey: "O" },
   { type: "arrow", label: "Arrow", shortcutNumber: 5, shortcutKey: "A" },
@@ -29,7 +39,9 @@ const tools: Array<{
 </script>
 
 <template>
-  <div class="absolute top-4 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2">
+  <div
+    class="absolute top-4 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2"
+  >
     <div
       class="flex gap-0.5 rounded-lg border border-edge/40 bg-surface/80 p-1 shadow-lg backdrop-blur-md"
     >
@@ -67,7 +79,8 @@ const tools: Array<{
       </UTooltip>
     </div>
     <p class="text-xs text-foreground/40">
-      To move canvas, hold Scroll wheel or Space while dragging, or use the hand tool
+      To move canvas, hold Scroll wheel or Space while dragging, or use the hand
+      tool
     </p>
   </div>
 </template>

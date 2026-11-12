@@ -36,8 +36,10 @@ const GROUP_HEADER =
   "px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/30";
 const PROP_ROW =
   "flex items-center justify-between px-3 py-1.5 hover:bg-subdued/8 transition-colors";
-const PROP_LABEL = "min-w-14 shrink-0 text-[11px] font-medium text-foreground/50";
-const GROUP_DIVIDER = "h-px mx-3 my-1 bg-gradient-to-r from-transparent via-edge/25 to-transparent";
+const PROP_LABEL =
+  "min-w-14 shrink-0 text-[11px] font-medium text-foreground/50";
+const GROUP_DIVIDER =
+  "h-px mx-3 my-1 bg-gradient-to-r from-transparent via-edge/25 to-transparent";
 
 const { selectedElements, activeTool } = defineProps<{
   selectedElements: ExcalidrawElement[];
@@ -85,44 +87,61 @@ const {
 
 // Current form values from selection — filter to only relevant elements
 const currentStrokeColor = computed(() =>
-  actions.getFormValue<string>("strokeColor", styleDefaults.strokeColor.value, (el) =>
-    hasStrokeColor(el.type),
+  actions.getFormValue<string>(
+    "strokeColor",
+    styleDefaults.strokeColor.value,
+    (el) => hasStrokeColor(el.type),
   ),
 );
 const currentBgColor = computed(() =>
-  actions.getFormValue<string>("backgroundColor", styleDefaults.backgroundColor.value, (el) =>
-    hasBackground(el.type),
+  actions.getFormValue<string>(
+    "backgroundColor",
+    styleDefaults.backgroundColor.value,
+    (el) => hasBackground(el.type),
   ),
 );
 const currentFillStyle = computed(() =>
-  actions.getFormValue<FillStyle>("fillStyle", styleDefaults.fillStyle.value, (el) =>
-    hasFillStyle(el.type),
+  actions.getFormValue<FillStyle>(
+    "fillStyle",
+    styleDefaults.fillStyle.value,
+    (el) => hasFillStyle(el.type),
   ),
 );
 const currentStrokeWidth = computed(() =>
-  actions.getFormValue<number>("strokeWidth", styleDefaults.strokeWidth.value, (el) =>
-    hasStrokeWidth(el.type),
+  actions.getFormValue<number>(
+    "strokeWidth",
+    styleDefaults.strokeWidth.value,
+    (el) => hasStrokeWidth(el.type),
   ),
 );
 const currentStrokeStyle = computed(() =>
-  actions.getFormValue<StrokeStyle>("strokeStyle", styleDefaults.strokeStyle.value, (el) =>
-    hasStrokeStyle(el.type),
+  actions.getFormValue<StrokeStyle>(
+    "strokeStyle",
+    styleDefaults.strokeStyle.value,
+    (el) => hasStrokeStyle(el.type),
   ),
 );
 const currentRoughness = computed(() =>
-  actions.getFormValue<number>("roughness", styleDefaults.roughness.value, (el) =>
-    hasRoughness(el.type),
+  actions.getFormValue<number>(
+    "roughness",
+    styleDefaults.roughness.value,
+    (el) => hasRoughness(el.type),
   ),
 );
 const currentRoundness = computed(() => {
-  const raw = actions.getFormValue<{ type: number } | null>("roundness", null, (el) =>
-    canChangeRoundness(el.type),
+  const raw = actions.getFormValue<{ type: number } | null>(
+    "roundness",
+    null,
+    (el) => canChangeRoundness(el.type),
   );
   if (raw === "mixed") return "mixed";
   return raw === null ? "sharp" : "round";
 });
 const currentOpacity = computed(() => {
-  const val = actions.getFormValue<number>("opacity", styleDefaults.opacity.value);
+  const val = actions.getFormValue<number>(
+    "opacity",
+    styleDefaults.opacity.value,
+  );
   if (val === "mixed") return 50;
   return val;
 });
@@ -133,15 +152,24 @@ const currentFontFamily = computed(() =>
   actions.getFormValue<number>("fontFamily", styleDefaults.fontFamily.value),
 );
 const currentFontSize = computed(() => {
-  const val = actions.getFormValue<number>("fontSize", styleDefaults.fontSize.value);
+  const val = actions.getFormValue<number>(
+    "fontSize",
+    styleDefaults.fontSize.value,
+  );
   if (val === "mixed") return styleDefaults.fontSize.value;
   return val;
 });
 const currentStartArrowhead = computed(() =>
-  actions.getFormValue<Arrowhead | null>("startArrowhead", styleDefaults.startArrowhead.value),
+  actions.getFormValue<Arrowhead | null>(
+    "startArrowhead",
+    styleDefaults.startArrowhead.value,
+  ),
 );
 const currentEndArrowhead = computed(() =>
-  actions.getFormValue<Arrowhead | null>("endArrowhead", styleDefaults.endArrowhead.value),
+  actions.getFormValue<Arrowhead | null>(
+    "endArrowhead",
+    styleDefaults.endArrowhead.value,
+  ),
 );
 
 function formatColorDisplay(color: string): string {
@@ -150,7 +178,9 @@ function formatColorDisplay(color: string): string {
   return resolveColor(color, theme.value);
 }
 
-const strokeHexDisplay = computed(() => formatColorDisplay(currentStrokeColor.value));
+const strokeHexDisplay = computed(() =>
+  formatColorDisplay(currentStrokeColor.value),
+);
 const bgHexDisplay = computed(() => formatColorDisplay(currentBgColor.value));
 
 // Options for ButtonIconSelect groups
@@ -173,8 +203,16 @@ const fillStyleOptions: { label: string; value: FillStyle; icon: string }[] = [
 ];
 
 const strokeWidthOptions: { label: string; value: number; icon: string }[] = [
-  { label: "Thin", value: 1, icon: '<line x1="4" y1="12" x2="20" y2="12" stroke-width="1"/>' },
-  { label: "Bold", value: 2, icon: '<line x1="4" y1="12" x2="20" y2="12" stroke-width="2.5"/>' },
+  {
+    label: "Thin",
+    value: 1,
+    icon: '<line x1="4" y1="12" x2="20" y2="12" stroke-width="1"/>',
+  },
+  {
+    label: "Bold",
+    value: 2,
+    icon: '<line x1="4" y1="12" x2="20" y2="12" stroke-width="2.5"/>',
+  },
   {
     label: "Extra bold",
     value: 4,
@@ -182,8 +220,16 @@ const strokeWidthOptions: { label: string; value: number; icon: string }[] = [
   },
 ];
 
-const strokeStyleOptions: { label: string; value: StrokeStyle; icon: string }[] = [
-  { label: "Solid", value: "solid", icon: '<line x1="4" y1="12" x2="20" y2="12"/>' },
+const strokeStyleOptions: {
+  label: string;
+  value: StrokeStyle;
+  icon: string;
+}[] = [
+  {
+    label: "Solid",
+    value: "solid",
+    icon: '<line x1="4" y1="12" x2="20" y2="12"/>',
+  },
   {
     label: "Dashed",
     value: "dashed",
@@ -197,14 +243,30 @@ const strokeStyleOptions: { label: string; value: StrokeStyle; icon: string }[] 
 ];
 
 const roughnessOptions: { label: string; value: number; icon: string }[] = [
-  { label: "Architect", value: 0, icon: '<line x1="4" y1="12" x2="20" y2="12"/>' },
+  {
+    label: "Architect",
+    value: 0,
+    icon: '<line x1="4" y1="12" x2="20" y2="12"/>',
+  },
   { label: "Artist", value: 1, icon: '<path d="M4 12c2-2 4 2 6 0s4-2 6 0"/>' },
-  { label: "Cartoonist", value: 2, icon: '<path d="M4 12c1-4 3 4 5-2s3 4 5-1 3 3 6 1"/>' },
+  {
+    label: "Cartoonist",
+    value: 2,
+    icon: '<path d="M4 12c1-4 3 4 5-2s3 4 5-1 3 3 6 1"/>',
+  },
 ];
 
 const roundnessOptions: { label: string; value: Roundness; icon: string }[] = [
-  { label: "Sharp", value: "sharp", icon: '<rect x="4" y="4" width="16" height="16"/>' },
-  { label: "Round", value: "round", icon: '<rect x="4" y="4" width="16" height="16" rx="4"/>' },
+  {
+    label: "Sharp",
+    value: "sharp",
+    icon: '<rect x="4" y="4" width="16" height="16"/>',
+  },
+  {
+    label: "Round",
+    value: "round",
+    icon: '<rect x="4" y="4" width="16" height="16" rx="4"/>',
+  },
 ];
 
 const textAlignOptions: { label: string; value: TextAlign; icon: string }[] = [
@@ -225,7 +287,11 @@ const textAlignOptions: { label: string; value: TextAlign; icon: string }[] = [
   },
 ];
 
-const arrowSubtypeOptions: { label: string; value: ArrowSubtype; icon: string }[] = [
+const arrowSubtypeOptions: {
+  label: string;
+  value: ArrowSubtype;
+  icon: string;
+}[] = [
   {
     label: "Sharp",
     value: "sharp",
@@ -262,10 +328,16 @@ function onFontSizeChange(event: Event): void {
       <template v-if="showColors">
         <div
           class="gap-px bg-edge/10"
-          :class="showStrokeColor && showBackground ? 'grid grid-cols-2' : 'flex'"
+          :class="
+            showStrokeColor && showBackground ? 'grid grid-cols-2' : 'flex'
+          "
         >
-          <div v-if="showStrokeColor" class="flex flex-col gap-1.5 bg-surface/80 p-2.5">
-            <span class="text-[10px] font-medium uppercase tracking-wide text-foreground/40"
+          <div
+            v-if="showStrokeColor"
+            class="flex flex-col gap-1.5 bg-surface/80 p-2.5"
+          >
+            <span
+              class="text-[10px] font-medium uppercase tracking-wide text-foreground/40"
               >Stroke</span
             >
             <div class="flex items-center gap-2">
@@ -275,11 +347,17 @@ function onFontSizeChange(event: Event): void {
                 label="Stroke color"
                 @update:color="actions.changeStrokeColor"
               />
-              <span class="font-mono text-[10px] text-foreground/50">{{ strokeHexDisplay }}</span>
+              <span class="font-mono text-[10px] text-foreground/50">{{
+                strokeHexDisplay
+              }}</span>
             </div>
           </div>
-          <div v-if="showBackground" class="flex flex-col gap-1.5 bg-surface/80 p-2.5">
-            <span class="text-[10px] font-medium uppercase tracking-wide text-foreground/40"
+          <div
+            v-if="showBackground"
+            class="flex flex-col gap-1.5 bg-surface/80 p-2.5"
+          >
+            <span
+              class="text-[10px] font-medium uppercase tracking-wide text-foreground/40"
               >Fill</span
             >
             <div class="flex items-center gap-2">
@@ -289,7 +367,9 @@ function onFontSizeChange(event: Event): void {
                 label="Background color"
                 @update:color="actions.changeBackgroundColor"
               />
-              <span class="font-mono text-[10px] text-foreground/50">{{ bgHexDisplay }}</span>
+              <span class="font-mono text-[10px] text-foreground/50">{{
+                bgHexDisplay
+              }}</span>
             </div>
           </div>
         </div>
@@ -382,7 +462,7 @@ function onFontSizeChange(event: Event): void {
               aria-label="Font size"
               class="h-7 w-12 rounded border border-edge/30 bg-surface/60 px-1.5 text-center text-xs text-foreground/80 outline-none focus:border-accent/50"
               @change="onFontSizeChange"
-            />
+            >
           </div>
         </div>
         <div :class="PROP_ROW">
@@ -412,12 +492,16 @@ function onFontSizeChange(event: Event): void {
             <ArrowheadPicker
               label="Start"
               :model-value="currentStartArrowhead"
-              @update:model-value="(val: Arrowhead | null) => actions.changeArrowhead('start', val)"
+              @update:model-value="
+                (val: Arrowhead | null) => actions.changeArrowhead('start', val)
+              "
             />
             <ArrowheadPicker
               label="End"
               :model-value="currentEndArrowhead"
-              @update:model-value="(val: Arrowhead | null) => actions.changeArrowhead('end', val)"
+              @update:model-value="
+                (val: Arrowhead | null) => actions.changeArrowhead('end', val)
+              "
             />
           </div>
         </div>
@@ -561,7 +645,9 @@ function onFontSizeChange(event: Event): void {
               stroke-linejoin="round"
             >
               <rect x="9" y="9" width="13" height="13" rx="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              <path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+              />
             </svg>
           </UButton>
         </UTooltip>
@@ -572,7 +658,10 @@ function onFontSizeChange(event: Event): void {
             size="xs"
             square
             aria-label="Edit Link"
-            :aria-pressed="selectedElements.length === 1 && Boolean(selectedElements[0]?.link)"
+            :aria-pressed="
+              selectedElements.length === 1 &&
+              Boolean(selectedElements[0]?.link)
+            "
             :class="[
               selectedElements.length === 1 && selectedElements[0]?.link
                 ? 'text-accent hover:bg-accent/20'
@@ -591,8 +680,12 @@ function onFontSizeChange(event: Event): void {
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              <path
+                d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+              />
+              <path
+                d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+              />
             </svg>
           </UButton>
         </UTooltip>

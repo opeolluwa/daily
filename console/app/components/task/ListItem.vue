@@ -13,12 +13,6 @@ const emit = defineEmits<{
   delete: [identifier: string];
 }>();
 
-const priorityColor: Record<string, string> = {
-  high: "text-rose-500",
-  medium: "text-amber-500",
-  low: "text-emerald-500",
-};
-
 function formatDueDate(dateStr: string | null) {
   if (!dateStr) return null;
   const d = new Date(dateStr);

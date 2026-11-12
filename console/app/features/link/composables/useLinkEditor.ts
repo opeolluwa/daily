@@ -1,7 +1,12 @@
 import type { Ref, ShallowRef } from "vue";
 import { ref, computed, watch, nextTick } from "vue";
 import { onClickOutside } from "@vueuse/core";
-import type { DrawVueContext, HistorySlice, DirtySlice, LinkSlice } from "@drawvue/core";
+import type {
+  DrawVueContext,
+  HistorySlice,
+  DirtySlice,
+  LinkSlice,
+} from "@drawvue/core";
 import { getElementBounds, mutateElement } from "@drawvue/core";
 import { normalizeLink } from "../normalizeLink";
 
@@ -10,16 +15,24 @@ interface UseLinkEditorOptions {
   popoverRef: Readonly<ShallowRef<HTMLDivElement | null>>;
 }
 
-function requireSlice<T>(slice: Ref<T | null> | ShallowRef<T | null>, name: string): T {
+function requireSlice<T>(
+  slice: Ref<T | null> | ShallowRef<T | null>,
+  name: string,
+): T {
   const val = slice.value;
   if (!val) throw new Error(`[LinkEditor] ${name} slice not available`);
   return val;
 }
 
-export function useLinkEditor(ctx: DrawVueContext, { inputRef, popoverRef }: UseLinkEditorOptions) {
+export function useLinkEditor(
+  ctx: DrawVueContext,
+  { inputRef, popoverRef }: UseLinkEditorOptions,
+) {
   const findElement = ctx.elements.getElementById;
   const linkSlice = computed(() => ctx.link.value);
-  const editingId = computed(() => linkSlice.value?.editingLinkElementId.value ?? null);
+  const editingId = computed(
+    () => linkSlice.value?.editingLinkElementId.value ?? null,
+  );
 
   const linkValue = ref("");
 

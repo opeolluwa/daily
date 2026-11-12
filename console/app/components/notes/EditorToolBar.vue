@@ -736,7 +736,7 @@ const tableOps = computed(() => [
       accept="image/*"
       class="hidden"
       @change="handleImagePick"
-    />
+    >
   </div>
 </template>
 

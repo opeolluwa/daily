@@ -71,10 +71,16 @@ useEventListener("keydown", (e: KeyboardEvent) => {
         v-if="isAnythingProcessing"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       >
-        <div class="flex flex-col items-center gap-4 rounded-2xl bg-surface px-10 py-8 shadow-2xl">
+        <div
+          class="flex flex-col items-center gap-4 rounded-2xl bg-surface px-10 py-8 shadow-2xl"
+        >
           <!-- Spinner -->
           <div class="relative size-12">
-            <svg class="size-12 animate-spin text-accent" viewBox="0 0 24 24" fill="none">
+            <svg
+              class="size-12 animate-spin text-accent"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
               <circle
                 class="opacity-25"
                 cx="12"
@@ -108,7 +114,9 @@ useEventListener("keydown", (e: KeyboardEvent) => {
           </template>
 
           <!-- Cancel hint -->
-          <p v-if="showCancelHint" class="text-xs text-foreground/40">Press Escape to cancel</p>
+          <p v-if="showCancelHint" class="text-xs text-foreground/40">
+            Press Escape to cancel
+          </p>
         </div>
       </div>
     </Transition>

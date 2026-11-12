@@ -88,7 +88,10 @@ watch(
             <CommandPalette />
             <LinkEditor />
             <EmbeddableOverlay />
-            <PersistenceProvider :whiteboard-id="whiteboardId" @restored="isRestored = true">
+            <PersistenceProvider
+              :whiteboard-id="whiteboardId"
+              @restored="isRestored = true"
+            >
               <DevInspector />
             </PersistenceProvider>
             <ImageActions />

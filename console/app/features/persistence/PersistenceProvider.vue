@@ -10,7 +10,12 @@ const { isRestored, saveStatus, error, diagnostics } = usePersistence(
   () => props.whiteboardId,
 );
 
-provide(PERSISTENCE_INSPECTOR_KEY, { saveStatus, isRestored, error, diagnostics });
+provide(PERSISTENCE_INSPECTOR_KEY, {
+  saveStatus,
+  isRestored,
+  error,
+  diagnostics,
+});
 
 watch(
   isRestored,

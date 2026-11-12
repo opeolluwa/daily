@@ -35,8 +35,7 @@ const isNoPaddingNeededView = computed(() =>
       <div class="flex flex-1 overflow-hidden">
         <main
           :class="isNoPaddingNeededView ? 'p-0' : 'p-6'"
-          class="flex flex-1 flex-col overflow-y-auto scrollbar-config
-          dark:bg-app-dark-800"
+          class="flex flex-1 flex-col overflow-y-auto scrollbar-config dark:bg-app-dark-800"
         >
           <div class="flex items-center gap-3 mb-1" />
           <slot name="page_title" />

@@ -73,7 +73,9 @@ export function usePersistence(
 
   // ── Save logic ──────────────────────────────────────────────────────
 
-  async function persistFiles(nonDeleted: readonly ExcalidrawElement[]): Promise<void> {
+  async function persistFiles(
+    nonDeleted: readonly ExcalidrawElement[],
+  ): Promise<void> {
     const files = serializeFiles(imageCache.cache.value, nonDeleted);
     const referencedIds = new Set(Object.keys(files));
 
@@ -120,9 +122,14 @@ export function usePersistence(
     }
 
     saveStatus.value = "saving";
-    logEvent("debounce", `fired — version changed (${lastSavedHash.value} → ${currentHash})`);
+    logEvent(
+      "debounce",
+      `fired — version changed (${lastSavedHash.value} → ${currentHash})`,
+    );
 
-    const [serializeError, serialized] = serializeElements(elements.elements.value);
+    const [serializeError, serialized] = serializeElements(
+      elements.elements.value,
+    );
 
     if (serializeError) {
       saveStatus.value = "error";
@@ -154,7 +161,10 @@ export function usePersistence(
     lastSavedHash.value = currentHash;
     error.value = null;
     saveStatus.value = "idle";
-    logEvent("save", `completed — hash ${currentHash} — ${serialized.length} elements`);
+    logEvent(
+      "save",
+      `completed — hash ${currentHash} — ${serialized.length} elements`,
+    );
   }
 
   const scheduleSave = useDebounceFn(executeSave, 300, { maxWait: 1000 });
@@ -216,7 +226,9 @@ export function usePersistence(
   // mutateElement() edits in place, so poll versionNonce hashes every 2s.
   useIntervalFn(() => {
     if (watchPaused || forwardVersionMode.value || !isRestored.value) return;
-    const currentHash = hashElementsVersion(getNonDeletedElements(elements.elements.value));
+    const currentHash = hashElementsVersion(
+      getNonDeletedElements(elements.elements.value),
+    );
     if (currentHash !== lastSavedHash.value && saveStatus.value !== "saving") {
       requestSave();
     }
@@ -251,7 +263,10 @@ export function usePersistence(
       restoreImageCache(binaryFiles, imageCache.addImage),
     );
     if (restoreError) {
-      logEvent("error", `Failed to restore image cache: ${restoreError.message}`);
+      logEvent(
+        "error",
+        `Failed to restore image cache: ${restoreError.message}`,
+      );
       return;
     }
     logEvent("restore", `restored ${files.length} binary files`);
@@ -284,7 +299,7 @@ export function usePersistence(
       return;
     }
 
-    let restoredCount = 0;
+    let restoredCount: number;
 
     const payload = whiteboard.payload;
     if (payload !== null && isValidPersistedScene(payload)) {
@@ -294,7 +309,6 @@ export function usePersistence(
           "restore",
           "Data has a newer schema version. Saves are disabled — please refresh this tab.",
         );
-        restoredCount = normalizeElements(payload.elements).length;
         elements.replaceElements(normalizeElements(payload.elements));
       } else {
         const migrated = migrateScene(payload);

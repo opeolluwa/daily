@@ -55,7 +55,9 @@ export function useImageActions() {
       segStatus.value === "compositing",
   );
 
-  const isAnythingProcessing = computed(() => isProcessing.value || segIsProcessing.value);
+  const isAnythingProcessing = computed(
+    () => isProcessing.value || segIsProcessing.value,
+  );
 
   register([
     {
@@ -68,7 +70,12 @@ export function useImageActions() {
       enabled: () => {
         if (selectedElements.value.length !== 1) return false;
         const el = selectedElements.value[0];
-        return !!el && isInitializedImageElement(el) && !el.locked && !isAnythingProcessing.value;
+        return (
+          !!el &&
+          isInitializedImageElement(el) &&
+          !el.locked &&
+          !isAnythingProcessing.value
+        );
       },
     },
     {
@@ -81,7 +88,12 @@ export function useImageActions() {
       enabled: () => {
         if (selectedElements.value.length !== 1) return false;
         const el = selectedElements.value[0];
-        return !!el && isInitializedImageElement(el) && !el.locked && !isAnythingProcessing.value;
+        return (
+          !!el &&
+          isInitializedImageElement(el) &&
+          !el.locked &&
+          !isAnythingProcessing.value
+        );
       },
     },
     {
@@ -148,15 +160,20 @@ export function useImageActions() {
       const [regError, newFileId] = registerImage(resultImage, "image/png");
       if (regError) return;
 
-      const newElement = createElement("image", currentEl.x + currentEl.width + GAP, currentEl.y, {
-        width: currentEl.width,
-        height: currentEl.height,
-        angle: currentEl.angle,
-        opacity: currentEl.opacity,
-        fileId: newFileId,
-        status: "saved",
-        scale: currentEl.scale ?? [1, 1],
-      });
+      const newElement = createElement(
+        "image",
+        currentEl.x + currentEl.width + GAP,
+        currentEl.y,
+        {
+          width: currentEl.width,
+          height: currentEl.height,
+          angle: currentEl.angle,
+          opacity: currentEl.opacity,
+          fileId: newFileId,
+          status: "saved",
+          scale: currentEl.scale ?? [1, 1],
+        },
+      );
       addElement(newElement);
       select(newElement.id);
       markStaticDirty();

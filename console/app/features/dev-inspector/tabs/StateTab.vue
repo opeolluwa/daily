@@ -9,12 +9,16 @@ const { theme } = useTheme();
 
 const h = useTestHook();
 
-const activeTool = computed(() => (h?.activeTool as { value: string })?.value ?? "selection");
+const activeTool = computed(
+  () => (h?.activeTool as { value: string })?.value ?? "selection",
+);
 const scrollX = computed(() => (h?.scrollX as { value: number })?.value ?? 0);
 const scrollY = computed(() => (h?.scrollY as { value: number })?.value ?? 0);
 const zoom = computed(() => (h?.zoom as { value: number })?.value ?? 1);
 const selectedIds = computed(
-  () => (h?.selectedIds as { value: ReadonlySet<string> })?.value ?? new Set<string>(),
+  () =>
+    (h?.selectedIds as { value: ReadonlySet<string> })?.value ??
+    new Set<string>(),
 );
 const selectedElements = computed(
   () =>
@@ -28,10 +32,14 @@ const multiElement = computed(
   () => (h?.multiElement as { value: ExcalidrawElement | null })?.value ?? null,
 );
 const editingTextElement = computed(
-  () => (h?.editingTextElement as { value: ExcalidrawElement | null })?.value ?? null,
+  () =>
+    (h?.editingTextElement as { value: ExcalidrawElement | null })?.value ??
+    null,
 );
 
-const openSections = ref(new Set(["tool", "viewport", "selection", "clipboard", "style"]));
+const openSections = ref(
+  new Set(["tool", "viewport", "selection", "clipboard", "style"]),
+);
 
 function toggleSection(id: string): void {
   if (openSections.value.has(id)) {
@@ -59,19 +67,23 @@ const SECTION_ICONS = {
   },
   viewport: {
     svg: "M2 3h20v14H2zM8 21h8m-4-4v4",
-    classes: "bg-blue-500/10 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-400",
+    classes:
+      "bg-blue-500/10 text-blue-600 dark:bg-blue-400/[0.12] dark:text-blue-400",
   },
   selection: {
     svg: "M3 3h18v18H3zM8 8h8v8H8z",
-    classes: "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
+    classes:
+      "bg-green-500/10 text-green-600 dark:bg-green-400/[0.12] dark:text-green-400",
   },
   clipboard: {
     svg: "M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2M8 2h8v4H8z",
-    classes: "bg-amber-500/10 text-amber-600 dark:bg-amber-400/[0.12] dark:text-amber-400",
+    classes:
+      "bg-amber-500/10 text-amber-600 dark:bg-amber-400/[0.12] dark:text-amber-400",
   },
   style: {
     svg: "M12 2.69l5.66 5.66a8 8 0 11-11.31 0z",
-    classes: "bg-orange-500/10 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-400",
+    classes:
+      "bg-orange-500/10 text-orange-600 dark:bg-orange-400/[0.12] dark:text-orange-400",
   },
 };
 
@@ -122,7 +134,8 @@ const nonDeletedCount = computed(
             <path :d="SECTION_ICONS.tool.svg" />
           </svg>
         </div>
-        <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+        <span
+          class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
           >Tool</span
         >
         <svg
@@ -137,7 +150,9 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('tool')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">activeTool</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-accent transition-colors hover:bg-subdued/40"
@@ -147,21 +162,37 @@ const nonDeletedCount = computed(
             {{ activeTool }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">newElement</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
-            :class="newElement ? 'font-medium text-foreground' : 'italic text-foreground/30'"
+            :class="
+              newElement
+                ? 'font-medium text-foreground'
+                : 'italic text-foreground/30'
+            "
             @click="flashValue('tool.newElement')"
           >
-            {{ newElement ? `${newElement.type} (${newElement.id.slice(0, 6)})` : "null" }}
+            {{
+              newElement
+                ? `${newElement.type} (${newElement.id.slice(0, 6)})`
+                : "null"
+            }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">multiElement</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
-            :class="multiElement ? 'font-medium text-foreground' : 'italic text-foreground/30'"
+            :class="
+              multiElement
+                ? 'font-medium text-foreground'
+                : 'italic text-foreground/30'
+            "
             @click="flashValue('tool.multiElement')"
           >
             {{ multiElement ? multiElement.id.slice(0, 6) : "null" }}
@@ -172,11 +203,15 @@ const nonDeletedCount = computed(
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
             :class="
-              editingTextElement ? 'font-medium text-foreground' : 'italic text-foreground/30'
+              editingTextElement
+                ? 'font-medium text-foreground'
+                : 'italic text-foreground/30'
             "
             @click="flashValue('tool.editingText')"
           >
-            {{ editingTextElement ? editingTextElement.id.slice(0, 6) : "null" }}
+            {{
+              editingTextElement ? editingTextElement.id.slice(0, 6) : "null"
+            }}
           </span>
         </div>
       </div>
@@ -202,7 +237,8 @@ const nonDeletedCount = computed(
             <path :d="SECTION_ICONS.viewport.svg" />
           </svg>
         </div>
-        <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+        <span
+          class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
           >Viewport</span
         >
         <svg
@@ -217,7 +253,9 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('viewport')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">scroll</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
@@ -227,7 +265,9 @@ const nonDeletedCount = computed(
             {{ Math.round(scrollX) }}, {{ Math.round(scrollY) }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">zoom</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
@@ -268,7 +308,8 @@ const nonDeletedCount = computed(
             <path :d="SECTION_ICONS.selection.svg" />
           </svg>
         </div>
-        <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+        <span
+          class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
           >Selection</span
         >
         <svg
@@ -282,13 +323,20 @@ const nonDeletedCount = computed(
           <path d="M9 18l6-6-6-6" />
         </svg>
       </div>
-      <div v-if="openSections.has('selection')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+      <div
+        v-if="openSections.has('selection')"
+        class="space-y-0 px-2 pb-2 pl-9"
+      >
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">count</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium transition-colors hover:bg-subdued/40"
             :class="
-              selectedIds.size > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground'
+              selectedIds.size > 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-foreground'
             "
             @click="flashValue('selection.count')"
           >
@@ -307,15 +355,18 @@ const nonDeletedCount = computed(
             {{ [...selectedIds].map((id) => id.slice(0, 6)).join(", ") }}
           </span>
         </div>
-        <div v-if="selectionBounds" class="flex items-center justify-between py-[3px]">
+        <div
+          v-if="selectionBounds"
+          class="flex items-center justify-between py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">bounds</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
             @click="flashValue('selection.bounds')"
           >
-            [{{ selectionBounds.x1 }},{{ selectionBounds.y1 }},{{ selectionBounds.x2 }},{{
-              selectionBounds.y2
-            }}]
+            [{{ selectionBounds.x1 }},{{ selectionBounds.y1 }},{{
+              selectionBounds.x2
+            }},{{ selectionBounds.y2 }}]
           </span>
         </div>
       </div>
@@ -341,7 +392,8 @@ const nonDeletedCount = computed(
             <path :d="SECTION_ICONS.clipboard.svg" />
           </svg>
         </div>
-        <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+        <span
+          class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
           >Clipboard & Theme</span
         >
         <svg
@@ -355,8 +407,13 @@ const nonDeletedCount = computed(
           <path d="M9 18l6-6-6-6" />
         </svg>
       </div>
-      <div v-if="openSections.has('clipboard')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+      <div
+        v-if="openSections.has('clipboard')"
+        class="space-y-0 px-2 pb-2 pl-9"
+      >
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">clipboard</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
@@ -370,7 +427,9 @@ const nonDeletedCount = computed(
             {{ ctx.clipboard.clipboard.value.length }} elements
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">storedStyles</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] transition-colors hover:bg-subdued/40"
@@ -416,7 +475,8 @@ const nonDeletedCount = computed(
             <path :d="SECTION_ICONS.style.svg" />
           </svg>
         </div>
-        <span class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
+        <span
+          class="flex-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/60"
           >Style Defaults</span
         >
         <svg
@@ -431,7 +491,9 @@ const nonDeletedCount = computed(
         </svg>
       </div>
       <div v-if="openSections.has('style')" class="space-y-0 px-2 pb-2 pl-9">
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">stroke</span>
           <span
             class="flex cursor-pointer items-center gap-1.5 rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
@@ -444,7 +506,9 @@ const nonDeletedCount = computed(
             {{ ctx.styleDefaults.strokeColor.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">background</span>
           <span
             class="flex cursor-pointer items-center gap-1.5 rounded px-1 py-px font-mono text-[10px] font-medium text-foreground transition-colors hover:bg-subdued/40"
@@ -455,13 +519,17 @@ const nonDeletedCount = computed(
               :style="{
                 backgroundColor: ctx.styleDefaults.backgroundColor.value,
                 borderStyle:
-                  ctx.styleDefaults.backgroundColor.value === 'transparent' ? 'dashed' : 'solid',
+                  ctx.styleDefaults.backgroundColor.value === 'transparent'
+                    ? 'dashed'
+                    : 'solid',
               }"
             />
             {{ ctx.styleDefaults.backgroundColor.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">fill</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
@@ -470,7 +538,9 @@ const nonDeletedCount = computed(
             {{ ctx.styleDefaults.fillStyle.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">strokeW</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"
@@ -479,7 +549,9 @@ const nonDeletedCount = computed(
             {{ ctx.styleDefaults.strokeWidth.value }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-b border-edge/10 py-[3px]">
+        <div
+          class="flex items-center justify-between border-b border-edge/10 py-[3px]"
+        >
           <span class="text-[11px] text-foreground/40">opacity</span>
           <span
             class="cursor-pointer rounded px-1 py-px font-mono text-[11px] font-medium text-foreground transition-colors hover:bg-subdued/40"

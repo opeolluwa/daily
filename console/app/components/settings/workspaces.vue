@@ -225,8 +225,8 @@ const workspaces = computed(() => workspaceStore.workspaces ?? []);
     <RyderPageHeader
       title="Workspaces"
       subtitle="Manage and create new workspaces "
-      @cta="showCreateModal = true"
       cta-text="Add new"
+      @cta="showCreateModal = true"
     />
 
     <!-- Workspace list -->

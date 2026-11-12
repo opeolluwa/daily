@@ -1,6 +1,15 @@
-import { AutoModel, AutoProcessor, RawImage, env } from "@huggingface/transformers";
+import {
+  AutoModel,
+  AutoProcessor,
+  RawImage,
+  env,
+} from "@huggingface/transformers";
 import type { ProgressCallback } from "@huggingface/transformers";
-import type { WorkerInMessage, WorkerOutMessage, MaskResult } from "./segmentation.types";
+import type {
+  WorkerInMessage,
+  WorkerOutMessage,
+  MaskResult,
+} from "./segmentation.types";
 import { SEGMENTATION_CONFIG } from "./segmentation.types";
 
 env.allowLocalModels = false;
@@ -21,7 +30,9 @@ type Pipeline = {
 // Singleton -- store the PROMISE to handle concurrent getInstance() calls
 let pipelinePromise: Promise<Pipeline> | null = null;
 
-async function loadPipeline(progressCallback?: ProgressCallback): Promise<Pipeline> {
+async function loadPipeline(
+  progressCallback?: ProgressCallback,
+): Promise<Pipeline> {
   const model = await AutoModel.from_pretrained(MODEL_ID, {
     // RMBG-1.4 requires model_type: "custom" which is not in the library's PretrainedConfig type
     // @ts-expect-error -- custom model config override
@@ -205,7 +216,9 @@ function buildComponentMasks(
   }
 
   // Allocate mask buffers for each component
-  const maskBuffers: Uint8Array[] = filtered.map(() => new Uint8Array(totalPixels));
+  const maskBuffers: Uint8Array[] = filtered.map(
+    () => new Uint8Array(totalPixels),
+  );
 
   // Single pass over all pixels to fill mask buffers
   for (let i = 0; i < totalPixels; i++) {
@@ -248,10 +261,13 @@ let cancelled = false;
 
 // ── Main handler ─────────────────────────────────────────────────────
 
-async function handleProcess(imageData: ArrayBuffer, width: number, height: number): Promise<void> {
+async function handleProcess(
+  imageData: ArrayBuffer,
+  width: number,
+  height: number,
+): Promise<void> {
   cancelled = false;
 
-  // eslint-disable-next-line no-restricted-syntax -- tryCatch() from core is unavailable in isolated workers
   try {
     const { model, processor } = await getInstance((progress) => {
       post({ type: "progress", progress });
@@ -265,7 +281,12 @@ async function handleProcess(imageData: ArrayBuffer, width: number, height: numb
     post({ type: "status", status: "processing" });
 
     // Run RMBG-1.4 to get foreground alpha mask
-    const image = new RawImage(new Uint8ClampedArray(imageData), width, height, 4);
+    const image = new RawImage(
+      new Uint8ClampedArray(imageData),
+      width,
+      height,
+      4,
+    );
     const { pixel_values } = await processor(image);
     const { output } = await model({ input: pixel_values });
 
@@ -275,10 +296,9 @@ async function handleProcess(imageData: ArrayBuffer, width: number, height: numb
     }
 
     // Convert model output to alpha mask at original resolution
-    const alphaMask = await RawImage.fromTensor(output[0].mul(255).to("uint8")).resize(
-      width,
-      height,
-    );
+    const alphaMask = await RawImage.fromTensor(
+      output[0].mul(255).to("uint8"),
+    ).resize(width, height);
 
     if (cancelled) {
       post({ type: "cancelled" });
@@ -307,7 +327,8 @@ async function handleProcess(imageData: ArrayBuffer, width: number, height: numb
   } catch (error) {
     post({
       type: "error",
-      error: error instanceof Error ? error.message : "Unknown segmentation error",
+      error:
+        error instanceof Error ? error.message : "Unknown segmentation error",
     });
   }
 }
