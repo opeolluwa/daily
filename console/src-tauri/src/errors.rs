@@ -6,6 +6,8 @@ pub enum AppError {
     Kernel(#[from] kernel::error::KernelError),
     #[error("IO error: {0}")]
     Io(String),
+    #[error("Credential store error: {0}")]
+    Secrets(String),
 }
 
 impl Serialize for AppError {

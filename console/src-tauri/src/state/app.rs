@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use kernel::{
+    filestore::FileStoreEngine,
     repositories::{
         bookmarks::BookmarkRepository, notes::NotesRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
@@ -11,6 +12,7 @@ use kernel::{
     },
     sea_orm::DatabaseConnection,
 };
+use tokio::sync::RwLock;
 
 pub struct AppState {
     pub bookmark_repository: BookmarkRepository,
@@ -24,6 +26,8 @@ pub struct AppState {
     pub whiteboards_repository: WhiteboardRepository,
     pub workspace_profile_repository: WorkspaceProfileRepository,
     pub workspace_repository: WorkspaceRepository,
+    pub db: Arc<DatabaseConnection>,
+    pub cloud_storage: Arc<RwLock<Option<FileStoreEngine>>>,
 }
 
 impl AppState {
@@ -52,6 +56,8 @@ impl AppState {
             whiteboards_repository,
             workspace_repository,
             workspace_profile_repository,
+            db: conn,
+            cloud_storage: Arc::new(RwLock::new(None)),
         }
     }
 }

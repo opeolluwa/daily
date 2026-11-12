@@ -1,4 +1,5 @@
 pub mod bookmarks;
+pub mod cloud_storage;
 pub mod moodboard;
 pub mod notes;
 pub mod notifications;
