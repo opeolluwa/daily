@@ -1,9 +1,0 @@
-# Bazel outputs
-/bazel-*
-
-# CLion
-/.idea/
-/cmake-build-*/
-
-# Build outputs
-/build*/

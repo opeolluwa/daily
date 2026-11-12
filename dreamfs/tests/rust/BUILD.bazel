@@ -1,8 +1,0 @@
-load("@rules_rust//rust:rust_test.bzl", "rust_test")
-
-rust_test(
-    name = "main",
-    srcs = ["main.rs"],
-    edition = "2024",
-    deps = ["//:dreamfs_rust"],
-)
