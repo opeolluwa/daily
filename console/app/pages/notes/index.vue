@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import NotesCard from "~/components/notes/notes-card.vue";
-import {
-  NOTE_SORT_OPTIONS,
-  sortNotes,
-  type NoteSort,
-} from "~/utils/sorting";
+import { NOTE_SORT_OPTIONS, sortNotes, type NoteSort } from "~/utils/sorting";
 import { useNoteStore } from "~/stores/notes";
 import { formatDate } from "~/utils/date";
 

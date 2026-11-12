@@ -2,7 +2,8 @@ import type { ProgressInfo } from "@huggingface/transformers";
 
 export type { ProgressInfo } from "@huggingface/transformers";
 
-export type SegmentationStatus = "idle" | "downloading" | "processing" | "compositing" | "error";
+export type SegmentationStatus =
+  "idle" | "downloading" | "processing" | "compositing" | "error";
 
 export type SegmentationProgress = {
   /** 0-100 percentage, null when indeterminate */

@@ -86,10 +86,10 @@ const today = computed(() =>
       <div
         class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-col items-center justify-center flex-1 gap-6 px-5 relative"
       >
-          <!-- tint -->
-          
+        <!-- tint -->
+
         <div
-          class="pointer-events-none absolute -top-20 -left-24 size-96 rounded-full bg-primary-300/20 dark:bg-primary-500/10 blur-3xl  md:block "
+          class="pointer-events-none absolute -top-20 -left-24 size-96 rounded-full bg-primary-300/20 dark:bg-primary-500/10 blur-3xl md:block"
         />
 
         <!-- tint -->

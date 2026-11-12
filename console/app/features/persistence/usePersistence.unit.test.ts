@@ -33,13 +33,15 @@ vi.mock("@vueuse/core", async (importOriginal) => {
       debouncedFn = fn;
       return fn;
     }),
-    useEventListener: vi.fn((target: unknown, event: string, handler: () => void) => {
-      const key =
-        typeof target === "object" && target !== null && "hidden" in target
-          ? `document:${event}`
-          : event;
-      eventListenerHandlers[key] = handler;
-    }),
+    useEventListener: vi.fn(
+      (target: unknown, event: string, handler: () => void) => {
+        const key =
+          typeof target === "object" && target !== null && "hidden" in target
+            ? `document:${event}`
+            : event;
+        eventListenerHandlers[key] = handler;
+      },
+    ),
     useIntervalFn: vi.fn(),
   };
 });
@@ -85,7 +87,9 @@ function setupDefaults(): void {
   whiteboardStoreMock.deleteWhiteboardFile.mockResolvedValue(undefined);
 }
 
-async function waitForRestore(ctx: { isRestored: { value: boolean } }): Promise<void> {
+async function waitForRestore(ctx: {
+  isRestored: { value: boolean };
+}): Promise<void> {
   await vi.waitFor(
     () => {
       expect(ctx.isRestored.value).toBe(true);
@@ -103,7 +107,6 @@ async function triggerSave(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 describe("usePersistence", () => {
-  // eslint-disable-next-line vitest/no-hooks -- clearing mocks & stubs is necessary for isolated tests
   beforeEach(async () => {
     // Drain floating promises from previous test's onScopeDispose → flushSave → executeSave
     await new Promise((r) => setTimeout(r, 0));
@@ -112,11 +115,10 @@ describe("usePersistence", () => {
     vi.stubGlobal("document", { hidden: false });
     // Reset captured handlers
     for (const key of Object.keys(eventListenerHandlers)) {
-      delete eventListenerHandlers[key];
+      Reflect.deleteProperty(eventListenerHandlers, key);
     }
   });
 
-  // eslint-disable-next-line vitest/no-hooks -- cleanup global stubs
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -174,14 +176,20 @@ describe("usePersistence", () => {
         savedAt: 1000,
         elementCount: 3,
       };
-      whiteboardStoreMock.getWhiteboard.mockResolvedValue(makeWhiteboard({ payload }));
+      whiteboardStoreMock.getWhiteboard.mockResolvedValue(
+        makeWhiteboard({ payload }),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);
 
       expect(ctx.drawVue.elements.elements.value).toHaveLength(2);
-      expect(whiteboardStoreMock.getWhiteboard).toHaveBeenCalledWith(WHITEBOARD_ID);
-      expect(whiteboardStoreMock.getWhiteboardFiles).toHaveBeenCalledWith(WHITEBOARD_ID);
+      expect(whiteboardStoreMock.getWhiteboard).toHaveBeenCalledWith(
+        WHITEBOARD_ID,
+      );
+      expect(whiteboardStoreMock.getWhiteboardFiles).toHaveBeenCalledWith(
+        WHITEBOARD_ID,
+      );
     });
 
     it("starts empty when the payload is not a valid scene", async () => {
@@ -203,7 +211,9 @@ describe("usePersistence", () => {
         savedAt: 1000,
         elementCount: 1,
       };
-      whiteboardStoreMock.getWhiteboard.mockResolvedValue(makeWhiteboard({ payload }));
+      whiteboardStoreMock.getWhiteboard.mockResolvedValue(
+        makeWhiteboard({ payload }),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);
@@ -216,7 +226,9 @@ describe("usePersistence", () => {
     });
 
     it("sets error status when loading the whiteboard fails", async () => {
-      whiteboardStoreMock.getWhiteboard.mockRejectedValue(new Error("db offline"));
+      whiteboardStoreMock.getWhiteboard.mockRejectedValue(
+        new Error("db offline"),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);
@@ -286,7 +298,9 @@ describe("usePersistence", () => {
 
     it("sets error status on save failure", async () => {
       setupDefaults();
-      whiteboardStoreMock.updateWhiteboard.mockRejectedValue(new Error("write failed"));
+      whiteboardStoreMock.updateWhiteboard.mockRejectedValue(
+        new Error("write failed"),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);
@@ -297,12 +311,16 @@ describe("usePersistence", () => {
 
       expect(ctx.saveStatus.value).toBe("error" satisfies SaveStatus);
       expect(ctx.error.value).toBeInstanceOf(Error);
-      expect(ctx.error.value!.message).toBe("Failed to save drawing to database");
+      expect(ctx.error.value!.message).toBe(
+        "Failed to save drawing to database",
+      );
     });
 
     it("does not retry while in error state", async () => {
       setupDefaults();
-      whiteboardStoreMock.updateWhiteboard.mockRejectedValue(new Error("write failed"));
+      whiteboardStoreMock.updateWhiteboard.mockRejectedValue(
+        new Error("write failed"),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);
@@ -374,7 +392,9 @@ describe("usePersistence", () => {
       await nextTick();
       await triggerSave();
 
-      expect(ctx.diagnostics.lastSavedHash.value).toBe(ctx.diagnostics.sceneHash.value);
+      expect(ctx.diagnostics.lastSavedHash.value).toBe(
+        ctx.diagnostics.sceneHash.value,
+      );
       expect(ctx.diagnostics.lastSavedHash.value).not.toBe(hashAfterRestore);
     });
 
@@ -385,7 +405,9 @@ describe("usePersistence", () => {
       await waitForRestore(ctx);
 
       const initialHash = ctx.diagnostics.sceneHash.value;
-      ctx.drawVue.elements.addElement(createTestElement({ id: "scene-hash-test" }));
+      ctx.drawVue.elements.addElement(
+        createTestElement({ id: "scene-hash-test" }),
+      );
       await nextTick();
 
       expect(ctx.diagnostics.sceneHash.value).not.toBe(initialHash);
@@ -418,8 +440,12 @@ describe("usePersistence", () => {
 
       await ctx.diagnostics.clearStorage();
 
-      expect(whiteboardStoreMock.deleteWhiteboardFile).toHaveBeenCalledWith("file-0");
-      expect(whiteboardStoreMock.deleteWhiteboardFile).toHaveBeenCalledWith("file-1");
+      expect(whiteboardStoreMock.deleteWhiteboardFile).toHaveBeenCalledWith(
+        "file-0",
+      );
+      expect(whiteboardStoreMock.deleteWhiteboardFile).toHaveBeenCalledWith(
+        "file-1",
+      );
       expect(whiteboardStoreMock.updateWhiteboard).toHaveBeenCalledWith(
         WHITEBOARD_ID,
         expect.objectContaining({
@@ -433,14 +459,19 @@ describe("usePersistence", () => {
       setupDefaults();
       const payload = {
         schemaVersion: CURRENT_SCHEMA_VERSION,
-        elements: [createTestElement({ id: "a" }), createTestElement({ id: "b" })],
+        elements: [
+          createTestElement({ id: "a" }),
+          createTestElement({ id: "b" }),
+        ],
         savedAt: 1_700_000_000_000,
         elementCount: 2,
       };
       whiteboardStoreMock.getWhiteboard.mockResolvedValue(
         makeWhiteboard({ title: "My Board", payload }),
       );
-      whiteboardStoreMock.getWhiteboardFiles.mockResolvedValue(makeFiles(2, 25));
+      whiteboardStoreMock.getWhiteboardFiles.mockResolvedValue(
+        makeFiles(2, 25),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);
@@ -463,7 +494,9 @@ describe("usePersistence", () => {
     it("readStoreMetadata returns nulls when the whiteboard is gone", async () => {
       setupDefaults();
       whiteboardStoreMock.getWhiteboard.mockResolvedValue(null);
-      whiteboardStoreMock.getWhiteboardFiles.mockRejectedValue(new Error("db offline"));
+      whiteboardStoreMock.getWhiteboardFiles.mockRejectedValue(
+        new Error("db offline"),
+      );
 
       using ctx = withDrawVue(() => usePersistence(WHITEBOARD_ID));
       await waitForRestore(ctx);

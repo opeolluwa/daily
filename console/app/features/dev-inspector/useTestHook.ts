@@ -10,6 +10,5 @@
 type HookRecord = Record<string, Record<string, unknown>>;
 
 export function useTestHook(): HookRecord | undefined {
-  // eslint-disable-next-line no-restricted-syntax -- globalThis has no index signature; single crossing point for __h access
   return (globalThis as unknown as { __h?: HookRecord }).__h;
 }

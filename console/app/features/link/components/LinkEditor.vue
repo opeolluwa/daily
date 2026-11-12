@@ -6,8 +6,14 @@ import { useLinkEditor } from "../composables/useLinkEditor";
 const ctx = useDrawVue();
 const popoverRef = useTemplateRef<HTMLDivElement>("popover");
 const inputRef = useTemplateRef<HTMLInputElement>("linkInput");
-const { editingId, position, linkValue, hasExistingLink, removeLink, handleKeydown } =
-  useLinkEditor(ctx, { inputRef, popoverRef });
+const {
+  editingId,
+  position,
+  linkValue,
+  hasExistingLink,
+  removeLink,
+  handleKeydown,
+} = useLinkEditor(ctx, { inputRef, popoverRef });
 </script>
 
 <template>
@@ -30,7 +36,7 @@ const { editingId, position, linkValue, hasExistingLink, removeLink, handleKeydo
         placeholder="https://..."
         class="h-8 flex-1 rounded-md border border-edge bg-transparent px-2 text-[13px] text-foreground outline-none placeholder:text-foreground/35 focus:border-accent"
         @keydown="handleKeydown"
-      />
+      >
       <UButton
         v-if="hasExistingLink"
         variant="ghost"

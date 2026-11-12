@@ -17,6 +17,8 @@ const model = defineModel<number>({ required: true });
         thumb: 'ring-accent bg-foreground',
       }"
     />
-    <span class="w-8 shrink-0 text-right text-xs text-foreground/70">{{ model }}%</span>
+    <span class="w-8 shrink-0 text-right text-xs text-foreground/70"
+      >{{ model }}%</span
+    >
   </div>
 </template>

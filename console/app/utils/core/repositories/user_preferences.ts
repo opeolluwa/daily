@@ -42,18 +42,17 @@ export class UserPreferencesRepository extends BaseRepository {
   ): Promise<UserPreferences> {
     const sets: string[] = ["updated_at = $2"];
     const params: unknown[] = [identifier, this.now()];
-    let idx = 3;
 
     if (payload.masterFirstName !== undefined) {
-      sets.push(`master_first_name = $${idx++}`);
+      sets.push(`master_first_name = $${params.length + 1}`);
       params.push(payload.masterFirstName);
     }
     if (payload.masterLastName !== undefined) {
-      sets.push(`master_last_name = $${idx++}`);
+      sets.push(`master_last_name = $${params.length + 1}`);
       params.push(payload.masterLastName);
     }
     if (payload.masterEmail !== undefined) {
-      sets.push(`master_email = $${idx++}`);
+      sets.push(`master_email = $${params.length + 1}`);
       params.push(payload.masterEmail);
     }
 

@@ -64,7 +64,9 @@ export function useBackgroundRemoval() {
     };
   }
 
-  async function removeBackground(img: HTMLImageElement): Promise<HTMLImageElement | null> {
+  async function removeBackground(
+    img: HTMLImageElement,
+  ): Promise<HTMLImageElement | null> {
     return new Promise((resolve) => {
       const w = ensureWorker();
 
@@ -107,7 +109,12 @@ export function useBackgroundRemoval() {
 
       const { buffer, width, height } = imageToPixelBuffer(img, MAX_IMAGE_SIZE);
       w.postMessage(
-        { type: "process", imageData: buffer, originalWidth: width, originalHeight: height },
+        {
+          type: "process",
+          imageData: buffer,
+          originalWidth: width,
+          originalHeight: height,
+        },
         [buffer],
       );
     });

@@ -10,7 +10,11 @@ const emit = defineEmits<{
   "update:modelValue": [value: Arrowhead | null];
 }>();
 
-const arrowheadOptions: { label: string; value: Arrowhead | null; icon: string }[] = [
+const arrowheadOptions: {
+  label: string;
+  value: Arrowhead | null;
+  icon: string;
+}[] = [
   {
     label: "None",
     value: null,

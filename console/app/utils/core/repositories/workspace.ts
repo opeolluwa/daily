@@ -70,38 +70,37 @@ export class WorkspaceRepository extends BaseRepository {
 
     const sets: string[] = ["updated_at = $2"];
     const params: unknown[] = [identifier, this.now()];
-    let idx = 3;
 
     if (payload.name !== undefined) {
-      sets.push(`name = $${idx++}`);
+      sets.push(`name = $${params.length + 1}`);
       params.push(payload.name);
     }
     if (payload.description !== undefined) {
-      sets.push(`description = $${idx++}`);
+      sets.push(`description = $${params.length + 1}`);
       params.push(payload.description);
     }
     if (payload.isDefault !== undefined) {
-      sets.push(`is_default = $${idx++}`);
+      sets.push(`is_default = $${params.length + 1}`);
       params.push(payload.isDefault);
     }
     if (payload.isHidden !== undefined) {
-      sets.push(`is_hidden = $${idx++}`);
+      sets.push(`is_hidden = $${params.length + 1}`);
       params.push(payload.isHidden);
     }
     if (payload.isSecured !== undefined) {
-      sets.push(`is_secured = $${idx++}`);
+      sets.push(`is_secured = $${params.length + 1}`);
       params.push(payload.isSecured);
       if (!payload.isSecured) {
-        sets.push(`password_hash = $${idx++}`);
+        sets.push(`password_hash = $${params.length + 1}`);
         params.push(null);
       }
     }
     if (payload.password !== undefined) {
       if (payload.password === "") {
-        sets.push(`password_hash = $${idx++}`);
+        sets.push(`password_hash = $${params.length + 1}`);
         params.push(null);
       } else {
-        sets.push(`password_hash = $${idx++}`);
+        sets.push(`password_hash = $${params.length + 1}`);
         params.push(await this.sha256(payload.password));
       }
     }

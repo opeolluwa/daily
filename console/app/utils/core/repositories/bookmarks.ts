@@ -1,4 +1,9 @@
-import type { Bookmark, CreateBookmark, Tag, UpdateBookmark } from "@daily/core";
+import type {
+  Bookmark,
+  CreateBookmark,
+  Tag,
+  UpdateBookmark,
+} from "@daily/core";
 import { BaseRepository, type RequestMeta } from "../base";
 
 export type { CreateBookmark, UpdateBookmark };

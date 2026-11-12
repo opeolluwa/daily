@@ -89,7 +89,9 @@ async function submitRename() {
       </div>
 
       <div class="min-w-0 flex-1">
-        <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+        <h3
+          class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate"
+        >
           {{ title }}
           <span
             v-if="titleMatches"
@@ -119,7 +121,9 @@ async function submitRename() {
           :show-duplicate="false"
           :show-edit="false"
           @delete-record="confirmDelete"
-          @transfer-record="(targetWorkspaceId) => handleTransfer(targetWorkspaceId)"
+          @transfer-record="
+            (targetWorkspaceId) => handleTransfer(targetWorkspaceId)
+          "
         />
       </div>
     </div>
@@ -141,11 +145,7 @@ async function submitRename() {
           <UButton size="sm" variant="ghost" @click="renameOpen = false">
             Cancel
           </UButton>
-          <UButton
-            size="sm"
-            :disabled="renameSubmitting"
-            @click="submitRename"
-          >
+          <UButton size="sm" :disabled="renameSubmitting" @click="submitRename">
             Save
           </UButton>
         </div>

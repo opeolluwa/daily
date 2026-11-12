@@ -40,7 +40,7 @@ const duplicate = (
   api: CoreConsoleApi,
   a: InvokeArgs,
   kind:
-    | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
+    "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins",
 ) => {
   const repo = api[kind];
   return repo.duplicate_record(
@@ -54,7 +54,13 @@ const transfer = (
   api: CoreConsoleApi,
   a: InvokeArgs,
   kind:
-    | "notes" | "tasks" | "bookmarks" | "snippets" | "reminders" | "pasteBins" | "whiteboards",
+    | "notes"
+    | "tasks"
+    | "bookmarks"
+    | "snippets"
+    | "reminders"
+    | "pasteBins"
+    | "whiteboards",
 ) => {
   const repo = api[kind];
   return repo.transfer_record(

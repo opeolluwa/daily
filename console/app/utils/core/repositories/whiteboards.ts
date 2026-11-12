@@ -7,14 +7,6 @@ import { BaseRepository, type RequestMeta } from "../base";
 
 export type { CreateWhiteboard, UpdateWhiteboard };
 
-const COLUMNS = [
-  "title",
-  "payload",
-  "workspace_identifier",
-  "created_at",
-  "updated_at",
-];
-
 export class WhiteboardRepository extends BaseRepository {
   async create(
     payload: CreateWhiteboard,
@@ -82,7 +74,9 @@ export class WhiteboardRepository extends BaseRepository {
     }
     if (payload.payload !== undefined) {
       sets.push(`payload = $${idx++}`);
-      params.push(payload.payload != null ? JSON.stringify(payload.payload) : null);
+      params.push(
+        payload.payload != null ? JSON.stringify(payload.payload) : null,
+      );
     }
 
     const row = await this.row<Whiteboards>(

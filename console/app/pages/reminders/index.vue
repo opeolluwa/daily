@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useReminderStore } from "~/stores/reminder";
+import { useReminderStore, type Reminder } from "~/stores/reminder";
 import ReminderDialog from "~/components/reminders/ReminderDialog.vue";
 
 definePageMeta({ layout: false });
@@ -8,7 +8,7 @@ const reminderStore = useReminderStore();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "upcoming" | "recurring">("all");
 const dialogOpen = ref(false);
-const editingReminder = ref<any>(null);
+const editingReminder = ref<Reminder | null>(null);
 
 const filteredReminders = computed(() => {
   let list = reminderStore.reminders;

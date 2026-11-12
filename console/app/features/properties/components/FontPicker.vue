@@ -17,7 +17,11 @@ interface FontOption {
 
 const fontOptions: FontOption[] = [
   { label: "Virgil", value: 1, style: "font-family: Virgil, cursive" },
-  { label: "Helvetica", value: 2, style: "font-family: Helvetica, Arial, sans-serif" },
+  {
+    label: "Helvetica",
+    value: 2,
+    style: "font-family: Helvetica, Arial, sans-serif",
+  },
   { label: "Cascadia", value: 3, style: "font-family: Cascadia, monospace" },
 ];
 
@@ -33,7 +37,9 @@ const selected = computed({
   },
 });
 
-const placeholder = computed(() => (modelValue === "mixed" ? "Mixed" : undefined));
+const placeholder = computed(() =>
+  modelValue === "mixed" ? "Mixed" : undefined,
+);
 </script>
 
 <template>
@@ -52,7 +58,9 @@ const placeholder = computed(() => (modelValue === "mixed" ? "Mixed" : undefined
     }"
   >
     <template #item-label="{ item }">
-      <span :style="(item as FontOption).style">{{ (item as FontOption).label }}</span>
+      <span :style="(item as FontOption).style">{{
+        (item as FontOption).label
+      }}</span>
     </template>
   </USelectMenu>
 </template>

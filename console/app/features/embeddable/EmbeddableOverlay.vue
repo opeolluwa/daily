@@ -6,14 +6,22 @@ import type { EmbedData } from "@drawvue/core";
 const ctx = useDrawVue();
 const { theme } = useTheme();
 const viewport = computed(() => ctx.viewport.value);
-const activeEmbeddable = computed(() => ctx.embeddable.value?.activeEmbeddable.value ?? null);
+const activeEmbeddable = computed(
+  () => ctx.embeddable.value?.activeEmbeddable.value ?? null,
+);
 
 function isActive(id: string): boolean {
-  return activeEmbeddable.value?.elementId === id && activeEmbeddable.value?.state === "active";
+  return (
+    activeEmbeddable.value?.elementId === id &&
+    activeEmbeddable.value?.state === "active"
+  );
 }
 
 function isHovered(id: string): boolean {
-  return activeEmbeddable.value?.elementId === id && activeEmbeddable.value?.state === "hover";
+  return (
+    activeEmbeddable.value?.elementId === id &&
+    activeEmbeddable.value?.state === "hover"
+  );
 }
 
 type OverlayEntry = {
@@ -58,7 +66,11 @@ const overlayEntries = computed<OverlayEntry[]>(() => {
 });
 
 function getSandboxAttr(entry: OverlayEntry): string {
-  const parts = ["allow-scripts", "allow-popups", "allow-popups-to-escape-sandbox"];
+  const parts = [
+    "allow-scripts",
+    "allow-popups",
+    "allow-popups-to-escape-sandbox",
+  ];
   if (entry.embedData.sandbox.allowSameOrigin) {
     parts.push("allow-same-origin");
   }
@@ -100,7 +112,9 @@ function getSandboxAttr(entry: OverlayEntry): string {
           loading="lazy"
         />
         <iframe
-          v-else-if="entry.embedData.renderType === 'srcdoc' && entry.embedData.srcdoc"
+          v-else-if="
+            entry.embedData.renderType === 'srcdoc' && entry.embedData.srcdoc
+          "
           :srcdoc="entry.embedData.srcdoc(theme)"
           :sandbox="getSandboxAttr(entry)"
           class="embeddable-iframe"
@@ -108,7 +122,9 @@ function getSandboxAttr(entry: OverlayEntry): string {
         />
       </div>
 
-      <div v-if="isHovered(entry.id)" class="embeddable-hint">Click to interact</div>
+      <div v-if="isHovered(entry.id)" class="embeddable-hint">
+        Click to interact
+      </div>
     </div>
   </div>
 </template>

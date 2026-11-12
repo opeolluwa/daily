@@ -1,13 +1,11 @@
 import type { ExcalidrawElement, Result } from "@drawvue/core";
-import { getNonDeletedElements, hashElementsVersion, tryCatchSync } from "@drawvue/core";
-import type {
-  CurrentPersistedScene,
-  PersistedScene,
-} from "./types";
 import {
-  CURRENT_SCHEMA_VERSION,
-  ELEMENT_COUNT_WARN_THRESHOLD,
-} from "./types";
+  getNonDeletedElements,
+  hashElementsVersion,
+  tryCatchSync,
+} from "@drawvue/core";
+import type { CurrentPersistedScene, PersistedScene } from "./types";
+import { CURRENT_SCHEMA_VERSION, ELEMENT_COUNT_WARN_THRESHOLD } from "./types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -43,7 +41,9 @@ export function isValidPersistedScene(data: unknown): data is PersistedScene {
   return true;
 }
 
-export function normalizeElements(elements: readonly unknown[]): ExcalidrawElement[] {
+export function normalizeElements(
+  elements: readonly unknown[],
+): ExcalidrawElement[] {
   return elements.filter((el): el is ExcalidrawElement => {
     if (!isRecord(el)) return false;
 
@@ -53,7 +53,10 @@ export function normalizeElements(elements: readonly unknown[]): ExcalidrawEleme
     }
 
     if (typeof el.type !== "string" || el.type.length === 0) {
-      console.warn("[persistence] Skipping element with missing/invalid type:", el.id);
+      console.warn(
+        "[persistence] Skipping element with missing/invalid type:",
+        el.id,
+      );
       return false;
     }
 
@@ -79,7 +82,8 @@ export function serializeElements(
   return tryCatchSync(() => {
     const json = JSON.stringify(nonDeleted);
     const parsed: unknown = JSON.parse(json);
-    if (!Array.isArray(parsed)) throw new Error("Serialization produced non-array");
+    if (!Array.isArray(parsed))
+      throw new Error("Serialization produced non-array");
     return parsed as ExcalidrawElement[];
   });
 }

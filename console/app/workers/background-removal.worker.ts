@@ -1,7 +1,15 @@
-import { AutoModel, AutoProcessor, RawImage, env } from "@huggingface/transformers";
+import {
+  AutoModel,
+  AutoProcessor,
+  RawImage,
+  env,
+} from "@huggingface/transformers";
 import type { ProgressCallback } from "@huggingface/transformers";
-import type { WorkerIncomingMessage, WorkerOutgoingMessage } from "./background-removal.types";
-import type { ProgressInfo } from "./background-removal.types";
+import type {
+  WorkerIncomingMessage,
+  WorkerOutgoingMessage,
+  ProgressInfo,
+} from "./background-removal.types";
 
 env.allowLocalModels = false;
 
@@ -22,7 +30,9 @@ type Pipeline = {
 // Singleton -- store the PROMISE to handle concurrent getInstance() calls
 let pipelinePromise: Promise<Pipeline> | null = null;
 
-async function loadPipeline(progressCallback?: ProgressCallback): Promise<Pipeline> {
+async function loadPipeline(
+  progressCallback?: ProgressCallback,
+): Promise<Pipeline> {
   const model = await AutoModel.from_pretrained(MODEL_ID, {
     // RMBG-1.4 requires model_type: "custom" which is not in the library's PretrainedConfig type
     // @ts-expect-error -- custom model config override
@@ -64,12 +74,13 @@ function sendProgress(progress: ProgressInfo): void {
   post({ type: "progress", progress });
 }
 
-async function handleMessage(e: MessageEvent<WorkerIncomingMessage>): Promise<void> {
+async function handleMessage(
+  e: MessageEvent<WorkerIncomingMessage>,
+): Promise<void> {
   if (e.data.type !== "process") return;
 
   const { imageData, originalWidth, originalHeight } = e.data;
 
-  // eslint-disable-next-line no-restricted-syntax -- tryCatch() from core is unavailable in isolated workers
   try {
     const { model, processor } = await getInstance(sendProgress);
 
@@ -87,16 +98,21 @@ async function handleMessage(e: MessageEvent<WorkerIncomingMessage>): Promise<vo
     const { output } = await model({ input: pixel_values });
 
     // Resize mask to original dimensions
-    const mask = await RawImage.fromTensor(output[0].mul(255).to("uint8")).resize(
-      originalWidth,
-      originalHeight,
-    );
+    const mask = await RawImage.fromTensor(
+      output[0].mul(255).to("uint8"),
+    ).resize(originalWidth, originalHeight);
 
     // Transfer mask buffer (zero-copy)
     const maskBuffer = mask.data.buffer as ArrayBuffer;
-    post({ type: "result", maskData: maskBuffer, width: originalWidth, height: originalHeight }, [
-      maskBuffer,
-    ]);
+    post(
+      {
+        type: "result",
+        maskData: maskBuffer,
+        width: originalWidth,
+        height: originalHeight,
+      },
+      [maskBuffer],
+    );
   } catch (error) {
     post({
       type: "error",

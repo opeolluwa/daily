@@ -35,7 +35,7 @@ watch(
   <NuxtLayout name="default">
     <template #main_content>
       <div
-        class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-1 flex-col"
+        class="-mt-5 flex min-h-0 w-full flex-1 flex-col"
         :style="{ pointerEvents: isRestored ? 'auto' : 'none' }"
       >
         <UContextMenu :items="drawvueRef?.contextMenuItems ?? []">
@@ -88,7 +88,10 @@ watch(
             <CommandPalette />
             <LinkEditor />
             <EmbeddableOverlay />
-            <PersistenceProvider :whiteboard-id="whiteboardId" @restored="isRestored = true">
+            <PersistenceProvider
+              :whiteboard-id="whiteboardId"
+              @restored="isRestored = true"
+            >
               <DevInspector />
             </PersistenceProvider>
             <ImageActions />

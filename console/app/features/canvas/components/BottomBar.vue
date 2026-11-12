@@ -72,7 +72,12 @@ const BTN =
       class="flex items-center rounded-lg border border-edge/40 bg-surface/80 shadow-lg backdrop-blur-md"
     >
       <UTooltip text="Undo" :kbds="['meta', 'Z']" :content="{ side: 'top' }">
-        <button :class="BTN" :disabled="!canUndo" aria-label="Undo" @click="emit('undo')">
+        <button
+          :class="BTN"
+          :disabled="!canUndo"
+          aria-label="Undo"
+          @click="emit('undo')"
+        >
           <svg
             aria-hidden="true"
             class="h-4 w-4"
@@ -89,8 +94,17 @@ const BTN =
         </button>
       </UTooltip>
 
-      <UTooltip text="Redo" :kbds="['meta', 'shift', 'Z']" :content="{ side: 'top' }">
-        <button :class="BTN" :disabled="!canRedo" aria-label="Redo" @click="emit('redo')">
+      <UTooltip
+        text="Redo"
+        :kbds="['meta', 'shift', 'Z']"
+        :content="{ side: 'top' }"
+      >
+        <button
+          :class="BTN"
+          :disabled="!canRedo"
+          aria-label="Redo"
+          @click="emit('redo')"
+        >
           <svg
             aria-hidden="true"
             class="h-4 w-4"
