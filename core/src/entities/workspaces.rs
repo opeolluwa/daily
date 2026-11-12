@@ -50,12 +50,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Users,
+    #[sea_orm(has_many = "super::whiteboards::Entity")]
+    Whiteboards,
     #[sea_orm(has_many = "super::workspace_members::Entity")]
     WorkspaceMembers,
     #[sea_orm(has_many = "super::workspace_profiles::Entity")]
     WorkspaceProfiles,
-    #[sea_orm(has_many = "super::whiteboards::Entity")]
-    Whiteboards,
 }
 
 impl Related<super::bookmark::Entity> for Entity {
@@ -118,6 +118,12 @@ impl Related<super::users::Entity> for Entity {
     }
 }
 
+impl Related<super::whiteboards::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Whiteboards.def()
+    }
+}
+
 impl Related<super::workspace_members::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::WorkspaceMembers.def()
@@ -127,12 +133,6 @@ impl Related<super::workspace_members::Entity> for Entity {
 impl Related<super::workspace_profiles::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::WorkspaceProfiles.def()
-    }
-}
-
-impl Related<super::whiteboards::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Whiteboards.def()
     }
 }
 
@@ -160,10 +160,10 @@ pub enum RelatedEntity {
     Todo,
     #[sea_orm(entity = "super::users::Entity")]
     Users,
+    #[sea_orm(entity = "super::whiteboards::Entity")]
+    Whiteboards,
     #[sea_orm(entity = "super::workspace_members::Entity")]
     WorkspaceMembers,
     #[sea_orm(entity = "super::workspace_profiles::Entity")]
     WorkspaceProfiles,
-    #[sea_orm(entity = "super::whiteboards::Entity")]
-    Whiteboards,
 }

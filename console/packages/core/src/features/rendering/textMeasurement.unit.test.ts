@@ -13,6 +13,10 @@ describe("getFontString", () => {
     expect(getFontString(14, 3)).toBe("14px monospace");
   });
 
+  it("returns correct string for fontFamily 4 (Lato)", () => {
+    expect(getFontString(16, 4)).toBe("16px Lato, sans-serif");
+  });
+
   it("defaults to sans-serif for unknown fontFamily", () => {
     expect(getFontString(18, 99)).toBe("18px sans-serif");
   });

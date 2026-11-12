@@ -91,7 +91,7 @@ pub enum Tag {
 #[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "todo_status")]
 #[ts(export)]
 #[serde(rename_all = "snake_case")]
-pub enum TaskStatus {
+pub enum TodoStatus {
     #[sea_orm(string_value = "planned")]
     Planned,
     #[sea_orm(string_value = "in_progress")]

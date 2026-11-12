@@ -2,6 +2,7 @@ const FONT_FAMILY_MAP: Record<number, string> = {
   1: "sans-serif",
   2: "serif",
   3: "monospace",
+  4: "Lato, sans-serif",
 };
 
 export function getFontString(fontSize: number, fontFamily: number): string {

@@ -1,0 +1,201 @@
+erDiagram
+    bookmark {
+        uuid identifier PK
+        varchar title
+        varchar url
+        enum tag
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+    }
+    country {
+        char identifier PK
+        varchar currency_code
+        varchar currency
+        varchar country
+        text flag
+    }
+    invitation {
+        uuid identifier PK
+        uuid workspace_identifier FK
+        varchar email
+        varchar first_name
+        varchar last_name
+        varchar token UK
+        varchar status
+        timestamptz expires_at
+        timestamptz created_at
+    }
+    note_categories {
+        uuid identifier PK
+        varchar label
+        text description
+    }
+    notes {
+        uuid identifier PK
+        varchar title
+        text content
+        json categories
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+    }
+    notifications {
+        uuid identifier PK
+        varchar title
+        varchar body
+        enum notification_type
+        timestamptz created_at
+        timestamptz updated_at
+        bool is_read
+        uuid workspace_identifier FK
+    }
+    one_time_password {
+        uuid identifier PK
+        uuid user_identifier FK
+        char code
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    paste_bins {
+        uuid identifier PK
+        varchar title
+        text content
+        bool is_pinned
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+    }
+    recycle_bin {
+        uuid identifier PK
+        uuid item_id
+        enum item_type
+        text payload
+        timestamptz deleted_at
+        uuid workspace_identifier FK
+    }
+    reminder {
+        uuid identifier PK
+        varchar title
+        text description
+        bool recurring
+        varchar recurrence_rule
+        varchar alarm_sound
+        timestamptz remind_at
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+    }
+    revoked_token {
+        uuid identifier PK
+        uuid jti UK
+        uuid user_identifier FK
+        timestamptz expires_at
+        timestamptz revoked_at
+    }
+    snippets {
+        uuid identifier PK
+        varchar title
+        varchar language
+        text code
+        text description
+        bool is_pinned
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+    }
+    todo {
+        uuid identifier PK
+        varchar title
+        text description
+        date due_date
+        enum priority
+        bool done
+        timestamptz created_at
+        timestamptz updated_at
+        time due_time
+        uuid workspace_identifier FK
+        enum status
+    }
+    user_preferences {
+        uuid identifier PK
+        varchar master_first_name
+        varchar master_last_name
+        varchar master_email
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    users {
+        uuid identifier PK
+        varchar first_name
+        varchar password
+        varchar last_name
+        varchar email UK
+        bool is_active
+        varchar profile_picture
+        varchar username
+        datetime created_at
+        datetime updated_at
+    }
+    whiteboard_files {
+        uuid identifier PK
+        uuid whiteboard_identifier FK
+        varchar mime_type
+        text data
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    whiteboards {
+        uuid identifier PK
+        varchar title
+        json payload
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+    }
+    workspace_members {
+        uuid identifier PK
+        varchar member_email UK
+        varchar role
+        uuid user_identifier
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK,UK
+    }
+    workspace_profiles {
+        uuid identifier PK
+        varchar first_name
+        varchar last_name
+        timestamptz created_at
+        timestamptz updated_at
+        uuid workspace_identifier FK
+        varchar profile_picture
+    }
+    workspaces {
+        varchar name
+        varchar description
+        timestamptz created_at
+        timestamptz updated_at
+        uuid identifier PK
+        bool is_default
+        bool is_hidden
+        bool is_secured
+        text password_hash
+        uuid user_identifier FK
+    }
+    bookmark }o--|| workspaces : "workspace_identifier"
+    invitation }o--|| workspaces : "workspace_identifier"
+    notes }o--|| workspaces : "workspace_identifier"
+    notifications }o--|| workspaces : "workspace_identifier"
+    one_time_password }o--|| users : "user_identifier"
+    paste_bins }o--|| workspaces : "workspace_identifier"
+    recycle_bin }o--|| workspaces : "workspace_identifier"
+    reminder }o--|| workspaces : "workspace_identifier"
+    revoked_token }o--|| users : "user_identifier"
+    snippets }o--|| workspaces : "workspace_identifier"
+    todo }o--|| workspaces : "workspace_identifier"
+    whiteboard_files }o--|| whiteboards : "whiteboard_identifier"
+    whiteboards }o--|| workspaces : "workspace_identifier"
+    workspace_members }o--|| workspaces : "workspace_identifier"
+    workspace_profiles }o--|| workspaces : "workspace_identifier"
+    workspaces }o--|| users : "user_identifier"

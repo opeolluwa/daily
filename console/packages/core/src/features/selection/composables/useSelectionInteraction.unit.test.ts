@@ -313,7 +313,7 @@ describe("useSelectionInteraction", () => {
   });
 
   describe("keyboard - Delete", () => {
-    it("Delete key marks selected elements as deleted", () => {
+    it("Delete key marks selected elements as deleted and prevents the browser default", () => {
       const el = createTestElement({ id: "del-1", x: 0, y: 0, width: 50, height: 50 });
       const opts = createSelectionSetup();
       opts.elements.value = [el];
@@ -321,10 +321,27 @@ describe("useSelectionInteraction", () => {
 
       using _ctx = withSetup(() => useSelectionInteraction(opts));
 
-      fireKeydown({ key: "Delete" });
+      const preventDefault = vi.fn();
+      fireKeydown({ key: "Delete", preventDefault });
 
       expect(el.isDeleted).toBe(true);
       expect(opts.clearSelectionFn).toHaveBeenCalled();
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it("Backspace key deletes the selection and prevents browser back navigation", () => {
+      const el = createTestElement({ id: "del-2", x: 0, y: 0, width: 50, height: 50 });
+      const opts = createSelectionSetup();
+      opts.elements.value = [el];
+      opts.selectedIdSet.value = new Set(["del-2"]);
+
+      using _ctx = withSetup(() => useSelectionInteraction(opts));
+
+      const preventDefault = vi.fn();
+      fireKeydown({ key: "Backspace", preventDefault });
+
+      expect(el.isDeleted).toBe(true);
+      expect(preventDefault).toHaveBeenCalled();
     });
   });
 
