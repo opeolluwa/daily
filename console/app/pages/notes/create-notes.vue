@@ -84,10 +84,8 @@ onBeforeRouteLeave(async () => {
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <NoteTitleInput v-model="title" :disabled="submitting" />
-    </template>
     <template #main_content>
+      <NoteTitleInput v-model="title" :disabled="submitting" />
       <div class="notes-editor-desktop min-h-[calc(100dvh-12rem)]">
         <NotesEditor ref="notesEditor" v-model="content">
           <template #toolbar>
