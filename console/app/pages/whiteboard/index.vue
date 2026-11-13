@@ -16,9 +16,27 @@ const filteredWhiteboards = computed(() => {
   );
 });
 
+const createOpen = ref(false);
+const createName = ref("");
+const creating = ref(false);
+
+function openCreateModal() {
+  createName.value = "";
+  createOpen.value = true;
+}
+
 async function createWhiteboard() {
-  const created = await whiteboardStore.createWhiteboard({ title: null });
-  await router.push(`/whiteboard/${created.identifier}`);
+  if (creating.value) return;
+  creating.value = true;
+  try {
+    const created = await whiteboardStore.createWhiteboard({
+      title: createName.value.trim() || null,
+    });
+    createOpen.value = false;
+    await router.push(`/whiteboard/${created.identifier}`);
+  } finally {
+    creating.value = false;
+  }
 }
 
 onMounted(async () => {
@@ -30,36 +48,16 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <NuxtLayout
-    name="default"
-    :show-primary-cta="whiteboardStore.whiteboards.length > 0"
-  >
-    <template #page_title>
-      <h1
-        v-if="whiteboardStore.whiteboards.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Whiteboards
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <div
-        v-if="whiteboardStore.whiteboards.length !== 0"
-        class="hidden md:flex items-center justify-end"
-        @click="createWhiteboard"
-      >
-        <button
-          class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
-        >
-          <UIcon name="heroicons:plus" class="size-4" />
-          New Whiteboard
-        </button>
-      </div>
-      <RyderFab aria-label="New Whiteboard" @click="createWhiteboard" />
-    </template>
-
+  <NuxtLayout name="default">
     <template #main_content>
+      <RyderPageHeader
+        v-if="whiteboardStore.whiteboards.length > 0"
+        title="Whiteboards"
+        cta-text="New Whiteboard"
+        cta-icon="heroicons:plus"
+        @cta="openCreateModal"
+      />
+      <RyderFab aria-label="New Whiteboard" @click="openCreateModal" />
       <!-- Loading skeletons -->
       <div v-if="whiteboardStore.loading" class="flex flex-col gap-3">
         <USkeleton v-for="i in 3" :key="i" class="h-24 rounded-lg" />
@@ -75,7 +73,7 @@ onUnmounted(() => clearSearch());
           icon="i-lucide-pen-tool"
           action-label="New whiteboard"
           :ui="{ root: '!h-auto' }"
-          @action="createWhiteboard"
+          @action="openCreateModal"
         />
       </div>
 
@@ -94,7 +92,7 @@ onUnmounted(() => clearSearch());
       </div>
 
       <!-- Whiteboard list -->
-      <div v-else class="flex flex-col gap-3">
+      <div v-else class="flex flex-wrap gap-3">
         <WhiteboardCard
           v-for="whiteboard in filteredWhiteboards"
           :key="whiteboard.identifier"
@@ -102,6 +100,33 @@ onUnmounted(() => clearSearch());
           :search-query="searchQuery"
         />
       </div>
+    </template>
+
+    <template #modal_content>
+      <UModal v-model:open="createOpen">
+        <template #content>
+          <div class="px-6 pt-6 pb-4 flex flex-col gap-4">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              New Whiteboard
+            </h2>
+            <RyderInput
+              v-model="createName"
+              label="Name"
+              placeholder="Untitled"
+              name="whiteboard-name"
+              @keydown.enter="createWhiteboard"
+            />
+            <div class="flex justify-end gap-2">
+              <UButton size="sm" variant="ghost" @click="createOpen = false">
+                Cancel
+              </UButton>
+              <UButton size="sm" :loading="creating" @click="createWhiteboard">
+                Create
+              </UButton>
+            </div>
+          </div>
+        </template>
+      </UModal>
     </template>
   </NuxtLayout>
 </template>

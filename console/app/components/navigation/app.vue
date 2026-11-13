@@ -37,6 +37,9 @@ watch(
       handle: 'cursor-ew-resize',
     }"
   >
-    <NavigationSideNavContent :collapsed="sidebarStore.collapsed" />
+    <NavigationSideNavContent
+      :collapsed="sidebarStore.collapsed"
+      :show-user-card="false"
+    />
   </UDashboardSidebar>
 </template>

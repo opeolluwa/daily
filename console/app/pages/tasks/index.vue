@@ -77,21 +77,19 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default" :show-side-content="isListViewMode ^ isEmptyList">
-    <template #page_title>
+    <template #main_content>
       <RyderPageHeader
         v-if="taskStore.tasks.length"
         title="Task"
         subtitle="Plan your tasks"
         cta-text="New Task"
         cta-icon="heroicons:plus"
-        @cta="
-          editingTask = null;
-          dialogOpen = true;
-        "
+        @cta="editingTask = null; dialogOpen = true"
       />
-    </template>
-
-    <template #main_content>
+      <RyderFab
+        aria-label="New Task"
+        @click="editingTask = null; dialogOpen = true"
+      />
       <div
         v-if="
           !taskStore.loading && taskStore.tasks.length > 0 && isListViewMode

@@ -34,38 +34,18 @@ async function handleDelete(filename: string) {
 
 <template>
   <NuxtLayout name="default">
-    <template #primary_cta>
-      <!-- Desktop: full label -->
-      <div class="hidden md:flex items-center justify-end">
-        <button
-          v-if="moodboardStore.images.length"
-          :disabled="moodboardStore.uploading"
-          class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          @click="triggerUpload"
-        >
-          <UIcon
-            :name="
-              moodboardStore.uploading
-                ? 'heroicons:arrow-path'
-                : 'heroicons:plus'
-            "
-            :class="['size-4', moodboardStore.uploading && 'animate-spin']"
-          />
-          {{ moodboardStore.uploading ? "Uploading…" : "Add Image" }}
-        </button>
-      </div>
-      <!-- Mobile: icon-only round FAB -->
+    <template #main_content>
+      <RyderPageHeader
+        v-if="moodboardStore.images.length > 0"
+        title="Moodboard"
+        cta-text="Add Image"
+        cta-icon="heroicons:plus"
+        @cta="triggerUpload"
+      />
       <RyderFab
-        :disabled="moodboardStore.uploading"
-        :icon="
-          moodboardStore.uploading ? 'heroicons:arrow-path' : 'heroicons:plus'
-        "
         aria-label="Add Image"
-        class="disabled:opacity-50"
         @click="triggerUpload"
       />
-
-      <!-- Hidden file input -->
       <input
         ref="fileInputRef"
         type="file"
@@ -74,9 +54,6 @@ async function handleDelete(filename: string) {
         class="hidden"
         @change="handleFileChange"
       >
-    </template>
-
-    <template #main_content>
       <!-- Loading skeleton -->
       <div v-if="moodboardStore.loading" class="columns-2 gap-3 space-y-3">
         <div

@@ -98,16 +98,11 @@ function relativeTime(iso: string) {
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="notificationStore.notifications.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Notifications
-      </h1>
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="notificationStore.notifications.length > 0"
+        title="Notifications"
+      />
       <!-- Toolbar -->
       <div class="flex items-center justify-between mb-5">
         <div class="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">

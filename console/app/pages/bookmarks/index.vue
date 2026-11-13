@@ -69,34 +69,15 @@ async function handleCreate(payload: {
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="bookmarkStore.bookmarks.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Bookmarks
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <!-- Desktop: full label -->
-      <div
-        v-if="bookmarkStore.bookmarks.length !== 0"
-        class="hidden md:flex items-center justify-end"
-      >
-        <button
-          class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
-          @click="showAddModal = true"
-        >
-          <UIcon name="heroicons:plus" class="size-4" />
-          Add Bookmark
-        </button>
-      </div>
-      <!-- Mobile: icon-only round FAB -->
-      <RyderFab aria-label="Add Bookmark" @click="showAddModal = true" />
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="bookmarkStore.bookmarks.length > 0"
+        title="Bookmarks"
+        cta-text="Add Bookmark"
+        cta-icon="heroicons:plus"
+        @cta="showAddModal = true"
+      />
+      <RyderFab aria-label="Add Bookmark" @click="showAddModal = true" />
       <div class="flex items-center gap-2 mb-1">
         <BookmarkTagFilters
           v-if="bookmarkStore.bookmarks.length !== 0"

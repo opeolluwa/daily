@@ -5,10 +5,9 @@ const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
 withDefaults(
-  defineProps<{ showSideContent?: boolean; showPrimaryCta?: boolean }>(),
+  defineProps<{ showSideContent?: boolean }>(),
   {
     showSideContent: true,
-    showPrimaryCta: true,
   },
 );
 const asideOpen = ref(false);
@@ -37,20 +36,6 @@ const isNoPaddingNeededView = computed(() =>
           :class="isNoPaddingNeededView ? 'p-0' : 'p-6'"
           class="flex flex-1 flex-col overflow-y-auto scrollbar-config dark:bg-app-dark-800"
         >
-          <div class="flex items-center gap-3 mb-1" />
-          <slot name="page_title" />
-
-          <div
-            v-if="
-              showPrimaryCta &&
-              !workspaceStore.isCurrentWorkspaceLocked &&
-              $slots.primary_cta
-            "
-            class="hidden md:flex items-center justify-end mt-5 my-6"
-          >
-            <slot name="primary_cta" />
-          </div>
-
           <slot
             v-if="
               !workspaceStore.isCurrentWorkspaceLocked ||
@@ -86,14 +71,6 @@ const isNoPaddingNeededView = computed(() =>
             />
           </div>
         </main>
-
-        <!-- Mobile FAB for primary_cta -->
-        <div
-          class="md:hidden fixed bottom-6 right-6 z-40"
-          style="padding-bottom: env(safe-area-inset-bottom)"
-        >
-          <slot name="primary_cta" />
-        </div>
 
         <!-- Inline aside: always visible on desktop -->
         <aside

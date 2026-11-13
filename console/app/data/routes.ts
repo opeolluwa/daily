@@ -47,6 +47,12 @@ export const workspaceRoutes: Route[] = [
     activeIcon: "ri:alarm-fill",
   },
   {
+    path: "/calendar",
+    name: "Calendar",
+    icon: "ri:calendar-line",
+    activeIcon: "ri:calendar-fill",
+  },
+  {
     path: "/snippets",
     name: "Snippets",
     icon: "ri:code-s-slash-line",
@@ -55,12 +61,12 @@ export const workspaceRoutes: Route[] = [
 ];
 
 export const toolRoutes: Route[] = [
-  {
-    path: "/moodboard",
-    name: "Moodboard",
-    icon: "ri:layout-grid-line",
-    activeIcon: "ri:layout-grid-fill",
-  },
+  // {
+  //   path: "/moodboard",
+  //   name: "Moodboard",
+  //   icon: "ri:layout-grid-line",
+  //   activeIcon: "ri:layout-grid-fill",
+  // },
   {
     path: "/whiteboard",
     name: "Whiteboard",

@@ -7,6 +7,7 @@ export type CreateReminder = {
   recurrenceRule: string | null;
   alarmSound: string | null;
   remindAt: string;
+  endDate: string | null;
   workspaceIdentifier: string | null;
 };
 
@@ -17,4 +18,5 @@ export type UpdateReminder = {
   recurrenceRule: string | null;
   alarmSound: string | null;
   remindAt: string | null;
+  endDate: string | null;
 };

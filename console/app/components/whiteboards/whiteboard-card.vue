@@ -74,7 +74,7 @@ async function submitRename() {
 <template>
   <RyderCard
     :ui="{
-      root: '!p-0 overflow-hidden cursor-pointer hover:shadow-sm transition-shadow',
+      root: '!p-0 overflow-hidden cursor-pointer w-72 hover:shadow-sm transition-shadow',
     }"
     @click="router.push(`/whiteboard/${whiteboard.identifier}`)"
   >
@@ -83,7 +83,7 @@ async function submitRename() {
         class="shrink-0 size-10 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center"
       >
         <UIcon
-          name="i-lucide-pen-tool"
+          name="lucide:line-squiggle"
           class="size-5 text-primary-600 dark:text-primary-400"
         />
       </div>
@@ -135,7 +135,7 @@ async function submitRename() {
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
           Rename Whiteboard
         </h2>
-        <UInput
+        <RyderInput
           v-model="renameValue"
           placeholder="Whiteboard name"
           class="w-full mt-4"

@@ -178,27 +178,14 @@ onUnmounted(() => {
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="recycleBinStore.entries.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Recycle Bin
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <button
-        v-if="recycleBinStore.entries.length !== 0"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-        @click="confirmEmptyBin = true"
-      >
-        <UIcon name="heroicons:trash" class="size-4" />
-        Empty bin
-      </button>
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="recycleBinStore.entries.length > 0"
+        title="Recycle Bin"
+        cta-text="Empty bin"
+        cta-icon="heroicons:trash"
+        @cta="confirmEmptyBin = true"
+      />
       <!-- Type filter tabs -->
       <div
         v-if="!recycleBinStore.loading && recycleBinStore.entries.length > 0"

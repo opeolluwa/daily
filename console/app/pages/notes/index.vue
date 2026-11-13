@@ -34,25 +34,14 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="noteStore.notes.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Notes
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <AppPrimaryCta
-        v-if="noteStore.notes.length !== 0"
-        label="New Note"
-        icon="heroicons:plus"
-        to="/notes/create-notes"
-      />
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="noteStore.notes.length > 0"
+        title="Notes"
+        cta-text="New Note"
+        cta-icon="heroicons:plus"
+        @cta="router.push('/notes/create-notes')"
+      />
       <!-- Sort control -->
       <div
         v-if="!noteStore.loading && noteStore.notes.length > 0"

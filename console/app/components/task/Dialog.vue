@@ -12,6 +12,7 @@ const props = defineProps<{
     priority: "high" | "medium" | "low";
     done: boolean;
   } | null;
+  initialDate?: string | null;
 }>();
 
 const open = defineModel<boolean>("open", { required: true });
@@ -81,6 +82,9 @@ watch(
       }
     } else {
       resetForm();
+      if (props.initialDate) {
+        form.dueDate = fromIsoDate(props.initialDate);
+      }
     }
   },
   { immediate: true },

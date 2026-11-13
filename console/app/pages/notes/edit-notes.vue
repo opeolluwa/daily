@@ -100,10 +100,8 @@ onMounted(async () => {
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <NoteTitleInput v-model="title" :disabled="submitting" />
-    </template>
     <template #main_content>
+      <NoteTitleInput v-model="title" :disabled="submitting" />
       <!-- Not found -->
       <div
         v-if="!original && !noteStore.loading"
