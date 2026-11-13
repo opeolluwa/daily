@@ -105,16 +105,11 @@ onBeforeUnmount(() => {
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="pasteBinStore.pasteBins.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Paste Bin
-      </h1>
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="pasteBinStore.pasteBins.length > 0"
+        title="Paste Bin"
+      />
       <div
         v-if="pasteBinStore.pasteBins.length > 0"
         class="mb-3 flex items-center justify-between"

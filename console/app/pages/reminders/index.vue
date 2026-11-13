@@ -58,28 +58,18 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="reminderStore.reminders.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Reminders
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <AppPrimaryCta
-        v-if="reminderStore.reminders.length !== 0"
-        label="New Reminder"
-        icon="heroicons:plus"
-        @click="
-          editingReminder = null;
-          dialogOpen = true;
-        "
-      />
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="reminderStore.reminders.length > 0"
+        title="Reminders"
+        cta-text="New Reminder"
+        cta-icon="heroicons:plus"
+        @cta="editingReminder = null; dialogOpen = true"
+      />
+      <RyderFab
+        aria-label="New Reminder"
+        @click="editingReminder = null; dialogOpen = true"
+      />
       <!-- Filter tabs -->
       <div
         v-if="!reminderStore.loading && reminderStore.reminders.length > 0"

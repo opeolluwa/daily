@@ -64,41 +64,18 @@ onUnmounted(() => clearSearch());
 
 <template>
   <NuxtLayout name="default">
-    <template #page_title>
-      <h1
-        v-if="snippetStore.snippets.length > 0"
-        class="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-      >
-        Snippets
-      </h1>
-    </template>
-
-    <template #primary_cta>
-      <div
-        v-if="snippetStore.snippets.length !== 0"
-        class="hidden md:flex items-center justify-end"
-        @click="
-          editingSnippet = null;
-          dialogOpen = true;
-        "
-      >
-        <button
-          class="flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
-        >
-          <UIcon name="heroicons:plus" class="size-4" />
-          Add Snippet
-        </button>
-      </div>
-      <RyderFab
-        aria-label="Add Snippet"
-        @click="
-          editingSnippet = null;
-          dialogOpen = true;
-        "
-      />
-    </template>
-
     <template #main_content>
+      <RyderPageHeader
+        v-if="snippetStore.snippets.length > 0"
+        title="Snippets"
+        cta-text="New Snippet"
+        cta-icon="heroicons:plus"
+        @cta="editingSnippet = null; dialogOpen = true"
+      />
+      <RyderFab
+        aria-label="New Snippet"
+        @click="editingSnippet = null; dialogOpen = true"
+      />
       <!-- Language filter tabs + sort -->
       <div
         v-if="!snippetStore.loading && allLanguages.length > 1"
