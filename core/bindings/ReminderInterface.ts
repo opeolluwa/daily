@@ -8,6 +8,7 @@ export type ReminderInterface = {
   recurrenceRule: string | null;
   alarmSound: string | null;
   remindAt: string;
+  endDate: string | null;
   createdAt: string;
   updatedAt: string;
   workspaceIdentifier: string | null;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CalendarDate, Time } from "@internationalized/date";
 import { useReminderStore } from "~/stores/reminder";
 
 const props = defineProps<{
@@ -7,10 +8,12 @@ const props = defineProps<{
     title: string;
     description?: string | null;
     remindAt: string;
+    endDate?: string | null;
     recurring: boolean;
     recurrenceRule?: string | null;
     alarmSound?: string | null;
   } | null;
+  initialDate?: string | null;
 }>();
 
 const open = defineModel<boolean>("open", { required: true });
@@ -22,24 +25,69 @@ const editing = computed(() => !!props.reminder);
 const submitting = ref(false);
 const deleting = ref(false);
 
+const recurrenceOptions = [
+  { label: "Daily", value: "daily" },
+  { label: "Weekly", value: "weekly" },
+  { label: "Biweekly", value: "biweekly" },
+  { label: "Monthly", value: "monthly" },
+  { label: "Yearly", value: "yearly" },
+  { label: "Weekdays (Mon–Fri)", value: "weekdays" },
+];
+
 const form = reactive({
   title: "",
   description: "",
-  remindAt: "",
+  date: undefined as CalendarDate | undefined,
+  endDate: undefined as CalendarDate | undefined,
   recurring: false,
-  recurrenceRule: "",
+  recurrenceType: "",
   alarmSound: "",
 });
+
+const selectedTime = shallowRef<Time | undefined>();
+
+function toIsoDate(date: CalendarDate | undefined): string | null {
+  if (!date) return null;
+  return [
+    date.year,
+    String(date.month).padStart(2, "0"),
+    String(date.day).padStart(2, "0"),
+  ].join("-");
+}
+
+function fromIsoDate(
+  value: string | null | undefined,
+): CalendarDate | undefined {
+  if (!value) return undefined;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  return new CalendarDate(year, month, day);
+}
+
+function formatTime(time: Time): string {
+  return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
+}
+
+function buildRemindAt(): string {
+  const dateStr = toIsoDate(form.date);
+  if (!dateStr) return "";
+  const timeStr = selectedTime.value
+    ? formatTime(selectedTime.value)
+    : "09:00";
+  return new Date(`${dateStr}T${timeStr}`).toISOString();
+}
 
 function resetForm() {
   Object.assign(form, {
     title: "",
     description: "",
-    remindAt: "",
+    date: undefined,
+    endDate: undefined,
     recurring: false,
-    recurrenceRule: "",
+    recurrenceType: "",
     alarmSound: "",
   });
+  selectedTime.value = undefined;
 }
 
 watch(
@@ -48,12 +96,22 @@ watch(
     if (r) {
       form.title = r.title;
       form.description = r.description ?? "";
-      form.remindAt = new Date(r.remindAt).toISOString().slice(0, 16);
+      const dt = new Date(r.remindAt);
+      form.date = new CalendarDate(
+        dt.getFullYear(),
+        dt.getMonth() + 1,
+        dt.getDate(),
+      );
+      selectedTime.value = new Time(dt.getHours(), dt.getMinutes());
+      form.endDate = fromIsoDate(r.endDate);
       form.recurring = r.recurring;
-      form.recurrenceRule = r.recurrenceRule ?? "";
+      form.recurrenceType = r.recurrenceRule ?? "";
       form.alarmSound = r.alarmSound ?? "";
     } else {
       resetForm();
+      if (props.initialDate) {
+        form.date = fromIsoDate(props.initialDate);
+      }
     }
   },
   { immediate: true },
@@ -64,15 +122,16 @@ watch(open, (val) => {
 });
 
 async function handleSubmit() {
-  if (!form.title.trim() || !form.remindAt) return;
+  if (!form.title.trim() || !form.date) return;
   submitting.value = true;
   try {
     const payload = {
       title: form.title.trim(),
       description: form.description.trim() || undefined,
-      remindAt: new Date(form.remindAt).toISOString(),
-      recurring: form.recurring || undefined,
-      recurrenceRule: form.recurrenceRule.trim() || undefined,
+      remindAt: buildRemindAt(),
+      endDate: toIsoDate(form.endDate) ?? null,
+      recurring: form.recurring,
+      recurrenceRule: form.recurring ? form.recurrenceType || null : null,
       alarmSound: form.alarmSound.trim() || undefined,
     };
 
@@ -139,7 +198,7 @@ async function handleDelete() {
     :title="editing ? 'Edit Reminder' : 'New Reminder'"
     :loading="submitting"
     :submit-label="editing ? 'Save' : 'Create'"
-    :submit-disabled="!form.title.trim() || !form.remindAt"
+    :submit-disabled="!form.title.trim() || !form.date"
     @submit="handleSubmit"
     @cancel="resetForm"
   >
@@ -160,13 +219,27 @@ async function handleDelete() {
         :rows="3"
       />
 
-      <RyderInput
-        v-model="form.remindAt"
-        label="Remind at"
-        :required="true"
-        type="datetime-local"
-        icon="heroicons:clock"
-        name="remind-at"
+      <div class="grid grid-cols-2 gap-3">
+        <RyderDateInput
+          v-model="form.date"
+          label="Start Date"
+          :required="true"
+          name="reminder-start-date"
+          placeholder="Start"
+        />
+        <RyderDateInput
+          v-model="form.endDate"
+          label="End Date"
+          name="reminder-end-date"
+          placeholder="Optional"
+        />
+      </div>
+
+      <RyderTimeInput
+        v-model="selectedTime"
+        label="Time"
+        name="reminder-time"
+        size="sm"
       />
 
       <div class="flex items-center gap-3">
@@ -191,13 +264,27 @@ async function handleDelete() {
         </label>
       </div>
 
-      <RyderInput
-        v-if="form.recurring"
-        v-model="form.recurrenceRule"
-        label="Recurrence rule"
-        placeholder="e.g. FREQ=DAILY;INTERVAL=1"
-        name="recurrence-rule"
-      />
+      <div v-if="form.recurring" class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
+          Repeat
+        </label>
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            v-for="opt in recurrenceOptions"
+            :key="opt.value"
+            type="button"
+            class="py-2 rounded-lg text-xs font-medium border transition-colors"
+            :class="
+              form.recurrenceType === opt.value
+                ? 'bg-primary-50 dark:bg-primary-950 border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+            "
+            @click="form.recurrenceType = opt.value"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </div>
 
       <button
         v-if="editing"

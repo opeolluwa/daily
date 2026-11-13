@@ -10,6 +10,7 @@ const COLUMNS = [
   "recurrence_rule",
   "alarm_sound",
   "remind_at",
+  "end_date",
   "workspace_identifier",
   "created_at",
   "updated_at",
@@ -21,8 +22,8 @@ export class ReminderRepository extends BaseRepository {
     const now = this.now();
     return this.mustRow<Reminder>(
       `INSERT INTO reminder
-         (identifier, title, description, recurring, recurrence_rule, alarm_sound, remind_at, created_at, updated_at, workspace_identifier)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         (identifier, title, description, recurring, recurrence_rule, alarm_sound, remind_at, end_date, created_at, updated_at, workspace_identifier)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         this.newUuid(),
@@ -32,6 +33,7 @@ export class ReminderRepository extends BaseRepository {
         payload.recurrenceRule ?? null,
         payload.alarmSound ?? null,
         payload.remindAt,
+        payload.endDate ?? null,
         now,
         now,
         m.workspaceIdentifier,
@@ -91,6 +93,10 @@ export class ReminderRepository extends BaseRepository {
     if (payload.remindAt !== undefined) {
       sets.push(`remind_at = $${idx++}`);
       params.push(payload.remindAt);
+    }
+    if (payload.endDate !== undefined) {
+      sets.push(`end_date = $${idx++}`);
+      params.push(payload.endDate);
     }
 
     const row = await this.row<Reminder>(

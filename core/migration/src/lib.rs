@@ -48,6 +48,8 @@ mod m20261108_113612_add_status_to_tasks;
 mod m20261111_000000_create_whiteboards;
 mod m20261112_000000_rename_todo_table_to_task;
 mod m20261112_100000_add_remote_url_to_whiteboard_files;
+mod m20261113_000000_add_recurrence_type_to_reminder;
+mod m20261113_100000_add_end_date_to_reminder;
 
 pub use sea_orm_migration::prelude::*;
 pub mod exporter;
@@ -107,6 +109,8 @@ impl MigratorTrait for Migrator {
             Box::new(m20261111_000000_create_whiteboards::Migration),
             Box::new(m20261112_000000_rename_todo_table_to_task::Migration),
             Box::new(m20261112_100000_add_remote_url_to_whiteboard_files::Migration),
+            Box::new(m20261113_000000_add_recurrence_type_to_reminder::Migration),
+            Box::new(m20261113_100000_add_end_date_to_reminder::Migration),
         ]
     }
 }

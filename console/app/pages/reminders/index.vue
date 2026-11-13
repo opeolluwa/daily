@@ -130,63 +130,63 @@ onUnmounted(() => clearSearch());
       />
 
       <!-- Reminder list -->
-      <div v-else class="flex flex-col gap-2">
+      <div v-else class="flex flex-wrap gap-3">
         <RyderCard
           v-for="reminder in filteredReminders"
           :key="reminder.identifier"
-          :ui="{ root: '!px-4 !py-3 flex items-start gap-3' }"
+          :ui="{ root: '!p-0 overflow-hidden cursor-pointer w-72 hover:shadow-sm transition-shadow' }"
+          @click="handleEdit(reminder.identifier)"
         >
-          <div
-            class="mt-0.5 p-1.5 rounded-md"
-            :class="
-              reminder.recurring
-                ? 'bg-primary-50 dark:bg-primary-950'
-                : 'bg-gray-100 dark:bg-gray-700'
-            "
-          >
-            <UIcon
-              :name="
-                reminder.recurring ? 'heroicons:arrow-path' : 'heroicons:clock'
-              "
-              class="size-4"
+          <div class="p-4 flex items-center gap-3">
+            <div
+              class="shrink-0 size-10 rounded-lg flex items-center justify-center"
               :class="
                 reminder.recurring
-                  ? 'text-primary-500'
-                  : 'text-gray-400 dark:text-gray-500'
+                  ? 'bg-primary-100 dark:bg-primary-900'
+                  : 'bg-gray-100 dark:bg-gray-800'
               "
-            />
+            >
+              <UIcon
+                :name="reminder.recurring ? 'heroicons:arrow-path' : 'heroicons:bell'"
+                class="size-5"
+                :class="
+                  reminder.recurring
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-400 dark:text-gray-500'
+                "
+              />
+            </div>
+            <div class="min-w-0 flex-1">
+              <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+                {{ reminder.title }}
+              </h3>
+              <p class="text-xs text-gray-400 mt-0.5">
+                {{ formatRemindAt(reminder.remindAt) }}
+              </p>
+            </div>
           </div>
 
-          <div class="flex-1 min-w-0">
-            <p
-              class="text-sm font-medium text-gray-800 dark:text-gray-100 truncate"
-            >
-              {{ reminder.title }}
+          <div
+            class="px-4 py-2 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between"
+          >
+            <p v-if="reminder.recurring && reminder.recurrenceRule" class="text-xs text-primary-500 capitalize">
+              {{ reminder.recurrenceRule }}
             </p>
-            <p
-              v-if="reminder.description"
-              class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate"
-            >
-              {{ reminder.description }}
-            </p>
-            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              {{ formatRemindAt(reminder.remindAt) }}
-            </p>
-          </div>
-
-          <div class="flex items-center gap-1 shrink-0">
-            <button
-              class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              @click="handleEdit(reminder.identifier)"
-            >
-              <UIcon name="heroicons:pencil" class="size-4" />
-            </button>
-            <button
-              class="p-1.5 rounded-md text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
-              @click="handleDelete(reminder.identifier)"
-            >
-              <UIcon name="heroicons:trash" class="size-4" />
-            </button>
+            <p v-else class="text-xs text-gray-400">One-time</p>
+            <div class="flex items-center gap-2" @click.stop>
+              <button
+                class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 transition-colors"
+                @click="handleEdit(reminder.identifier)"
+              >
+                Edit
+              </button>
+              <button
+                class="p-1 rounded-md text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
+                @click="handleDelete(reminder.identifier)"
+              >
+                <UIcon name="heroicons:trash" class="size-3.5" />
+              </button>
+            </div>
           </div>
         </RyderCard>
       </div>
