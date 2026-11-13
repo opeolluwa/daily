@@ -97,8 +97,11 @@ function discoverActionTypes(root) {
       }
     }
   }
-  const syncEngine = join(root, "src", "sync_engine.rs");
-  if (existsSync(syncEngine)) sources.push(syncEngine);
+  const extraModules = ["sync_engine.rs", "dreamfs.rs"];
+  for (const mod of extraModules) {
+    const path = join(root, "src", mod);
+    if (existsSync(path)) sources.push(path);
+  }
 
   const types = new Map();
   for (const source of sources) {
