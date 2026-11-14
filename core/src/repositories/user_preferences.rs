@@ -132,15 +132,13 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
                             let active_model = model.into_active_model();
 
                             if exists {
-                                active_model
-                                    .update(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             } else {
-                                active_model
-                                    .insert(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
                             Ok(())
                         }

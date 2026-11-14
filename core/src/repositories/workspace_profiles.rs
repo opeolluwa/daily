@@ -97,6 +97,7 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
 
         workspace_profiles::Entity::find()
             .filter(workspace_profiles::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(workspace_profiles::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -113,6 +114,7 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
         let model = workspace_profiles::Entity::find()
             .filter(workspace_profiles::Column::Identifier.eq(*identifier))
             .filter(workspace_profiles::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(workspace_profiles::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -164,15 +166,13 @@ impl WorkspaceProfileRepositoryExt for WorkspaceProfileRepository {
                             let active_model = model.into_active_model();
 
                             if exists {
-                                active_model
-                                    .update(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             } else {
-                                active_model
-                                    .insert(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
                             Ok(())
                         }
@@ -263,6 +263,7 @@ impl RecordExistInWorkspace for WorkspaceProfileRepository {
         let record = workspace_profiles::Entity::find()
             .filter(workspace_profiles::Column::Identifier.eq(*record_identifier))
             .filter(workspace_profiles::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(workspace_profiles::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;

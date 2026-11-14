@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
@@ -120,6 +121,7 @@ impl SnippetRepositoryExt for SnippetRepository {
         snippets::Entity::find()
             .filter(snippets::Column::Identifier.eq(*identifier))
             .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -133,6 +135,7 @@ impl SnippetRepositoryExt for SnippetRepository {
 
         snippets::Entity::find()
             .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -147,6 +150,7 @@ impl SnippetRepositoryExt for SnippetRepository {
 
         let model = snippets::Entity::find()
             .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .filter(snippets::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -168,9 +172,12 @@ impl SnippetRepositoryExt for SnippetRepository {
             )
             .await?;
 
-        snippets::Entity::delete_many()
+        snippets::Entity::update_many()
+            .col_expr(snippets::Column::DeletedAt, Expr::current_timestamp())
+            .col_expr(snippets::Column::UpdatedAt, Expr::current_timestamp())
             .filter(snippets::Column::Identifier.eq(*identifier))
             .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -186,6 +193,7 @@ impl SnippetRepositoryExt for SnippetRepository {
         snippets::Entity::find()
             .limit(10)
             .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .order_by_asc(snippets::Column::CreatedAt)
             .all(self.conn.as_ref())
             .await
@@ -202,6 +210,7 @@ impl SnippetRepositoryExt for SnippetRepository {
 
         let model = snippets::Entity::find()
             .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .filter(snippets::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -246,29 +255,28 @@ impl SnippetRepositoryExt for SnippetRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), KernelError> =
-                            async {
-                                let exists = snippets::Entity::find()
-                                    .filter(snippets::Column::Identifier.eq(model.identifier))
-                                    .one(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?
-                                    .is_some();
+                        let op_result: Result<(), KernelError> = async {
+                            let exists = snippets::Entity::find()
+                                .filter(snippets::Column::Identifier.eq(model.identifier))
+                                .one(conn.as_ref())
+                                .await
+                                .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+                                .is_some();
 
-                                let active_model = model.into_active_model();
+                            let active_model = model.into_active_model();
 
-                                if exists {
-                                    active_model.update(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                } else {
-                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                }
-                                Ok(())
+                            if exists {
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
+                            } else {
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
-                            .await;
+                            Ok(())
+                        }
+                        .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -355,6 +363,7 @@ impl RecordExistInWorkspace for SnippetRepository {
         let record = snippets::Entity::find()
             .filter(snippets::Column::Identifier.eq(*record_identifier))
             .filter(snippets::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -396,6 +405,7 @@ impl DuplicateRecord for SnippetRepository {
         let Some(record) = snippets::Entity::find()
             .filter(snippets::Column::Identifier.eq(*record_identifier))
             .filter(snippets::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(snippets::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?

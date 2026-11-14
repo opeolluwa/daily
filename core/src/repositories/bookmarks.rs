@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
@@ -128,6 +129,7 @@ impl BookmarkRepositoryExt for BookmarkRepository {
         bookmark::Entity::find()
             .filter(bookmark::Column::Identifier.eq(*identifier))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -141,6 +143,7 @@ impl BookmarkRepositoryExt for BookmarkRepository {
 
         bookmark::Entity::find()
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -156,6 +159,7 @@ impl BookmarkRepositoryExt for BookmarkRepository {
         bookmark::Entity::find()
             .filter(bookmark::Column::Tag.eq(tag.to_owned()))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -169,6 +173,7 @@ impl BookmarkRepositoryExt for BookmarkRepository {
 
         bookmark::Entity::find()
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .limit(10)
             .order_by_desc(bookmark::Column::CreatedAt)
             .all(self.conn.as_ref())
@@ -187,6 +192,7 @@ impl BookmarkRepositoryExt for BookmarkRepository {
         let model = bookmark::Entity::find()
             .filter(bookmark::Column::Identifier.eq(*identifier))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -222,6 +228,7 @@ impl BookmarkRepositoryExt for BookmarkRepository {
         let model = bookmark::Entity::find()
             .filter(bookmark::Column::Identifier.eq(*identifier))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -242,9 +249,12 @@ impl BookmarkRepositoryExt for BookmarkRepository {
             )
             .await?;
 
-        bookmark::Entity::delete_many()
+        bookmark::Entity::update_many()
+            .col_expr(bookmark::Column::DeletedAt, Expr::current_timestamp())
+            .col_expr(bookmark::Column::UpdatedAt, Expr::current_timestamp())
             .filter(bookmark::Column::Identifier.eq(*identifier))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -275,29 +285,28 @@ impl BookmarkRepositoryExt for BookmarkRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), KernelError> =
-                            async {
-                                let exists = bookmark::Entity::find()
-                                    .filter(bookmark::Column::Identifier.eq(model.identifier))
-                                    .one(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?
-                                    .is_some();
+                        let op_result: Result<(), KernelError> = async {
+                            let exists = bookmark::Entity::find()
+                                .filter(bookmark::Column::Identifier.eq(model.identifier))
+                                .one(conn.as_ref())
+                                .await
+                                .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+                                .is_some();
 
-                                let active_model = model.into_active_model();
+                            let active_model = model.into_active_model();
 
-                                if exists {
-                                    active_model.update(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                } else {
-                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                }
-                                Ok(())
+                            if exists {
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
+                            } else {
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
-                            .await;
+                            Ok(())
+                        }
+                        .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -383,6 +392,7 @@ impl RecordExistInWorkspace for BookmarkRepository {
         let record = bookmark::Entity::find()
             .filter(bookmark::Column::Identifier.eq(*record_identifier))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -424,6 +434,7 @@ impl DuplicateRecord for BookmarkRepository {
         let Some(record) = bookmark::Entity::find()
             .filter(bookmark::Column::Identifier.eq(*record_identifier))
             .filter(bookmark::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(bookmark::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?

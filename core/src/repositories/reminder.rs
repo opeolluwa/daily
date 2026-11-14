@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter,
@@ -114,6 +115,7 @@ impl ReminderRepositoryExt for ReminderRepository {
         reminder::Entity::find()
             .filter(reminder::Column::Identifier.eq(*identifier))
             .filter(reminder::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -127,6 +129,7 @@ impl ReminderRepositoryExt for ReminderRepository {
 
         reminder::Entity::find()
             .filter(reminder::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -142,6 +145,7 @@ impl ReminderRepositoryExt for ReminderRepository {
 
         let model = reminder::Entity::find()
             .filter(reminder::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .filter(reminder::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -186,6 +190,7 @@ impl ReminderRepositoryExt for ReminderRepository {
         let model = reminder::Entity::find()
             .filter(reminder::Column::Identifier.eq(*identifier))
             .filter(reminder::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -206,9 +211,12 @@ impl ReminderRepositoryExt for ReminderRepository {
             )
             .await?;
 
-        reminder::Entity::delete_many()
+        reminder::Entity::update_many()
+            .col_expr(reminder::Column::DeletedAt, Expr::current_timestamp())
+            .col_expr(reminder::Column::UpdatedAt, Expr::current_timestamp())
             .filter(reminder::Column::Identifier.eq(*identifier))
             .filter(reminder::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -228,29 +236,28 @@ impl ReminderRepositoryExt for ReminderRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), KernelError> =
-                            async {
-                                let exists = reminder::Entity::find()
-                                    .filter(reminder::Column::Identifier.eq(model.identifier))
-                                    .one(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?
-                                    .is_some();
+                        let op_result: Result<(), KernelError> = async {
+                            let exists = reminder::Entity::find()
+                                .filter(reminder::Column::Identifier.eq(model.identifier))
+                                .one(conn.as_ref())
+                                .await
+                                .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+                                .is_some();
 
-                                let active_model = model.into_active_model();
+                            let active_model = model.into_active_model();
 
-                                if exists {
-                                    active_model.update(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                } else {
-                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                }
-                                Ok(())
+                            if exists {
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
+                            } else {
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
-                            .await;
+                            Ok(())
+                        }
+                        .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -336,6 +343,7 @@ impl RecordExistInWorkspace for ReminderRepository {
         let record = reminder::Entity::find()
             .filter(reminder::Column::Identifier.eq(*record_identifier))
             .filter(reminder::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -377,6 +385,7 @@ impl DuplicateRecord for ReminderRepository {
         let Some(record) = reminder::Entity::find()
             .filter(reminder::Column::Identifier.eq(*record_identifier))
             .filter(reminder::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(reminder::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?

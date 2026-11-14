@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
@@ -9,7 +10,10 @@ use sea_orm::{
 use uuid::Uuid;
 
 use crate::{
-    adapters::{meta::RequestMeta, whiteboards::{CreateWhiteboard, UpdateWhiteboard}},
+    adapters::{
+        meta::RequestMeta,
+        whiteboards::{CreateWhiteboard, UpdateWhiteboard},
+    },
     entities::whiteboards,
     error::KernelError,
     repositories::{
@@ -106,6 +110,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
         whiteboards::Entity::find()
             .filter(whiteboards::Column::Identifier.eq(*identifier))
             .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -119,6 +124,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
         whiteboards::Entity::find()
             .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::DeletedAt.is_null())
             .order_by_desc(whiteboards::Column::UpdatedAt)
             .all(self.conn.as_ref())
             .await
@@ -134,19 +140,20 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
         let model = whiteboards::Entity::find()
             .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::DeletedAt.is_null())
             .filter(whiteboards::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
             .ok_or_else(|| KernelError::WhiteboardNotFound(identifier.to_string()))?;
 
-        whiteboards::Entity::delete(whiteboards::ActiveModel {
-            identifier: Set(model.identifier),
-            ..Default::default()
-        })
-        .exec(self.conn.as_ref())
-        .await
-        .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+        whiteboards::Entity::update_many()
+            .col_expr(whiteboards::Column::DeletedAt, Expr::current_timestamp())
+            .col_expr(whiteboards::Column::UpdatedAt, Expr::current_timestamp())
+            .filter(whiteboards::Column::Identifier.eq(*identifier))
+            .exec(self.conn.as_ref())
+            .await
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
 
         Ok(model)
     }
@@ -160,6 +167,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
         whiteboards::Entity::find()
             .limit(10)
             .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::DeletedAt.is_null())
             .order_by_desc(whiteboards::Column::CreatedAt)
             .all(self.conn.as_ref())
             .await
@@ -176,6 +184,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
         let model = whiteboards::Entity::find()
             .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::DeletedAt.is_null())
             .filter(whiteboards::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -273,6 +282,7 @@ impl RecordExistInWorkspace for WhiteboardRepository {
         let record = whiteboards::Entity::find()
             .filter(whiteboards::Column::Identifier.eq(*record_identifier))
             .filter(whiteboards::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(whiteboards::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;

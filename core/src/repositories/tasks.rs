@@ -4,6 +4,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use chrono::Utc;
 use sea_orm::prelude::Date;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter,
@@ -148,6 +149,7 @@ impl TaskRepositoryExt for TaskRepository {
         task::Entity::find()
             .filter(task::Column::Identifier.eq(*identifier))
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -158,6 +160,7 @@ impl TaskRepositoryExt for TaskRepository {
 
         task::Entity::find()
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -173,6 +176,7 @@ impl TaskRepositoryExt for TaskRepository {
 
         let model = task::Entity::find()
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .filter(task::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -210,6 +214,7 @@ impl TaskRepositoryExt for TaskRepository {
         let model = task::Entity::find()
             .filter(task::Column::Identifier.eq(*identifier))
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -230,7 +235,9 @@ impl TaskRepositoryExt for TaskRepository {
             )
             .await?;
 
-        task::Entity::delete_many()
+        task::Entity::update_many()
+            .col_expr(task::Column::DeletedAt, Expr::current_timestamp())
+            .col_expr(task::Column::UpdatedAt, Expr::current_timestamp())
             .filter(task::Column::Identifier.eq(*identifier))
             .exec(self.conn.as_ref())
             .await
@@ -249,6 +256,7 @@ impl TaskRepositoryExt for TaskRepository {
         let model = task::Entity::find()
             .filter(task::Column::Identifier.eq(*identifier))
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -274,6 +282,7 @@ impl TaskRepositoryExt for TaskRepository {
 
         let model = task::Entity::find()
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .filter(task::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -300,6 +309,7 @@ impl TaskRepositoryExt for TaskRepository {
 
         let model = task::Entity::find()
             .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .filter(task::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -329,29 +339,28 @@ impl TaskRepositoryExt for TaskRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), KernelError> =
-                            async {
-                                let exists = task::Entity::find()
-                                    .filter(task::Column::Identifier.eq(model.identifier))
-                                    .one(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?
-                                    .is_some();
+                        let op_result: Result<(), KernelError> = async {
+                            let exists = task::Entity::find()
+                                .filter(task::Column::Identifier.eq(model.identifier))
+                                .one(conn.as_ref())
+                                .await
+                                .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+                                .is_some();
 
-                                let active_model = model.into_active_model();
+                            let active_model = model.into_active_model();
 
-                                if exists {
-                                    active_model.update(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                } else {
-                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                }
-                                Ok(())
+                            if exists {
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
+                            } else {
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
-                            .await;
+                            Ok(())
+                        }
+                        .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -438,6 +447,7 @@ impl RecordExistInWorkspace for TaskRepository {
         let record = task::Entity::find()
             .filter(task::Column::Identifier.eq(*record_identifier))
             .filter(task::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -478,6 +488,7 @@ impl DuplicateRecord for TaskRepository {
         let Some(record) = task::Entity::find()
             .filter(task::Column::Identifier.eq(*record_identifier))
             .filter(task::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?

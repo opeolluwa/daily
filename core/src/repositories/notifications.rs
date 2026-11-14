@@ -56,8 +56,11 @@ pub trait NotificationRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<notifications::Model, KernelError>;
 
-    async fn delete(&self, identifier: &Uuid, meta: &Option<RequestMeta>)
-    -> Result<(), KernelError>;
+    async fn delete(
+        &self,
+        identifier: &Uuid,
+        meta: &Option<RequestMeta>,
+    ) -> Result<(), KernelError>;
 }
 
 #[async_trait]

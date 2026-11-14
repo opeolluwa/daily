@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
@@ -111,6 +112,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
         paste_bins::Entity::find()
             .filter(paste_bins::Column::Identifier.eq(*identifier))
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -124,6 +126,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
         paste_bins::Entity::find()
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .order_by_desc(paste_bins::Column::UpdatedAt)
             .all(self.conn.as_ref())
             .await
@@ -139,6 +142,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
         let model = paste_bins::Entity::find()
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .filter(paste_bins::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -160,9 +164,12 @@ impl PasteBinRepositoryExt for PasteBinRepository {
             )
             .await?;
 
-        paste_bins::Entity::delete_many()
+        paste_bins::Entity::update_many()
+            .col_expr(paste_bins::Column::DeletedAt, Expr::current_timestamp())
+            .col_expr(paste_bins::Column::UpdatedAt, Expr::current_timestamp())
             .filter(paste_bins::Column::Identifier.eq(*identifier))
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -179,6 +186,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
         paste_bins::Entity::find()
             .limit(10)
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .order_by_desc(paste_bins::Column::CreatedAt)
             .all(self.conn.as_ref())
             .await
@@ -195,6 +203,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
         let model = paste_bins::Entity::find()
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .filter(paste_bins::Column::Identifier.eq(*identifier))
             .one(self.conn.as_ref())
             .await
@@ -291,6 +300,7 @@ impl RecordExistInWorkspace for PasteBinRepository {
         let record = paste_bins::Entity::find()
             .filter(paste_bins::Column::Identifier.eq(*record_identifier))
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -332,6 +342,7 @@ impl DuplicateRecord for PasteBinRepository {
         let Some(record) = paste_bins::Entity::find()
             .filter(paste_bins::Column::Identifier.eq(*record_identifier))
             .filter(paste_bins::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(paste_bins::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
