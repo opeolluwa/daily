@@ -42,7 +42,7 @@ export class PasteBinRepository extends BaseRepository {
   ): Promise<PasteBins | null> {
     const m = this.requireMeta(meta);
     return this.row<PasteBins>(
-      `SELECT * FROM paste_bins WHERE identifier = $1 AND workspace_identifier = $2`,
+      `SELECT * FROM paste_bins WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -50,7 +50,7 @@ export class PasteBinRepository extends BaseRepository {
   async find_all(meta?: RequestMeta): Promise<PasteBins[]> {
     const m = this.requireMeta(meta);
     return this.rows<PasteBins>(
-      `SELECT * FROM paste_bins WHERE workspace_identifier = $1 ORDER BY updated_at DESC`,
+      `SELECT * FROM paste_bins WHERE workspace_identifier = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`,
       [m.workspaceIdentifier],
     );
   }
@@ -58,7 +58,7 @@ export class PasteBinRepository extends BaseRepository {
   async recently_added(meta?: RequestMeta): Promise<PasteBins[]> {
     const m = this.requireMeta(meta);
     return this.rows<PasteBins>(
-      `SELECT * FROM paste_bins WHERE workspace_identifier = $1
+      `SELECT * FROM paste_bins WHERE workspace_identifier = $1 AND deleted_at IS NULL
        ORDER BY created_at DESC LIMIT 10`,
       [m.workspaceIdentifier],
     );
@@ -88,7 +88,7 @@ export class PasteBinRepository extends BaseRepository {
     }
 
     const row = await this.row<PasteBins>(
-      `UPDATE paste_bins SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE paste_bins SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx} AND deleted_at IS NULL
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );
@@ -115,8 +115,8 @@ export class PasteBinRepository extends BaseRepository {
     );
 
     await this.run(
-      `DELETE FROM paste_bins WHERE identifier = $1 AND workspace_identifier = $2`,
-      [identifier, m.workspaceIdentifier],
+      `UPDATE paste_bins SET deleted_at = $3, updated_at = $3 WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
+      [identifier, m.workspaceIdentifier, this.now()],
     );
   }
 

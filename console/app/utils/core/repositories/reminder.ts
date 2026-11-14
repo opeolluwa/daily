@@ -47,7 +47,7 @@ export class ReminderRepository extends BaseRepository {
   ): Promise<Reminder | null> {
     const m = this.requireMeta(meta);
     return this.row<Reminder>(
-      `SELECT * FROM reminder WHERE identifier = $1 AND workspace_identifier = $2`,
+      `SELECT * FROM reminder WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -55,7 +55,7 @@ export class ReminderRepository extends BaseRepository {
   async find_all(meta?: RequestMeta): Promise<Reminder[]> {
     const m = this.requireMeta(meta);
     return this.rows<Reminder>(
-      `SELECT * FROM reminder WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM reminder WHERE workspace_identifier = $1 AND deleted_at IS NULL ORDER BY created_at DESC`,
       [m.workspaceIdentifier],
     );
   }
@@ -100,7 +100,7 @@ export class ReminderRepository extends BaseRepository {
     }
 
     const row = await this.row<Reminder>(
-      `UPDATE reminder SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE reminder SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx} AND deleted_at IS NULL
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );
@@ -127,8 +127,8 @@ export class ReminderRepository extends BaseRepository {
     );
 
     await this.run(
-      `DELETE FROM reminder WHERE identifier = $1 AND workspace_identifier = $2`,
-      [identifier, m.workspaceIdentifier],
+      `UPDATE reminder SET deleted_at = $3, updated_at = $3 WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
+      [identifier, m.workspaceIdentifier, this.now()],
     );
   }
 

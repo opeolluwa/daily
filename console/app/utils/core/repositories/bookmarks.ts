@@ -44,7 +44,7 @@ export class BookmarkRepository extends BaseRepository {
   ): Promise<Bookmark | null> {
     const m = this.requireMeta(meta);
     return this.row<Bookmark>(
-      `SELECT * FROM bookmark WHERE identifier = $1 AND workspace_identifier = $2`,
+      `SELECT * FROM bookmark WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -52,7 +52,7 @@ export class BookmarkRepository extends BaseRepository {
   async find_all(meta?: RequestMeta): Promise<Bookmark[]> {
     const m = this.requireMeta(meta);
     return this.rows<Bookmark>(
-      `SELECT * FROM bookmark WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM bookmark WHERE workspace_identifier = $1 AND deleted_at IS NULL ORDER BY created_at DESC`,
       [m.workspaceIdentifier],
     );
   }
@@ -60,7 +60,7 @@ export class BookmarkRepository extends BaseRepository {
   async find_by_tag(tag: Tag, meta?: RequestMeta): Promise<Bookmark[]> {
     const m = this.requireMeta(meta);
     return this.rows<Bookmark>(
-      `SELECT * FROM bookmark WHERE tag = $1 AND workspace_identifier = $2 ORDER BY created_at DESC`,
+      `SELECT * FROM bookmark WHERE tag = $1 AND workspace_identifier = $2 AND deleted_at IS NULL ORDER BY created_at DESC`,
       [tag, m.workspaceIdentifier],
     );
   }
@@ -68,7 +68,7 @@ export class BookmarkRepository extends BaseRepository {
   async recently_added(meta?: RequestMeta): Promise<Bookmark[]> {
     const m = this.requireMeta(meta);
     return this.rows<Bookmark>(
-      `SELECT * FROM bookmark WHERE workspace_identifier = $1
+      `SELECT * FROM bookmark WHERE workspace_identifier = $1 AND deleted_at IS NULL
        ORDER BY created_at ASC LIMIT 10`,
       [m.workspaceIdentifier],
     );
@@ -105,7 +105,7 @@ export class BookmarkRepository extends BaseRepository {
     }
 
     const row = await this.row<Bookmark>(
-      `UPDATE bookmark SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE bookmark SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx} AND deleted_at IS NULL
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );
@@ -132,8 +132,8 @@ export class BookmarkRepository extends BaseRepository {
     );
 
     await this.run(
-      `DELETE FROM bookmark WHERE identifier = $1 AND workspace_identifier = $2`,
-      [identifier, m.workspaceIdentifier],
+      `UPDATE bookmark SET deleted_at = $3, updated_at = $3 WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
+      [identifier, m.workspaceIdentifier, this.now()],
     );
   }
 
