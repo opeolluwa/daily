@@ -118,8 +118,8 @@ impl AppConfig {
             .transpose()?;
 
         // Parse allowed origins (comma-separated)
-        let raw_origins = extract_env::<String>("ALLOWED_ORIGINS")
-            .unwrap_or_else(|_| "*".to_string());
+        let raw_origins =
+            extract_env::<String>("ALLOWED_ORIGINS").unwrap_or_else(|_| "*".to_string());
         let allowed_origin_strings: Vec<String> = if raw_origins == "*" {
             vec![]
         } else {

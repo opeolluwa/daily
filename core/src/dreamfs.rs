@@ -85,8 +85,14 @@ mod tests {
     #[test]
     fn total_size_sums_correctly() {
         let files = vec![
-            FileInfo { path: "a.txt".into(), size: 100 },
-            FileInfo { path: "b.txt".into(), size: 200 },
+            FileInfo {
+                path: "a.txt".into(),
+                size: 100,
+            },
+            FileInfo {
+                path: "b.txt".into(),
+                size: 200,
+            },
         ];
         assert_eq!(total_size(&files), 300);
     }
