@@ -1,4 +1,5 @@
 mod m20251225_150349_add_countries;
+mod m20261114_000000_sync_log;
 
 pub use sea_orm_migration::prelude::*;
 
@@ -11,6 +12,9 @@ impl MigratorTrait for Migrator {
     }
 
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![Box::new(m20251225_150349_add_countries::Migration)]
+        vec![
+            Box::new(m20251225_150349_add_countries::Migration),
+            Box::new(m20261114_000000_sync_log::Migration),
+        ]
     }
 }
