@@ -34,6 +34,10 @@ pub fn schema_builder(
     complexity: Option<usize>,
 ) -> SchemaBuilder {
     let mut builder = Builder::new(context, database.clone());
+
+    builder.queries.clear();
+    builder.mutations.clear();
+
     builder = register_entity_modules(builder);
     builder = register_active_enums(builder);
 
@@ -53,7 +57,20 @@ pub fn schema_builder(
 
     // seaography::register_custom_outputs!(builder, []);
 
-    seaography::register_custom_mutations!(builder, [mutations::preflight::Preflight,]);
+    seaography::register_custom_mutations!(
+        builder,
+        [
+            mutations::preflight::Preflight,
+            mutations::sync::SyncMutation,
+        ]
+    );
+
+    seaography::register_custom_queries!(builder, [mutations::sync::SyncQuery,]);
+
+    builder.register_custom_input::<mutations::sync::SyncChangeInput>();
+    builder.register_custom_output::<mutations::sync::SyncChangeOutput>();
+    builder.register_custom_output::<mutations::sync::SyncPushResult>();
+    builder.register_custom_output::<mutations::sync::SyncPullResult>();
 
     builder
         .set_depth_limit(depth)
