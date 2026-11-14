@@ -18,8 +18,9 @@ configure:
     just install-dependencies
     just install-frontend-dependencies
     chmod +x scripts/release.sh
+    cp .env.example .env
 
-watch target:
+watch target="console":
     just watch-{{ target }}
 
 build target:
@@ -123,7 +124,7 @@ db-pull:
     @echo "Waiting for PostgreSQL to be ready..."
     just migrate-up
     just db-pull-postgres
-    # just db-pull-server
+    just db-pull-server
 
 [working-directory('core')]
 test-core:
@@ -194,7 +195,7 @@ build-mobile:
 
 [working-directory('console')]
 install-frontend-dependencies:
-    npm install
+    pnpm install
 
 [working-directory('console')]
 test-console:
