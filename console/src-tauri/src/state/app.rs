@@ -5,8 +5,8 @@ use kernel::{
     repositories::{
         bookmarks::BookmarkRepository, notes::NotesRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
-        recycle_bin::RecycleBinRepository,
-        reminder::ReminderRepository, snippets::SnippetRepository, tasks::TaskRepository,
+        recycle_bin::RecycleBinRepository, reminder::ReminderRepository,
+        snippets::SnippetRepository, sync::SyncRepository, tasks::TaskRepository,
         whiteboards::WhiteboardRepository, workspace::WorkspaceRepository,
         workspace_profiles::WorkspaceProfileRepository,
     },
@@ -22,6 +22,7 @@ pub struct AppState {
     pub recycle_bin_repository: RecycleBinRepository,
     pub reminder_repository: ReminderRepository,
     pub snippet_repository: SnippetRepository,
+    pub sync_repository: SyncRepository,
     pub task_repository: TaskRepository,
     pub whiteboards_repository: WhiteboardRepository,
     pub workspace_profile_repository: WorkspaceProfileRepository,
@@ -39,6 +40,7 @@ impl AppState {
         let recycle_bin_repository = RecycleBinRepository::new(conn.clone());
         let reminder_repository = ReminderRepository::new(conn.clone());
         let snippet_repository = SnippetRepository::new(conn.clone());
+        let sync_repository = SyncRepository::new(conn.clone());
         let task_repository = TaskRepository::new(conn.clone());
         let whiteboards_repository = WhiteboardRepository::new(conn.clone());
         let workspace_repository = WorkspaceRepository::new(conn.clone());
@@ -52,6 +54,7 @@ impl AppState {
             recycle_bin_repository,
             reminder_repository,
             snippet_repository,
+            sync_repository,
             task_repository,
             whiteboards_repository,
             workspace_repository,
