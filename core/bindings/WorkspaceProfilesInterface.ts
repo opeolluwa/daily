@@ -8,4 +8,5 @@ export type WorkspaceProfilesInterface = {
   updatedAt: string;
   workspaceIdentifier: string | null;
   profilePicture: string | null;
+  deletedAt: string | null;
 };

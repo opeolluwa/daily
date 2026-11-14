@@ -8,4 +8,5 @@ export type PasteBinsInterface = {
   createdAt: string;
   updatedAt: string;
   workspaceIdentifier: string | null;
+  deletedAt: string | null;
 };

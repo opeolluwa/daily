@@ -12,4 +12,5 @@ export type ReminderInterface = {
   createdAt: string;
   updatedAt: string;
   workspaceIdentifier: string | null;
+  deletedAt: string | null;
 };
