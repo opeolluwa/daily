@@ -52,6 +52,7 @@ impl OtpRepositoryExt for OtpRepository {
             identifier: Set(otp_identifier),
             code: Set(code.to_string()), //TODO: hash this code
             user_identifier: Set(user_identifier),
+            created_at: Set(chrono::Utc::now().fixed_offset()),
             ..Default::default()
         };
         otp.insert(self.db_conn.as_ref())
