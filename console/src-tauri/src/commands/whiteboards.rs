@@ -7,9 +7,7 @@ use kernel::{
     filestore::FileStoreProvider,
     repositories::whiteboards::WhiteboardRepositoryExt,
     repositories::workspace_manager::TransferRecord,
-    sea_orm::{
-        ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set,
-    },
+    sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set},
 };
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
@@ -192,12 +190,12 @@ fn system_time_to_rfc3339(time: Option<std::time::SystemTime>) -> String {
 
 fn decode_data_url(data: &str) -> Option<Vec<u8>> {
     let after_comma = data.find(',').map(|i| &data[i + 1..])?;
-    use base64::{Engine, engine::general_purpose::STANDARD};
+    use base64::{engine::general_purpose::STANDARD, Engine};
     STANDARD.decode(after_comma).ok()
 }
 
 fn bytes_to_data_url(bytes: &[u8], mime: &str) -> String {
-    use base64::{Engine, engine::general_purpose::STANDARD};
+    use base64::{engine::general_purpose::STANDARD, Engine};
     let b64 = STANDARD.encode(bytes);
     format!("data:{mime};base64,{b64}")
 }
@@ -206,17 +204,20 @@ fn bytes_to_data_url(bytes: &[u8], mime: &str) -> String {
 /// bare `{uuid}` (legacy format).
 fn find_file_by_uuid(dir: &std::path::Path, uuid: &Uuid) -> Option<PathBuf> {
     let uuid_str = uuid.to_string();
-    std::fs::read_dir(dir).ok()?.filter_map(|e| e.ok()).find_map(|e| {
-        let path = e.path();
-        if !path.is_file() {
-            return None;
-        }
-        let stem = path.file_stem()?.to_str()?;
-        if stem == uuid_str {
-            return Some(path);
-        }
-        None
-    })
+    std::fs::read_dir(dir)
+        .ok()?
+        .filter_map(|e| e.ok())
+        .find_map(|e| {
+            let path = e.path();
+            if !path.is_file() {
+                return None;
+            }
+            let stem = path.file_stem()?.to_str()?;
+            if stem == uuid_str {
+                return Some(path);
+            }
+            None
+        })
 }
 
 #[tauri::command]
@@ -235,8 +236,7 @@ pub async fn save_whiteboard_file(
 
     let whiteboard_id = Uuid::parse_str(&whiteboard_identifier)
         .map_err(|_| "invalid whiteboard identifier".to_string())?;
-    let file_uuid = Uuid::parse_str(&file_id)
-        .map_err(|_| "invalid file identifier".to_string())?;
+    let file_uuid = Uuid::parse_str(&file_id).map_err(|_| "invalid file identifier".to_string())?;
 
     let mime = mime_from_data_url(&data);
     let ext = extension_from_mime(&mime);
@@ -255,7 +255,16 @@ pub async fn save_whiteboard_file(
     let file_name = format!("{file_uuid}.{ext}");
 
     tokio::spawn(async move {
-        upload_to_cloud(cloud_storage, db, file_uuid, whiteboard_id, &path, &mime_clone, &file_name).await;
+        upload_to_cloud(
+            cloud_storage,
+            db,
+            file_uuid,
+            whiteboard_id,
+            &path,
+            &mime_clone,
+            &file_name,
+        )
+        .await;
     });
 
     let now = chrono::Utc::now().to_rfc3339();
@@ -474,8 +483,7 @@ pub async fn delete_whiteboard_file(
     file_id: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), String> {
-    let file_uuid = Uuid::parse_str(&file_id)
-        .map_err(|_| "invalid file identifier".to_string())?;
+    let file_uuid = Uuid::parse_str(&file_id).map_err(|_| "invalid file identifier".to_string())?;
 
     let root = whiteboards_root(&app)?;
     if root.exists() {
