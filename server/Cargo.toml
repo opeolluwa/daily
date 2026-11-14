@@ -78,6 +78,7 @@ features = [
     "graphql-playground",
     "with-decimal",
     "with-chrono",
+    "with-json",
     "with-uuid",
     "with-postgres-array",
 ]
