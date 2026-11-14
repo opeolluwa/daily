@@ -136,3 +136,33 @@ impl Related<super::workspace_profiles::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
+pub enum RelatedEntity {
+    #[sea_orm(entity = "super::bookmark::Entity")]
+    Bookmark,
+    #[sea_orm(entity = "super::invitation::Entity")]
+    Invitation,
+    #[sea_orm(entity = "super::notes::Entity")]
+    Notes,
+    #[sea_orm(entity = "super::notifications::Entity")]
+    Notifications,
+    #[sea_orm(entity = "super::paste_bins::Entity")]
+    PasteBins,
+    #[sea_orm(entity = "super::recycle_bin::Entity")]
+    RecycleBin,
+    #[sea_orm(entity = "super::reminder::Entity")]
+    Reminder,
+    #[sea_orm(entity = "super::snippets::Entity")]
+    Snippets,
+    #[sea_orm(entity = "super::task::Entity")]
+    Task,
+    #[sea_orm(entity = "super::users::Entity")]
+    Users,
+    #[sea_orm(entity = "super::whiteboards::Entity")]
+    Whiteboards,
+    #[sea_orm(entity = "super::workspace_members::Entity")]
+    WorkspaceMembers,
+    #[sea_orm(entity = "super::workspace_profiles::Entity")]
+    WorkspaceProfiles,
+}

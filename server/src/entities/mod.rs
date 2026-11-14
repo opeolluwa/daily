@@ -28,3 +28,39 @@ pub mod whiteboards;
 pub mod workspace_members;
 pub mod workspace_profiles;
 pub mod workspaces;
+
+seaography::register_entity_modules!([
+    bookmark,
+    country,
+    invitation,
+    note_categories,
+    notes,
+    notifications,
+    one_time_password,
+    orchard_migrations,
+    paste_bins,
+    recycle_bin,
+    reminder,
+    revoked_token,
+    snippets,
+    sync_log,
+    sync_meta,
+    sync_queue,
+    sync_state,
+    task,
+    user_preferences,
+    users,
+    whiteboard_files,
+    whiteboards,
+    workspace_members,
+    workspace_profiles,
+    workspaces,
+]);
+seaography::register_active_enums!([
+    sea_orm_active_enums::ItemType,
+    sea_orm_active_enums::NotificationType,
+    sea_orm_active_enums::Priority,
+    sea_orm_active_enums::ReminderRecurrence,
+    sea_orm_active_enums::Tag,
+    sea_orm_active_enums::TaskStatus,
+]);

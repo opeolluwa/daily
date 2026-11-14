@@ -53,6 +53,8 @@ impl TryFrom<SyncReminderInput> for entities::reminder::Model {
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
             workspace_identifier: val.workspace_identifier,
+            recurrence_type: None,
+            end_date: None,
         })
     }
 }

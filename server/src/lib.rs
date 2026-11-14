@@ -15,3 +15,4 @@ pub mod shutdown;
 pub mod states;
 mod types;
 mod utils;
+pub mod entities;

@@ -38,3 +38,9 @@ impl Related<super::whiteboards::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
+pub enum RelatedEntity {
+    #[sea_orm(entity = "super::whiteboards::Entity")]
+    Whiteboards,
+}
