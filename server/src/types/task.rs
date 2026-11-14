@@ -18,7 +18,11 @@ pub struct SyncTodoInput {
     pub created_at: String,
     pub updated_at: String,
     pub due_time: Option<String>,
+    #[serde(default)]
+    pub status: Option<TaskStatus>,
     pub workspace_identifier: Option<Uuid>,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 impl TryFrom<SyncTodoInput> for entities::task::Model {
@@ -54,7 +58,14 @@ impl TryFrom<SyncTodoInput> for entities::task::Model {
                 })
                 .transpose()?,
             workspace_identifier: val.workspace_identifier,
-            status: TaskStatus::Planned,
+            status: val.status.unwrap_or(TaskStatus::Planned),
+            deleted_at: val
+                .deleted_at
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
         })
     }
 }

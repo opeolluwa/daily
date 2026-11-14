@@ -18,6 +18,8 @@ pub struct SyncReminderInput {
     pub created_at: String,
     pub updated_at: String,
     pub workspace_identifier: Option<Uuid>,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 impl TryFrom<SyncReminderInput> for entities::reminder::Model {
@@ -31,6 +33,13 @@ impl TryFrom<SyncReminderInput> for entities::reminder::Model {
             recurring: val.recurring,
             recurrence_rule: val.recurrence_rule,
             alarm_sound: val.alarm_sound,
+            deleted_at: val
+                .deleted_at
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
             remind_at: val
                 .remind_at
                 .parse()

@@ -12,9 +12,12 @@ pub struct SyncWorkspacePreferenceInput {
     pub first_name: String,
     pub last_name: String,
     pub email: String,
+    pub profile_picture: Option<String>,
     pub created_at: String,
     pub updated_at: String,
     pub workspace_identifier: Option<Uuid>,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 impl TryFrom<SyncWorkspacePreferenceInput> for entities::workspace_profiles::Model {
@@ -25,7 +28,7 @@ impl TryFrom<SyncWorkspacePreferenceInput> for entities::workspace_profiles::Mod
             identifier: val.identifier,
             first_name: val.first_name,
             last_name: val.last_name,
-            profile_picture: None,
+            profile_picture: val.profile_picture,
             created_at: val
                 .created_at
                 .parse()
@@ -35,6 +38,13 @@ impl TryFrom<SyncWorkspacePreferenceInput> for entities::workspace_profiles::Mod
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
             workspace_identifier: val.workspace_identifier,
+            deleted_at: val
+                .deleted_at
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
         })
     }
 }

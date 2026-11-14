@@ -17,6 +17,8 @@ pub struct SyncSnippetInput {
     pub created_at: String,
     pub updated_at: String,
     pub workspace_identifier: Option<Uuid>,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 impl TryFrom<SyncSnippetInput> for entities::snippets::Model {
@@ -30,6 +32,13 @@ impl TryFrom<SyncSnippetInput> for entities::snippets::Model {
             code: val.code,
             description: val.description,
             is_pinned: val.is_pinned,
+            deleted_at: val
+                .deleted_at
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
             created_at: val
                 .created_at
                 .parse()

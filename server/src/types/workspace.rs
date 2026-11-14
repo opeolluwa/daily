@@ -17,6 +17,7 @@ pub struct SyncWorkspaceInput {
     pub is_hidden: bool,
     pub is_secured: bool,
     pub password_hash: Option<String>,
+    pub user_identifier: Option<Uuid>,
 }
 
 impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
@@ -27,7 +28,6 @@ impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
             identifier: val.identifier,
             name: val.name,
             description: val.description,
-            user_identifier: None,
             created_at: val
                 .created_at
                 .parse()
@@ -40,6 +40,7 @@ impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
             is_hidden: val.is_hidden,
             is_secured: val.is_secured,
             password_hash: val.password_hash,
+            user_identifier: val.user_identifier,
         })
     }
 }

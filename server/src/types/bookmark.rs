@@ -16,6 +16,8 @@ pub struct SyncBookmarkInput {
     pub created_at: String,
     pub updated_at: String,
     pub workspace_identifier: Option<Uuid>,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 impl TryFrom<SyncBookmarkInput> for entities::bookmark::Model {
@@ -27,6 +29,13 @@ impl TryFrom<SyncBookmarkInput> for entities::bookmark::Model {
             title: val.title,
             url: val.url,
             tag: val.tag,
+            deleted_at: val
+                .deleted_at
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
             created_at: val
                 .created_at
                 .parse()
