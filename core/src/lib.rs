@@ -11,10 +11,10 @@ pub use data_engine::DataEngine;
 pub use sea_orm;
 #[cfg(feature = "cipher")]
 pub mod cipher;
-#[cfg(feature = "pdf")]
-pub mod ironpress;
 #[cfg(all(not(target_arch = "wasm32"), feature = "filestore"))]
 pub mod filestore;
+#[cfg(feature = "pdf")]
+pub mod ironpress;
 #[cfg(not(target_arch = "wasm32"))]
 pub use migration;
 pub mod dreamfs;
