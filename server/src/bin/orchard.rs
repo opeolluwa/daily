@@ -15,7 +15,7 @@ use axum::{
     Router,
 };
 use axum_governor::{
-    BodyPreset, GovernorConfigBuilder, GovernorLayer, Quota, extractor::PeerIp, nz,
+    extractor::PeerIp, nz, BodyPreset, GovernorConfigBuilder, GovernorLayer, Quota,
 };
 use dotenv::dotenv;
 use kernel::{data_engine, error::KernelError};
@@ -81,12 +81,10 @@ async fn main() -> Result<(), AppError> {
         .with_env_filter(EnvFilter::from_default_env().add_directive(Level::INFO.into()))
         .init();
 
-// rate limit
-    let requests_per_second =
-        NonZeroU32::new(app_config.rate_limit_rps).unwrap_or(nz!(20u32));
+    // rate limit
+    let requests_per_second = NonZeroU32::new(app_config.rate_limit_rps).unwrap_or(nz!(20u32));
     let burst = NonZeroU32::new(app_config.rate_limit_burst).unwrap_or(nz!(40u32));
-    let requests_per_minute =
-        NonZeroU32::new(app_config.rate_limit_rpm).unwrap_or(nz!(300u32));
+    let requests_per_minute = NonZeroU32::new(app_config.rate_limit_rpm).unwrap_or(nz!(300u32));
 
     let governor = GovernorConfigBuilder::default()
         .with_extractor(PeerIp::default())
@@ -108,7 +106,7 @@ async fn main() -> Result<(), AppError> {
             AppError::StartupError("internal server error".to_string())
         })?;
 
-//CORS
+    //CORS
     let cors = if app_config.environment == Environment::Production {
         CorsLayer::new()
             .allow_origin(app_config.allowed_origins.clone())
@@ -131,7 +129,7 @@ async fn main() -> Result<(), AppError> {
             .allow_headers(Any)
     };
 
-//db
+    //db
     let engine = data_engine::DataEngine::new(&app_config.database_url).await?;
 
     engine
@@ -162,7 +160,6 @@ async fn main() -> Result<(), AppError> {
             get(graphql_playground).post(graphql_handler),
         )
         .with_state(graphql_state);
-
 
     let is_production = app_config.environment.is_production();
 
