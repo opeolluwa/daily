@@ -23,6 +23,7 @@ pub struct Model {
     pub due_time: Option<Time>,
     pub workspace_identifier: Option<Uuid>,
     pub status: TaskStatus,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

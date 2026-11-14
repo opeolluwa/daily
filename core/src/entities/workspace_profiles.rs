@@ -16,6 +16,7 @@ pub struct Model {
     pub updated_at: DateTimeWithTimeZone,
     pub workspace_identifier: Option<Uuid>,
     pub profile_picture: Option<String>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
