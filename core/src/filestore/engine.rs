@@ -55,8 +55,8 @@ impl FileStoreProvider for FileStoreEngine {
 mod tests {
     use secrecy::SecretString;
 
-    use super::*;
     use super::super::config::{ImagekitConfig, S3Config};
+    use super::*;
 
     fn config(backend: StorageBackend) -> FileStoreConfig {
         FileStoreConfig {
