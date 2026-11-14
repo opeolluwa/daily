@@ -23,8 +23,9 @@ sea-orm = { version = "2.0.0-rc.37", features = [
     "mock",
     "debug-print",
     "with-uuid",
-     "sqlx-postgres",
-     "runtime-tokio-rustls",
+    "sqlx-postgres",
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
     "with-chrono",
     "seaography"
 ] }
@@ -37,5 +38,5 @@ version = "~2.0.0-rc.37"
 features = [
     "runtime-tokio-rustls",
     "sqlx-postgres",
-
+    "sqlx-sqlite",
 ]
