@@ -111,8 +111,7 @@ fn decrypt_with_key(key_hex: &str, encoded: &str) -> Result<String, KernelError>
 mod tests {
     use super::*;
 
-    const TEST_KEY: &str =
-        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    const TEST_KEY: &str = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
     #[test]
     fn roundtrip() {
@@ -133,8 +132,7 @@ mod tests {
 
     #[test]
     fn wrong_key_fails() {
-        let other_key =
-            "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        let other_key = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
 
         let encrypted = encrypt("secret", TEST_KEY).unwrap();
 
@@ -148,8 +146,7 @@ mod tests {
 
     #[test]
     fn invalid_hex() {
-        let invalid_key =
-            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+        let invalid_key = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
 
         assert!(parse_key(invalid_key).is_err());
     }
