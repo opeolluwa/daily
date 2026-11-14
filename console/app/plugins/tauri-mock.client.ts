@@ -30,8 +30,18 @@ export default defineNuxtPlugin(async () => {
       "get_unsynced_bookmarks",
       "get_unsynced_reminders",
       "get_unsynced_snippets",
+      "sync_queue_list",
     ];
     if (listCommands.includes(cmd)) return [];
+    if (cmd === "sync_state_get")
+      return {
+        workspaceIdentifier: "",
+        lastCursor: "0",
+        lastSyncedAt: null,
+        lastError: null,
+      };
+    if (cmd === "sync_apply_changes") return { applied: 0, errors: [] };
+    if (cmd === "sync_device_id") return "web";
     return null;
   });
 
