@@ -72,6 +72,26 @@ pub enum Priority {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ts_rs :: TS,
 )]
+#[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "reminder_recurrence")]
+#[ts(export)]
+#[serde(rename_all = "snake_case")]
+pub enum ReminderRecurrence {
+    #[sea_orm(string_value = "daily")]
+    Daily,
+    #[sea_orm(string_value = "weekly")]
+    Weekly,
+    #[sea_orm(string_value = "biweekly")]
+    Biweekly,
+    #[sea_orm(string_value = "monthly")]
+    Monthly,
+    #[sea_orm(string_value = "yearly")]
+    Yearly,
+    #[sea_orm(string_value = "weekdays")]
+    Weekdays,
+}
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ts_rs :: TS,
+)]
 #[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "tag")]
 #[ts(export)]
 #[serde(rename_all = "snake_case")]

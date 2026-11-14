@@ -14,10 +14,10 @@ pub struct Model {
     pub mime_type: String,
     #[sea_orm(column_type = "Text")]
     pub data: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub remote_url: Option<String>,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub remote_url: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS "sync_state" ( "workspace_identifier" uuid NOT NULL P
 
 CREATE TABLE IF NOT EXISTS "sync_meta" ( "key" varchar NOT NULL PRIMARY KEY, "value" text NOT NULL );
 
+UPDATE sync_queue SET table_name = 'task' WHERE table_name = 'todo';
+
 DROP TRIGGER IF EXISTS notes_sync_trigger ON "notes";;
 
 DROP TRIGGER IF EXISTS task_sync_trigger ON "task";;

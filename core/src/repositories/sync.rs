@@ -481,24 +481,58 @@ impl SyncRepository {
 
     async fn apply_change(
         &self,
-        _workspace_identifier: Uuid,
+        workspace_identifier: Uuid,
         change: &RemoteSyncChange,
     ) -> Result<(), KernelError> {
         match change.operation.as_str() {
             "DELETE" => {
-                let sql = match self.backend() {
-                    DbBackend::Postgres => format!(
-                        "DELETE FROM \"{}\" WHERE identifier = $1",
-                        change.table_name
-                    ),
-                    _ => format!("DELETE FROM \"{}\" WHERE identifier = ?", change.table_name),
-                };
-                let stmt = Statement::from_sql_and_values(
-                    self.backend(),
-                    sql,
-                    [Value::Uuid(Some(change.record_identifier))],
-                );
-                self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
+                if change.table_name == "workspaces" {
+                    let sql = match self.backend() {
+                        DbBackend::Postgres => format!(
+                            "DELETE FROM \"{}\" WHERE identifier = $1",
+                            change.table_name
+                        ),
+                        _ => format!("DELETE FROM \"{}\" WHERE identifier = ?", change.table_name),
+                    };
+                    let stmt = Statement::from_sql_and_values(
+                        self.backend(),
+                        sql,
+                        [Value::Uuid(Some(change.record_identifier))],
+                    );
+                    self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
+                } else {
+                    let now = Utc::now().to_rfc3339();
+                    let sql = match self.backend() {
+                        DbBackend::Postgres => format!(
+                            "UPDATE \"{}\" SET deleted_at = $2, updated_at = $2 WHERE identifier = $1 AND deleted_at IS NULL",
+                            change.table_name
+                        ),
+                        _ => format!(
+                            "UPDATE \"{}\" SET deleted_at = ?, updated_at = ? WHERE identifier = ? AND deleted_at IS NULL",
+                            change.table_name
+                        ),
+                    };
+                    let values = match self.backend() {
+                        DbBackend::Postgres => vec![
+                            Value::Uuid(Some(change.record_identifier)),
+                            Value::String(Some(now.clone())),
+                        ],
+                        _ => vec![
+                            Value::String(Some(now.clone())),
+                            Value::String(Some(now.clone())),
+                            Value::Uuid(Some(change.record_identifier)),
+                        ],
+                    };
+                    let stmt = Statement::from_sql_and_values(self.backend(), sql, values);
+                    self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
+
+                    let payload = serde_json::json!({
+                        "identifier": change.record_identifier.to_string(),
+                        "deleted_at": now,
+                        "workspace_identifier": workspace_identifier.to_string(),
+                    });
+                    self.stage_recycle_bin(&change.table_name, &payload).await?;
+                }
                 Ok(())
             }
             "INSERT" | "UPDATE" => {

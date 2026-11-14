@@ -15,6 +15,9 @@ pub mod reminder;
 pub mod revoked_token;
 pub mod sea_orm_active_enums;
 pub mod snippets;
+pub mod sync_meta;
+pub mod sync_queue;
+pub mod sync_state;
 pub mod task;
 pub mod user_preferences;
 pub mod users;
@@ -37,6 +40,9 @@ seaography::register_entity_modules!([
     reminder,
     revoked_token,
     snippets,
+    sync_meta,
+    sync_queue,
+    sync_state,
     task,
     user_preferences,
     users,
@@ -50,6 +56,7 @@ seaography::register_active_enums!([
     sea_orm_active_enums::ItemType,
     sea_orm_active_enums::NotificationType,
     sea_orm_active_enums::Priority,
+    sea_orm_active_enums::ReminderRecurrence,
     sea_orm_active_enums::Tag,
     sea_orm_active_enums::TaskStatus,
 ]);

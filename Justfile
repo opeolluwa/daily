@@ -247,6 +247,8 @@ test-server:
     sea-orm-cli generate entity \
     	--database-url {{ DATABASE_URL }} \
     	--with-serde both \
+        --er-diagram \
+        --seaography \
     	--model-extra-attributes 'serde(rename_all="camelCase")' \
     	-o src/entities
 

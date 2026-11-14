@@ -172,18 +172,30 @@ async function coalesce(
   for (const item of items) {
     const key = `${item.tableName}:${normalizeUuid(item.recordIdentifier)}`;
     const existing = groups.get(key);
-    const operation =
-      item.operation === "DELETE" || !item.payload ? "DELETE" : item.operation;
-    groups.set(key, {
-      change: {
-        tableName: item.tableName,
-        recordIdentifier: dashedUuid(item.recordIdentifier),
-        operation,
-        payload: operation === "DELETE" ? {} : item.payload,
-      },
-      identifiers: [...(existing?.identifiers ?? []), item.identifier],
-      latest: item.identifier,
-    });
+
+    if (item.operation === "DELETE") {
+      groups.set(key, {
+        change: {
+          tableName: item.tableName,
+          recordIdentifier: dashedUuid(item.recordIdentifier),
+          operation: "DELETE",
+          payload: {},
+        },
+        identifiers: [...(existing?.identifiers ?? []), item.identifier],
+        latest: item.identifier,
+      });
+    } else if (item.payload) {
+      groups.set(key, {
+        change: {
+          tableName: item.tableName,
+          recordIdentifier: dashedUuid(item.recordIdentifier),
+          operation: item.operation,
+          payload: item.payload,
+        },
+        identifiers: [...(existing?.identifiers ?? []), item.identifier],
+        latest: item.identifier,
+      });
+    }
   }
 
   return [...groups.values()];

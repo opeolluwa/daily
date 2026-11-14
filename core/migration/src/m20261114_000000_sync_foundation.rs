@@ -136,7 +136,13 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        // 5. Install per-row enqueue triggers.
+        // 5. Fix stale queue entries from the todo → task rename.
+        db.execute_unprepared(
+            r#"UPDATE sync_queue SET table_name = 'task' WHERE table_name = 'todo'"#,
+        )
+        .await?;
+
+        // 6. Install per-row enqueue triggers.
         match backend {
             DbBackend::Sqlite => self.create_sqlite_triggers(db).await?,
             DbBackend::Postgres => self.create_postgres_triggers(db).await?,

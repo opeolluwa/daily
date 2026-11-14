@@ -229,17 +229,23 @@ export class SyncRepository extends BaseRepository {
     change: RemoteSyncChange,
   ): Promise<void> {
     if (change.operation === "DELETE") {
-      const itemType = RECYCLE_BIN_TABLES[change.tableName];
-      if (itemType) {
+      if (change.tableName === "workspaces") {
         await this.run(
-          "DELETE FROM recycle_bin WHERE item_id = $1 AND item_type = $2",
-          [change.recordIdentifier, itemType],
+          `DELETE FROM "${change.tableName}" WHERE identifier = $1`,
+          [change.recordIdentifier],
         );
+      } else {
+        const now = new Date().toISOString();
+        await this.run(
+          `UPDATE "${change.tableName}" SET deleted_at = $2, updated_at = $2 WHERE identifier = $1 AND deleted_at IS NULL`,
+          [change.recordIdentifier, now],
+        );
+        await this.stageRecycleBin(workspaceIdentifier, change.tableName, {
+          identifier: change.recordIdentifier,
+          deleted_at: now,
+          workspace_identifier: workspaceIdentifier,
+        });
       }
-      await this.run(
-        `DELETE FROM "${change.tableName}" WHERE identifier = $1`,
-        [change.recordIdentifier],
-      );
       return;
     }
 

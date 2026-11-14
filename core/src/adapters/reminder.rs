@@ -32,6 +32,8 @@ impl Into<entities::reminder::ActiveModel> for CreateReminder {
             created_at: Set(Local::now().fixed_offset()),
             updated_at: Set(Local::now().fixed_offset()),
             workspace_identifier: Set(self.workspace_identifier),
+            recurrence_type: Set(None),
+            end_date: Set(None),
             deleted_at: Set(None),
         }
     }
