@@ -45,6 +45,7 @@ impl Into<entities::snippets::ActiveModel> for CreateSnippet {
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
             workspace_identifier: Set(self.workspace_identifier),
+            deleted_at: Set(None),
         }
     }
 }

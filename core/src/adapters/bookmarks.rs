@@ -23,6 +23,7 @@ impl Into<entities::bookmark::ActiveModel> for CreateBookmark {
             tag: Set(self.tag),
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
+            deleted_at: Set(None),
             ..Default::default()
         }
     }

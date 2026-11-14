@@ -23,6 +23,7 @@ impl Into<entities::whiteboards::ActiveModel> for CreateWhiteboard {
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
             workspace_identifier: Set(self.workspace_identifier),
+            deleted_at: Set(None),
         }
     }
 }

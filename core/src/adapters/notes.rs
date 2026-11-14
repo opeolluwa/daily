@@ -26,6 +26,7 @@ impl Into<entities::notes::ActiveModel> for CreateNote {
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
             workspace_identifier: Set(self.workspace_identifier),
+            deleted_at: Set(None),
         }
     }
 }

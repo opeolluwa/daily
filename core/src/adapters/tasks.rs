@@ -27,6 +27,7 @@ impl Into<entities::task::ActiveModel> for CreateTask {
             done: Set(false),
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
+            deleted_at: Set(None),
             ..Default::default()
         }
     }

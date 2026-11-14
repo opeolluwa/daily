@@ -27,6 +27,7 @@ impl Into<entities::paste_bins::ActiveModel> for CreatePasteBin {
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
             workspace_identifier: Set(self.workspace_identifier),
+            deleted_at: Set(None),
         }
     }
 }

@@ -22,6 +22,7 @@ impl Into<entities::workspace_profiles::ActiveModel> for CreateWorkspaceProfile 
             last_name: Set(self.last_name),
             profile_picture: Set(self.profile_picture),
             workspace_identifier: Set(None),
+            deleted_at: Set(None),
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
         }
