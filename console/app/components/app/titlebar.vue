@@ -5,10 +5,20 @@ import { platform } from "@tauri-apps/plugin-os";
 import { computed, useTemplateRef } from "vue";
 import { IS_WEB } from "~/env";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
+import { syncNow, syncStatus } from "~/utils/sync/engine";
 
 const iconSize = "md";
 const authStore = useAuthStore();
 const router = useRouter();
+
+const syncLabel = computed(() => {
+  if (syncStatus.error) return `Sync failed: ${syncStatus.error}`;
+  if (syncStatus.syncing) return "Syncing…";
+  if (syncStatus.pending > 0) return `${syncStatus.pending} change(s) pending`;
+  if (syncStatus.lastSyncedAt)
+    return `Synced ${new Date(syncStatus.lastSyncedAt).toLocaleTimeString()}`;
+  return "Sync";
+});
 
 const { searchQuery, isOpen } = useAppSearch();
 const appWindow = getCurrentWindow();
@@ -240,6 +250,22 @@ defineShortcuts(shortcuts);
 
     <!-- Right actions -->
     <div class="flex items-center gap-0.5 ml-auto">
+      <UTooltip v-if="!isAuthPage && !authStore.isGuest" :text="syncLabel">
+        <UButton
+          :size="iconSize"
+          color="neutral"
+          variant="ghost"
+          :icon="
+            syncStatus.error
+              ? 'heroicons:exclamation-triangle'
+              : 'heroicons:arrow-path'
+          "
+          :loading="syncStatus.syncing"
+          aria-label="Sync now"
+          @click="syncNow"
+        />
+      </UTooltip>
+
       <UTooltip :text="themeLabel">
         <UColorModeButton :size="iconSize" />
       </UTooltip>
