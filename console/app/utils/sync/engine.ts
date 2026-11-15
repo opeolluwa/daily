@@ -179,7 +179,7 @@ async function coalesce(
           tableName: item.tableName,
           recordIdentifier: dashedUuid(item.recordIdentifier),
           operation: "DELETE",
-          payload: {},
+          payload: item.payload ?? {},
         },
         identifiers: [...(existing?.identifiers ?? []), item.identifier],
         latest: item.identifier,
@@ -209,12 +209,19 @@ async function push(workspaceIdentifier: string, token: string) {
     PUSH,
     {
       workspace_identifier: workspaceIdentifier,
-      changes: groups.map((group) => ({
-        table_name: group.change.tableName,
-        record_identifier: group.change.recordIdentifier,
-        operation: group.change.operation,
-        payload: group.change.payload ?? {},
-      })),
+      changes: groups.map((group) => {
+        const payload = (group.change.payload ?? {}) as Record<string, unknown>;
+        const change: Record<string, unknown> = {
+          table_name: group.change.tableName,
+          record_identifier: group.change.recordIdentifier,
+          operation: group.change.operation,
+          payload,
+        };
+        if (group.change.operation === "DELETE" && payload.deleted_at) {
+          change.deleted_at = payload.deleted_at;
+        }
+        return change;
+      }),
     },
     token,
   );

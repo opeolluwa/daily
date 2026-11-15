@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use chrono::Utc;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelBehavior, ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection,
@@ -147,17 +148,6 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
     ) -> Result<(), KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let entry = recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::Identifier.eq(*identifier))
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
-            .one(self.conn.as_ref())
-            .await
-            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
-
-        if let Some(entry) = &entry {
-            hard_delete_item(self.conn.as_ref(), &entry.item_type, entry.item_id).await?;
-        }
-
         recycle_bin::Entity::delete_many()
             .filter(recycle_bin::Column::Identifier.eq(*identifier))
             .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
@@ -176,15 +166,12 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
 
-        for entry in &entries {
-            hard_delete_item(self.conn.as_ref(), &entry.item_type, entry.item_id).await?;
-        }
-
         let identifiers = entries
             .into_iter()
             .map(|entry| entry.identifier)
             .collect::<Vec<Uuid>>();
 
+        // the found entity should be what is passed to delete
         recycle_bin::Entity::delete_many()
             .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
             .exec(self.conn.as_ref())
@@ -212,8 +199,7 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
 
         macro_rules! restore_soft_deleted {
             ($entity:ident, $model:ty, $active:ty) => {{
-                let model: $model = serde_json::from_str(&entry.payload)
-                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+                let model: $model = Self::parse_payload(&entry.payload)?;
                 let result = $entity::Entity::update_many()
                     .col_expr($entity::Column::DeletedAt, Expr::cust("NULL"))
                     .col_expr($entity::Column::UpdatedAt, Expr::current_timestamp())
@@ -313,7 +299,55 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
     }
 }
 
+// TODO: consider using https://crates.io/crates/heck
+fn camelize_key(key: &str) -> String {
+    let mut out = String::with_capacity(key.len());
+    let mut upper = false;
+    for ch in key.chars() {
+        if ch == '_' {
+            upper = true;
+        } else if upper {
+            out.extend(ch.to_uppercase());
+            upper = false;
+        } else {
+            out.push(ch);
+        }
+    }
+    out
+}
+
 impl RecycleBinRepository {
+    fn camelized_value(payload: &str) -> Result<serde_json::Value, KernelError> {
+        let value: serde_json::Value = serde_json::from_str(payload)
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+        let Some(object) = value.as_object() else {
+            return Ok(value);
+        };
+        Ok(serde_json::Value::Object(
+            object
+                .iter()
+                .map(|(key, value)| (camelize_key(key), value.clone()))
+                .collect(),
+        ))
+    }
+
+    fn parse_payload<T: serde::de::DeserializeOwned>(payload: &str) -> Result<T, KernelError> {
+        serde_json::from_value(Self::camelized_value(payload)?)
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))
+    }
+
+    fn restore_value(payload: &str) -> Result<serde_json::Value, KernelError> {
+        let mut value = Self::camelized_value(payload)?;
+        if let Some(object) = value.as_object_mut() {
+            object.insert("deleted_at".to_string(), serde_json::Value::Null);
+            object.insert(
+                "updated_at".to_string(),
+                serde_json::Value::String(Utc::now().to_rfc3339()),
+            );
+        }
+        Ok(value)
+    }
+
     async fn restore_payload<M, A>(
         payload: &str,
         conn: &DatabaseConnection,
@@ -323,7 +357,7 @@ impl RecycleBinRepository {
         A: ActiveModelBehavior + Send,
         <A::Entity as EntityTrait>::Model: IntoActiveModel<A>,
     {
-        let model: M = serde_json::from_str(payload)
+        let model: M = serde_json::from_value(Self::restore_value(payload)?)
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
 
         model
@@ -401,31 +435,4 @@ impl RecycleBinRepository {
         <Self as RecycleBinRepositoryExt>::restore(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
     }
-}
-
-async fn hard_delete_item(
-    conn: &DatabaseConnection,
-    item_type: &ItemType,
-    item_id: Uuid,
-) -> Result<(), KernelError> {
-    macro_rules! hard_delete {
-        ($entity:ident) => {{
-            $entity::Entity::delete_many()
-                .filter($entity::Column::Identifier.eq(item_id))
-                .exec(conn)
-                .await
-                .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
-        }};
-    }
-
-    match item_type {
-        ItemType::Note => hard_delete!(notes),
-        ItemType::Task => hard_delete!(task),
-        ItemType::Bookmark => hard_delete!(bookmark),
-        ItemType::Snippet => hard_delete!(snippets),
-        ItemType::Reminder => hard_delete!(reminder),
-        ItemType::PasteBin => hard_delete!(paste_bins),
-    }
-
-    Ok(())
 }

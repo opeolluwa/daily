@@ -9,6 +9,17 @@ use uuid::Uuid;
 use crate::error::KernelError;
 
 const DEVICE_KEY: &str = "device_id";
+const SYNCABLE_TABLES: &[&str] = &[
+    "notes",
+    "task",
+    "bookmark",
+    "snippets",
+    "reminder",
+    "paste_bins",
+    "whiteboards",
+    "workspace_profiles",
+    "workspaces",
+];
 const RECYCLE_BIN_TABLES: &[(&str, &str)] = &[
     ("notes", "note"),
     ("task", "todo"),
@@ -54,6 +65,59 @@ pub struct RemoteSyncChange {
     pub seq: Option<String>,
     #[serde(default)]
     pub updated_at: Option<String>,
+}
+
+impl RemoteSyncChange {
+    /// Timestamp used to order a delete against local edits. Pull payloads
+    /// carry the row that was deleted, so prefer its `deleted_at`, then its
+    /// `updated_at`; fall back to the pull-level timestamp.
+    fn tombstone_timestamp(&self) -> String {
+        self.payload
+            .as_ref()
+            .and_then(|payload| {
+                payload
+                    .get("deleted_at")
+                    .or_else(|| payload.get("updated_at"))
+                    .and_then(|value| value.as_str())
+            })
+            .map(str::to_string)
+            .or_else(|| self.updated_at.clone())
+            .unwrap_or_else(|| Utc::now().to_rfc3339())
+    }
+}
+
+fn tombstone_payload(
+    change: &RemoteSyncChange,
+    timestamp: &str,
+    workspace_identifier: Uuid,
+    is_workspace: bool,
+) -> serde_json::Value {
+    let mut object = change
+        .payload
+        .clone()
+        .and_then(|value| value.as_object().cloned())
+        .unwrap_or_default();
+    object.insert(
+        "identifier".to_string(),
+        serde_json::Value::String(change.record_identifier.to_string()),
+    );
+    if !is_workspace {
+        object.insert(
+            "workspace_identifier".to_string(),
+            serde_json::Value::String(workspace_identifier.to_string()),
+        );
+    }
+    object.insert(
+        "deleted_at".to_string(),
+        serde_json::Value::String(timestamp.to_string()),
+    );
+    if !object.contains_key("updated_at") {
+        object.insert(
+            "updated_at".to_string(),
+            serde_json::Value::String(timestamp.to_string()),
+        );
+    }
+    serde_json::Value::Object(object)
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -126,10 +190,33 @@ impl SyncRepository {
                 .try_get("", "record_identifier")
                 .map_err(Self::db_error)?;
             let operation: String = row.try_get("", "operation").map_err(Self::db_error)?;
-            let payload = if operation == "DELETE" {
-                None
-            } else {
-                self.row_payload(&table_name, &record_identifier).await?
+            let created_at: String = row.try_get("", "created_at").map_err(Self::db_error)?;
+            let payload = match self.row_payload(&table_name, &record_identifier).await? {
+                Some(payload) => Some(payload),
+                None if operation == "DELETE" => {
+                    let timestamp = created_at.clone();
+                    let mut object = serde_json::Map::new();
+                    object.insert(
+                        "identifier".to_string(),
+                        serde_json::Value::String(record_identifier.clone()),
+                    );
+                    if table_name != "workspaces" {
+                        object.insert(
+                            "workspace_identifier".to_string(),
+                            serde_json::Value::String(workspace_identifier.to_string()),
+                        );
+                    }
+                    object.insert(
+                        "deleted_at".to_string(),
+                        serde_json::Value::String(timestamp.clone()),
+                    );
+                    object.insert(
+                        "updated_at".to_string(),
+                        serde_json::Value::String(timestamp),
+                    );
+                    Some(serde_json::Value::Object(object))
+                }
+                None => None,
             };
             items.push(SyncQueueItem {
                 identifier: row.try_get("", "identifier").map_err(Self::db_error)?,
@@ -139,7 +226,7 @@ impl SyncRepository {
                 workspace_identifier: row
                     .try_get("", "workspace_identifier")
                     .map_err(Self::db_error)?,
-                created_at: row.try_get("", "created_at").map_err(Self::db_error)?,
+                created_at,
                 attempts: row.try_get("", "attempts").map_err(Self::db_error)?,
                 last_error: row.try_get("", "last_error").map_err(Self::db_error)?,
                 device_id: row.try_get("", "device_id").map_err(Self::db_error)?,
@@ -154,18 +241,7 @@ impl SyncRepository {
         table: &str,
         record_identifier: &str,
     ) -> Result<Option<serde_json::Value>, KernelError> {
-        if !matches!(
-            table,
-            "notes"
-                | "task"
-                | "bookmark"
-                | "snippets"
-                | "reminder"
-                | "paste_bins"
-                | "whiteboards"
-                | "workspace_profiles"
-                | "workspaces"
-        ) {
+        if !SYNCABLE_TABLES.contains(&table) {
             return Ok(None);
         }
 
@@ -486,124 +562,230 @@ impl SyncRepository {
     ) -> Result<(), KernelError> {
         match change.operation.as_str() {
             "DELETE" => {
-                if change.table_name == "workspaces" {
-                    let sql = match self.backend() {
-                        DbBackend::Postgres => format!(
-                            "DELETE FROM \"{}\" WHERE identifier = $1",
-                            change.table_name
-                        ),
-                        _ => format!("DELETE FROM \"{}\" WHERE identifier = ?", change.table_name),
-                    };
-                    let stmt = Statement::from_sql_and_values(
-                        self.backend(),
-                        sql,
-                        [Value::Uuid(Some(change.record_identifier))],
-                    );
-                    self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
-                } else {
-                    let now = Utc::now().to_rfc3339();
-                    let sql = match self.backend() {
-                        DbBackend::Postgres => format!(
-                            "UPDATE \"{}\" SET deleted_at = $2, updated_at = $2 WHERE identifier = $1 AND deleted_at IS NULL",
-                            change.table_name
-                        ),
-                        _ => format!(
-                            "UPDATE \"{}\" SET deleted_at = ?, updated_at = ? WHERE identifier = ? AND deleted_at IS NULL",
-                            change.table_name
-                        ),
-                    };
-                    let values = match self.backend() {
-                        DbBackend::Postgres => vec![
-                            Value::Uuid(Some(change.record_identifier)),
-                            Value::String(Some(now.clone())),
-                        ],
-                        _ => vec![
-                            Value::String(Some(now.clone())),
-                            Value::String(Some(now.clone())),
-                            Value::Uuid(Some(change.record_identifier)),
-                        ],
-                    };
-                    let stmt = Statement::from_sql_and_values(self.backend(), sql, values);
-                    self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
-
-                    let payload = serde_json::json!({
-                        "identifier": change.record_identifier.to_string(),
-                        "deleted_at": now,
-                        "workspace_identifier": workspace_identifier.to_string(),
-                    });
-                    self.stage_recycle_bin(&change.table_name, &payload).await?;
-                }
-                Ok(())
-            }
-            "INSERT" | "UPDATE" => {
-                let payload = change.payload.as_ref().ok_or_else(|| {
-                    KernelError::DbOperationError("sync change is missing a payload".into())
-                })?;
-                let object = payload.as_object().ok_or_else(|| {
-                    KernelError::DbOperationError("sync change payload must be an object".into())
-                })?;
-                let allowed = self.columns(&change.table_name).await?;
-                if allowed.is_empty() {
+                if !SYNCABLE_TABLES.contains(&change.table_name.as_str()) {
                     return Err(KernelError::DbOperationError(format!(
                         "unknown sync table: {}",
                         change.table_name
                     )));
                 }
 
-                let mut columns = Vec::new();
-                let mut values = Vec::new();
-                for (key, value) in object {
-                    if !allowed.contains(key) {
-                        continue;
+                let timestamp = change.tombstone_timestamp();
+                let is_workspace = change.table_name == "workspaces";
+                let guarded = if is_workspace {
+                    match self.backend() {
+                        DbBackend::Postgres => r#"UPDATE "workspaces" SET deleted_at = $2::timestamptz, updated_at = $2::timestamptz, is_hidden = TRUE WHERE identifier = $1 AND (updated_at IS NULL OR updated_at <= $2::timestamptz)"#.to_string(),
+                        _ => r#"UPDATE "workspaces" SET deleted_at = ?, updated_at = ?, is_hidden = 1 WHERE identifier = ? AND (updated_at IS NULL OR julianday(updated_at) <= julianday(?))"#.to_string(),
                     }
-                    columns.push(key.clone());
-                    values.push(Self::json_to_value(value));
-                }
-                if !columns.iter().any(|column| column == "identifier") {
-                    columns.push("identifier".to_string());
-                    values.push(Value::Uuid(Some(change.record_identifier)));
-                }
-
-                let placeholders = (0..columns.len())
-                    .map(|index| self.placeholder(index + 1))
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                let quoted = columns
-                    .iter()
-                    .map(|column| format!("\"{column}\""))
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                let updates = columns
-                    .iter()
-                    .filter(|column| column.as_str() != "identifier")
-                    .map(|column| format!("\"{column}\" = excluded.\"{column}\""))
-                    .collect::<Vec<_>>()
-                    .join(", ");
-
-                let sql = if updates.is_empty() {
-                    format!(
-                        "INSERT INTO \"{}\" ({quoted}) VALUES ({placeholders}) ON CONFLICT (identifier) DO NOTHING",
-                        change.table_name
-                    )
                 } else {
-                    format!(
-                        "INSERT INTO \"{}\" ({quoted}) VALUES ({placeholders}) \
-                         ON CONFLICT (identifier) DO UPDATE SET {updates} \
-                         WHERE excluded.\"updated_at\" >= \"{}\".\"updated_at\"",
-                        change.table_name, change.table_name
-                    )
+                    match self.backend() {
+                        DbBackend::Postgres => format!(
+                            r#"UPDATE "{}" SET deleted_at = $2::timestamptz, updated_at = $2::timestamptz WHERE identifier = $1 AND (updated_at IS NULL OR updated_at <= $2::timestamptz)"#,
+                            change.table_name
+                        ),
+                        _ => format!(
+                            r#"UPDATE "{}" SET deleted_at = ?, updated_at = ? WHERE identifier = ? AND (updated_at IS NULL OR julianday(updated_at) <= julianday(?))"#,
+                            change.table_name
+                        ),
+                    }
                 };
+                let values = match self.backend() {
+                    DbBackend::Postgres => vec![
+                        Value::Uuid(Some(change.record_identifier)),
+                        Value::String(Some(timestamp.clone())),
+                    ],
+                    _ => vec![
+                        Value::String(Some(timestamp.clone())),
+                        Value::String(Some(timestamp.clone())),
+                        Value::Uuid(Some(change.record_identifier)),
+                        Value::String(Some(timestamp.clone())),
+                    ],
+                };
+                let result = self
+                    .conn
+                    .execute_raw(Statement::from_sql_and_values(self.backend(), guarded, values))
+                    .await
+                    .map_err(Self::db_error)?;
 
-                let stmt = Statement::from_sql_and_values(self.backend(), sql, values);
-                self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
+                if result.rows_affected() == 0 {
+                    if self
+                        .row_exists(&change.table_name, change.record_identifier)
+                        .await?
+                    {
+                        // A local row newer than this delete wins; leave it alone.
+                        return Ok(());
+                    }
+                    let has_content = change
+                        .payload
+                        .as_ref()
+                        .and_then(|value| value.as_object())
+                        .map(|object| object.len() > 1)
+                        .unwrap_or(false);
+                    if !has_content {
+                        return Ok(());
+                    }
+                    // Row was hard-deleted locally before this pull. Recreate it
+                    // as a tombstone so stale updates cannot resurrect it.
+                    let tombstone = tombstone_payload(
+                        change,
+                        &timestamp,
+                        workspace_identifier,
+                        is_workspace,
+                    );
+                    self.upsert_payload(
+                        &change.table_name,
+                        change.record_identifier,
+                        &tombstone,
+                    )
+                    .await?;
+                    if !is_workspace {
+                        self.stage_recycle_bin(&change.table_name, &tombstone)
+                            .await?;
+                    }
+                } else if !is_workspace {
+                    let tombstone = tombstone_payload(
+                        change,
+                        &timestamp,
+                        workspace_identifier,
+                        is_workspace,
+                    );
+                    self.stage_recycle_bin(&change.table_name, &tombstone)
+                        .await?;
+                }
 
-                self.stage_recycle_bin(&change.table_name, payload).await?;
+                if is_workspace {
+                    self.ensure_default_workspace().await?;
+                }
+                Ok(())
+            }
+            "INSERT" | "UPDATE" => {
+                let payload = change
+                    .payload
+                    .as_ref()
+                    .ok_or_else(|| {
+                        KernelError::DbOperationError("sync change is missing a payload".into())
+                    })?
+                    .clone();
+                let mut object = payload.as_object().cloned().ok_or_else(|| {
+                    KernelError::DbOperationError("sync change payload must be an object".into())
+                })?;
+                if change.table_name != "workspaces" {
+                    object.insert(
+                        "workspace_identifier".to_string(),
+                        serde_json::Value::String(workspace_identifier.to_string()),
+                    );
+                }
+                let payload = serde_json::Value::Object(object);
+
+                self.upsert_payload(
+                    &change.table_name,
+                    change.record_identifier,
+                    &payload,
+                )
+                .await?;
+                self.stage_recycle_bin(&change.table_name, &payload).await?;
                 Ok(())
             }
             other => Err(KernelError::DbOperationError(format!(
                 "unsupported sync operation: {other}"
             ))),
         }
+    }
+
+    async fn upsert_payload(
+        &self,
+        table_name: &str,
+        record_identifier: Uuid,
+        payload: &serde_json::Value,
+    ) -> Result<(), KernelError> {
+        let object = payload.as_object().ok_or_else(|| {
+            KernelError::DbOperationError("sync change payload must be an object".into())
+        })?;
+        let allowed = self.columns(table_name).await?;
+        if allowed.is_empty() {
+            return Err(KernelError::DbOperationError(format!(
+                "unknown sync table: {table_name}"
+            )));
+        }
+
+        let mut columns = Vec::new();
+        let mut values = Vec::new();
+        for (key, value) in object {
+            if !allowed.contains(key) {
+                continue;
+            }
+            columns.push(key.clone());
+            values.push(Self::json_to_value(value));
+        }
+        if !columns.iter().any(|column| column == "identifier") {
+            columns.push("identifier".to_string());
+            values.push(Value::Uuid(Some(record_identifier)));
+        }
+
+        let placeholders = (0..columns.len())
+            .map(|index| self.placeholder(index + 1))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let quoted = columns
+            .iter()
+            .map(|column| format!("\"{column}\""))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let updates = columns
+            .iter()
+            .filter(|column| column.as_str() != "identifier")
+            .map(|column| format!("\"{column}\" = excluded.\"{column}\""))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        let sql = if updates.is_empty() {
+            format!(
+                "INSERT INTO \"{table_name}\" ({quoted}) VALUES ({placeholders}) ON CONFLICT (identifier) DO NOTHING"
+            )
+        } else {
+            format!(
+                "INSERT INTO \"{table_name}\" ({quoted}) VALUES ({placeholders}) \
+                 ON CONFLICT (identifier) DO UPDATE SET {updates} \
+                 WHERE excluded.\"updated_at\" >= \"{table_name}\".\"updated_at\""
+            )
+        };
+
+        let stmt = Statement::from_sql_and_values(self.backend(), sql, values);
+        self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;
+        Ok(())
+    }
+
+    async fn row_exists(
+        &self,
+        table_name: &str,
+        record_identifier: Uuid,
+    ) -> Result<bool, KernelError> {
+        let sql = format!(
+            "SELECT 1 AS present FROM \"{table_name}\" WHERE identifier = {}",
+            self.placeholder(1)
+        );
+        let stmt = Statement::from_sql_and_values(
+            self.backend(),
+            sql,
+            [Value::Uuid(Some(record_identifier))],
+        );
+        Ok(self
+            .conn
+            .query_one_raw(stmt)
+            .await
+            .map_err(Self::db_error)?
+            .is_some())
+    }
+
+    async fn ensure_default_workspace(&self) -> Result<(), KernelError> {
+        let sql = match self.backend() {
+            DbBackend::Postgres => r#"UPDATE "workspaces" SET is_default = TRUE WHERE identifier = (SELECT identifier FROM "workspaces" WHERE deleted_at IS NULL ORDER BY created_at ASC LIMIT 1) AND NOT EXISTS (SELECT 1 FROM "workspaces" WHERE deleted_at IS NULL AND is_default = TRUE)"#,
+            _ => r#"UPDATE "workspaces" SET is_default = 1 WHERE identifier = (SELECT identifier FROM "workspaces" WHERE deleted_at IS NULL ORDER BY created_at ASC LIMIT 1) AND NOT EXISTS (SELECT 1 FROM "workspaces" WHERE deleted_at IS NULL AND is_default = 1)"#,
+        };
+        self.conn
+            .execute_raw(Statement::from_string(self.backend(), sql.to_string()))
+            .await
+            .map_err(Self::db_error)?;
+        Ok(())
     }
 
     async fn stage_recycle_bin(
@@ -626,11 +808,11 @@ impl SyncRepository {
             return Ok(());
         };
 
-        if payload
-            .get("deleted_at")
-            .map(serde_json::Value::is_null)
-            .unwrap_or(true)
-        {
+        let tombstone_at = match payload.get("deleted_at") {
+            Some(serde_json::Value::Null) | None => None,
+            Some(value) => value.as_str().map(str::to_string),
+        };
+        let Some(tombstone_at) = tombstone_at else {
             self.conn
                 .execute_raw(Statement::from_sql_and_values(
                     self.backend(),
@@ -643,7 +825,7 @@ impl SyncRepository {
                 .await
                 .map_err(Self::db_error)?;
             return Ok(());
-        }
+        };
 
         let workspace_identifier = payload
             .get("workspace_identifier")
@@ -653,21 +835,30 @@ impl SyncRepository {
             return Ok(());
         };
 
-        let exists = Statement::from_sql_and_values(
-            self.backend(),
-            "SELECT identifier FROM recycle_bin WHERE item_id = ? AND item_type = ? LIMIT 1",
-            [
-                Value::Uuid(Some(identifier)),
-                Value::String(Some(item_type.to_string())),
-            ],
-        );
-        if self
+        let update_sql = match self.backend() {
+            DbBackend::Postgres => {
+                r#"UPDATE recycle_bin SET payload = $1, deleted_at = $2, workspace_identifier = $3 WHERE item_id = $4 AND item_type = $5"#
+            }
+            _ => {
+                r#"UPDATE recycle_bin SET payload = ?, deleted_at = ?, workspace_identifier = ? WHERE item_id = ? AND item_type = ?"#
+            }
+        };
+        let updated = self
             .conn
-            .query_one_raw(exists)
+            .execute_raw(Statement::from_sql_and_values(
+                self.backend(),
+                update_sql,
+                [
+                    Value::String(Some(payload.to_string())),
+                    Value::String(Some(tombstone_at.clone())),
+                    Value::Uuid(Some(workspace_identifier)),
+                    Value::Uuid(Some(identifier)),
+                    Value::String(Some(item_type.to_string())),
+                ],
+            ))
             .await
-            .map_err(Self::db_error)?
-            .is_some()
-        {
+            .map_err(Self::db_error)?;
+        if updated.rows_affected() > 0 {
             return Ok(());
         }
 
@@ -695,7 +886,7 @@ impl SyncRepository {
                 Value::Uuid(Some(identifier)),
                 Value::String(Some(item_type.to_string())),
                 Value::String(Some(payload.to_string())),
-                Value::String(Some(Utc::now().to_rfc3339())),
+                Value::String(Some(tombstone_at)),
                 Value::Uuid(Some(workspace_identifier)),
             ],
         );

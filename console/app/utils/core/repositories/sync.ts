@@ -43,6 +43,13 @@ const RECYCLE_BIN_TABLES: Record<string, string> = {
   paste_bins: "paste_bin",
 };
 
+const SYNCABLE_TABLES = new Set([
+  ...Object.keys(RECYCLE_BIN_TABLES),
+  "whiteboards",
+  "workspace_profiles",
+  "workspaces",
+]);
+
 export class SyncRepository extends BaseRepository {
   async queue(workspaceIdentifier: string): Promise<SyncQueueItem[]> {
     const items = await this.rows<SyncQueueItem>(
@@ -54,11 +61,22 @@ export class SyncRepository extends BaseRepository {
       [workspaceIdentifier],
     );
     for (const item of items) {
-      if (item.operation !== "DELETE") {
-        item.payload = await this.payload(
-          item.tableName,
-          item.recordIdentifier,
-        );
+      const payload = await this.payload(
+        item.tableName,
+        item.recordIdentifier,
+      );
+      if (payload) {
+        item.payload = payload;
+      } else if (item.operation === "DELETE") {
+        const timestamp = item.createdAt || this.now();
+        item.payload = {
+          identifier: item.recordIdentifier,
+          ...(item.tableName === "workspaces"
+            ? {}
+            : { workspace_identifier: item.workspaceIdentifier }),
+          deleted_at: timestamp,
+          updated_at: timestamp,
+        };
       }
     }
     return items;
@@ -224,27 +242,86 @@ export class SyncRepository extends BaseRepository {
     return result;
   }
 
+  private tombstoneTimestamp(change: RemoteSyncChange): string {
+    const payload = (change.payload ?? {}) as Record<string, unknown>;
+    const value = payload.deleted_at ?? payload.updated_at ?? change.updatedAt;
+    return typeof value === "string" && value ? value : this.now();
+  }
+
   private async applyChange(
     workspaceIdentifier: string,
     change: RemoteSyncChange,
   ): Promise<void> {
     if (change.operation === "DELETE") {
-      if (change.tableName === "workspaces") {
-        await this.run(
-          `DELETE FROM "${change.tableName}" WHERE identifier = $1`,
+      if (!SYNCABLE_TABLES.has(change.tableName)) {
+        throw new Error(`unknown sync table: ${change.tableName}`);
+      }
+
+      const timestamp = this.tombstoneTimestamp(change);
+      const isWorkspace = change.tableName === "workspaces";
+      const hadContent =
+        !!change.payload &&
+        typeof change.payload === "object" &&
+        Object.keys(change.payload as Record<string, unknown>).length > 1;
+      const payload: Record<string, unknown> = {
+        ...((change.payload as Record<string, unknown> | undefined) ?? {}),
+        identifier: change.recordIdentifier,
+        deleted_at: timestamp,
+        updated_at:
+          (change.payload as Record<string, unknown> | undefined)
+            ?.updated_at ?? timestamp,
+      };
+      if (!isWorkspace) payload.workspace_identifier = workspaceIdentifier;
+
+      const sql = isWorkspace
+        ? `UPDATE "workspaces" SET deleted_at = $2, updated_at = $2, is_hidden = TRUE
+           WHERE identifier = $1
+             AND (updated_at IS NULL OR updated_at <= $2::timestamptz)
+           RETURNING identifier`
+        : `UPDATE "${change.tableName}" SET deleted_at = $2, updated_at = $2
+           WHERE identifier = $1
+             AND (updated_at IS NULL OR updated_at <= $2::timestamptz)
+           RETURNING identifier`;
+      const updated = await this.rows<{ identifier: string }>(sql, [
+        change.recordIdentifier,
+        timestamp,
+      ]);
+
+      if (updated.length === 0) {
+        const exists = await this.bool(
+          `SELECT EXISTS (SELECT 1 FROM "${change.tableName}" WHERE identifier = $1) AS ok`,
           [change.recordIdentifier],
         );
-      } else {
-        const now = new Date().toISOString();
-        await this.run(
-          `UPDATE "${change.tableName}" SET deleted_at = $2, updated_at = $2 WHERE identifier = $1 AND deleted_at IS NULL`,
-          [change.recordIdentifier, now],
+        if (exists) return;
+        if (!hadContent) return;
+        await this.upsert(change.tableName, change.recordIdentifier, payload);
+        if (!isWorkspace) {
+          await this.stageRecycleBin(
+            workspaceIdentifier,
+            change.tableName,
+            payload,
+          );
+        }
+      } else if (!isWorkspace) {
+        await this.stageRecycleBin(
+          workspaceIdentifier,
+          change.tableName,
+          payload,
         );
-        await this.stageRecycleBin(workspaceIdentifier, change.tableName, {
-          identifier: change.recordIdentifier,
-          deleted_at: now,
-          workspace_identifier: workspaceIdentifier,
-        });
+      }
+
+      if (isWorkspace) {
+        await this.run(
+          `UPDATE "workspaces" SET is_default = TRUE
+           WHERE identifier = (
+             SELECT identifier FROM "workspaces"
+             WHERE deleted_at IS NULL ORDER BY created_at ASC LIMIT 1
+           )
+           AND NOT EXISTS (
+             SELECT 1 FROM "workspaces"
+             WHERE deleted_at IS NULL AND is_default = TRUE
+           )`,
+        );
       }
       return;
     }
@@ -253,16 +330,30 @@ export class SyncRepository extends BaseRepository {
       throw new Error("sync change is missing a payload");
     }
 
-    const allowed = await this.columns(change.tableName);
-    if (allowed.size === 0)
-      throw new Error(`unknown sync table: ${change.tableName}`);
+    const payload: Record<string, unknown> = {
+      ...(change.payload as Record<string, unknown>),
+    };
+    if (change.tableName !== "workspaces") {
+      payload.workspace_identifier = workspaceIdentifier;
+    }
 
-    const payload = change.payload as Record<string, unknown>;
+    await this.upsert(change.tableName, change.recordIdentifier, payload);
+    await this.stageRecycleBin(workspaceIdentifier, change.tableName, payload);
+  }
+
+  private async upsert(
+    tableName: string,
+    recordIdentifier: string,
+    payload: Record<string, unknown>,
+  ): Promise<void> {
+    const allowed = await this.columns(tableName);
+    if (allowed.size === 0) throw new Error(`unknown sync table: ${tableName}`);
+
     const columns = Object.keys(payload).filter((key) => allowed.has(key));
     if (!columns.includes("identifier")) columns.unshift("identifier");
     const values = columns.map((column) =>
       column === "identifier"
-        ? (payload[column] ?? change.recordIdentifier)
+        ? (payload[column] ?? recordIdentifier)
         : this.value(payload[column], allowed.get(column)),
     );
 
@@ -275,14 +366,13 @@ export class SyncRepository extends BaseRepository {
 
     const sql =
       updates.length === 0
-        ? `INSERT INTO "${change.tableName}" (${quoted}) VALUES (${placeholders})
+        ? `INSERT INTO "${tableName}" (${quoted}) VALUES (${placeholders})
            ON CONFLICT (identifier) DO NOTHING`
-        : `INSERT INTO "${change.tableName}" (${quoted}) VALUES (${placeholders})
+        : `INSERT INTO "${tableName}" (${quoted}) VALUES (${placeholders})
            ON CONFLICT (identifier) DO UPDATE SET ${updates}
-           WHERE excluded."updated_at" >= "${change.tableName}"."updated_at"`;
+           WHERE excluded."updated_at" >= "${tableName}"."updated_at"`;
 
     await this.run(sql, values);
-    await this.stageRecycleBin(workspaceIdentifier, change.tableName, payload);
   }
 
   private async stageRecycleBin(
@@ -303,20 +393,30 @@ export class SyncRepository extends BaseRepository {
       return;
     }
 
+    const deletedAt = String(payload.deleted_at);
+    const owner = String(
+      payload.workspace_identifier ?? workspaceIdentifier,
+    );
+    const updated = await this.rows<{ identifier: string }>(
+      `UPDATE recycle_bin
+       SET payload = $1, deleted_at = $2, workspace_identifier = $3
+       WHERE item_id = $4 AND item_type = $5
+       RETURNING identifier`,
+      [JSON.stringify(payload), deletedAt, owner, identifier, itemType],
+    );
+    if (updated.length > 0) return;
+
     await this.run(
       `INSERT INTO recycle_bin
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
-       SELECT $1, $2, $3, $4, $5, $6
-       WHERE NOT EXISTS (
-         SELECT 1 FROM recycle_bin WHERE item_id = $2 AND item_type = $3
-       )`,
+       VALUES ($1, $2, $3, $4, $5, $6)`,
       [
         this.newUuid(),
         identifier,
         itemType,
         JSON.stringify(payload),
-        this.now(),
-        workspaceIdentifier,
+        deletedAt,
+        owner,
       ],
     );
   }

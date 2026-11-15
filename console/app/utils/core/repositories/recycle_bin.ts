@@ -70,15 +70,6 @@ export class RecycleBinRepository extends BaseRepository {
 
   async purge(identifier: string, meta?: RequestMeta): Promise<void> {
     const m = this.requireMeta(meta);
-    const entry = await this.find_by_id(identifier, m);
-    if (entry) {
-      const table = SOURCE_TABLES[entry.itemType];
-      if (table) {
-        await this.run(`DELETE FROM "${table}" WHERE identifier = $1`, [
-          entry.itemId,
-        ]);
-      }
-    }
     await this.run(
       `DELETE FROM recycle_bin WHERE identifier = $1 AND workspace_identifier = $2`,
       [identifier, m.workspaceIdentifier],

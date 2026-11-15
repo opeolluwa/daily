@@ -18,6 +18,8 @@ pub struct SyncWorkspaceInput {
     pub is_secured: bool,
     pub password_hash: Option<String>,
     pub user_identifier: Option<Uuid>,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
@@ -41,6 +43,14 @@ impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
             is_secured: val.is_secured,
             password_hash: val.password_hash,
             user_identifier: val.user_identifier,
+            deleted_at: val
+                .deleted_at
+                .map(|value| {
+                    value.parse().map_err(|e| {
+                        async_graphql::Error::new(format!("invalid deleted_at: {e}"))
+                    })
+                })
+                .transpose()?,
         })
     }
 }

@@ -214,6 +214,7 @@ erDiagram
         bool is_secured
         text password_hash
         uuid user_identifier FK
+        timestamptz deleted_at
     }
     bookmark }o--|| workspaces : "workspace_identifier"
     invitation }o--|| workspaces : "workspace_identifier"

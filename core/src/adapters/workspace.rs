@@ -49,6 +49,7 @@ impl From<CreateWorkspace> for entities::workspaces::ActiveModel {
             is_secured: Set(false),
             password_hash: Set(None),
             user_identifier: Set(None),
+            deleted_at: Set(None),
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
         }

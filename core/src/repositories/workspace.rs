@@ -85,6 +85,7 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
     async fn get_workspace_by_id(&self, id: Uuid) -> Result<workspaces::Model, KernelError> {
         workspaces::Entity::find()
             .filter(workspaces::Column::Identifier.eq(id))
+            .filter(workspaces::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -97,6 +98,7 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
 
     async fn list_workspaces(&self) -> Result<Vec<workspaces::Model>, KernelError> {
         workspaces::Entity::find()
+            .filter(workspaces::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -122,28 +124,25 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
             ));
         }
 
-        let _payload = serde_json::to_string(&model)
-            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+        if model.deleted_at.is_some() {
+            return Ok(());
+        }
 
-        //TODO: Consider moving this logic to a service layer if it becomes more complex or if we need to handle related entities (e.g., todos, bookmarks) in the recycle bin entry. For now, it serves the purpose of keeping a record of deleted workspaces.
-        // RecycleBinRepository::new(self.conn.clone())
-        //     .store(
-        //         &CreateRecycleBinEntry {
-        //             item_id: model.identifier,
-        //             item_type: ItemType::Workspace,
-        //             workspace_identifier: None,
-        //             payload,
-        //         },
-        //         &Some(meta.clone()),
-        //     )
-        //     .await?;
-
-        let result = workspaces::Entity::delete_by_id(*identifier)
+        // Tombstone instead of deleting: a hard delete would trigger the
+        // `ON DELETE CASCADE` foreign keys and wipe every child row (notes,
+        // tasks, bookmarks, ...) locally, then propagate those deletes to
+        // every other device through the sync queue.
+        let now = Utc::now().fixed_offset();
+        workspaces::Entity::update_many()
+            .col_expr(workspaces::Column::DeletedAt, Expr::value(now))
+            .col_expr(workspaces::Column::UpdatedAt, Expr::value(now))
+            .col_expr(workspaces::Column::IsHidden, Expr::value(true))
+            .filter(workspaces::Column::Identifier.eq(*identifier))
+            .filter(workspaces::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
 
-        log::info!("{:#?}", result);
         Ok(())
     }
 

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use chrono::Utc;
 use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, Statement, Value};
 use seaography::{
     async_graphql::{self, Context},
@@ -35,6 +36,8 @@ pub struct SyncChangeInput {
     pub record_identifier: Uuid,
     pub operation: String,
     pub payload: serde_json::Value,
+    #[serde(default)]
+    pub deleted_at: Option<String>,
 }
 
 #[derive(Clone, CustomOutputType)]
@@ -212,6 +215,31 @@ impl SyncQuery {
             has_more,
         })
     }
+
+    async fn sync_head(
+        ctx: &Context<'_>,
+        workspace_identifier: Uuid,
+    ) -> async_graphql::Result<String> {
+        let _ = authorize_sync(ctx, workspace_identifier).await?;
+        let db = extract_db_conn(ctx)?;
+
+        let row = db
+            .query_one_raw(Statement::from_sql_and_values(
+                DbBackend::Postgres,
+                "SELECT COALESCE(MAX(seq), 0) AS max_seq FROM sync_log WHERE workspace_identifier = $1",
+                vec![Value::Uuid(Some(workspace_identifier))],
+            ))
+            .await
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?;
+
+        let max_seq = row
+            .map(|row| row.try_get::<i64>("", "max_seq"))
+            .transpose()
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?
+            .unwrap_or(0);
+
+        Ok(max_seq.to_string())
+    }
 }
 
 async fn authorize_sync(
@@ -249,7 +277,7 @@ async fn claim_workspace_if_ownerless(
     let exists = db
         .query_one_raw(Statement::from_sql_and_values(
             DbBackend::Postgres,
-            "SELECT 1 AS present FROM workspaces WHERE identifier = $1",
+            "SELECT 1 AS present FROM workspaces WHERE identifier = $1 AND deleted_at IS NULL",
             vec![Value::Uuid(Some(workspace_identifier))],
         ))
         .await
@@ -300,11 +328,52 @@ async fn apply_change(
     }
 
     if change.operation == "DELETE" {
+        let timestamp = change
+            .deleted_at
+            .clone()
+            .or_else(|| {
+                payload
+                    .get("deleted_at")
+                    .and_then(|value| value.as_str())
+                    .map(str::to_string)
+            })
+            .or_else(|| {
+                payload
+                    .get("updated_at")
+                    .and_then(|value| value.as_str())
+                    .map(str::to_string)
+            })
+            .unwrap_or_else(|| Utc::now().to_rfc3339());
+
         if change.table_name == "workspaces" {
             db.execute_raw(Statement::from_sql_and_values(
                 DbBackend::Postgres,
-                r#"DELETE FROM "workspaces" WHERE "identifier" = $1"#,
-                vec![Value::Uuid(Some(change.record_identifier))],
+                r#"UPDATE "workspaces"
+                   SET "deleted_at" = $2::timestamptz,
+                       "updated_at" = $2::timestamptz,
+                       "is_hidden" = TRUE
+                   WHERE "identifier" = $1
+                     AND ("updated_at" IS NULL OR "updated_at" <= $2::timestamptz)"#,
+                vec![
+                    Value::Uuid(Some(change.record_identifier)),
+                    Value::String(Some(timestamp)),
+                ],
+            ))
+            .await
+            .map_err(|e| e.to_string())?;
+
+            db.execute_raw(Statement::from_string(
+                DbBackend::Postgres,
+                r#"UPDATE "workspaces" SET "is_default" = TRUE
+                   WHERE "identifier" = (
+                       SELECT "identifier" FROM "workspaces"
+                       WHERE "deleted_at" IS NULL ORDER BY "created_at" ASC LIMIT 1
+                   )
+                   AND NOT EXISTS (
+                       SELECT 1 FROM "workspaces"
+                       WHERE "deleted_at" IS NULL AND "is_default" = TRUE
+                   )"#
+                .to_string(),
             ))
             .await
             .map_err(|e| e.to_string())?;
@@ -312,12 +381,18 @@ async fn apply_change(
             db.execute_raw(Statement::from_sql_and_values(
                 DbBackend::Postgres,
                 &format!(
-                    r#"DELETE FROM "{}" WHERE "identifier" = $1 AND "workspace_identifier" = $2"#,
+                    r#"UPDATE "{}"
+                       SET "deleted_at" = $3::timestamptz,
+                           "updated_at" = $3::timestamptz
+                       WHERE "identifier" = $1
+                         AND "workspace_identifier" = $2
+                         AND ("updated_at" IS NULL OR "updated_at" <= $3::timestamptz)"#,
                     change.table_name
                 ),
                 vec![
                     Value::Uuid(Some(change.record_identifier)),
                     Value::Uuid(Some(workspace_identifier)),
+                    Value::String(Some(timestamp)),
                 ],
             ))
             .await

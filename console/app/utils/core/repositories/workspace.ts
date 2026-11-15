@@ -23,7 +23,7 @@ export class WorkspaceRepository extends BaseRepository {
 
   async get_workspace_by_id(identifier: string): Promise<Workspaces> {
     const row = await this.row<Workspaces>(
-      `SELECT * FROM workspaces WHERE identifier = $1`,
+      `SELECT * FROM workspaces WHERE identifier = $1 AND deleted_at IS NULL`,
       [identifier],
     );
     if (!row) throw new Error(`Workspace with id ${identifier} not found`);
@@ -32,13 +32,13 @@ export class WorkspaceRepository extends BaseRepository {
 
   async list_workspaces(): Promise<Workspaces[]> {
     return this.rows<Workspaces>(
-      `SELECT * FROM workspaces ORDER BY is_default DESC, name`,
+      `SELECT * FROM workspaces WHERE deleted_at IS NULL ORDER BY is_default DESC, name`,
     );
   }
 
   async exists(identifier: string): Promise<boolean> {
     return this.bool(
-      "SELECT EXISTS (SELECT 1 FROM workspaces WHERE identifier = $1) AS ok",
+      "SELECT EXISTS (SELECT 1 FROM workspaces WHERE identifier = $1 AND deleted_at IS NULL) AS ok",
       [identifier],
     );
   }
@@ -52,9 +52,13 @@ export class WorkspaceRepository extends BaseRepository {
     if (model.isDefault) {
       throw new Error("Cannot delete the default workspace");
     }
-    await this.run(`DELETE FROM workspaces WHERE identifier = $1`, [
-      identifier,
-    ]);
+    const now = this.now();
+    await this.run(
+      `UPDATE workspaces
+          SET deleted_at = $2, updated_at = $2, is_hidden = TRUE
+        WHERE identifier = $1 AND deleted_at IS NULL`,
+      [identifier, now],
+    );
   }
 
   async update_workspace(
