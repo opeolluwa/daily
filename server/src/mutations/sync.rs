@@ -8,7 +8,6 @@ use seaography::{
     CustomFields, CustomInputType, CustomOutputType,
 };
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::{
     adapters::jwt::Claims,
@@ -33,7 +32,7 @@ const SYNCABLE_TABLES: &[&str] = &[
 #[seaography(input_type_name = "SyncChangeInput")]
 pub struct SyncChangeInput {
     pub table_name: String,
-    pub record_identifier: Uuid,
+    pub record_identifier: String,
     pub operation: String,
     pub payload: serde_json::Value,
     #[serde(default)]
@@ -45,7 +44,7 @@ pub struct SyncChangeInput {
 pub struct SyncChangeOutput {
     pub seq: String,
     pub table_name: String,
-    pub record_identifier: Option<Uuid>,
+    pub record_identifier: Option<String>,
     pub operation: String,
     pub payload: Option<serde_json::Value>,
     pub updated_at: String,
@@ -73,11 +72,11 @@ pub struct SyncMutation;
 impl SyncMutation {
     async fn sync_push(
         ctx: &Context<'_>,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         _device_id: Option<String>,
         changes: Vec<SyncChangeInput>,
     ) -> async_graphql::Result<SyncPushResult> {
-        let (claims, claim_workspace) = authorize_sync(ctx, workspace_identifier).await?;
+        let (claims, claim_workspace) = authorize_sync(ctx, workspace_identifier.clone()).await?;
         let db = extract_db_conn(ctx)?;
 
         let mut ordered = changes;
@@ -93,7 +92,7 @@ impl SyncMutation {
                 continue;
             }
 
-            let result = apply_change(db, workspace_identifier, &change, &mut columns).await;
+            let result = apply_change(db, workspace_identifier.clone(), &change, &mut columns).await;
 
             match result {
                 Ok(true) => applied.push(change.record_identifier.to_string()),
@@ -119,11 +118,11 @@ pub struct SyncQuery;
 impl SyncQuery {
     async fn sync_pull(
         ctx: &Context<'_>,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         since: String,
         limit: Option<i32>,
     ) -> async_graphql::Result<SyncPullResult> {
-        let (claims, claim_workspace) = authorize_sync(ctx, workspace_identifier).await?;
+        let (claims, claim_workspace) = authorize_sync(ctx, workspace_identifier.clone()).await?;
         let db = extract_db_conn(ctx)?;
 
         let since = since
@@ -135,7 +134,7 @@ impl SyncQuery {
             .query_one_raw(Statement::from_sql_and_values(
                 DbBackend::Postgres,
                 "SELECT COALESCE(MAX(seq), $1) AS max_seq FROM sync_log WHERE workspace_identifier = $2",
-                vec![Value::BigInt(Some(since)), Value::Uuid(Some(workspace_identifier))],
+                vec![Value::BigInt(Some(since)), Value::String(Some(workspace_identifier.clone()))],
             ))
             .await
             .map_err(|e| async_graphql::Error::new(e.to_string()))?
@@ -153,7 +152,7 @@ impl SyncQuery {
                  ORDER BY seq ASC
                  LIMIT $4",
                 vec![
-                    Value::Uuid(Some(workspace_identifier)),
+                    Value::String(Some(workspace_identifier.clone())),
                     Value::BigInt(Some(since)),
                     Value::BigInt(Some(snapshot)),
                     Value::BigInt(Some(limit as i64)),
@@ -173,7 +172,7 @@ impl SyncQuery {
                 .try_get::<String>("", "table_name")
                 .map_err(|e| async_graphql::Error::new(e.to_string()))?;
             let record_identifier = row
-                .try_get::<Option<Uuid>>("", "record_identifier")
+                .try_get::<Option<String>>("", "record_identifier")
                 .map_err(|e| async_graphql::Error::new(e.to_string()))?;
             let operation = row
                 .try_get::<String>("", "operation")
@@ -218,16 +217,16 @@ impl SyncQuery {
 
     async fn sync_head(
         ctx: &Context<'_>,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
     ) -> async_graphql::Result<String> {
-        let _ = authorize_sync(ctx, workspace_identifier).await?;
+        let _ = authorize_sync(ctx, workspace_identifier.clone()).await?;
         let db = extract_db_conn(ctx)?;
 
         let row = db
             .query_one_raw(Statement::from_sql_and_values(
                 DbBackend::Postgres,
                 "SELECT COALESCE(MAX(seq), 0) AS max_seq FROM sync_log WHERE workspace_identifier = $1",
-                vec![Value::Uuid(Some(workspace_identifier))],
+                vec![Value::String(Some(workspace_identifier.clone()))],
             ))
             .await
             .map_err(|e| async_graphql::Error::new(e.to_string()))?;
@@ -244,7 +243,7 @@ impl SyncQuery {
 
 async fn authorize_sync(
     ctx: &Context<'_>,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
 ) -> async_graphql::Result<(Claims, bool)> {
     let claims = extract_claims(ctx)
         .await
@@ -253,7 +252,7 @@ async fn authorize_sync(
     let members = WorkspaceMemberService::init(&Arc::new(db.clone()));
 
     let existing = members
-        .list_members(workspace_identifier)
+        .list_members(workspace_identifier.clone())
         .await
         .map_err(|e| async_graphql::Error::new(e.to_string()))?;
 
@@ -262,7 +261,7 @@ async fn authorize_sync(
     }
 
     members
-        .assert_member(workspace_identifier, &claims.email)
+        .assert_member(workspace_identifier.clone(), &claims.email)
         .await
         .map_err(|e| async_graphql::Error::new(e.to_string()))?;
 
@@ -271,14 +270,14 @@ async fn authorize_sync(
 
 async fn claim_workspace_if_ownerless(
     db: &DatabaseConnection,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
     claims: &Claims,
 ) -> async_graphql::Result<()> {
     let exists = db
         .query_one_raw(Statement::from_sql_and_values(
             DbBackend::Postgres,
             "SELECT 1 AS present FROM workspaces WHERE identifier = $1 AND deleted_at IS NULL",
-            vec![Value::Uuid(Some(workspace_identifier))],
+            vec![Value::String(Some(workspace_identifier.clone()))],
         ))
         .await
         .map_err(|e| async_graphql::Error::new(e.to_string()))?
@@ -290,13 +289,13 @@ async fn claim_workspace_if_ownerless(
 
     let members = WorkspaceMemberService::init(&Arc::new(db.clone()));
     let existing = members
-        .list_members(workspace_identifier)
+        .list_members(workspace_identifier.clone())
         .await
         .map_err(|e| async_graphql::Error::new(e.to_string()))?;
 
     if existing.is_empty() {
         members
-            .ensure_owner(workspace_identifier, claims)
+            .ensure_owner(workspace_identifier.clone(), claims)
             .await
             .map_err(|e| async_graphql::Error::new(e.to_string()))?;
     }
@@ -306,7 +305,7 @@ async fn claim_workspace_if_ownerless(
 
 async fn apply_change(
     db: &DatabaseConnection,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
     change: &SyncChangeInput,
     columns: &mut HashMap<String, Vec<String>>,
 ) -> Result<bool, String> {
@@ -355,7 +354,7 @@ async fn apply_change(
                    WHERE "identifier" = $1
                      AND ("updated_at" IS NULL OR "updated_at" <= $2::timestamptz)"#,
                 vec![
-                    Value::Uuid(Some(change.record_identifier)),
+                    Value::String(Some(change.record_identifier.clone())),
                     Value::String(Some(timestamp)),
                 ],
             ))
@@ -390,8 +389,8 @@ async fn apply_change(
                     change.table_name
                 ),
                 vec![
-                    Value::Uuid(Some(change.record_identifier)),
-                    Value::Uuid(Some(workspace_identifier)),
+                    Value::String(Some(change.record_identifier.clone())),
+                    Value::String(Some(workspace_identifier.clone())),
                     Value::String(Some(timestamp)),
                 ],
             ))

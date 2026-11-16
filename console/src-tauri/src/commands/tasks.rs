@@ -6,7 +6,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{
     adapters::tasks::{CreateTask, UpdateTask},
@@ -31,7 +30,7 @@ pub async fn create_task(
 #[tauri::command]
 pub async fn get_task(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<task::Model>, AppError> {
     state
@@ -56,7 +55,7 @@ pub async fn get_all_tasks(
 #[tauri::command]
 pub async fn update_task(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     task: UpdateTask,
     meta: Option<RequestMeta>,
 ) -> Result<task::Model, AppError> {
@@ -71,7 +70,7 @@ pub async fn update_task(
 #[tauri::command]
 pub async fn delete_task(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -85,7 +84,7 @@ pub async fn delete_task(
 #[tauri::command]
 pub async fn mark_task_done(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     done: bool,
     meta: Option<RequestMeta>,
 ) -> Result<task::Model, AppError> {
@@ -100,7 +99,7 @@ pub async fn mark_task_done(
 #[tauri::command]
 pub async fn change_task_priority(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     priority: String,
     meta: Option<RequestMeta>,
 ) -> Result<task::Model, AppError> {
@@ -120,7 +119,7 @@ pub async fn change_task_priority(
 #[tauri::command]
 pub async fn update_task_due_date(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     due_date: Option<String>,
     meta: Option<RequestMeta>,
 ) -> Result<task::Model, AppError> {
@@ -141,9 +140,9 @@ pub async fn update_task_due_date(
 #[tauri::command]
 pub async fn transfer_task(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -161,9 +160,9 @@ pub async fn transfer_task(
 #[tauri::command]
 pub async fn duplicate_task(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state

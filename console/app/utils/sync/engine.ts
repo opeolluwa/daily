@@ -146,16 +146,6 @@ async function request<T>(
     : new Error("sync endpoint not found");
 }
 
-function normalizeUuid(value: string): string {
-  return value.replace(/-/g, "").toLowerCase();
-}
-
-function dashedUuid(value: string): string {
-  const hex = normalizeUuid(value);
-  if (hex.length !== 32) return value;
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
-
 async function coalesce(
   workspaceIdentifier: string,
 ): Promise<
@@ -170,14 +160,14 @@ async function coalesce(
   >();
 
   for (const item of items) {
-    const key = `${item.tableName}:${normalizeUuid(item.recordIdentifier)}`;
+    const key = `${item.tableName}:${item.recordIdentifier}`;
     const existing = groups.get(key);
 
     if (item.operation === "DELETE") {
       groups.set(key, {
         change: {
           tableName: item.tableName,
-          recordIdentifier: dashedUuid(item.recordIdentifier),
+          recordIdentifier: item.recordIdentifier,
           operation: "DELETE",
           payload: item.payload ?? {},
         },
@@ -188,7 +178,7 @@ async function coalesce(
       groups.set(key, {
         change: {
           tableName: item.tableName,
-          recordIdentifier: dashedUuid(item.recordIdentifier),
+          recordIdentifier: item.recordIdentifier,
           operation: item.operation,
           payload: item.payload,
         },
@@ -225,12 +215,12 @@ async function push(workspaceIdentifier: string, token: string) {
     },
     token,
   );
-  const applied = new Set(data.sync_push.applied.map(normalizeUuid));
+  const applied = new Set(data.sync_push.applied);
   const succeeded: string[] = [];
   const failed: typeof groups = [];
 
   for (const group of groups) {
-    if (applied.has(normalizeUuid(group.change.recordIdentifier))) {
+    if (applied.has(group.change.recordIdentifier)) {
       succeeded.push(...group.identifiers);
     } else {
       failed.push(group);

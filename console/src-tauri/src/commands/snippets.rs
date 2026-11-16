@@ -5,7 +5,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{
     adapters::snippets::{CreateSnippet, UpdateSnippet},
@@ -29,7 +28,7 @@ pub async fn create_snippet(
 #[tauri::command]
 pub async fn get_snippet(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<snippets::Model>, AppError> {
     state
@@ -54,7 +53,7 @@ pub async fn get_all_snippets(
 #[tauri::command]
 pub async fn delete_snippet(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state.snippet_repository.delete(&identifier, &meta).await?;
@@ -64,7 +63,7 @@ pub async fn delete_snippet(
 #[tauri::command]
 pub async fn update_snippet(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     snippet: UpdateSnippet,
     meta: Option<RequestMeta>,
 ) -> Result<snippets::Model, AppError> {
@@ -87,9 +86,9 @@ pub async fn get_recently_added_snippet(
 #[tauri::command]
 pub async fn duplicate_snippet(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state
@@ -115,9 +114,9 @@ pub async fn duplicate_snippet(
 #[tauri::command]
 pub async fn transfer_snippet(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use kernel::entities::workspace_members;
 use sea_orm::DatabaseConnection;
-use uuid::Uuid;
 
 use crate::{
     adapters::{jwt::Claims, workspace_member::AccountWorkspaceResponse},
@@ -38,12 +37,12 @@ impl WorkspaceMemberService {
     /// by unknown accounts are rejected.
     pub async fn ensure_owner(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         claims: &Claims,
     ) -> Result<(), AppError> {
         let existing = self
             .member_repository
-            .find_by_workspace_and_email(workspace_identifier, &claims.email)
+            .find_by_workspace_and_email(workspace_identifier.clone(), &claims.email)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -54,7 +53,7 @@ impl WorkspaceMemberService {
                 // membership existed).
                 let members = self
                     .member_repository
-                    .list_by_workspace(workspace_identifier)
+                    .list_by_workspace(workspace_identifier.clone())
                     .await
                     .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -70,7 +69,7 @@ impl WorkspaceMemberService {
 
         let members = self
             .member_repository
-            .list_by_workspace(workspace_identifier)
+            .list_by_workspace(workspace_identifier.clone())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -85,7 +84,7 @@ impl WorkspaceMemberService {
                 workspace_identifier,
                 &claims.email,
                 ROLE_OWNER,
-                Some(claims.user_identifier),
+                Some(claims.user_identifier.clone()),
             )
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
@@ -96,12 +95,12 @@ impl WorkspaceMemberService {
     /// Reject the request unless the account is a member of the workspace.
     pub async fn assert_member(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
     ) -> Result<(), AppError> {
         let member = self
             .member_repository
-            .find_by_workspace_and_email(workspace_identifier, email)
+            .find_by_workspace_and_email(workspace_identifier.clone(), email)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -118,12 +117,12 @@ impl WorkspaceMemberService {
     /// has no members yet (legacy workspaces synced before membership existed).
     pub async fn assert_can_modify(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
     ) -> Result<(), AppError> {
         let members = self
             .member_repository
-            .list_by_workspace(workspace_identifier)
+            .list_by_workspace(workspace_identifier.clone())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -145,13 +144,13 @@ impl WorkspaceMemberService {
 
     pub async fn has_any_role(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
         roles: &[&str],
     ) -> Result<bool, AppError> {
         let member = self
             .member_repository
-            .find_by_workspace_and_email(workspace_identifier, email)
+            .find_by_workspace_and_email(workspace_identifier.clone(), email)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -160,13 +159,13 @@ impl WorkspaceMemberService {
 
     pub async fn add_member(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
-        user_identifier: Option<Uuid>,
+        user_identifier: Option<String>,
     ) -> Result<workspace_members::Model, AppError> {
         if let Some(existing) = self
             .member_repository
-            .find_by_workspace_and_email(workspace_identifier, email)
+            .find_by_workspace_and_email(workspace_identifier.clone(), email)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?
         {
@@ -181,10 +180,10 @@ impl WorkspaceMemberService {
 
     pub async fn list_members(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
     ) -> Result<Vec<workspace_members::Model>, AppError> {
         self.member_repository
-            .list_by_workspace(workspace_identifier)
+            .list_by_workspace(workspace_identifier.clone())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))
     }
@@ -192,10 +191,10 @@ impl WorkspaceMemberService {
     /// List the roster of a workspace; only members may view it.
     pub async fn list_members_for_account(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         requester_email: &str,
     ) -> Result<Vec<workspace_members::Model>, AppError> {
-        self.assert_member(workspace_identifier, requester_email)
+        self.assert_member(workspace_identifier.clone(), requester_email)
             .await?;
         self.list_members(workspace_identifier).await
     }
@@ -230,13 +229,13 @@ impl WorkspaceMemberService {
     /// remove members.
     pub async fn remove_member(
         &self,
-        workspace_identifier: Uuid,
-        member_identifier: Uuid,
+        workspace_identifier: String,
+        member_identifier: String,
         requester_email: &str,
     ) -> Result<(), AppError> {
         let is_privileged = self
             .has_any_role(
-                workspace_identifier,
+                workspace_identifier.clone(),
                 requester_email,
                 &[ROLE_OWNER, ROLE_ADMIN],
             )
@@ -250,7 +249,7 @@ impl WorkspaceMemberService {
 
         let target = self
             .member_repository
-            .find_by_workspace_and_identifier(workspace_identifier, member_identifier)
+            .find_by_workspace_and_identifier(workspace_identifier.clone(), member_identifier.clone())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?
             .ok_or_else(|| AppError::NotFound("Member not found".into()))?;

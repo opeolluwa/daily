@@ -8,12 +8,12 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     pub first_name: String,
     pub last_name: String,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub profile_picture: Option<String>,
     pub deleted_at: Option<DateTimeWithTimeZone>,
 }

@@ -8,15 +8,15 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     #[sea_orm(unique_key = "idx_workspace_members_workspace_email")]
     pub member_email: String,
     pub role: String,
-    pub user_identifier: Option<Uuid>,
+    pub user_identifier: Option<String>,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
     #[sea_orm(unique_key = "idx_workspace_members_workspace_email")]
-    pub workspace_identifier: Uuid,
+    pub workspace_identifier: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

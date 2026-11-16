@@ -7,11 +7,11 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::entities::sea_orm_active_enums::ItemType;
 use crate::types::EntitySyncResult;
+use crate::id::new_id;
 use crate::{
     adapters::{
         meta::RequestMeta,
@@ -48,7 +48,7 @@ pub trait SnippetRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<snippets::Model>, KernelError>;
 
@@ -59,7 +59,7 @@ pub trait SnippetRepositoryExt {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError>;
 
@@ -70,7 +70,7 @@ pub trait SnippetRepositoryExt {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateSnippet,
         meta: &Option<RequestMeta>,
     ) -> Result<snippets::Model, KernelError>;
@@ -98,7 +98,7 @@ impl SnippetRepositoryExt for SnippetRepository {
         let mut active_model: snippets::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
-            active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+            active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
         } else {
             return Err(KernelError::DbOperationError(
                 "workspace identifier is required".into(),
@@ -113,14 +113,14 @@ impl SnippetRepositoryExt for SnippetRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<snippets::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         snippets::Entity::find()
-            .filter(snippets::Column::Identifier.eq(*identifier))
-            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::Identifier.eq(identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(snippets::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -134,7 +134,7 @@ impl SnippetRepositoryExt for SnippetRepository {
         let meta = extract_req_meta(meta)?;
 
         snippets::Entity::find()
-            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(snippets::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
@@ -143,15 +143,15 @@ impl SnippetRepositoryExt for SnippetRepository {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = snippets::Entity::find()
-            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(snippets::Column::DeletedAt.is_null())
-            .filter(snippets::Column::Identifier.eq(*identifier))
+            .filter(snippets::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -175,8 +175,8 @@ impl SnippetRepositoryExt for SnippetRepository {
         snippets::Entity::update_many()
             .col_expr(snippets::Column::DeletedAt, Expr::current_timestamp())
             .col_expr(snippets::Column::UpdatedAt, Expr::current_timestamp())
-            .filter(snippets::Column::Identifier.eq(*identifier))
-            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::Identifier.eq(identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(snippets::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
@@ -192,7 +192,7 @@ impl SnippetRepositoryExt for SnippetRepository {
 
         snippets::Entity::find()
             .limit(10)
-            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(snippets::Column::DeletedAt.is_null())
             .order_by_asc(snippets::Column::CreatedAt)
             .all(self.conn.as_ref())
@@ -202,16 +202,16 @@ impl SnippetRepositoryExt for SnippetRepository {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateSnippet,
         meta: &Option<RequestMeta>,
     ) -> Result<snippets::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = snippets::Entity::find()
-            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(snippets::Column::DeletedAt.is_null())
-            .filter(snippets::Column::Identifier.eq(*identifier))
+            .filter(snippets::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -257,7 +257,7 @@ impl SnippetRepositoryExt for SnippetRepository {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), KernelError> = async {
                             let exists = snippets::Entity::find()
-                                .filter(snippets::Column::Identifier.eq(model.identifier))
+                                .filter(snippets::Column::Identifier.eq(model.identifier.clone()))
                                 .one(conn.as_ref())
                                 .await
                                 .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -297,9 +297,9 @@ impl SnippetRepositoryExt for SnippetRepository {
 impl TransferRecord for SnippetRepository {
     async fn transfer_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
     ) -> Result<(), KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
@@ -331,7 +331,7 @@ impl TransferRecord for SnippetRepository {
         }
 
         let Some(record) = snippets::Entity::find()
-            .filter(snippets::Column::Identifier.eq(*record_identifier))
+            .filter(snippets::Column::Identifier.eq(record_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -342,7 +342,7 @@ impl TransferRecord for SnippetRepository {
         let mut active_model = record.into_active_model();
 
         active_model.updated_at = Set(Utc::now().fixed_offset());
-        active_model.workspace_identifier = Set(Some(*target_workspace_identifier));
+        active_model.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
 
         active_model
             .update(self.conn.as_ref())
@@ -357,12 +357,12 @@ impl TransferRecord for SnippetRepository {
 impl RecordExistInWorkspace for SnippetRepository {
     async fn record_exists_in_workspace(
         &self,
-        record_identifier: &Uuid,
-        workspace_identifier: &Uuid,
+        record_identifier: &str,
+        workspace_identifier: &str,
     ) -> Result<bool, KernelError> {
         let record = snippets::Entity::find()
-            .filter(snippets::Column::Identifier.eq(*record_identifier))
-            .filter(snippets::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(snippets::Column::Identifier.eq(record_identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(workspace_identifier))
             .filter(snippets::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -376,10 +376,10 @@ impl RecordExistInWorkspace for SnippetRepository {
 impl DuplicateRecord for SnippetRepository {
     async fn duplicate_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
-    ) -> Result<Uuid, KernelError> {
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
+    ) -> Result<String, KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
                 .exists(previous_workspace_identifier),
@@ -403,8 +403,8 @@ impl DuplicateRecord for SnippetRepository {
         }
 
         let Some(record) = snippets::Entity::find()
-            .filter(snippets::Column::Identifier.eq(*record_identifier))
-            .filter(snippets::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(snippets::Column::Identifier.eq(record_identifier))
+            .filter(snippets::Column::WorkspaceIdentifier.eq(previous_workspace_identifier))
             .filter(snippets::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -415,9 +415,9 @@ impl DuplicateRecord for SnippetRepository {
 
         let mut new_record = record.into_active_model();
 
-        let new_identifier = Uuid::new_v4();
-        new_record.identifier = Set(new_identifier);
-        new_record.workspace_identifier = Set(Some(*target_workspace_identifier));
+        let new_identifier = new_id();
+        new_record.identifier = Set(new_identifier.clone());
+        new_record.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
         new_record.created_at = Set(Utc::now().fixed_offset());
         new_record.updated_at = Set(Utc::now().fixed_offset());
 
@@ -447,7 +447,7 @@ impl SnippetRepository {
 
     #[wasm_bindgen(js_name = "find_by_id")]
     pub async fn find_by_id_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as SnippetRepositoryExt>::find_by_id(self, &id, &meta).await?;
         to_js(&model)
@@ -462,7 +462,7 @@ impl SnippetRepository {
 
     #[wasm_bindgen(js_name = "delete")]
     pub async fn delete_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as SnippetRepositoryExt>::delete(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
@@ -482,7 +482,7 @@ impl SnippetRepository {
         payload: JsValue,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let payload: UpdateSnippet = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as SnippetRepositoryExt>::update(self, &id, &payload, &meta).await?;
@@ -496,11 +496,11 @@ impl SnippetRepository {
         previous_workspace_identifier: &str,
         target_workspace_identifier: &str,
     ) -> Result<JsValue, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
         let previous_workspace_identifier =
-            Uuid::parse_str(previous_workspace_identifier).map_err(js_err)?;
+            previous_workspace_identifier.to_string();
         let target_workspace_identifier =
-            Uuid::parse_str(target_workspace_identifier).map_err(js_err)?;
+            target_workspace_identifier.to_string();
         <Self as TransferRecord>::transfer_record(
             self,
             &record_identifier,
@@ -518,11 +518,11 @@ impl SnippetRepository {
         previous_workspace_identifier: &str,
         target_workspace_identifier: &str,
     ) -> Result<JsValue, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
         let previous_workspace_identifier =
-            Uuid::parse_str(previous_workspace_identifier).map_err(js_err)?;
+            previous_workspace_identifier.to_string();
         let target_workspace_identifier =
-            Uuid::parse_str(target_workspace_identifier).map_err(js_err)?;
+            target_workspace_identifier.to_string();
         <Self as DuplicateRecord>::duplicate_record(
             self,
             &record_identifier,
@@ -539,8 +539,8 @@ impl SnippetRepository {
         record_identifier: &str,
         workspace_identifier: &str,
     ) -> Result<bool, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
-        let workspace_identifier = Uuid::parse_str(workspace_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
+        let workspace_identifier = workspace_identifier.to_string();
         <Self as RecordExistInWorkspace>::record_exists_in_workspace(
             self,
             &record_identifier,

@@ -6,7 +6,6 @@ use kernel::{
     repositories::workspace::{WorkspaceRepository, WorkspaceRepositoryExt},
 };
 use sea_orm::DatabaseConnection;
-use uuid::Uuid;
 
 use crate::{
     adapters::{
@@ -53,16 +52,16 @@ impl InvitationService {
     /// workspace may send invitations.
     pub async fn invite_member(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         claims: &Claims,
         payload: &InviteWorkspaceMemberRequest,
     ) -> Result<InviteWorkspaceMemberResponse, AppError> {
-        self.load_workspace(workspace_identifier).await?;
+        self.load_workspace(workspace_identifier.clone()).await?;
 
         let is_privileged = self
             .member_service
             .has_any_role(
-                workspace_identifier,
+                workspace_identifier.clone(),
                 &claims.email,
                 &[ROLE_OWNER, ROLE_ADMIN],
             )
@@ -76,7 +75,7 @@ impl InvitationService {
 
         if let Some(existing) = self
             .invitation_repository
-            .find_by_email_and_workspace(workspace_identifier, &payload.email)
+            .find_by_email_and_workspace(workspace_identifier.clone(), &payload.email)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?
         {
@@ -87,11 +86,11 @@ impl InvitationService {
             }
         }
 
-        let token = Uuid::new_v4().to_string();
+        let token = kernel::id::new_id().to_string();
 
         let invitation = self
             .invitation_repository
-            .create(workspace_identifier, payload, &token)
+            .create(workspace_identifier.clone(), payload, &token)
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
@@ -147,25 +146,25 @@ impl InvitationService {
 
         self.member_service
             .add_member(
-                invitation.workspace_identifier,
+                invitation.workspace_identifier.clone(),
                 &claims.email,
-                Some(claims.user_identifier),
+                Some(claims.user_identifier.clone()),
             )
             .await?;
 
-        self.load_workspace(invitation.workspace_identifier).await
+        self.load_workspace(invitation.workspace_identifier.clone()).await
     }
 
     /// Revoke a pending invitation. Only owners/admins of the target
     /// workspace may revoke.
     pub async fn revoke(
         &self,
-        invitation_identifier: Uuid,
+        invitation_identifier: String,
         claims: &Claims,
     ) -> Result<(), AppError> {
         let invitation = self
             .invitation_repository
-            .find_by_identifier(invitation_identifier)
+            .find_by_identifier(invitation_identifier.clone())
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?
             .ok_or_else(|| AppError::NotFound("Invitation not found".into()))?;
@@ -199,9 +198,9 @@ impl InvitationService {
         Ok(())
     }
 
-    async fn load_workspace(&self, identifier: Uuid) -> Result<workspaces::Model, AppError> {
+    async fn load_workspace(&self, identifier: String) -> Result<workspaces::Model, AppError> {
         WorkspaceRepository::new(self.db_conn.clone())
-            .get_workspace_by_id(identifier)
+            .get_workspace_by_id(&identifier)
             .await
             .map_err(AppError::KernelError)
     }

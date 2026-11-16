@@ -3,7 +3,6 @@ use std::sync::Arc;
 use chrono::{Local, TimeDelta};
 use rand::RngExt;
 use sea_orm::DatabaseConnection;
-use uuid::Uuid;
 
 use crate::{
     errors::service_error::ServiceError,
@@ -37,7 +36,7 @@ pub(crate) trait OtpServiceExt {
 
     async fn validate_otp_for_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         otp: &str,
     ) -> Result<bool, ServiceError>;
 }
@@ -55,7 +54,7 @@ impl OtpServiceExt for OtpService {
 
     async fn validate_otp_for_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         otp: &str,
     ) -> Result<bool, ServiceError> {
         if let Some(stored_otp) = self

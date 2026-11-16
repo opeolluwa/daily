@@ -7,8 +7,8 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
 };
-use uuid::Uuid;
 
+use crate::id::new_id;
 use crate::{
     adapters::{
         meta::RequestMeta,
@@ -44,7 +44,7 @@ pub trait PasteBinRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<paste_bins::Model>, KernelError>;
 
@@ -55,7 +55,7 @@ pub trait PasteBinRepositoryExt {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError>;
 
@@ -66,7 +66,7 @@ pub trait PasteBinRepositoryExt {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdatePasteBin,
         meta: &Option<RequestMeta>,
     ) -> Result<paste_bins::Model, KernelError>;
@@ -89,7 +89,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
         let mut active_model: paste_bins::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
-            active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+            active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
         } else {
             return Err(KernelError::DbOperationError(
                 "workspace identifier is required".into(),
@@ -104,14 +104,14 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<paste_bins::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         paste_bins::Entity::find()
-            .filter(paste_bins::Column::Identifier.eq(*identifier))
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::Identifier.eq(identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(paste_bins::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -125,7 +125,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
         let meta = extract_req_meta(meta)?;
 
         paste_bins::Entity::find()
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(paste_bins::Column::DeletedAt.is_null())
             .order_by_desc(paste_bins::Column::UpdatedAt)
             .all(self.conn.as_ref())
@@ -135,15 +135,15 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = paste_bins::Entity::find()
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(paste_bins::Column::DeletedAt.is_null())
-            .filter(paste_bins::Column::Identifier.eq(*identifier))
+            .filter(paste_bins::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -167,8 +167,8 @@ impl PasteBinRepositoryExt for PasteBinRepository {
         paste_bins::Entity::update_many()
             .col_expr(paste_bins::Column::DeletedAt, Expr::current_timestamp())
             .col_expr(paste_bins::Column::UpdatedAt, Expr::current_timestamp())
-            .filter(paste_bins::Column::Identifier.eq(*identifier))
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::Identifier.eq(identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(paste_bins::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
@@ -185,7 +185,7 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
         paste_bins::Entity::find()
             .limit(10)
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(paste_bins::Column::DeletedAt.is_null())
             .order_by_desc(paste_bins::Column::CreatedAt)
             .all(self.conn.as_ref())
@@ -195,16 +195,16 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdatePasteBin,
         meta: &Option<RequestMeta>,
     ) -> Result<paste_bins::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = paste_bins::Entity::find()
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(paste_bins::Column::DeletedAt.is_null())
-            .filter(paste_bins::Column::Identifier.eq(*identifier))
+            .filter(paste_bins::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -234,9 +234,9 @@ impl PasteBinRepositoryExt for PasteBinRepository {
 impl TransferRecord for PasteBinRepository {
     async fn transfer_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
     ) -> Result<(), KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
@@ -268,7 +268,7 @@ impl TransferRecord for PasteBinRepository {
         }
 
         let Some(record) = paste_bins::Entity::find()
-            .filter(paste_bins::Column::Identifier.eq(*record_identifier))
+            .filter(paste_bins::Column::Identifier.eq(record_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -279,7 +279,7 @@ impl TransferRecord for PasteBinRepository {
         let mut active_model = record.into_active_model();
 
         active_model.updated_at = Set(Utc::now().fixed_offset());
-        active_model.workspace_identifier = Set(Some(*target_workspace_identifier));
+        active_model.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
 
         active_model
             .update(self.conn.as_ref())
@@ -294,12 +294,12 @@ impl TransferRecord for PasteBinRepository {
 impl RecordExistInWorkspace for PasteBinRepository {
     async fn record_exists_in_workspace(
         &self,
-        record_identifier: &Uuid,
-        workspace_identifier: &Uuid,
+        record_identifier: &str,
+        workspace_identifier: &str,
     ) -> Result<bool, KernelError> {
         let record = paste_bins::Entity::find()
-            .filter(paste_bins::Column::Identifier.eq(*record_identifier))
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(paste_bins::Column::Identifier.eq(record_identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(workspace_identifier))
             .filter(paste_bins::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -313,10 +313,10 @@ impl RecordExistInWorkspace for PasteBinRepository {
 impl DuplicateRecord for PasteBinRepository {
     async fn duplicate_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
-    ) -> Result<Uuid, KernelError> {
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
+    ) -> Result<String, KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
                 .exists(previous_workspace_identifier),
@@ -340,8 +340,8 @@ impl DuplicateRecord for PasteBinRepository {
         }
 
         let Some(record) = paste_bins::Entity::find()
-            .filter(paste_bins::Column::Identifier.eq(*record_identifier))
-            .filter(paste_bins::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(paste_bins::Column::Identifier.eq(record_identifier))
+            .filter(paste_bins::Column::WorkspaceIdentifier.eq(previous_workspace_identifier))
             .filter(paste_bins::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -352,9 +352,9 @@ impl DuplicateRecord for PasteBinRepository {
 
         let mut new_record = record.into_active_model();
 
-        let new_identifier = Uuid::new_v4();
-        new_record.identifier = Set(new_identifier);
-        new_record.workspace_identifier = Set(Some(*target_workspace_identifier));
+        let new_identifier = new_id();
+        new_record.identifier = Set(new_identifier.clone());
+        new_record.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
         new_record.created_at = Set(Utc::now().fixed_offset());
         new_record.updated_at = Set(Utc::now().fixed_offset());
 

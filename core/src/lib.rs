@@ -2,6 +2,7 @@ pub mod adapters;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod data_engine;
 pub mod entities;
+pub mod id;
 pub mod error;
 pub mod repositories;
 pub mod types;

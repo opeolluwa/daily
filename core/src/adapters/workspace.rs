@@ -5,9 +5,9 @@ use argon2::{
 use chrono::Utc;
 use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, workspaces::ActiveModel};
+use crate::id::new_id;
 
 pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Error> {
     let salt = SaltString::generate(&mut OsRng);
@@ -33,7 +33,7 @@ pub struct CreateWorkspace {
     /// invitation). When omitted a new UUID is generated.
     #[serde(default)]
     #[ts(optional)]
-    pub identifier: Option<Uuid>,
+    pub identifier: Option<String>,
     pub name: String,
     pub description: String,
 }
@@ -41,7 +41,7 @@ pub struct CreateWorkspace {
 impl From<CreateWorkspace> for entities::workspaces::ActiveModel {
     fn from(val: CreateWorkspace) -> Self {
         ActiveModel {
-            identifier: Set(val.identifier.unwrap_or_else(Uuid::new_v4)),
+            identifier: Set(val.identifier.unwrap_or_else(new_id)),
             name: Set(val.name),
             description: Set(val.description),
             is_default: Set(false),

@@ -11,7 +11,6 @@ use kernel::{
 };
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
-use uuid::Uuid;
 
 use crate::{
     adapters::whiteboards::{CreateWhiteboard, UpdateWhiteboard},
@@ -39,7 +38,7 @@ pub async fn create_whiteboard(
 #[tauri::command]
 pub async fn get_whiteboard(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<whiteboards::Model>, AppError> {
     state
@@ -76,7 +75,7 @@ pub async fn get_recently_added_whiteboards(
 #[tauri::command]
 pub async fn update_whiteboard(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     whiteboard: UpdateWhiteboard,
     meta: Option<RequestMeta>,
 ) -> Result<whiteboards::Model, AppError> {
@@ -91,7 +90,7 @@ pub async fn update_whiteboard(
 pub async fn delete_whiteboard(
     app: AppHandle,
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -110,9 +109,9 @@ pub async fn delete_whiteboard(
 #[tauri::command]
 pub async fn transfer_whiteboard(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -149,7 +148,7 @@ fn whiteboards_root(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(app_data_dir.join("whiteboard"))
 }
 
-fn whiteboard_files_dir(app: &AppHandle, whiteboard_id: &Uuid) -> Result<PathBuf, String> {
+fn whiteboard_files_dir(app: &AppHandle, whiteboard_id: &str) -> Result<PathBuf, String> {
     Ok(whiteboards_root(app)?.join(whiteboard_id.to_string()))
 }
 
@@ -202,8 +201,8 @@ fn bytes_to_data_url(bytes: &[u8], mime: &str) -> String {
 
 /// Find a file for a given UUID under a directory, matching `{uuid}.{ext}` or
 /// bare `{uuid}` (legacy format).
-fn find_file_by_uuid(dir: &std::path::Path, uuid: &Uuid) -> Option<PathBuf> {
-    let uuid_str = uuid.to_string();
+fn find_file_by_id(dir: &std::path::Path, id: &str) -> Option<PathBuf> {
+    let id_str = id.to_string();
     std::fs::read_dir(dir)
         .ok()?
         .filter_map(|e| e.ok())
@@ -213,7 +212,7 @@ fn find_file_by_uuid(dir: &std::path::Path, uuid: &Uuid) -> Option<PathBuf> {
                 return None;
             }
             let stem = path.file_stem()?.to_str()?;
-            if stem == uuid_str {
+            if stem == id_str {
                 return Some(path);
             }
             None
@@ -234,32 +233,30 @@ pub async fn save_whiteboard_file(
         return Err("file too large (max 20 MB)".into());
     }
 
-    let whiteboard_id = Uuid::parse_str(&whiteboard_identifier)
-        .map_err(|_| "invalid whiteboard identifier".to_string())?;
-    let file_uuid = Uuid::parse_str(&file_id).map_err(|_| "invalid file identifier".to_string())?;
-
     let mime = mime_from_data_url(&data);
     let ext = extension_from_mime(&mime);
     let bytes = decode_data_url(&data).ok_or("malformed data URL")?;
 
-    let dir = whiteboard_files_dir(&app, &whiteboard_id)?;
+    let dir = whiteboard_files_dir(&app, &whiteboard_identifier)?;
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
 
-    let path = dir.join(format!("{file_uuid}.{ext}"));
+    let path = dir.join(format!("{file_id}.{ext}"));
     std::fs::write(&path, &bytes).map_err(|e| e.to_string())?;
 
     // Background CDN upload — reads directly from the binary file on disk
     let cloud_storage = state.cloud_storage.clone();
     let db = state.db.clone();
     let mime_clone = mime.clone();
-    let file_name = format!("{file_uuid}.{ext}");
+    let file_name = format!("{file_id}.{ext}");
 
+    let upload_file_id = file_id.clone();
+    let upload_whiteboard_id = whiteboard_identifier.clone();
     tokio::spawn(async move {
         upload_to_cloud(
             cloud_storage,
             db,
-            file_uuid,
-            whiteboard_id,
+            upload_file_id,
+            upload_whiteboard_id,
             &path,
             &mime_clone,
             &file_name,
@@ -281,8 +278,8 @@ pub async fn save_whiteboard_file(
 async fn upload_to_cloud(
     cloud_storage: Arc<tokio::sync::RwLock<Option<kernel::filestore::FileStoreEngine>>>,
     db: Arc<DatabaseConnection>,
-    file_id: Uuid,
-    whiteboard_id: Uuid,
+    file_id: String,
+    whiteboard_id: String,
     file_path: &std::path::Path,
     mime: &str,
     file_name: &str,
@@ -305,7 +302,7 @@ async fn upload_to_cloud(
 
     let now = chrono::Utc::now().into();
     let active = whiteboard_files::ActiveModel {
-        identifier: Set(file_id),
+        identifier: Set(file_id.clone()),
         whiteboard_identifier: Set(whiteboard_id),
         mime_type: Set(mime.to_string()),
         data: Set(String::new()),
@@ -314,14 +311,14 @@ async fn upload_to_cloud(
         updated_at: Set(now),
     };
 
-    let existing = whiteboard_files::Entity::find_by_id(file_id)
+    let existing = whiteboard_files::Entity::find_by_id(file_id.clone())
         .one(db.as_ref())
         .await;
 
     match existing {
         Ok(Some(_)) => {
             let update = whiteboard_files::ActiveModel {
-                identifier: Set(file_id),
+                identifier: Set(file_id.clone()),
                 remote_url: Set(Some(remote_url)),
                 updated_at: Set(now),
                 ..Default::default()
@@ -347,10 +344,7 @@ pub async fn get_whiteboard_files(
     whiteboard_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<Vec<WhiteboardFile>, String> {
-    let whiteboard_id = Uuid::parse_str(&whiteboard_identifier)
-        .map_err(|_| "invalid whiteboard identifier".to_string())?;
-
-    let dir = whiteboard_files_dir(&app, &whiteboard_id)?;
+    let dir = whiteboard_files_dir(&app, &whiteboard_identifier)?;
 
     let mut files = vec![];
     let mut local_ids = std::collections::HashSet::new();
@@ -375,10 +369,6 @@ pub async fn get_whiteboard_files(
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_string();
-
-            if Uuid::parse_str(&stem).is_err() {
-                continue;
-            }
 
             let ext = path.extension().and_then(|e| e.to_str());
 
@@ -419,7 +409,7 @@ pub async fn get_whiteboard_files(
 
     // CDN fallback: check DB for files with remote_url not found locally
     let db_files = whiteboard_files::Entity::find()
-        .filter(whiteboard_files::Column::WhiteboardIdentifier.eq(whiteboard_id))
+        .filter(whiteboard_files::Column::WhiteboardIdentifier.eq(whiteboard_identifier.clone()))
         .all(state.db.as_ref())
         .await
         .unwrap_or_default();
@@ -457,7 +447,7 @@ pub async fn get_whiteboard_files(
         let data_url = bytes_to_data_url(&bytes, mime);
 
         // Re-cache locally as binary
-        if let Ok(local_dir) = whiteboard_files_dir(&app, &whiteboard_id) {
+        if let Ok(local_dir) = whiteboard_files_dir(&app, &whiteboard_identifier) {
             let _ = std::fs::create_dir_all(&local_dir);
             let local_path = local_dir.join(format!("{id_str}.{ext}"));
             let _ = std::fs::write(&local_path, &bytes);
@@ -483,8 +473,6 @@ pub async fn delete_whiteboard_file(
     file_id: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), String> {
-    let file_uuid = Uuid::parse_str(&file_id).map_err(|_| "invalid file identifier".to_string())?;
-
     let root = whiteboards_root(&app)?;
     if root.exists() {
         for entry in std::fs::read_dir(&root)
@@ -492,14 +480,14 @@ pub async fn delete_whiteboard_file(
             .filter_map(|e| e.ok())
             .filter(|e| e.path().is_dir())
         {
-            if let Some(path) = find_file_by_uuid(&entry.path(), &file_uuid) {
+            if let Some(path) = find_file_by_id(&entry.path(), &file_id) {
                 std::fs::remove_file(&path).map_err(|e| e.to_string())?;
                 break;
             }
         }
     }
 
-    let _ = whiteboard_files::Entity::delete_by_id(file_uuid)
+    let _ = whiteboard_files::Entity::delete_by_id(file_id)
         .exec(state.db.as_ref())
         .await;
 

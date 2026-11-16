@@ -1,7 +1,7 @@
 import type { PGlite } from "@electric-sql/pglite";
 import type { RequestMeta } from "@daily/core";
 import { coreDb } from "./pglite";
-import { v4 as uuidv4 } from "uuid";
+import { ulid } from "ulid";
 export type { RequestMeta };
 
 interface DbRow {
@@ -158,12 +158,12 @@ export abstract class BaseRepository {
     await this.run(
       `INSERT INTO "${table}" (identifier, ${columns.join(", ")})
        VALUES ($${columns.length + 1}, ${placeholders})`,
-      [...values, this.newUuid()],
+      [...values, this.newId()],
     );
   }
 
-  protected newUuid(): string {
-    return uuidv4();
+  protected newId(): string {
+    return ulid();
   }
 
   protected now(): string {

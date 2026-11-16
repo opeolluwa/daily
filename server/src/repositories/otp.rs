@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::sync::Arc;
 
 use kernel::entities::one_time_password;
@@ -6,7 +5,6 @@ use sea_orm::ActiveValue::Set;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder,
 };
-use uuid::Uuid;
 
 use crate::errors::database_error::DatabaseError;
 use crate::repositories::base::Repository;
@@ -29,29 +27,27 @@ pub(crate) trait OtpRepositoryExt {
 
     async fn find_latest_by_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
     ) -> Result<Option<one_time_password::Model>, DatabaseError>;
 
     #[allow(dead_code)]
     async fn find_by_identifier(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
     ) -> Result<Option<one_time_password::Model>, DatabaseError>;
 
     #[allow(dead_code)]
-    async fn delete_by_identifier(&self, identifier: &Uuid) -> Result<(), DatabaseError>;
+    async fn delete_by_identifier(&self, identifier: &str) -> Result<(), DatabaseError>;
 }
 
 impl OtpRepositoryExt for OtpRepository {
     async fn new_with_user(&self, user_identifier: &str, code: &str) -> Result<(), DatabaseError> {
-        let otp_identifier = Uuid::new_v4();
-        let user_identifier = Uuid::from_str(user_identifier)
-            .map_err(|err| DatabaseError::OperationFailed(err.to_string()))?;
+        let otp_identifier = kernel::id::new_id();
 
         let otp = one_time_password::ActiveModel {
             identifier: Set(otp_identifier),
             code: Set(code.to_string()), //TODO: hash this code
-            user_identifier: Set(user_identifier),
+            user_identifier: Set(user_identifier.to_string()),
             created_at: Set(chrono::Utc::now().fixed_offset()),
             ..Default::default()
         };
@@ -64,7 +60,7 @@ impl OtpRepositoryExt for OtpRepository {
 
     async fn find_latest_by_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
     ) -> Result<Option<one_time_password::Model>, DatabaseError> {
         let otp = one_time_password::Entity::find()
             .filter(one_time_password::Column::UserIdentifier.eq(user_identifier.to_owned()))
@@ -76,7 +72,7 @@ impl OtpRepositoryExt for OtpRepository {
         Ok(otp)
     }
 
-    async fn delete_by_identifier(&self, identifier: &Uuid) -> Result<(), DatabaseError> {
+    async fn delete_by_identifier(&self, identifier: &str) -> Result<(), DatabaseError> {
         let otp = one_time_password::Entity::find()
             .filter(one_time_password::Column::Identifier.eq(identifier.to_owned()))
             .one(self.db_conn.as_ref())
@@ -101,7 +97,7 @@ impl OtpRepositoryExt for OtpRepository {
 
     async fn find_by_identifier(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
     ) -> Result<Option<one_time_password::Model>, DatabaseError> {
         let otp = one_time_password::Entity::find()
             .filter(one_time_password::Column::Identifier.eq(identifier.to_owned()))

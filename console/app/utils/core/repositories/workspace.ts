@@ -17,7 +17,7 @@ export class WorkspaceRepository extends BaseRepository {
          (identifier, name, description, is_default, is_hidden, is_secured, password_hash, created_at, updated_at)
        VALUES ($1, $2, $3, FALSE, FALSE, FALSE, NULL, $4, $5)
        RETURNING *`,
-      [this.newUuid(), payload.name, payload.description, now, now],
+      [this.newId(), payload.name, payload.description, now, now],
     );
   }
 

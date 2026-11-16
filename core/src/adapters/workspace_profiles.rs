@@ -1,9 +1,9 @@
 use chrono::Utc;
 use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, workspace_profiles::ActiveModel};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -17,7 +17,7 @@ pub struct CreateWorkspaceProfile {
 impl Into<entities::workspace_profiles::ActiveModel> for CreateWorkspaceProfile {
     fn into(self) -> entities::workspace_profiles::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             first_name: Set(self.first_name),
             last_name: Set(self.last_name),
             profile_picture: Set(self.profile_picture),

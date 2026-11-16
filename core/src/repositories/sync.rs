@@ -4,9 +4,9 @@ use std::sync::Arc;
 use chrono::Utc;
 use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, Statement, sea_query::Value};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::error::KernelError;
+use crate::id::new_id;
 
 const DEVICE_KEY: &str = "device_id";
 const SYNCABLE_TABLES: &[&str] = &[
@@ -36,7 +36,7 @@ pub struct SyncQueueItem {
     pub table_name: String,
     pub record_identifier: String,
     pub operation: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub created_at: String,
     pub attempts: i32,
     pub last_error: Option<String>,
@@ -47,7 +47,7 @@ pub struct SyncQueueItem {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SyncState {
-    pub workspace_identifier: Uuid,
+    pub workspace_identifier: String,
     pub last_cursor: String,
     pub last_synced_at: Option<String>,
     pub last_error: Option<String>,
@@ -57,7 +57,7 @@ pub struct SyncState {
 #[serde(rename_all = "camelCase")]
 pub struct RemoteSyncChange {
     pub table_name: String,
-    pub record_identifier: Uuid,
+    pub record_identifier: String,
     pub operation: String,
     #[serde(default)]
     pub payload: Option<serde_json::Value>,
@@ -89,7 +89,7 @@ impl RemoteSyncChange {
 fn tombstone_payload(
     change: &RemoteSyncChange,
     timestamp: &str,
-    workspace_identifier: Uuid,
+    workspace_identifier: &str,
     is_workspace: bool,
 ) -> serde_json::Value {
     let mut object = change
@@ -99,7 +99,7 @@ fn tombstone_payload(
         .unwrap_or_default();
     object.insert(
         "identifier".to_string(),
-        serde_json::Value::String(change.record_identifier.to_string()),
+        serde_json::Value::String(change.record_identifier.clone()),
     );
     if !is_workspace {
         object.insert(
@@ -154,13 +154,13 @@ impl SyncRepository {
 
     pub async fn queue(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: &str,
     ) -> Result<Vec<SyncQueueItem>, KernelError> {
         let sql = r#"
             SELECT
-                lower(hex(identifier)) AS identifier,
+                identifier,
                 table_name,
-                lower(record_identifier) AS record_identifier,
+                record_identifier,
                 operation,
                 workspace_identifier,
                 created_at,
@@ -174,7 +174,7 @@ impl SyncRepository {
         let stmt = Statement::from_sql_and_values(
             self.backend(),
             sql,
-            [Value::Uuid(Some(workspace_identifier))],
+            [Value::String(Some(workspace_identifier.to_string()))],
         );
         let rows = self
             .conn
@@ -251,9 +251,7 @@ impl SyncRepository {
         let fields = columns
             .iter()
             .map(|column| {
-                let expression = if column == "identifier" || column == "workspace_identifier" {
-                    format!("lower(hex(\"{column}\"))")
-                } else if json_columns.contains(&column.as_str()) {
+                let expression = if json_columns.contains(&column.as_str()) {
                     format!("CASE WHEN \"{column}\" IS NULL THEN NULL ELSE json(\"{column}\") END")
                 } else if timestamp_columns.contains(&column.as_str()) {
                     format!("strftime('%Y-%m-%dT%H:%M:%fZ', \"{column}\")")
@@ -266,7 +264,7 @@ impl SyncRepository {
             .join(", ");
 
         let sql = format!(
-            "SELECT json_object({fields}) AS payload FROM \"{table}\" WHERE lower(hex(identifier)) = ?"
+            "SELECT json_object({fields}) AS payload FROM \"{table}\" WHERE identifier = ?"
         );
         let stmt = Statement::from_sql_and_values(
             self.backend(),
@@ -293,7 +291,7 @@ impl SyncRepository {
         let placeholders = identifiers
             .iter()
             .enumerate()
-            .map(|(index, _)| format!("lower(hex(identifier)) = {}", self.placeholder(index + 1)))
+            .map(|(index, _)| format!("identifier = {}", self.placeholder(index + 1)))
             .collect::<Vec<_>>()
             .join(" OR ");
         let values = identifiers
@@ -315,7 +313,7 @@ impl SyncRepository {
             r#"
                 UPDATE sync_queue
                 SET attempts = attempts + 1, last_error = ?
-                WHERE lower(hex(identifier)) = ?
+                WHERE identifier = ?
             "#,
             [Value::String(Some(error)), Value::String(Some(identifier))],
         );
@@ -323,7 +321,7 @@ impl SyncRepository {
         Ok(())
     }
 
-    pub async fn state(&self, workspace_identifier: Uuid) -> Result<SyncState, KernelError> {
+    pub async fn state(&self, workspace_identifier: &str) -> Result<SyncState, KernelError> {
         let stmt = Statement::from_sql_and_values(
             self.backend(),
             r#"
@@ -331,7 +329,7 @@ impl SyncRepository {
                 FROM sync_state
                 WHERE workspace_identifier = ?
             "#,
-            [Value::Uuid(Some(workspace_identifier))],
+            [Value::String(Some(workspace_identifier.to_string()))],
         );
         let row = self
             .conn
@@ -352,7 +350,7 @@ impl SyncRepository {
                 last_error: row.try_get("", "last_error").map_err(Self::db_error)?,
             }),
             None => Ok(SyncState {
-                workspace_identifier,
+                workspace_identifier: workspace_identifier.to_string(),
                 last_cursor: "0".to_string(),
                 last_synced_at: None,
                 last_error: None,
@@ -362,7 +360,7 @@ impl SyncRepository {
 
     pub async fn set_state(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: &str,
         cursor: String,
         synced_at: Option<String>,
         error: Option<String>,
@@ -396,7 +394,7 @@ impl SyncRepository {
             self.backend(),
             sql,
             [
-                Value::Uuid(Some(workspace_identifier)),
+                Value::String(Some(workspace_identifier.to_string())),
                 Value::BigInt(Some(cursor)),
                 Value::String(synced_at),
                 Value::String(error),
@@ -462,7 +460,7 @@ impl SyncRepository {
             }
         }
 
-        let device_id = Uuid::new_v4().to_string();
+        let device_id = new_id();
         let sql = match self.backend() {
             DbBackend::Postgres => {
                 "INSERT INTO sync_meta (key, value) VALUES ($1, $2)
@@ -528,7 +526,7 @@ impl SyncRepository {
 
     pub async fn apply_changes(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: &str,
         changes: Vec<RemoteSyncChange>,
     ) -> Result<ApplyChangesResult, KernelError> {
         if changes.is_empty() {
@@ -557,7 +555,7 @@ impl SyncRepository {
 
     async fn apply_change(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: &str,
         change: &RemoteSyncChange,
     ) -> Result<(), KernelError> {
         match change.operation.as_str() {
@@ -590,13 +588,13 @@ impl SyncRepository {
                 };
                 let values = match self.backend() {
                     DbBackend::Postgres => vec![
-                        Value::Uuid(Some(change.record_identifier)),
+                        Value::String(Some(change.record_identifier.clone())),
                         Value::String(Some(timestamp.clone())),
                     ],
                     _ => vec![
                         Value::String(Some(timestamp.clone())),
                         Value::String(Some(timestamp.clone())),
-                        Value::Uuid(Some(change.record_identifier)),
+                        Value::String(Some(change.record_identifier.clone())),
                         Value::String(Some(timestamp.clone())),
                     ],
                 };
@@ -608,7 +606,7 @@ impl SyncRepository {
 
                 if result.rows_affected() == 0 {
                     if self
-                        .row_exists(&change.table_name, change.record_identifier)
+                        .row_exists(&change.table_name, &change.record_identifier)
                         .await?
                     {
                         // A local row newer than this delete wins; leave it alone.
@@ -633,7 +631,7 @@ impl SyncRepository {
                     );
                     self.upsert_payload(
                         &change.table_name,
-                        change.record_identifier,
+                        &change.record_identifier,
                         &tombstone,
                     )
                     .await?;
@@ -678,7 +676,7 @@ impl SyncRepository {
 
                 self.upsert_payload(
                     &change.table_name,
-                    change.record_identifier,
+                    &change.record_identifier,
                     &payload,
                 )
                 .await?;
@@ -694,7 +692,7 @@ impl SyncRepository {
     async fn upsert_payload(
         &self,
         table_name: &str,
-        record_identifier: Uuid,
+        record_identifier: &str,
         payload: &serde_json::Value,
     ) -> Result<(), KernelError> {
         let object = payload.as_object().ok_or_else(|| {
@@ -718,7 +716,7 @@ impl SyncRepository {
         }
         if !columns.iter().any(|column| column == "identifier") {
             columns.push("identifier".to_string());
-            values.push(Value::Uuid(Some(record_identifier)));
+            values.push(Value::String(Some(record_identifier.to_string())));
         }
 
         let placeholders = (0..columns.len())
@@ -757,7 +755,7 @@ impl SyncRepository {
     async fn row_exists(
         &self,
         table_name: &str,
-        record_identifier: Uuid,
+        record_identifier: &str,
     ) -> Result<bool, KernelError> {
         let sql = format!(
             "SELECT 1 AS present FROM \"{table_name}\" WHERE identifier = {}",
@@ -766,7 +764,7 @@ impl SyncRepository {
         let stmt = Statement::from_sql_and_values(
             self.backend(),
             sql,
-            [Value::Uuid(Some(record_identifier))],
+            [Value::String(Some(record_identifier.to_string()))],
         );
         Ok(self
             .conn
@@ -803,7 +801,7 @@ impl SyncRepository {
         let Some(identifier) = payload
             .get("identifier")
             .and_then(|value| value.as_str())
-            .and_then(|value| Uuid::parse_str(value).ok())
+            .map(str::to_string)
         else {
             return Ok(());
         };
@@ -818,7 +816,7 @@ impl SyncRepository {
                     self.backend(),
                     "DELETE FROM recycle_bin WHERE item_id = ? AND item_type = ?",
                     [
-                        Value::Uuid(Some(identifier)),
+                        Value::String(Some(identifier.clone())),
                         Value::String(Some(item_type.to_string())),
                     ],
                 ))
@@ -827,11 +825,11 @@ impl SyncRepository {
             return Ok(());
         };
 
-        let workspace_identifier = payload
+        let Some(workspace_identifier) = payload
             .get("workspace_identifier")
             .and_then(|value| value.as_str())
-            .and_then(|value| Uuid::parse_str(value).ok());
-        let Some(workspace_identifier) = workspace_identifier else {
+            .map(str::to_string)
+        else {
             return Ok(());
         };
 
@@ -851,8 +849,8 @@ impl SyncRepository {
                 [
                     Value::String(Some(payload.to_string())),
                     Value::String(Some(tombstone_at.clone())),
-                    Value::Uuid(Some(workspace_identifier)),
-                    Value::Uuid(Some(identifier)),
+                    Value::String(Some(workspace_identifier.to_string())),
+                    Value::String(Some(identifier.clone())),
                     Value::String(Some(item_type.to_string())),
                 ],
             ))
@@ -882,12 +880,12 @@ impl SyncRepository {
             self.backend(),
             sql,
             [
-                Value::Uuid(Some(Uuid::new_v4())),
-                Value::Uuid(Some(identifier)),
+                Value::String(Some(new_id())),
+                Value::String(Some(identifier.clone())),
                 Value::String(Some(item_type.to_string())),
                 Value::String(Some(payload.to_string())),
                 Value::String(Some(tombstone_at)),
-                Value::Uuid(Some(workspace_identifier)),
+                Value::String(Some(workspace_identifier.to_string())),
             ],
         );
         self.conn.execute_raw(stmt).await.map_err(Self::db_error)?;

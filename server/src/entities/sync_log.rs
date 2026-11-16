@@ -9,10 +9,10 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub seq: i64,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     #[sea_orm(column_type = "Text")]
     pub table_name: String,
-    pub record_identifier: Option<Uuid>,
+    pub record_identifier: Option<String>,
     #[sea_orm(column_type = "Text")]
     pub operation: String,
     #[sea_orm(column_type = "JsonBinary", nullable)]

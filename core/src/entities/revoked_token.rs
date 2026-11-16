@@ -9,10 +9,10 @@ use serde::{Deserialize, Serialize};
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     #[sea_orm(unique)]
-    pub jti: Uuid,
-    pub user_identifier: Uuid,
+    pub jti: String,
+    pub user_identifier: String,
     pub expires_at: DateTimeWithTimeZone,
     pub revoked_at: DateTimeWithTimeZone,
 }

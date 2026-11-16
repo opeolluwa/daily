@@ -3,13 +3,12 @@ use kernel::entities::sea_orm_active_enums::{Priority, TaskStatus};
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncTodoInput")]
 pub struct SyncTodoInput {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub description: Option<String>,
     pub due_date: Option<String>,
@@ -20,7 +19,7 @@ pub struct SyncTodoInput {
     pub due_time: Option<String>,
     #[serde(default)]
     pub status: Option<TaskStatus>,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     #[serde(default)]
     pub deleted_at: Option<String>,
 }

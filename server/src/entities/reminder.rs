@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
@@ -19,7 +19,7 @@ pub struct Model {
     pub remind_at: DateTimeWithTimeZone,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub recurrence_type: Option<ReminderRecurrence>,
     pub end_date: Option<Date>,
     pub deleted_at: Option<DateTimeWithTimeZone>,

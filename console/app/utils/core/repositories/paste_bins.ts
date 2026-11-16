@@ -25,7 +25,7 @@ export class PasteBinRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title ?? null,
         payload.content,
         payload.isPinned ?? false,
@@ -106,7 +106,7 @@ export class PasteBinRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, 'paste_bin', $3, $4, $5)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         JSON.stringify(model),
         this.now(),

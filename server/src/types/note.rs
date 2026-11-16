@@ -2,19 +2,18 @@ use kernel::entities;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncNoteInput")]
 pub struct SyncNoteInput {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub content: String,
     pub categories: Option<serde_json::Value>,
     pub created_at: String,
     pub updated_at: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     #[serde(default)]
     pub deleted_at: Option<String>,
 }

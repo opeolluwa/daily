@@ -25,7 +25,7 @@ export class TaskRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title,
         payload.description ?? null,
         payload.dueDate ?? null,
@@ -146,7 +146,7 @@ export class TaskRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, 'task', $3, $4, $5)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         JSON.stringify(model),
         this.now(),

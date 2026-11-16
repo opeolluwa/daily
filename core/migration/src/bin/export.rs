@@ -1,6 +1,5 @@
 use sea_orm::DbBackend;
 use std::env;
-use std::path::Path;
 
 #[tokio::main]
 async fn main() -> Result<(), sea_orm_migration::prelude::DbErr> {
@@ -22,7 +21,6 @@ async fn main() -> Result<(), sea_orm_migration::prelude::DbErr> {
             ))
         }
     };
-
 
     migration::exporter::export_sql(output, backend).await?;
 

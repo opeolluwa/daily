@@ -182,9 +182,9 @@ importers:
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0
-      uuid:
-        specifier: ^14.0.3
-        version: 14.0.3
+      ulid:
+        specifier: ^3.0.2
+        version: 3.0.2
       v-calendar:
         specifier: ^2.4.2
         version: 2.4.2(@popperjs/core@2.11.8)(vue@3.5.44(typescript@5.9.3))
@@ -6927,6 +6927,10 @@ packages:
     resolution: {integrity: sha512-8iAasVS4wUx0gPLjH8Xtz2PeDzTSiy8QiLGu2DT3X5GU+egFEQhpnbtkehbAwjvDcxIERmCYcysiODFmE3Ud0Q==}
     engines: {node: '>=18'}
 
+  ulid@3.0.2:
+    resolution: {integrity: sha512-yu26mwteFYzBAot7KVMqFGCVpsF6g8wXfJzQUHvu1no3+rRRSFcSV2nKeYvNPLD2J4b08jYBDhHUjeH0ygIl9w==}
+    hasBin: true
+
   ultrahtml@1.7.0:
     resolution: {integrity: sha512-2xRd0VHoAQE4M+vF/DvFFB7pUV0ZxTW1TLi7lHQWnF/Sb5TPeEUV/l+hxcNnGO00ZXGnR0voCMmYRKQf+rvJ2g==}
 
@@ -7195,10 +7199,6 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
-
-  uuid@14.0.3:
-    resolution: {integrity: sha512-Sc5u1VVln93y1Xnz4R+CunOZc7R9LUcTmhj7Rc7Eg3HVcf7rVn2FOoa812fe0W8p3jD7xeoGSYbfqCGGH2B6xw==}
-    hasBin: true
 
   v-calendar@2.4.2:
     resolution: {integrity: sha512-j61sfrjnaTqG0mkxA9GE0SWPkKooSaFad0krhk3BCBv5YnEaivrpfI/Rh+KQUTOh/tUFG86hdvhElcSF3JyyWw==}
@@ -15083,6 +15083,8 @@ snapshots:
 
   uint8array-extras@1.6.0: {}
 
+  ulid@3.0.2: {}
+
   ultrahtml@1.7.0: {}
 
   unbuild@3.6.1(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3)):
@@ -15455,8 +15457,6 @@ snapshots:
       punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
-
-  uuid@14.0.3: {}
 
   v-calendar@2.4.2(@popperjs/core@2.11.8)(vue@3.5.44(typescript@5.9.3)):
     dependencies:

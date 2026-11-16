@@ -2,20 +2,19 @@ use kernel::entities;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncWorkspacePreferenceInput")]
 pub struct SyncWorkspacePreferenceInput {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub first_name: String,
     pub last_name: String,
     pub email: String,
     pub profile_picture: Option<String>,
     pub created_at: String,
     pub updated_at: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     #[serde(default)]
     pub deleted_at: Option<String>,
 }

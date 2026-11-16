@@ -28,7 +28,7 @@ export class RecycleBinRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.itemId,
         payload.itemType,
         payload.payload,

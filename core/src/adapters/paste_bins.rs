@@ -1,9 +1,9 @@
 use sea_orm::ActiveValue::Set;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, paste_bins::ActiveModel};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[ts(rename_all = "camelCase")]
@@ -14,13 +14,13 @@ pub struct CreatePasteBin {
     pub is_pinned: bool,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
 }
 
 impl Into<entities::paste_bins::ActiveModel> for CreatePasteBin {
     fn into(self) -> entities::paste_bins::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             title: Set(self.title),
             content: Set(self.content),
             is_pinned: Set(self.is_pinned),

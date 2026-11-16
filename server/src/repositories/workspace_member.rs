@@ -3,7 +3,6 @@ use std::sync::Arc;
 use chrono::Utc;
 use kernel::entities::{workspace_members, workspaces};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
-use uuid::Uuid;
 
 use crate::{errors::database_error::DatabaseError, repositories::base::Repository};
 
@@ -23,19 +22,19 @@ impl Repository for WorkspaceMemberRepository {
 pub(crate) trait WorkspaceMemberRepositoryTrait {
     async fn find_by_workspace_and_email(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
     ) -> Result<Option<workspace_members::Model>, DatabaseError>;
 
     async fn find_by_workspace_and_identifier(
         &self,
-        workspace_identifier: Uuid,
-        member_identifier: Uuid,
+        workspace_identifier: String,
+        member_identifier: String,
     ) -> Result<Option<workspace_members::Model>, DatabaseError>;
 
     async fn list_by_workspace(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
     ) -> Result<Vec<workspace_members::Model>, DatabaseError>;
 
     async fn list_workspaces_for_email(
@@ -45,26 +44,26 @@ pub(crate) trait WorkspaceMemberRepositoryTrait {
 
     async fn insert(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
         role: &str,
-        user_identifier: Option<Uuid>,
+        user_identifier: Option<String>,
     ) -> Result<workspace_members::Model, DatabaseError>;
 
     async fn set_role(
         &self,
-        workspace_identifier: Uuid,
-        member_identifier: Uuid,
+        workspace_identifier: String,
+        member_identifier: String,
         role: &str,
     ) -> Result<workspace_members::Model, DatabaseError>;
 
-    async fn delete(&self, identifier: Uuid) -> Result<bool, DatabaseError>;
+    async fn delete(&self, identifier: String) -> Result<bool, DatabaseError>;
 }
 
 impl WorkspaceMemberRepositoryTrait for WorkspaceMemberRepository {
     async fn find_by_workspace_and_email(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
     ) -> Result<Option<workspace_members::Model>, DatabaseError> {
         workspace_members::Entity::find()
@@ -77,8 +76,8 @@ impl WorkspaceMemberRepositoryTrait for WorkspaceMemberRepository {
 
     async fn find_by_workspace_and_identifier(
         &self,
-        workspace_identifier: Uuid,
-        member_identifier: Uuid,
+        workspace_identifier: String,
+        member_identifier: String,
     ) -> Result<Option<workspace_members::Model>, DatabaseError> {
         workspace_members::Entity::find()
             .filter(workspace_members::Column::WorkspaceIdentifier.eq(workspace_identifier))
@@ -90,7 +89,7 @@ impl WorkspaceMemberRepositoryTrait for WorkspaceMemberRepository {
 
     async fn list_by_workspace(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
     ) -> Result<Vec<workspace_members::Model>, DatabaseError> {
         workspace_members::Entity::find()
             .filter(workspace_members::Column::WorkspaceIdentifier.eq(workspace_identifier))
@@ -113,14 +112,14 @@ impl WorkspaceMemberRepositoryTrait for WorkspaceMemberRepository {
 
     async fn insert(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
         role: &str,
-        user_identifier: Option<Uuid>,
+        user_identifier: Option<String>,
     ) -> Result<workspace_members::Model, DatabaseError> {
         let now = Utc::now().fixed_offset();
         let model = workspace_members::ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(kernel::id::new_id()),
             member_email: Set(email.to_lowercase()),
             role: Set(role.to_owned()),
             user_identifier: Set(user_identifier),
@@ -136,8 +135,8 @@ impl WorkspaceMemberRepositoryTrait for WorkspaceMemberRepository {
 
     async fn set_role(
         &self,
-        workspace_identifier: Uuid,
-        member_identifier: Uuid,
+        workspace_identifier: String,
+        member_identifier: String,
         role: &str,
     ) -> Result<workspace_members::Model, DatabaseError> {
         let existing = workspace_members::Entity::find()
@@ -157,7 +156,7 @@ impl WorkspaceMemberRepositoryTrait for WorkspaceMemberRepository {
             .map_err(DatabaseError::from)
     }
 
-    async fn delete(&self, identifier: Uuid) -> Result<bool, DatabaseError> {
+    async fn delete(&self, identifier: String) -> Result<bool, DatabaseError> {
         let result = workspace_members::Entity::delete_by_id(identifier)
             .exec(self.db_conn.as_ref())
             .await

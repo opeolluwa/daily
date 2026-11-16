@@ -175,7 +175,7 @@ export class SyncRepository extends BaseRepository {
     );
     if (row?.value) return row.value;
 
-    const deviceId = this.newUuid();
+    const deviceId = this.newId();
     await this.run(
       `INSERT INTO sync_meta (key, value) VALUES ('device_id', $1)
        ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
@@ -411,7 +411,7 @@ export class SyncRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         itemType,
         JSON.stringify(payload),

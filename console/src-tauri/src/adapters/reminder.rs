@@ -1,6 +1,5 @@
 use kernel::{adapters::meta::RequestMeta, sea_orm::prelude::DateTimeWithTimeZone};
 use serde::Deserialize;
-use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -12,7 +11,7 @@ pub struct CreateReminder {
     pub recurrence_rule: Option<String>,
     pub alarm_sound: Option<String>,
     pub remind_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub meta: Option<RequestMeta>,
 }
 

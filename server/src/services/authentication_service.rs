@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use askama::Template;
-use uuid::Uuid;
 
 use crate::adapters::authentication::ChangePasswordRequest;
 use crate::adapters::authentication::CreateUserResponse;
@@ -99,7 +98,7 @@ pub trait AuthenticationServiceTrait {
 
     fn set_avatar_url(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         avatar_url: &str,
     ) -> impl std::future::Future<Output = Result<(), ServiceError>> + Send;
 
@@ -347,7 +346,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
 
     async fn set_avatar_url(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         avatar_url: &str,
     ) -> Result<(), ServiceError> {
         self.user_repository
@@ -455,7 +454,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
     }
 
     async fn logout(&self, claims: &Claims) -> Result<(), ServiceError> {
-        let Some(jti) = claims.jti else {
+        let Some(ref jti) = claims.jti else {
             return Ok(());
         };
         let expires_at = chrono::DateTime::from_timestamp(claims.exp, 0)
@@ -468,7 +467,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
     }
 
     async fn is_token_revoked(&self, claims: &Claims) -> Result<bool, ServiceError> {
-        let Some(jti) = claims.jti else {
+        let Some(ref jti) = claims.jti else {
             return Ok(false);
         };
         Ok(self.token_blacklist_repository.is_revoked(&jti).await?)

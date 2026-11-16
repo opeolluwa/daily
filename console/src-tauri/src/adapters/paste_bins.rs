@@ -1,6 +1,5 @@
 use kernel::{adapters::meta::RequestMeta, sea_orm::sea_query::prelude::Local};
 use serde::Deserialize;
-use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -9,7 +8,7 @@ pub struct CreatePasteBin {
     pub content: String,
     #[serde(default)]
     pub is_pinned: bool,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub meta: Option<RequestMeta>,
 }
 

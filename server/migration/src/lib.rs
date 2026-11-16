@@ -1,5 +1,6 @@
 mod m20251225_150349_add_countries;
 mod m20261114_000000_sync_log;
+mod m20261116_000000_switch_identifiers_to_ulid;
 
 pub use sea_orm_migration::prelude::*;
 
@@ -15,6 +16,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m20251225_150349_add_countries::Migration),
             Box::new(m20261114_000000_sync_log::Migration),
+            Box::new(m20261116_000000_switch_identifiers_to_ulid::Migration),
         ]
     }
 }

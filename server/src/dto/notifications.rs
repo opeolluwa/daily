@@ -2,12 +2,11 @@ use std::fmt;
 
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Notification {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub body: String,
     pub created_at: DateTime<Local>,
@@ -18,7 +17,7 @@ pub struct Notification {
 impl Notification {
     pub fn new(title: &str, body: &str) -> Self {
         Self {
-            identifier: Uuid::new_v4(),
+            identifier: kernel::id::new_id(),
             title: title.to_string(),
             body: body.to_string(),
             ..Default::default()

@@ -1,17 +1,16 @@
 use kernel::repositories::sync::{ApplyChangesResult, RemoteSyncChange, SyncQueueItem, SyncState};
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{errors::AppError, state::app::AppState};
 
 #[tauri::command]
 pub async fn sync_queue_list(
     state: State<'_, AppState>,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
 ) -> Result<Vec<SyncQueueItem>, AppError> {
     state
         .sync_repository
-        .queue(workspace_identifier)
+        .queue(&workspace_identifier)
         .await
         .map_err(Into::into)
 }
@@ -44,11 +43,11 @@ pub async fn sync_queue_fail(
 #[tauri::command]
 pub async fn sync_state_get(
     state: State<'_, AppState>,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
 ) -> Result<SyncState, AppError> {
     state
         .sync_repository
-        .state(workspace_identifier)
+        .state(&workspace_identifier)
         .await
         .map_err(Into::into)
 }
@@ -56,14 +55,14 @@ pub async fn sync_state_get(
 #[tauri::command]
 pub async fn sync_state_set(
     state: State<'_, AppState>,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
     cursor: String,
     synced_at: Option<String>,
     error: Option<String>,
 ) -> Result<(), AppError> {
     state
         .sync_repository
-        .set_state(workspace_identifier, cursor, synced_at, error)
+        .set_state(&workspace_identifier, cursor, synced_at, error)
         .await
         .map_err(Into::into)
 }
@@ -71,12 +70,12 @@ pub async fn sync_state_set(
 #[tauri::command]
 pub async fn sync_apply_changes(
     state: State<'_, AppState>,
-    workspace_identifier: Uuid,
+    workspace_identifier: String,
     changes: Vec<RemoteSyncChange>,
 ) -> Result<ApplyChangesResult, AppError> {
     state
         .sync_repository
-        .apply_changes(workspace_identifier, changes)
+        .apply_changes(&workspace_identifier, changes)
         .await
         .map_err(Into::into)
 }

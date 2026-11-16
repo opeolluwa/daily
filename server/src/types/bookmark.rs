@@ -3,19 +3,18 @@ use kernel::entities::sea_orm_active_enums::Tag;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncBookmarkInput")]
 pub struct SyncBookmarkInput {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub url: String,
     pub tag: Tag,
     pub created_at: String,
     pub updated_at: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     #[serde(default)]
     pub deleted_at: Option<String>,
 }

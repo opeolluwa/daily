@@ -29,7 +29,7 @@ export class WorkspaceProfileRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.firstName,
         payload.lastName,
         payload.profilePicture ?? null,

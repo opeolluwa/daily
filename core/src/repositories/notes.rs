@@ -7,11 +7,11 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::entities::sea_orm_active_enums::ItemType;
 use crate::types::EntitySyncResult;
+use crate::id::new_id;
 use crate::{
     adapters::{
         meta::RequestMeta,
@@ -48,7 +48,7 @@ pub trait NotesRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<notes::Model>, KernelError>;
 
@@ -56,7 +56,7 @@ pub trait NotesRepositoryExt {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError>;
 
@@ -67,7 +67,7 @@ pub trait NotesRepositoryExt {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateNote,
         meta: &Option<RequestMeta>,
     ) -> Result<notes::Model, KernelError>;
@@ -95,7 +95,7 @@ impl NotesRepositoryExt for NotesRepository {
         let mut active_model: notes::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
-            active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+            active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
         } else {
             return Err(KernelError::DbOperationError(
                 "workspace identifier is required".into(),
@@ -110,14 +110,14 @@ impl NotesRepositoryExt for NotesRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<notes::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         notes::Entity::find()
-            .filter(notes::Column::Identifier.eq(*identifier))
-            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notes::Column::Identifier.eq(identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(notes::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -128,7 +128,7 @@ impl NotesRepositoryExt for NotesRepository {
         let meta = extract_req_meta(meta)?;
 
         notes::Entity::find()
-            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(notes::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
@@ -137,14 +137,14 @@ impl NotesRepositoryExt for NotesRepository {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = notes::Entity::find()
-            .filter(notes::Column::Identifier.eq(*identifier))
-            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notes::Column::Identifier.eq(identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(notes::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -169,8 +169,8 @@ impl NotesRepositoryExt for NotesRepository {
         notes::Entity::update_many()
             .col_expr(notes::Column::DeletedAt, Expr::current_timestamp())
             .col_expr(notes::Column::UpdatedAt, Expr::current_timestamp())
-            .filter(notes::Column::Identifier.eq(*identifier))
-            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notes::Column::Identifier.eq(identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(notes::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
@@ -186,7 +186,7 @@ impl NotesRepositoryExt for NotesRepository {
 
         notes::Entity::find()
             .limit(10)
-            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(notes::Column::DeletedAt.is_null())
             .order_by_asc(notes::Column::CreatedAt)
             .all(self.conn.as_ref())
@@ -196,15 +196,15 @@ impl NotesRepositoryExt for NotesRepository {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateNote,
         meta: &Option<RequestMeta>,
     ) -> Result<notes::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = notes::Entity::find()
-            .filter(notes::Column::Identifier.eq(*identifier))
-            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notes::Column::Identifier.eq(identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(notes::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -245,7 +245,7 @@ impl NotesRepositoryExt for NotesRepository {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), KernelError> = async {
                             let exists = notes::Entity::find()
-                                .filter(notes::Column::Identifier.eq(model.identifier))
+                                .filter(notes::Column::Identifier.eq(model.identifier.clone()))
                                 .one(conn.as_ref())
                                 .await
                                 .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -284,9 +284,9 @@ impl NotesRepositoryExt for NotesRepository {
 impl TransferRecord for NotesRepository {
     async fn transfer_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
     ) -> Result<(), KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
@@ -318,7 +318,7 @@ impl TransferRecord for NotesRepository {
         }
 
         let Some(record) = notes::Entity::find()
-            .filter(notes::Column::Identifier.eq(*record_identifier))
+            .filter(notes::Column::Identifier.eq(record_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -329,7 +329,7 @@ impl TransferRecord for NotesRepository {
         let mut active_model = record.into_active_model();
 
         active_model.updated_at = Set(Utc::now().fixed_offset());
-        active_model.workspace_identifier = Set(Some(*target_workspace_identifier));
+        active_model.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
 
         active_model
             .update(self.conn.as_ref())
@@ -344,12 +344,12 @@ impl TransferRecord for NotesRepository {
 impl RecordExistInWorkspace for NotesRepository {
     async fn record_exists_in_workspace(
         &self,
-        record_identifier: &Uuid,
-        workspace_identifier: &Uuid,
+        record_identifier: &str,
+        workspace_identifier: &str,
     ) -> Result<bool, KernelError> {
         let record = notes::Entity::find()
-            .filter(notes::Column::Identifier.eq(*record_identifier))
-            .filter(notes::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(notes::Column::Identifier.eq(record_identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(workspace_identifier))
             .filter(notes::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -363,10 +363,10 @@ impl RecordExistInWorkspace for NotesRepository {
 impl DuplicateRecord for NotesRepository {
     async fn duplicate_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
-    ) -> Result<Uuid, KernelError> {
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
+    ) -> Result<String, KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
                 .exists(previous_workspace_identifier),
@@ -390,8 +390,8 @@ impl DuplicateRecord for NotesRepository {
         }
 
         let Some(record) = notes::Entity::find()
-            .filter(notes::Column::Identifier.eq(*record_identifier))
-            .filter(notes::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(notes::Column::Identifier.eq(record_identifier))
+            .filter(notes::Column::WorkspaceIdentifier.eq(previous_workspace_identifier))
             .filter(notes::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -402,9 +402,9 @@ impl DuplicateRecord for NotesRepository {
 
         let mut new_record = record.into_active_model();
 
-        let new_identifier = Uuid::new_v4();
-        new_record.identifier = Set(new_identifier);
-        new_record.workspace_identifier = Set(Some(*target_workspace_identifier));
+        let new_identifier = new_id();
+        new_record.identifier = Set(new_identifier.clone());
+        new_record.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
         new_record.created_at = Set(Utc::now().fixed_offset());
         new_record.updated_at = Set(Utc::now().fixed_offset());
 
@@ -434,7 +434,7 @@ impl NotesRepository {
 
     #[wasm_bindgen(js_name = "find_by_id")]
     pub async fn find_by_id_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as NotesRepositoryExt>::find_by_id(self, &id, &meta).await?;
         to_js(&model)
@@ -449,7 +449,7 @@ impl NotesRepository {
 
     #[wasm_bindgen(js_name = "delete")]
     pub async fn delete_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as NotesRepositoryExt>::delete(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
@@ -469,7 +469,7 @@ impl NotesRepository {
         payload: JsValue,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let payload: UpdateNote = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as NotesRepositoryExt>::update(self, &id, &payload, &meta).await?;
@@ -483,11 +483,11 @@ impl NotesRepository {
         previous_workspace_identifier: &str,
         target_workspace_identifier: &str,
     ) -> Result<JsValue, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
         let previous_workspace_identifier =
-            Uuid::parse_str(previous_workspace_identifier).map_err(js_err)?;
+            previous_workspace_identifier.to_string();
         let target_workspace_identifier =
-            Uuid::parse_str(target_workspace_identifier).map_err(js_err)?;
+            target_workspace_identifier.to_string();
         <Self as TransferRecord>::transfer_record(
             self,
             &record_identifier,
@@ -505,11 +505,11 @@ impl NotesRepository {
         previous_workspace_identifier: &str,
         target_workspace_identifier: &str,
     ) -> Result<JsValue, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
         let previous_workspace_identifier =
-            Uuid::parse_str(previous_workspace_identifier).map_err(js_err)?;
+            previous_workspace_identifier.to_string();
         let target_workspace_identifier =
-            Uuid::parse_str(target_workspace_identifier).map_err(js_err)?;
+            target_workspace_identifier.to_string();
         <Self as DuplicateRecord>::duplicate_record(
             self,
             &record_identifier,
@@ -526,8 +526,8 @@ impl NotesRepository {
         record_identifier: &str,
         workspace_identifier: &str,
     ) -> Result<bool, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
-        let workspace_identifier = Uuid::parse_str(workspace_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
+        let workspace_identifier = workspace_identifier.to_string();
         <Self as RecordExistInWorkspace>::record_exists_in_workspace(
             self,
             &record_identifier,

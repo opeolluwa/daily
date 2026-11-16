@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub description: Option<String>,
@@ -21,7 +21,7 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
     pub due_time: Option<Time>,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub status: TaskStatus,
     pub deleted_at: Option<DateTimeWithTimeZone>,
 }

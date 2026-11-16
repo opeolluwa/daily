@@ -3,6 +3,12 @@ name = "kernel"
 version = "0.1.0"
 edition = "2024"
 
+[workspace]
+members = ["migration"]
+
+[workspace.dependencies]
+ulid = "3.0.0"
+
 [lib]
 crate-type = ["cdylib", "lib"]
 
@@ -60,6 +66,7 @@ uuid = { version = "1.21.0", features = ["v4", "js"] }
 validator = { version = "0.20.0", features = ["derive"] }
 wasm-bindgen = "0.2.127"
 wasm-bindgen-futures = "0.4"
+ulid = { workspace = true, features = ["serde"] }
 
 [dependencies.seaography]
 version = "~2.0.0-rc.8"

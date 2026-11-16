@@ -10,14 +10,14 @@ use serde::{Deserialize, Serialize};
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub body: String,
     pub notification_type: NotificationType,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
     pub is_read: bool,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

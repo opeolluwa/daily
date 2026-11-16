@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub workspace_identifier: Uuid,
+    pub workspace_identifier: String,
     pub last_cursor: i64,
     pub last_synced_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text", nullable)]

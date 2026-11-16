@@ -24,7 +24,7 @@ export class SnippetRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title ?? null,
         payload.language ?? null,
         payload.code,
@@ -115,7 +115,7 @@ export class SnippetRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, 'snippet', $3, $4, $5)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         JSON.stringify(model),
         this.now(),

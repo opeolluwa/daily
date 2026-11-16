@@ -9,12 +9,12 @@ use serde::{Deserialize, Serialize};
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: Option<String>,
     pub payload: Option<Json>,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 

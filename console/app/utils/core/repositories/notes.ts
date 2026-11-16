@@ -22,7 +22,7 @@ export class NotesRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title,
         payload.content,
         JSON.stringify(payload.categories ?? []),
@@ -62,7 +62,7 @@ export class NotesRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, 'note', $3, $4, $5)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         JSON.stringify(model),
         this.now(),

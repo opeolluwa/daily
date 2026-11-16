@@ -46,6 +46,13 @@ mod tests {
     }
 
     #[test]
+    fn default_workspace_mapping_matches_sql() {
+        let uuid = Uuid::parse_str("85b49460-f44a-47f4-930a-8d0b45ec34be").unwrap();
+        assert_eq!(uuid_to_ulid(uuid), "45PJA61X2A8ZT962MD1D2YRD5Y");
+        assert_eq!(ulid_to_uuid("45PJA61X2A8ZT962MD1D2YRD5Y"), Some(uuid));
+    }
+
+    #[test]
     fn uuid_round_trips_through_ulid() {
         let uuid = Uuid::new_v4();
         let ulid = uuid_to_ulid(uuid);

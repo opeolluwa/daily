@@ -5,7 +5,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::{AppHandle, Manager, State};
-use uuid::Uuid;
 
 use crate::{
     adapters::notes::{CreateNote, UpdateNote},
@@ -26,7 +25,7 @@ pub async fn create_note(
 #[tauri::command]
 pub async fn get_note(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<notes::Model>, AppError> {
     state
@@ -51,7 +50,7 @@ pub async fn get_all_notes(
 #[tauri::command]
 pub async fn delete_note(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state.notes_repository.delete(&identifier, &meta).await?;
@@ -61,7 +60,7 @@ pub async fn delete_note(
 #[tauri::command]
 pub async fn update_note(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     note: UpdateNote,
     meta: Option<RequestMeta>,
 ) -> Result<notes::Model, AppError> {
@@ -87,9 +86,9 @@ pub async fn get_recently_added_notes(
 #[tauri::command]
 pub async fn duplicate_note(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state
@@ -115,9 +114,9 @@ pub async fn duplicate_note(
 #[tauri::command]
 pub async fn transfer_note(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -157,8 +156,8 @@ fn sanitize_file_name(title: &str) -> String {
 pub async fn export_notes_as_pdf(
     app: AppHandle,
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    _previous_workspace_identifier: Uuid,
+    record_identifier: String,
+    _previous_workspace_identifier: String,
     meta: Option<RequestMeta>,
     overwrite: Option<bool>,
 ) -> Result<PdfExportStatus, AppError> {

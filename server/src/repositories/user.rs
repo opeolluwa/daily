@@ -5,7 +5,6 @@ use kernel::entities::users;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
 };
-use uuid::Uuid;
 
 use crate::{
     adapters::{
@@ -30,15 +29,15 @@ impl Repository for UserRepository {
     }
 }
 pub(crate) trait UserRepositoryTrait {
-    async fn find_by_identifier(&self, identifier: &Uuid) -> Option<users::Model>;
+    async fn find_by_identifier(&self, identifier: &str) -> Option<users::Model>;
 
     async fn find_by_email(&self, email: &str) -> Option<users::Model>;
 
-    async fn activate_account(&self, identifier: &Uuid) -> Result<(), DatabaseError>;
+    async fn activate_account(&self, identifier: &str) -> Result<(), DatabaseError>;
 
     async fn update_password(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         new_password: &str,
     ) -> Result<(), DatabaseError>;
 
@@ -47,23 +46,23 @@ pub(crate) trait UserRepositoryTrait {
         user: &CreateUserRequest,
     ) -> Result<DatabaseInsertResult, DatabaseError>;
 
-    async fn retrieve_information(&self, identifier: &Uuid) -> Result<users::Model, DatabaseError>;
+    async fn retrieve_information(&self, identifier: &str) -> Result<users::Model, DatabaseError>;
 
     async fn set_avatar_url(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         avatar_url: &str,
     ) -> Result<(), DatabaseError>;
 
     async fn update_profile(
         &self,
         request: &PartialUserProfile,
-        user_identifier: &Uuid,
+        user_identifier: &str,
     ) -> Result<users::Model, DatabaseError>;
 
     async fn onboard_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         request: &OnboardingRequest,
     ) -> Result<(), DatabaseError>;
 }
@@ -76,7 +75,7 @@ impl UserRepositoryTrait for UserRepository {
         let normalized_email = user.email.to_lowercase().trim().to_string();
 
         let record = users::ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(kernel::id::new_id()),
             email: Set(normalized_email),
             password: Set(user.password.clone()),
             is_active: Set(false),
@@ -94,7 +93,7 @@ impl UserRepositoryTrait for UserRepository {
         })
     }
 
-    async fn find_by_identifier(&self, identifier: &Uuid) -> Option<users::Model> {
+    async fn find_by_identifier(&self, identifier: &str) -> Option<users::Model> {
         users::Entity::find()
             .filter(users::Column::Identifier.eq(identifier.to_owned()))
             .one(self.db_conn.as_ref())
@@ -112,7 +111,7 @@ impl UserRepositoryTrait for UserRepository {
             .ok()?
     }
 
-    async fn activate_account(&self, identifier: &Uuid) -> Result<(), DatabaseError> {
+    async fn activate_account(&self, identifier: &str) -> Result<(), DatabaseError> {
         let user = self
             .find_by_identifier(identifier)
             .await
@@ -126,7 +125,7 @@ impl UserRepositoryTrait for UserRepository {
 
     async fn update_password(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         new_password: &str,
     ) -> Result<(), DatabaseError> {
         let user = self
@@ -139,7 +138,7 @@ impl UserRepositoryTrait for UserRepository {
         Ok(())
     }
 
-    async fn retrieve_information(&self, identifier: &Uuid) -> Result<users::Model, DatabaseError> {
+    async fn retrieve_information(&self, identifier: &str) -> Result<users::Model, DatabaseError> {
         let user = self
             .find_by_identifier(identifier)
             .await
@@ -150,7 +149,7 @@ impl UserRepositoryTrait for UserRepository {
 
     async fn set_avatar_url(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         avatar_url: &str,
     ) -> Result<(), DatabaseError> {
         let user = self
@@ -168,7 +167,7 @@ impl UserRepositoryTrait for UserRepository {
     async fn update_profile(
         &self,
         update: &PartialUserProfile,
-        user_identifier: &Uuid,
+        user_identifier: &str,
     ) -> Result<users::Model, DatabaseError> {
         let user = self
             .find_by_identifier(user_identifier)
@@ -207,7 +206,7 @@ impl UserRepositoryTrait for UserRepository {
 
     async fn onboard_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         request: &OnboardingRequest,
     ) -> Result<(), DatabaseError> {
         let first_name = request.first_name.to_lowercase().trim().to_string();

@@ -52,6 +52,7 @@ mod m20261113_000000_add_recurrence_type_to_reminder;
 mod m20261113_100000_add_end_date_to_reminder;
 mod m20261114_000000_sync_foundation;
 mod m20261115_000000_workspace_tombstones;
+mod m20261116_000000_switch_identifiers_to_ulid;
 
 pub use sea_orm_migration::prelude::*;
 pub mod exporter;
@@ -115,6 +116,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20261113_100000_add_end_date_to_reminder::Migration),
             Box::new(m20261114_000000_sync_foundation::Migration),
             Box::new(m20261115_000000_workspace_tombstones::Migration),
+            Box::new(m20261116_000000_switch_identifiers_to_ulid::Migration),
         ]
     }
 }

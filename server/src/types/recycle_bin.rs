@@ -3,18 +3,17 @@ use kernel::entities::sea_orm_active_enums::ItemType;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncRecycleBinInput")]
 pub struct SyncRecycleBinInput {
-    pub identifier: Uuid,
-    pub item_id: Uuid,
+    pub identifier: String,
+    pub item_id: String,
     pub item_type: ItemType,
     pub payload: String,
     pub deleted_at: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
 }
 
 impl TryFrom<SyncRecycleBinInput> for entities::recycle_bin::Model {

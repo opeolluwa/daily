@@ -5,7 +5,6 @@ use kernel::{
     repositories::workspace_profiles::WorkspaceProfileRepositoryExt,
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{
     adapters::workspace_profile::{CreateWorkspaceProfile, UpdateWorkspaceProfile},
@@ -41,7 +40,7 @@ pub async fn create_workspace_profile(
 #[tauri::command]
 pub async fn update_workspace_profile(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     profile: UpdateWorkspaceProfile,
     meta: Option<RequestMeta>,
 ) -> Result<workspace_profiles::Model, AppError> {
@@ -55,9 +54,9 @@ pub async fn update_workspace_profile(
 #[tauri::command]
 pub async fn duplicate_workspace_profile(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -83,9 +82,9 @@ pub async fn duplicate_workspace_profile(
 #[tauri::command]
 pub async fn transfer_workspace_profile(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[kernel_macros::ts_rs_export_sea_orm_entity_name]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub workspace_identifier: Uuid,
+    pub workspace_identifier: String,
     pub last_cursor: i64,
     pub last_synced_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text", nullable)]

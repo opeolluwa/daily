@@ -7,7 +7,6 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder, QuerySelect,
 };
-use uuid::Uuid;
 
 use crate::{
     adapters::{
@@ -42,7 +41,7 @@ pub trait WhiteboardRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<whiteboards::Model>, KernelError>;
 
@@ -53,7 +52,7 @@ pub trait WhiteboardRepositoryExt {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<whiteboards::Model, KernelError>;
 
@@ -64,7 +63,7 @@ pub trait WhiteboardRepositoryExt {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateWhiteboard,
         meta: &Option<RequestMeta>,
     ) -> Result<whiteboards::Model, KernelError>;
@@ -87,7 +86,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
         let mut active_model: whiteboards::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
-            active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+            active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
         } else {
             return Err(KernelError::DbOperationError(
                 "workspace identifier is required".into(),
@@ -102,14 +101,14 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<whiteboards::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         whiteboards::Entity::find()
-            .filter(whiteboards::Column::Identifier.eq(*identifier))
-            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::Identifier.eq(identifier))
+            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(whiteboards::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -123,7 +122,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
         let meta = extract_req_meta(meta)?;
 
         whiteboards::Entity::find()
-            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(whiteboards::Column::DeletedAt.is_null())
             .order_by_desc(whiteboards::Column::UpdatedAt)
             .all(self.conn.as_ref())
@@ -133,15 +132,15 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<whiteboards::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = whiteboards::Entity::find()
-            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(whiteboards::Column::DeletedAt.is_null())
-            .filter(whiteboards::Column::Identifier.eq(*identifier))
+            .filter(whiteboards::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -150,7 +149,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
         whiteboards::Entity::update_many()
             .col_expr(whiteboards::Column::DeletedAt, Expr::current_timestamp())
             .col_expr(whiteboards::Column::UpdatedAt, Expr::current_timestamp())
-            .filter(whiteboards::Column::Identifier.eq(*identifier))
+            .filter(whiteboards::Column::Identifier.eq(identifier))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -166,7 +165,7 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
         whiteboards::Entity::find()
             .limit(10)
-            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(whiteboards::Column::DeletedAt.is_null())
             .order_by_desc(whiteboards::Column::CreatedAt)
             .all(self.conn.as_ref())
@@ -176,16 +175,16 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateWhiteboard,
         meta: &Option<RequestMeta>,
     ) -> Result<whiteboards::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = whiteboards::Entity::find()
-            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(whiteboards::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(whiteboards::Column::DeletedAt.is_null())
-            .filter(whiteboards::Column::Identifier.eq(*identifier))
+            .filter(whiteboards::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -212,9 +211,9 @@ impl WhiteboardRepositoryExt for WhiteboardRepository {
 impl TransferRecord for WhiteboardRepository {
     async fn transfer_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
     ) -> Result<(), KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
@@ -248,7 +247,7 @@ impl TransferRecord for WhiteboardRepository {
         }
 
         let Some(record) = whiteboards::Entity::find()
-            .filter(whiteboards::Column::Identifier.eq(*record_identifier))
+            .filter(whiteboards::Column::Identifier.eq(record_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -261,7 +260,7 @@ impl TransferRecord for WhiteboardRepository {
         let mut active_model = record.into_active_model();
 
         active_model.updated_at = Set(Utc::now().fixed_offset());
-        active_model.workspace_identifier = Set(Some(*target_workspace_identifier));
+        active_model.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
 
         active_model
             .update(self.conn.as_ref())
@@ -276,12 +275,12 @@ impl TransferRecord for WhiteboardRepository {
 impl RecordExistInWorkspace for WhiteboardRepository {
     async fn record_exists_in_workspace(
         &self,
-        record_identifier: &Uuid,
-        workspace_identifier: &Uuid,
+        record_identifier: &str,
+        workspace_identifier: &str,
     ) -> Result<bool, KernelError> {
         let record = whiteboards::Entity::find()
-            .filter(whiteboards::Column::Identifier.eq(*record_identifier))
-            .filter(whiteboards::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(whiteboards::Column::Identifier.eq(record_identifier))
+            .filter(whiteboards::Column::WorkspaceIdentifier.eq(workspace_identifier))
             .filter(whiteboards::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await

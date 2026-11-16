@@ -1,9 +1,9 @@
 use chrono::Utc;
 use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, bookmark::ActiveModel, sea_orm_active_enums::Tag};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -17,7 +17,7 @@ pub struct CreateBookmark {
 impl Into<entities::bookmark::ActiveModel> for CreateBookmark {
     fn into(self) -> entities::bookmark::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             title: Set(self.title),
             url: Set(self.url),
             tag: Set(self.tag),

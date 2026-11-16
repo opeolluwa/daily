@@ -9,13 +9,13 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::adapters::meta::RequestMeta;
 use crate::entities::sea_orm_active_enums::{ItemType, Priority, TaskStatus};
 use crate::types::EntitySyncResult;
 use crate::utils::{extract_req_meta, js_err, mock_connection, to_js};
+use crate::id::new_id;
 use crate::{
     adapters::{
         recycle_bin::CreateRecycleBinEntry,
@@ -64,7 +64,7 @@ pub trait TaskRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<task::Model>, KernelError>;
 
@@ -72,34 +72,34 @@ pub trait TaskRepositoryExt {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateTask,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError>;
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError>;
 
     async fn change_priority(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         priority: &Priority,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError>;
 
     async fn update_due_date(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         due_date: Option<Date>,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError>;
 
     async fn mark_done(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         done: bool,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError>;
@@ -127,7 +127,7 @@ impl TaskRepositoryExt for TaskRepository {
         let mut active_model: task::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
-            active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+            active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
         } else {
             return Err(KernelError::DbOperationError(
                 "workspace identifier is required".into(),
@@ -141,14 +141,14 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<task::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         task::Entity::find()
-            .filter(task::Column::Identifier.eq(*identifier))
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::Identifier.eq(identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -159,7 +159,7 @@ impl TaskRepositoryExt for TaskRepository {
         let meta = extract_req_meta(meta)?;
 
         task::Entity::find()
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
@@ -168,16 +168,16 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateTask,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = task::Entity::find()
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
-            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -206,14 +206,14 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = task::Entity::find()
-            .filter(task::Column::Identifier.eq(*identifier))
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::Identifier.eq(identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -238,7 +238,7 @@ impl TaskRepositoryExt for TaskRepository {
         task::Entity::update_many()
             .col_expr(task::Column::DeletedAt, Expr::current_timestamp())
             .col_expr(task::Column::UpdatedAt, Expr::current_timestamp())
-            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::Identifier.eq(identifier))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -247,15 +247,15 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn change_priority(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         priority: &Priority,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = task::Entity::find()
-            .filter(task::Column::Identifier.eq(*identifier))
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::Identifier.eq(identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -274,16 +274,16 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn update_due_date(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         due_date: Option<Date>,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = task::Entity::find()
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
-            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -301,16 +301,16 @@ impl TaskRepositoryExt for TaskRepository {
 
     async fn mark_done(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         done: bool,
         meta: &Option<RequestMeta>,
     ) -> Result<task::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = task::Entity::find()
-            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(task::Column::DeletedAt.is_null())
-            .filter(task::Column::Identifier.eq(*identifier))
+            .filter(task::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -341,7 +341,7 @@ impl TaskRepositoryExt for TaskRepository {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), KernelError> = async {
                             let exists = task::Entity::find()
-                                .filter(task::Column::Identifier.eq(model.identifier))
+                                .filter(task::Column::Identifier.eq(model.identifier.clone()))
                                 .one(conn.as_ref())
                                 .await
                                 .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -381,9 +381,9 @@ impl TaskRepositoryExt for TaskRepository {
 impl TransferRecord for TaskRepository {
     async fn transfer_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
     ) -> Result<(), KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
@@ -415,7 +415,7 @@ impl TransferRecord for TaskRepository {
         }
 
         let Some(record) = task::Entity::find()
-            .filter(task::Column::Identifier.eq(*record_identifier))
+            .filter(task::Column::Identifier.eq(record_identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -426,7 +426,7 @@ impl TransferRecord for TaskRepository {
         let mut active_model = record.into_active_model();
 
         active_model.updated_at = Set(Utc::now().fixed_offset());
-        active_model.workspace_identifier = Set(Some(*target_workspace_identifier));
+        active_model.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
 
         active_model
             .update(self.conn.as_ref())
@@ -441,12 +441,12 @@ impl TransferRecord for TaskRepository {
 impl RecordExistInWorkspace for TaskRepository {
     async fn record_exists_in_workspace(
         &self,
-        record_identifier: &Uuid,
-        workspace_identifier: &Uuid,
+        record_identifier: &str,
+        workspace_identifier: &str,
     ) -> Result<bool, KernelError> {
         let record = task::Entity::find()
-            .filter(task::Column::Identifier.eq(*record_identifier))
-            .filter(task::Column::WorkspaceIdentifier.eq(*workspace_identifier))
+            .filter(task::Column::Identifier.eq(record_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(workspace_identifier))
             .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -459,10 +459,10 @@ impl RecordExistInWorkspace for TaskRepository {
 impl DuplicateRecord for TaskRepository {
     async fn duplicate_record(
         &self,
-        record_identifier: &Uuid,
-        previous_workspace_identifier: &Uuid,
-        target_workspace_identifier: &Uuid,
-    ) -> Result<Uuid, KernelError> {
+        record_identifier: &str,
+        previous_workspace_identifier: &str,
+        target_workspace_identifier: &str,
+    ) -> Result<String, KernelError> {
         let (prev_exists_res, target_exists_res) = tokio::join!(
             self.workspace_repository
                 .exists(previous_workspace_identifier),
@@ -486,8 +486,8 @@ impl DuplicateRecord for TaskRepository {
         }
 
         let Some(record) = task::Entity::find()
-            .filter(task::Column::Identifier.eq(*record_identifier))
-            .filter(task::Column::WorkspaceIdentifier.eq(*previous_workspace_identifier))
+            .filter(task::Column::Identifier.eq(record_identifier))
+            .filter(task::Column::WorkspaceIdentifier.eq(previous_workspace_identifier))
             .filter(task::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
@@ -498,9 +498,9 @@ impl DuplicateRecord for TaskRepository {
 
         let mut new_record = record.into_active_model();
 
-        let new_identifier = Uuid::new_v4();
-        new_record.identifier = Set(new_identifier);
-        new_record.workspace_identifier = Set(Some(*target_workspace_identifier));
+        let new_identifier = new_id();
+        new_record.identifier = Set(new_identifier.clone());
+        new_record.workspace_identifier = Set(Some(target_workspace_identifier.to_string()));
         new_record.created_at = Set(Utc::now().fixed_offset());
         new_record.updated_at = Set(Utc::now().fixed_offset());
 
@@ -534,7 +534,7 @@ impl TaskRepository {
 
     #[wasm_bindgen(js_name = "find_by_id")]
     pub async fn find_by_id_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as TaskRepositoryExt>::find_by_id(self, &id, &meta).await?;
         to_js(&model)
@@ -554,7 +554,7 @@ impl TaskRepository {
         payload: JsValue,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let payload: UpdateTask = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as TaskRepositoryExt>::update(self, &id, &payload, &meta).await?;
@@ -563,7 +563,7 @@ impl TaskRepository {
 
     #[wasm_bindgen(js_name = "delete")]
     pub async fn delete_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as TaskRepositoryExt>::delete(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
@@ -576,7 +576,7 @@ impl TaskRepository {
         priority: JsValue,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let priority: Priority = serde_wasm_bindgen::from_value(priority).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model =
@@ -591,7 +591,7 @@ impl TaskRepository {
         due_date: JsValue,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let due_date: Option<Date> = serde_wasm_bindgen::from_value(due_date).map_err(js_err)?;
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model =
@@ -606,7 +606,7 @@ impl TaskRepository {
         done: bool,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as TaskRepositoryExt>::mark_done(self, &id, done, &meta).await?;
         to_js(&model)
@@ -619,11 +619,11 @@ impl TaskRepository {
         previous_workspace_identifier: &str,
         target_workspace_identifier: &str,
     ) -> Result<JsValue, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
         let previous_workspace_identifier =
-            Uuid::parse_str(previous_workspace_identifier).map_err(js_err)?;
+            previous_workspace_identifier.to_string();
         let target_workspace_identifier =
-            Uuid::parse_str(target_workspace_identifier).map_err(js_err)?;
+            target_workspace_identifier.to_string();
         <Self as TransferRecord>::transfer_record(
             self,
             &record_identifier,
@@ -641,11 +641,11 @@ impl TaskRepository {
         previous_workspace_identifier: &str,
         target_workspace_identifier: &str,
     ) -> Result<JsValue, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
         let previous_workspace_identifier =
-            Uuid::parse_str(previous_workspace_identifier).map_err(js_err)?;
+            previous_workspace_identifier.to_string();
         let target_workspace_identifier =
-            Uuid::parse_str(target_workspace_identifier).map_err(js_err)?;
+            target_workspace_identifier.to_string();
         <Self as DuplicateRecord>::duplicate_record(
             self,
             &record_identifier,
@@ -662,8 +662,8 @@ impl TaskRepository {
         record_identifier: &str,
         workspace_identifier: &str,
     ) -> Result<bool, JsValue> {
-        let record_identifier = Uuid::parse_str(record_identifier).map_err(js_err)?;
-        let workspace_identifier = Uuid::parse_str(workspace_identifier).map_err(js_err)?;
+        let record_identifier = record_identifier.to_string();
+        let workspace_identifier = workspace_identifier.to_string();
         <Self as RecordExistInWorkspace>::record_exists_in_workspace(
             self,
             &record_identifier,

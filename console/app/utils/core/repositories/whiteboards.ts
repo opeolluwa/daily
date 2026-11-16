@@ -20,7 +20,7 @@ export class WhiteboardRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title ?? null,
         payload.payload != null ? JSON.stringify(payload.payload) : null,
         now,

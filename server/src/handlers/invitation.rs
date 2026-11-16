@@ -5,7 +5,6 @@ use axum::{
     http::StatusCode,
     Json,
 };
-use uuid::Uuid;
 
 use crate::{
     adapters::{
@@ -21,7 +20,7 @@ use crate::{
 
 pub async fn invite_workspace_member(
     State(state): State<Arc<AppState>>,
-    Path(workspace_id): Path<Uuid>,
+    Path(workspace_id): Path<String>,
     AuthenticatedRequest { claims, data }: AuthenticatedRequest<InviteWorkspaceMemberRequest>,
 ) -> Result<(StatusCode, Json<InviteWorkspaceMemberResponse>), AppError> {
     let response = state
@@ -58,7 +57,7 @@ pub async fn accept_invitation(
 
 pub async fn revoke_invitation(
     State(state): State<Arc<AppState>>,
-    Path(invitation_id): Path<Uuid>,
+    Path(invitation_id): Path<String>,
     claims: crate::adapters::jwt::Claims,
 ) -> Result<(StatusCode, Json<AcceptInvitationResponse>), AppError> {
     state
@@ -78,7 +77,7 @@ pub async fn revoke_invitation(
 
 pub async fn list_workspace_members(
     State(state): State<Arc<AppState>>,
-    Path(workspace_id): Path<Uuid>,
+    Path(workspace_id): Path<String>,
     claims: crate::adapters::jwt::Claims,
 ) -> Result<(StatusCode, Json<Vec<WorkspaceMemberResponse>>), AppError> {
     let members = state
@@ -105,7 +104,7 @@ pub async fn list_workspace_members(
 
 pub async fn remove_workspace_member(
     State(state): State<Arc<AppState>>,
-    Path((workspace_id, member_id)): Path<(Uuid, Uuid)>,
+    Path((workspace_id, member_id)): Path<(String, String)>,
     claims: crate::adapters::jwt::Claims,
 ) -> Result<StatusCode, AppError> {
     state

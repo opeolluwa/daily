@@ -6,7 +6,6 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::types::EntitySyncResult;
@@ -34,12 +33,12 @@ pub trait UserPreferencesRepositoryExt {
 
     async fn get_by_identifier(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
     ) -> Result<Option<user_preferences::Model>, KernelError>;
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateUserPreferences,
     ) -> Result<user_preferences::Model, KernelError>;
     async fn upsert_many(
@@ -67,10 +66,10 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
 
     async fn get_by_identifier(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
     ) -> Result<Option<user_preferences::Model>, KernelError> {
         user_preferences::Entity::find()
-            .filter(user_preferences::Column::Identifier.eq(*identifier))
+            .filter(user_preferences::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -78,11 +77,11 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
 
     async fn update(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: &UpdateUserPreferences,
     ) -> Result<user_preferences::Model, KernelError> {
         let model = user_preferences::Entity::find()
-            .filter(user_preferences::Column::Identifier.eq(*identifier))
+            .filter(user_preferences::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -123,7 +122,7 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), KernelError> = async {
                             let exists = user_preferences::Entity::find()
-                                .filter(user_preferences::Column::Identifier.eq(model.identifier))
+                                .filter(user_preferences::Column::Identifier.eq(model.identifier.clone()))
                                 .one(conn.as_ref())
                                 .await
                                 .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -176,14 +175,14 @@ impl UserPreferencesRepository {
 
     #[wasm_bindgen(js_name = "get_by_identifier")]
     pub async fn get_by_identifier_js(&self, identifier: &str) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let model = <Self as UserPreferencesRepositoryExt>::get_by_identifier(self, &id).await?;
         to_js(&model)
     }
 
     #[wasm_bindgen(js_name = "update")]
     pub async fn update_js(&self, identifier: &str, payload: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let payload: UpdateUserPreferences =
             serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let model = <Self as UserPreferencesRepositoryExt>::update(self, &id, &payload).await?;
