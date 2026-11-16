@@ -249,7 +249,10 @@ impl WorkspaceMemberService {
 
         let target = self
             .member_repository
-            .find_by_workspace_and_identifier(workspace_identifier.clone(), member_identifier.clone())
+            .find_by_workspace_and_identifier(
+                workspace_identifier.clone(),
+                member_identifier.clone(),
+            )
             .await
             .map_err(|e| AppError::DatabaseError(e.to_string()))?
             .ok_or_else(|| AppError::NotFound("Member not found".into()))?;

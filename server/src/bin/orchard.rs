@@ -90,6 +90,15 @@ async fn main() -> Result<(), AppError> {
         .with_env_filter(EnvFilter::from_default_env().add_directive(Level::INFO.into()))
         .init();
 
+    // Detached so a cold Redis or a dead relay delays neither boot nor each
+    // other; both report their own failure through logs.
+    tokio::spawn(orchard_lib::services::redis::worker::start_worker(
+        app_config.clone(),
+    ));
+    tokio::spawn(orchard_lib::services::mailer::health::check_email_provider(
+        app_config.clone(),
+    ));
+
     // rate limit
     let requests_per_second = NonZeroU32::new(app_config.rate_limit_rps).unwrap_or(nz!(20u32));
     let burst = NonZeroU32::new(app_config.rate_limit_burst).unwrap_or(nz!(40u32));
@@ -161,7 +170,7 @@ async fn main() -> Result<(), AppError> {
         endpoint: app_config.graphql_endpoint.clone(),
     };
 
-    let http_routes = load_routes(&db_conn);
+    let http_routes = load_routes(&db_conn).await;
 
     let graphql_router = Router::new()
         .route(

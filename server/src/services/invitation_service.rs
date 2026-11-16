@@ -152,7 +152,8 @@ impl InvitationService {
             )
             .await?;
 
-        self.load_workspace(invitation.workspace_identifier.clone()).await
+        self.load_workspace(invitation.workspace_identifier.clone())
+            .await
     }
 
     /// Revoke a pending invitation. Only owners/admins of the target

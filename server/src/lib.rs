@@ -1,6 +1,7 @@
 pub mod adapters;
 pub mod config;
 pub mod dto;
+pub mod entities;
 pub mod errors;
 pub mod handlers;
 pub mod middlewares;
@@ -15,4 +16,3 @@ pub mod shutdown;
 pub mod states;
 mod types;
 mod utils;
-pub mod entities;

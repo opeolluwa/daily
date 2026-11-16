@@ -13,10 +13,15 @@ use crate::repositories::{
     user::UserRepository, workspace_member::WorkspaceMemberRepository,
 };
 use crate::services::{
-    authentication_service::AuthenticationService, country_service::CountryService,
-    invitation_service::InvitationService, mailer::smtp::SmtpEmailSender,
-    notification_service::NotificationService, otp_service::OtpService, root_service::RootService,
-    user_service::UserService, workspace_member_service::WorkspaceMemberService,
+    authentication_service::AuthenticationService,
+    country_service::CountryService,
+    invitation_service::InvitationService,
+    mailer::{queued::QueuedEmailSender, SenderIdentities, SenderIdentity},
+    notification_service::NotificationService,
+    otp_service::OtpService,
+    root_service::RootService,
+    user_service::UserService,
+    workspace_member_service::WorkspaceMemberService,
 };
 
 #[derive(Clone)]
@@ -32,7 +37,7 @@ pub struct Repositories {
 
 #[derive(Clone)]
 pub struct Contracts {
-    pub email: SmtpEmailSender,
+    pub email: QueuedEmailSender,
 }
 
 #[derive(Clone)]
@@ -73,17 +78,27 @@ impl Repositories {
 }
 
 impl Contracts {
-    pub fn new(app_config: &AppConfig) -> Result<Self, AppError> {
-        let email = SmtpEmailSender::new(
-            &app_config.smtp_host,
-            app_config.smtp_port,
-            &app_config.smtp_username,
-            &app_config.smtp_password,
-            &app_config.smtp_encryption,
-        )
-        .map_err(|e| AppError::OperationFailed(e.to_string()))?;
+    pub async fn new(app_config: &AppConfig) -> Result<Self, AppError> {
+        let queue = crate::services::redis::producer::connect(app_config).await?;
 
-        Ok(Self { email })
+        let identities = SenderIdentities {
+            account: SenderIdentity {
+                address: app_config.email_from_address.clone(),
+                name: app_config.email_from_name.clone(),
+            },
+            transactions: SenderIdentity {
+                address: app_config.email_transactions_from_address.clone(),
+                name: app_config.email_transactions_from_name.clone(),
+            },
+            support: SenderIdentity {
+                address: app_config.email_support_from_address.clone(),
+                name: app_config.email_support_from_name.clone(),
+            },
+        };
+
+        Ok(Self {
+            email: QueuedEmailSender::new(queue, identities),
+        })
     }
 }
 
@@ -152,10 +167,10 @@ impl FromRef<Arc<AppState>> for InvitationService {
 }
 
 impl AppState {
-    pub fn new(db: &DatabaseConnection) -> Result<Self, AppError> {
+    pub async fn new(db: &DatabaseConnection) -> Result<Self, AppError> {
         let app_config = AppConfig::from_env()?;
         let db = Arc::new(db.clone());
-        let contracts = Contracts::new(&app_config)?;
+        let contracts = Contracts::new(&app_config).await?;
         let repositories = Repositories::new(&db);
         let services = ServicesState::new(&db, repositories, contracts);
 

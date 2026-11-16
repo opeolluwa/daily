@@ -5,6 +5,7 @@ pub mod invitation_service;
 pub mod mailer;
 pub mod notification_service;
 pub mod otp_service;
+pub mod redis;
 pub mod root_service;
 pub mod user_service;
 pub mod workspace_member_service;

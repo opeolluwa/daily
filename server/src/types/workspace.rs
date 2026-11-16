@@ -46,9 +46,9 @@ impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
             deleted_at: val
                 .deletedAt
                 .map(|value| {
-                    value.parse().map_err(|e| {
-                        async_graphql::Error::new(format!("invalid deleted_at: {e}"))
-                    })
+                    value
+                        .parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
                 })
                 .transpose()?,
         })

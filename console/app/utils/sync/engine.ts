@@ -49,17 +49,17 @@ interface PushResult {
 
 interface RawSyncChange {
   seq: string;
-  table_name: string;
-  record_identifier: string | null;
+  tableName: string;
+  recordIdentifier: string | null;
   operation: string;
   payload?: unknown;
-  updated_at: string;
+  updatedAt: string;
 }
 
 interface RawPullResult {
   changes: RawSyncChange[];
-  next_cursor: string;
-  has_more: boolean;
+  nextCursor: string;
+  hasMore: boolean;
 }
 
 export const syncStatus = reactive({
@@ -76,8 +76,8 @@ let debounce: ReturnType<typeof setTimeout> | null = null;
 let running = false;
 
 const PUSH = `
-  mutation SyncPush($workspace_identifier: String!, $changes: [SyncChangeInput!]!) {
-    sync_push(workspace_identifier: $workspace_identifier, changes: $changes) {
+  mutation SyncPush($workspaceIdentifier: String!, $changes: [SyncChangeInput!]!) {
+    syncPush(workspaceIdentifier: $workspaceIdentifier, changes: $changes) {
       applied
       errors
     }
@@ -85,11 +85,11 @@ const PUSH = `
 `;
 
 const PULL = `
-  query SyncPull($workspace_identifier: String!, $since: String!, $limit: Int) {
-    sync_pull(workspace_identifier: $workspace_identifier, since: $since, limit: $limit) {
-      changes { seq table_name record_identifier operation payload updated_at }
-      next_cursor
-      has_more
+  query SyncPull($workspaceIdentifier: String!, $since: String!, $limit: Int) {
+    syncPull(workspaceIdentifier: $workspaceIdentifier, since: $since, limit: $limit) {
+      changes { seq tableName recordIdentifier operation payload updatedAt }
+      nextCursor
+      hasMore
     }
   }
 `;
@@ -195,27 +195,27 @@ async function push(workspaceIdentifier: string, token: string) {
   const groups = await coalesce(workspaceIdentifier);
   if (groups.length === 0) return;
 
-  const data = await request<{ sync_push: PushResult }>(
+  const data = await request<{ syncPush: PushResult }>(
     PUSH,
     {
-      workspace_identifier: workspaceIdentifier,
+      workspaceIdentifier,
       changes: groups.map((group) => {
         const payload = (group.change.payload ?? {}) as Record<string, unknown>;
         const change: Record<string, unknown> = {
-          table_name: group.change.tableName,
-          record_identifier: group.change.recordIdentifier,
+          tableName: group.change.tableName,
+          recordIdentifier: group.change.recordIdentifier,
           operation: group.change.operation,
           payload,
         };
         if (group.change.operation === "DELETE" && payload.deleted_at) {
-          change.deleted_at = payload.deleted_at;
+          change.deletedAt = payload.deleted_at;
         }
         return change;
       }),
     },
     token,
   );
-  const applied = new Set(data.sync_push.applied);
+  const applied = new Set(data.syncPush.applied);
   const succeeded: string[] = [];
   const failed: typeof groups = [];
 
@@ -233,7 +233,7 @@ async function push(workspaceIdentifier: string, token: string) {
 
   if (failed.length === 0) return;
 
-  const errors = data.sync_push.errors.join("; ") || "change was not applied";
+  const errors = data.syncPush.errors.join("; ") || "change was not applied";
   syncStatus.error = errors;
   for (const group of failed) {
     await invoke("sync_queue_fail", {
@@ -254,19 +254,19 @@ async function pull(
   let appliedCount = 0;
 
   for (;;) {
-    const data = await request<{ sync_pull: RawPullResult }>(
+    const data = await request<{ syncPull: RawPullResult }>(
       PULL,
-      { workspace_identifier: workspaceIdentifier, since: cursor, limit: 500 },
+      { workspaceIdentifier, since: cursor, limit: 500 },
       token,
     );
-    const result = data.sync_pull;
+    const result = data.syncPull;
     const changes: RemoteSyncChange[] = result.changes.map((change) => ({
-      tableName: change.table_name,
-      recordIdentifier: change.record_identifier ?? "",
+      tableName: change.tableName,
+      recordIdentifier: change.recordIdentifier ?? "",
       operation: change.operation,
       payload: change.payload,
       seq: change.seq,
-      updatedAt: change.updated_at,
+      updatedAt: change.updatedAt,
     }));
     if (changes.length > 0) {
       const applied = await invoke<{ applied: number; errors: string[] }>(
@@ -278,7 +278,7 @@ async function pull(
         throw new Error(applied.errors.join("; "));
       }
     }
-    cursor = result.next_cursor || cursor;
+    cursor = result.nextCursor || cursor;
     await invoke("sync_state_set", {
       workspaceIdentifier,
       cursor,
@@ -286,7 +286,7 @@ async function pull(
       error: null,
     });
     syncStatus.lastSyncedAt = new Date().toISOString();
-    if (!result.has_more) break;
+    if (!result.hasMore) break;
   }
 
   const latest = await invoke<SyncState>("sync_state_get", {

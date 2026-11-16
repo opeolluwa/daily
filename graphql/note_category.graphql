@@ -1,5 +1,5 @@
 mutation SyncNoteCategories {
-  sync_note_category(
+  syncNoteCategory(
     input: [
       {
         identifier: "f9a0b1c2-d3e4-5678-2345-789012345678"

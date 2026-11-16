@@ -5,6 +5,7 @@ use axum::{http::StatusCode, response::IntoResponse};
 use crate::errors::app_error::AppError;
 use crate::errors::auth_error::AuthenticationError;
 use crate::errors::database_error::DatabaseError;
+use crate::errors::email_service_error::EmailServiceError;
 use crate::errors::user_service_error::UserServiceError;
 use crate::response::ApiResponseBuilder;
 
@@ -30,6 +31,9 @@ pub enum ServiceError {
 
     #[error(transparent)]
     UserServiceError(#[from] UserServiceError),
+
+    #[error(transparent)]
+    EmailServiceError(#[from] EmailServiceError),
 
     #[error("badly formatted request")]
     BadRequest,
@@ -69,6 +73,7 @@ impl ServiceError {
             ServiceError::DatabaseError(err) => err.status_code(),
             ServiceError::AuthenticationError(err) => err.status_code(),
             ServiceError::UserServiceError(err) => err.status_code(),
+            ServiceError::EmailServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }

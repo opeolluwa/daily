@@ -12,8 +12,10 @@ use crate::{
     states::AppState,
 };
 
-pub fn load_routes(db_conn: &Arc<DatabaseConnection>) -> Router {
-    let app_state = AppState::new(db_conn).expect("Failed to initialize app state");
+pub async fn load_routes(db_conn: &Arc<DatabaseConnection>) -> Router {
+    let app_state = AppState::new(db_conn)
+        .await
+        .expect("Failed to initialize app state");
     let state = Arc::new(app_state);
 
     Router::new()
