@@ -62,7 +62,23 @@ async function deleteCompleted() {
   );
 }
 
+const isMobile = useIsMobile();
+const router = useRouter();
+
+function openCreate() {
+  if (isMobile.value) {
+    router.push("/tasks/create");
+    return;
+  }
+  editingTask.value = null;
+  dialogOpen.value = true;
+}
+
 function handleEdit(identifier: string) {
+  if (isMobile.value) {
+    router.push({ path: "/tasks/edit", query: { id: identifier } });
+    return;
+  }
   editingTask.value =
     taskStore.tasks.find((t: Task) => t.identifier === identifier) ?? null;
   dialogOpen.value = true;
@@ -81,17 +97,14 @@ onUnmounted(() => clearSearch());
     <template #main_content>
       <RyderPageHeader
         v-if="taskStore.tasks.length"
-                :ui="ryderPageHeaderOverride"
+        :ui="ryderPageHeaderOverride"
         title="Task"
         subtitle="Plan your tasks"
         cta-text="New Task"
         cta-icon="heroicons:plus"
-        @cta="editingTask = null; dialogOpen = true"
+        @cta="openCreate"
       />
-      <RyderFab
-        aria-label="New Task"
-        @click="editingTask = null; dialogOpen = true"
-      />
+      <RyderFab aria-label="New Task" @click="openCreate" />
       <div
         v-if="
           !taskStore.loading && taskStore.tasks.length > 0 && isListViewMode
@@ -135,10 +148,7 @@ onUnmounted(() => clearSearch());
         description="Create your first task to get started."
         icon="heroicons:check-circle"
         action-label="Create task"
-        @action="
-          editingTask = null;
-          dialogOpen = true;
-        "
+        @action="openCreate"
       />
 
       <!-- Task list -->

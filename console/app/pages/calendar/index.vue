@@ -8,6 +8,8 @@ definePageMeta({ layout: false });
 
 const taskStore = useTaskStore();
 const reminderStore = useReminderStore();
+const router = useRouter();
+const isMobile = useIsMobile();
 
 const today = new Date();
 
@@ -245,6 +247,11 @@ const editingReminder = ref<Reminder | null>(null);
 const dialogInitialDate = ref<string | null>(null);
 
 function addTaskFromMenu() {
+  if (isMobile.value) {
+    closeContextMenu();
+    router.push({ path: "/tasks/create", query: { date: contextDate.value } });
+    return;
+  }
   editingTask.value = null;
   dialogInitialDate.value = contextDate.value;
   taskDialogOpen.value = true;
@@ -252,6 +259,11 @@ function addTaskFromMenu() {
 }
 
 function addReminderFromMenu() {
+  if (isMobile.value) {
+    closeContextMenu();
+    router.push({ path: "/reminders/create", query: { date: contextDate.value } });
+    return;
+  }
   editingReminder.value = null;
   dialogInitialDate.value = contextDate.value;
   reminderDialogOpen.value = true;
@@ -259,11 +271,20 @@ function addReminderFromMenu() {
 }
 
 function openEditItem(item: CalendarItem) {
-  dialogInitialDate.value = null;
   if (item.type === "task" && item.task) {
+    if (isMobile.value) {
+      router.push({ path: "/tasks/edit", query: { id: item.task.identifier } });
+      return;
+    }
+    dialogInitialDate.value = null;
     editingTask.value = item.task;
     taskDialogOpen.value = true;
   } else if (item.type === "reminder" && item.reminder) {
+    if (isMobile.value) {
+      router.push({ path: "/reminders/edit", query: { id: item.reminder.identifier } });
+      return;
+    }
+    dialogInitialDate.value = null;
     editingReminder.value = item.reminder;
     reminderDialogOpen.value = true;
   }

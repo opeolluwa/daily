@@ -143,9 +143,7 @@ onMounted(async () => {
               size="xs"
               variant="ghost"
               icon="heroicons:pencil-square"
-              @click="
-                router.push(`/snippets/edit-snippet?id=${snippet.identifier}`)
-              "
+              @click="router.push(`/snippets/edit?id=${snippet.identifier}`)"
             >
               Edit
             </UButton>
@@ -295,9 +293,7 @@ onMounted(async () => {
             variant="outline"
             icon="heroicons:pencil-square"
             block
-            @click="
-              router.push(`/snippets/edit-snippet?id=${snippet.identifier}`)
-            "
+            @click="router.push(`/snippets/edit?id=${snippet.identifier}`)"
           >
             Edit snippet
           </UButton>

@@ -13,6 +13,8 @@ definePageMeta({ layout: false });
 
 const pasteBinStore = usePasteBinStore();
 const toast = useToast();
+const router = useRouter();
+const isMobile = useIsMobile();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const sortBy = ref<PasteBinSort>("date-newest");
 
@@ -47,6 +49,10 @@ function deriveTitle(text: string) {
 }
 
 function openEdit(paste: PasteBin) {
+  if (isMobile.value) {
+    router.push({ path: "/paste-bin/edit", query: { id: paste.identifier } });
+    return;
+  }
   editingPaste.value = paste;
   showEditDialog.value = true;
 }

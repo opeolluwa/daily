@@ -69,7 +69,7 @@ const userMenuItems = computed(() => [
   ],
 ]);
 
-const search = computed<string | number | null | undefined>({
+const search = computed<string | number  | undefined>({
   get: () => searchQuery.value,
   set: (value) => {
     const next = value == null ? "" : String(value);
@@ -222,25 +222,7 @@ defineShortcuts(shortcuts);
         :ui="{ base: 'ps-8 pe-10 py-3 bg-gray-50/30 dark:bg-transparent' }"
         class="w-full cursor-text"
         @keydown="onSearchKeydown"
-      >
-        <template #trailing>
-          <UButton
-            v-if="searchQuery"
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            icon="heroicons:x-mark"
-            class="cursor-pointer"
-            aria-label="Clear search"
-            @click="resetSearch"
-          />
-          <div v-else class="hidden items-center gap-0.5 sm:flex">
-            <UKbd value="meta" size="xs" />
-            <UKbd value="k" size="xs" />
-          </div>
-        </template>
-      </UInput>
-
+      />
       <AppGlobalSearch
         v-if="isOpen"
         ref="globalSearchRef"

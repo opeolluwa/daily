@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useSidebarStore } from "~/stores/sidebar";
 import { useWorkspacesStore } from "~/stores/workspaces";
 
+const sidebarStore = useSidebarStore();
 const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
@@ -91,7 +93,7 @@ const isNoPaddingNeededView = computed(() =>
     <USlideover
       v-model:open="mobileNavOpen"
       side="left"
-      :ui="{ content: 'max-w-64' }"
+      :ui="{ content: sidebarStore.collapsed ? 'max-w-20' : 'max-w-64' }"
     >
       <template #content>
         <div class="flex flex-col h-full bg-white dark:bg-gray-900">
@@ -99,19 +101,31 @@ const isNoPaddingNeededView = computed(() =>
           <div class="shrink-0" style="height: env(safe-area-inset-top)" />
           <!-- Header -->
           <div
-            class="flex items-center justify-end px-4 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0"
+            class="flex items-center justify-between px-3 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0"
           >
             <UButton
               size="sm"
               color="neutral"
               variant="ghost"
+              :icon="sidebarStore.collapsed ? 'heroicons:chevron-double-right' : 'heroicons:chevron-double-left'"
+              aria-label="Toggle sidebar"
+              @click="sidebarStore.collapsed = !sidebarStore.collapsed"
+            />
+            <UButton
+              size="sm"
+              color="neutral"
+              variant="ghost"
               icon="heroicons:x-mark"
+              aria-label="Close menu"
               @click="mobileNavOpen = false"
             />
           </div>
 
           <!-- Primary nav -->
-          <NavigationSideNavContent @navigate="mobileNavOpen = false" />
+          <NavigationSideNavContent
+            :collapsed="sidebarStore.collapsed"
+            @navigate="mobileNavOpen = false"
+          />
         </div>
       </template>
     </USlideover>
