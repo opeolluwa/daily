@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use kernel::entities;
 use seaography::async_graphql;
 use seaography::CustomInputType;
@@ -8,15 +9,15 @@ use serde::{Deserialize, Serialize};
 #[seaography(input_type_name = "SyncWorkspacePreferenceInput")]
 pub struct SyncWorkspacePreferenceInput {
     pub identifier: String,
-    pub first_name: String,
-    pub last_name: String,
+    pub firstName: String,
+    pub lastName: String,
     pub email: String,
-    pub profile_picture: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
-    pub workspace_identifier: Option<String>,
+    pub profilePicture: Option<String>,
+    pub createdAt: String,
+    pub updatedAt: String,
+    pub workspaceIdentifier: Option<String>,
     #[serde(default)]
-    pub deleted_at: Option<String>,
+    pub deletedAt: Option<String>,
 }
 
 impl TryFrom<SyncWorkspacePreferenceInput> for entities::workspace_profiles::Model {
@@ -25,20 +26,20 @@ impl TryFrom<SyncWorkspacePreferenceInput> for entities::workspace_profiles::Mod
     fn try_from(val: SyncWorkspacePreferenceInput) -> Result<Self, Self::Error> {
         Ok(entities::workspace_profiles::Model {
             identifier: val.identifier,
-            first_name: val.first_name,
-            last_name: val.last_name,
-            profile_picture: val.profile_picture,
+            first_name: val.firstName,
+            last_name: val.lastName,
+            profile_picture: val.profilePicture,
             created_at: val
-                .created_at
+                .createdAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid created_at: {e}")))?,
             updated_at: val
-                .updated_at
+                .updatedAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
-            workspace_identifier: val.workspace_identifier,
+            workspace_identifier: val.workspaceIdentifier,
             deleted_at: val
-                .deleted_at
+                .deletedAt
                 .map(|d| {
                     d.parse()
                         .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))

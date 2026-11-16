@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use kernel::entities;
 use seaography::async_graphql;
 use seaography::CustomInputType;
@@ -10,15 +11,15 @@ pub struct SyncWorkspaceInput {
     pub identifier: String,
     pub name: String,
     pub description: String,
-    pub created_at: String,
-    pub updated_at: String,
-    pub is_default: bool,
-    pub is_hidden: bool,
-    pub is_secured: bool,
-    pub password_hash: Option<String>,
-    pub user_identifier: Option<String>,
+    pub createdAt: String,
+    pub updatedAt: String,
+    pub isDefault: bool,
+    pub isHidden: bool,
+    pub isSecured: bool,
+    pub passwordHash: Option<String>,
+    pub userIdentifier: Option<String>,
     #[serde(default)]
-    pub deleted_at: Option<String>,
+    pub deletedAt: Option<String>,
 }
 
 impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
@@ -30,20 +31,20 @@ impl TryFrom<SyncWorkspaceInput> for entities::workspaces::Model {
             name: val.name,
             description: val.description,
             created_at: val
-                .created_at
+                .createdAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid created_at: {e}")))?,
             updated_at: val
-                .updated_at
+                .updatedAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
-            is_default: val.is_default,
-            is_hidden: val.is_hidden,
-            is_secured: val.is_secured,
-            password_hash: val.password_hash,
-            user_identifier: val.user_identifier,
+            is_default: val.isDefault,
+            is_hidden: val.isHidden,
+            is_secured: val.isSecured,
+            password_hash: val.passwordHash,
+            user_identifier: val.userIdentifier,
             deleted_at: val
-                .deleted_at
+                .deletedAt
                 .map(|value| {
                     value.parse().map_err(|e| {
                         async_graphql::Error::new(format!("invalid deleted_at: {e}"))

@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use kernel::entities;
 use kernel::entities::sea_orm_active_enums::Tag;
 use seaography::async_graphql;
@@ -12,11 +13,11 @@ pub struct SyncBookmarkInput {
     pub title: String,
     pub url: String,
     pub tag: Tag,
-    pub created_at: String,
-    pub updated_at: String,
-    pub workspace_identifier: Option<String>,
+    pub createdAt: String,
+    pub updatedAt: String,
+    pub workspaceIdentifier: Option<String>,
     #[serde(default)]
-    pub deleted_at: Option<String>,
+    pub deletedAt: Option<String>,
 }
 
 impl TryFrom<SyncBookmarkInput> for entities::bookmark::Model {
@@ -29,21 +30,21 @@ impl TryFrom<SyncBookmarkInput> for entities::bookmark::Model {
             url: val.url,
             tag: val.tag,
             deleted_at: val
-                .deleted_at
+                .deletedAt
                 .map(|d| {
                     d.parse()
                         .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
                 })
                 .transpose()?,
             created_at: val
-                .created_at
+                .createdAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid created_at: {e}")))?,
             updated_at: val
-                .updated_at
+                .updatedAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
-            workspace_identifier: val.workspace_identifier,
+            workspace_identifier: val.workspaceIdentifier,
         })
     }
 }
