@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { items, secondaryRoutes } from "~/data/routes";
+import { useAuthStore } from "~/stores/auth";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
 
+const authStore = useAuthStore();
 const preferenceStore = useUserPreferenceStore();
 
 withDefaults(
@@ -145,7 +147,7 @@ function onNavigate() {
       </div>
 
       <!-- User card -->
-      <template v-if="showUserCard">
+      <template v-if="showUserCard && !authStore.isGuest">
         <USeparator class="my-3" />
         <UTooltip
           :text="preferenceStore.fullName || 'User'"

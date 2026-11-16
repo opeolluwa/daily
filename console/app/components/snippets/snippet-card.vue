@@ -213,7 +213,7 @@ const handleTransfer = async (targetWorkspaceId: string) => {
         </button>
         <MetaControls
           item-name="snippet"
-          @edit-record="router.push(`/snippets/edit-snippet?id=${identifier}`)"
+          @edit-record="router.push(`/snippets/edit?id=${identifier}`)"
           @delete-record="confirmDelete"
           @duplicate-record="
             (targetWorkspaceId) => handleDuplicate(targetWorkspaceId)

@@ -62,7 +62,36 @@ async function deleteCompleted() {
   );
 }
 
+const isMobile = useIsMobile();
+const isPhone = useMediaQuery("(max-width: 767px)");
+const router = useRouter();
+
+watch(
+  isPhone,
+  (phone) => {
+    if (phone) activeTab.value = "0";
+  },
+  { immediate: true },
+);
+
+const visibleTabs = computed(() =>
+  isPhone.value ? items.filter((item) => item.slot === "list") : items,
+);
+
+function openCreate() {
+  if (isMobile.value) {
+    router.push("/tasks/create");
+    return;
+  }
+  editingTask.value = null;
+  dialogOpen.value = true;
+}
+
 function handleEdit(identifier: string) {
+  if (isMobile.value) {
+    router.push({ path: "/tasks/edit", query: { id: identifier } });
+    return;
+  }
   editingTask.value =
     taskStore.tasks.find((t: Task) => t.identifier === identifier) ?? null;
   dialogOpen.value = true;
@@ -81,16 +110,17 @@ onUnmounted(() => clearSearch());
     <template #main_content>
       <RyderPageHeader
         v-if="taskStore.tasks.length"
-                :ui="ryderPageHeaderOverride"
+        :ui="ryderPageHeaderOverride"
         title="Task"
         subtitle="Plan your tasks"
         cta-text="New Task"
         cta-icon="heroicons:plus"
-        @cta="editingTask = null; dialogOpen = true"
+        @cta="openCreate"
       />
       <RyderFab
+        v-if="!isEmptyList"
         aria-label="New Task"
-        @click="editingTask = null; dialogOpen = true"
+        @click="openCreate"
       />
       <div
         v-if="
@@ -135,10 +165,7 @@ onUnmounted(() => clearSearch());
         description="Create your first task to get started."
         icon="heroicons:check-circle"
         action-label="Create task"
-        @action="
-          editingTask = null;
-          dialogOpen = true;
-        "
+        @action="openCreate"
       />
 
       <!-- Task list -->
@@ -147,8 +174,9 @@ onUnmounted(() => clearSearch());
         v-model:model-value="activeTab"
         color="neutral"
         variant="link"
-        :items="items"
+        :items="visibleTabs"
         :content="true"
+        :ui="isPhone ? { list: 'hidden' } : undefined"
         class="w-full"
       >
         <template #list>

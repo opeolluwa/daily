@@ -6,6 +6,8 @@ import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 definePageMeta({ layout: false });
 
 const reminderStore = useReminderStore();
+const router = useRouter();
+const isMobile = useIsMobile();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const filter = ref<"all" | "upcoming" | "recurring">("all");
 const dialogOpen = ref(false);
@@ -43,7 +45,20 @@ async function handleDelete(identifier: string) {
   await reminderStore.deleteReminder(identifier);
 }
 
+function openCreate() {
+  if (isMobile.value) {
+    router.push("/reminders/create");
+    return;
+  }
+  editingReminder.value = null;
+  dialogOpen.value = true;
+}
+
 function handleEdit(identifier: string) {
+  if (isMobile.value) {
+    router.push({ path: "/reminders/edit", query: { id: identifier } });
+    return;
+  }
   editingReminder.value =
     reminderStore.reminders.find((r) => r.identifier === identifier) ?? null;
   dialogOpen.value = true;
@@ -66,17 +81,14 @@ onUnmounted(() => clearSearch());
         cta-text="New Reminder"
         cta-icon="heroicons:plus"
         :ui="ryderPageHeaderOverride"
-        @cta="
-          editingReminder = null;
-          dialogOpen = true;
-        "
+        @cta="openCreate"
       />
       <RyderFab
-        aria-label="New Reminder"
-        @click="
-          editingReminder = null;
-          dialogOpen = true;
+        v-if="
+          reminderStore.reminders.length > 0 && filteredReminders.length > 0
         "
+        aria-label="New Reminder"
+        @click="openCreate"
       />
       <!-- Filter tabs -->
       <div
@@ -109,10 +121,7 @@ onUnmounted(() => clearSearch());
         description="Create your first reminder to stay on track."
         icon="heroicons:clock"
         action-label="Create reminder"
-        @action="
-          editingReminder = null;
-          dialogOpen = true;
-        "
+        @action="openCreate"
       />
 
       <RyderEmptyState

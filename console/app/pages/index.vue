@@ -19,6 +19,7 @@ const taskStore = useTaskStore();
 const userPreferenceStore = useUserPreferenceStore();
 
 const router = useRouter();
+const isMobile = useIsMobile();
 const query = ref("");
 
 const taskDialogOpen = ref(false);
@@ -34,6 +35,30 @@ const bookmarkTags: { label: string; value: BookmarkTag }[] = [
 
 async function handleCreateBookmark(payload: CreateBookmarkPayload) {
   await bookmarkStore.createBookmark(payload);
+}
+
+function openTask() {
+  if (isMobile.value) {
+    router.push("/tasks/create");
+    return;
+  }
+  taskDialogOpen.value = true;
+}
+
+function openReminder() {
+  if (isMobile.value) {
+    router.push("/reminders/create");
+    return;
+  }
+  reminderDialogOpen.value = true;
+}
+
+function openBookmark() {
+  if (isMobile.value) {
+    router.push("/bookmarks/create");
+    return;
+  }
+  bookmarkDialogOpen.value = true;
 }
 
 const { setSearch, clearSearch } = useAppSearch();
@@ -170,7 +195,7 @@ const today = computed(() =>
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="taskDialogOpen = true"
+            @click="openTask"
           >
             <span
               class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
@@ -183,7 +208,7 @@ const today = computed(() =>
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="reminderDialogOpen = true"
+            @click="openReminder"
           >
             <span
               class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
@@ -196,7 +221,7 @@ const today = computed(() =>
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="bookmarkDialogOpen = true"
+            @click="openBookmark"
           >
             <span
               class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"

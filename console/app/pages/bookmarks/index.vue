@@ -11,6 +11,8 @@ import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 definePageMeta({ layout: false });
 
 const bookmarkStore = useBookmarkStore();
+const router = useRouter();
+const isMobile = useIsMobile();
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 
 const TAGS: { label: string; value: BookmarkTag | "all" }[] = [
@@ -31,6 +33,14 @@ const TAG_ICONS: Record<BookmarkTag, string> = {
 const activeTag = ref<BookmarkTag | "all">("all");
 const showAddModal = ref(false);
 const sortBy = ref<BookmarkSort>("date-newest");
+
+function openCreate() {
+  if (isMobile.value) {
+    router.push("/bookmarks/create");
+    return;
+  }
+  showAddModal.value = true;
+}
 
 const filtered = computed(() => {
   let list =
@@ -72,14 +82,18 @@ async function handleCreate(payload: {
   <NuxtLayout name="default">
     <template #main_content>
       <RyderPageHeader
-        v-if="bookmarkStore.bookmarks.length > 0"
-        :ui="ryderPageHeaderOverride"
+        v-if="!bookmarkStore.loading && bookmarkStore.bookmarks.length > 0"
         title="Bookmarks"
+        :ui="ryderPageHeaderOverride"
         cta-text="Add Bookmark"
         cta-icon="heroicons:plus"
-        @cta="showAddModal = true"
+        @cta="openCreate"
       />
-      <RyderFab aria-label="Add Bookmark" @click="showAddModal = true" />
+      <RyderFab
+        v-if="bookmarkStore.bookmarks.length > 0 && filtered.length > 0"
+        aria-label="Add Bookmark"
+        @click="openCreate"
+      />
       <div class="flex items-center gap-2 mb-1">
         <BookmarkTagFilters
           v-if="bookmarkStore.bookmarks.length !== 0"
@@ -106,10 +120,10 @@ async function handleCreate(payload: {
       <RyderEmptyState
         v-else-if="bookmarkStore.bookmarks.length === 0"
         title="No bookmarks yet"
-        description="Save links you want to revisit."
+        description="Save your first bookmark to get started."
         icon="heroicons:bookmark"
-        action-label="Create bookmark"
-        @action="showAddModal = true"
+        action-label="Add bookmark"
+        @action="openCreate"
       />
 
       <RyderEmptyState

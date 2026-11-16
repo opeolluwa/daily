@@ -10,6 +10,8 @@ import {
 definePageMeta({ layout: false });
 
 const snippetStore = useSnippetStore();
+const router = useRouter();
+const isMobile = useIsMobile();
 const activeLanguage = ref("All");
 const { searchQuery, setSearch, clearSearch } = useAppSearch();
 const sortBy = ref<SnippetSort>("date-newest");
@@ -51,6 +53,15 @@ function lineCount(code: string) {
   return code.split("\n").length;
 }
 
+function openCreate() {
+  if (isMobile.value) {
+    router.push("/snippets/create");
+    return;
+  }
+  editingSnippet.value = null;
+  dialogOpen.value = true;
+}
+
 onMounted(async () => {
   setSearch({ placeholder: "Search snippets..." });
   await Promise.all([
@@ -70,11 +81,12 @@ onUnmounted(() => clearSearch());
         title="Snippets"
         cta-text="New Snippet"
         cta-icon="heroicons:plus"
-        @cta="editingSnippet = null; dialogOpen = true"
+        @cta="openCreate"
       />
       <RyderFab
+        v-if="snippetStore.snippets.length > 0 && filteredSnippets.length > 0"
         aria-label="New Snippet"
-        @click="editingSnippet = null; dialogOpen = true"
+        @click="openCreate"
       />
       <!-- Language filter tabs + sort -->
       <div
@@ -110,10 +122,7 @@ onUnmounted(() => clearSearch());
         description="Save your first code snippet to get started."
         icon="heroicons:code-bracket"
         action-label="Create snippet"
-        @action="
-          editingSnippet = null;
-          dialogOpen = true;
-        "
+        @action="openCreate"
       />
 
       <RyderEmptyState

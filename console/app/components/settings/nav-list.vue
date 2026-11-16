@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import tabs from "~/data/settings-tabs";
+import { useAuthStore } from "~/stores/auth";
+
+const authStore = useAuthStore();
+const visibleTabs = computed(() =>
+  authStore.isGuest ? tabs.filter((tab) => tab.key !== "profile") : tabs,
+);
 </script>
 
 <template>
   <nav class="space-y-2">
     <NuxtLink
-      v-for="tab in tabs"
+      v-for="tab in visibleTabs"
       :key="tab.key"
       :to="tab.to"
       class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-3 transition-colors active:bg-gray-50 dark:active:bg-gray-700/50"
