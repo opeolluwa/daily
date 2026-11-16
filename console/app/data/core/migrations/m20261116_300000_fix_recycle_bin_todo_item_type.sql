@@ -1,7 +1,0 @@
--- ============================================
--- m20261116_300000_fix_recycle_bin_todo_item_type
--- ============================================
--- No-op for PGlite: the enum rename in m20261112 (ALTER TYPE "item_type"
--- RENAME VALUE 'todo' TO 'task') already updated all rows by OID.
--- The literal 'todo' is no longer valid in the enum, so we cannot
--- reference it in a WHERE clause.
