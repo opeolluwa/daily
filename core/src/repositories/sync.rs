@@ -22,7 +22,7 @@ const SYNCABLE_TABLES: &[&str] = &[
 ];
 const RECYCLE_BIN_TABLES: &[(&str, &str)] = &[
     ("notes", "note"),
-    ("task", "todo"),
+    ("task", "task"),
     ("bookmark", "bookmark"),
     ("snippets", "snippet"),
     ("reminder", "reminder"),
