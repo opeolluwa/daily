@@ -39,6 +39,17 @@ const preferenceStore = useUserPreferenceStore();
 const route = useRoute();
 const authPagesPrefix = "/auth";
 const isAuthPage = computed(() => route.path.startsWith(authPagesPrefix));
+const parentPath = computed(() => {
+  const segments = route.path.split("/").filter(Boolean);
+  return segments.length > 1 ? `/${segments[0]}` : null;
+});
+function handleMobileNavClick() {
+  if (parentPath.value) {
+    navigateTo(parentPath.value);
+    return;
+  }
+  toggleMobileNav();
+}
 const userMenuItems = computed(() => [
   [
     {
@@ -128,9 +139,9 @@ defineShortcuts(shortcuts);
         color="neutral"
         variant="ghost"
         class="md:hidden"
-        icon="heroicons:bars-3"
-        aria-label="Open menu"
-        @click="toggleMobileNav"
+        :icon="parentPath ? 'heroicons:chevron-left' : 'heroicons:bars-3'"
+        :aria-label="parentPath ? 'Go back' : 'Open menu'"
+        @click="handleMobileNavClick"
       />
     </div>
 
@@ -264,7 +275,10 @@ defineShortcuts(shortcuts);
         />
       </UTooltip>
 
-      <div v-if="!isAuthPage" class="items-center gap-0.5 flex">
+      <div
+        v-if="!isAuthPage && !authStore.isGuest"
+        class="items-center gap-0.5 flex"
+      >
         <UDropdownMenu
           :items="userMenuItems"
           :ui="{
@@ -283,11 +297,7 @@ defineShortcuts(shortcuts);
               <p
                 class="text-[13px] font-medium text-gray-700 dark:text-gray-200 truncate"
               >
-                {{
-                  authStore.isGuest
-                    ? "Guest mode"
-                    : preferenceStore.fullName || "Account"
-                }}
+                {{ preferenceStore.fullName || "Account" }}
               </p>
             </div>
           </template>

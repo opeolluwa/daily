@@ -8,6 +8,7 @@ import { useWorkspaceSetup } from "~/composables/useWorkspaceSetup";
 import { useAuthStore } from "~/stores/auth";
 import { useWorkspacesStore } from "~/stores/workspaces";
 import "@domternal/theme";
+import { IS_WEB } from "~/env";
 const { init: initFontSize } = useFontSize();
 const { init: initDarkTheme } = useDarkTheme();
 const { setupRequired, checkSetup, initializing } = useUserSetup();
@@ -26,6 +27,12 @@ const authenticated = computed(
 const showWorkspaceLock = ref(false);
 onMounted(async () => {
   try {
+    document.documentElement.classList.toggle("is-web", IS_WEB);
+    document.documentElement.classList.toggle("is-tauri", !IS_WEB);
+    if (!IS_WEB) {
+      document.body.style.backgroundColor = "transparent";
+    }
+
     initFontSize();
     initDarkTheme();
     await checkSetup();
@@ -76,7 +83,18 @@ onMounted(async () => {
 </template>
 
 <style>
+html,
 body {
+  background-color: #fff;
+}
+
+html.dark,
+html.dark body {
+  background-color: var(--app-dark-800);
+}
+
+html.is-tauri,
+html.is-tauri body {
   background-color: transparent;
 }
 </style>

@@ -82,7 +82,6 @@ async function handleSubmit() {
     <template #main_content>
       <div class="max-w-3xl">
         <div class="mb-6 flex items-center gap-3">
-          <UButton icon="heroicons:arrow-left" color="neutral" variant="ghost" size="sm" @click="router.back()" />
           <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-100">New Reminder</h1>
         </div>
 
