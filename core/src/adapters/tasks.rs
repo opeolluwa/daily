@@ -2,9 +2,9 @@ use chrono::Utc;
 use sea_orm::ActiveValue::Set;
 use sea_orm::prelude::Date;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, sea_orm_active_enums::Priority, task::ActiveModel};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -19,7 +19,7 @@ pub struct CreateTask {
 impl Into<entities::task::ActiveModel> for CreateTask {
     fn into(self) -> entities::task::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             title: Set(self.title),
             description: Set(self.description),
             due_date: Set(self.due_date),
@@ -27,6 +27,7 @@ impl Into<entities::task::ActiveModel> for CreateTask {
             done: Set(false),
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
+            deleted_at: Set(None),
             ..Default::default()
         }
     }

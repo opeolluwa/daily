@@ -6,7 +6,6 @@ use sea_orm::prelude::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::types::EntitySyncResult;
@@ -35,29 +34,29 @@ pub trait WorkspaceRepositoryExt {
         workspace: CreateWorkspace,
     ) -> Result<workspaces::Model, KernelError>;
 
-    async fn get_workspace_by_id(&self, id: Uuid) -> Result<workspaces::Model, KernelError>;
+    async fn get_workspace_by_id(&self, id: &str) -> Result<workspaces::Model, KernelError>;
 
     async fn list_workspaces(&self) -> Result<Vec<workspaces::Model>, KernelError>;
 
     async fn delete_workspace(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<(), KernelError>;
 
     async fn update_workspace(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: UpdateWorkspace,
     ) -> Result<workspaces::Model, KernelError>;
 
     async fn verify_workspace_password(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         password: &str,
     ) -> Result<bool, KernelError>;
 
-    async fn exists(&self, id: &Uuid) -> Result<bool, KernelError>;
+    async fn exists(&self, id: &str) -> Result<bool, KernelError>;
 
     async fn upsert_many(
         &self,
@@ -82,9 +81,10 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
     }
 
-    async fn get_workspace_by_id(&self, id: Uuid) -> Result<workspaces::Model, KernelError> {
+    async fn get_workspace_by_id(&self, id: &str) -> Result<workspaces::Model, KernelError> {
         workspaces::Entity::find()
             .filter(workspaces::Column::Identifier.eq(id))
+            .filter(workspaces::Column::DeletedAt.is_null())
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -97,6 +97,7 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
 
     async fn list_workspaces(&self) -> Result<Vec<workspaces::Model>, KernelError> {
         workspaces::Entity::find()
+            .filter(workspaces::Column::DeletedAt.is_null())
             .all(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -104,13 +105,13 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
 
     async fn delete_workspace(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<(), KernelError> {
         let _meta = extract_req_meta(meta)?;
 
         let model = workspaces::Entity::find()
-            .filter(workspaces::Column::Identifier.eq(*identifier))
+            .filter(workspaces::Column::Identifier.eq(identifier))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -122,34 +123,31 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
             ));
         }
 
-        let _payload = serde_json::to_string(&model)
-            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+        if model.deleted_at.is_some() {
+            return Ok(());
+        }
 
-        //TODO: Consider moving this logic to a service layer if it becomes more complex or if we need to handle related entities (e.g., todos, bookmarks) in the recycle bin entry. For now, it serves the purpose of keeping a record of deleted workspaces.
-        // RecycleBinRepository::new(self.conn.clone())
-        //     .store(
-        //         &CreateRecycleBinEntry {
-        //             item_id: model.identifier,
-        //             item_type: ItemType::Workspace,
-        //             workspace_identifier: None,
-        //             payload,
-        //         },
-        //         &Some(meta.clone()),
-        //     )
-        //     .await?;
-
-        let result = workspaces::Entity::delete_by_id(*identifier)
+        // Tombstone instead of deleting: a hard delete would trigger the
+        // `ON DELETE CASCADE` foreign keys and wipe every child row (notes,
+        // tasks, bookmarks, ...) locally, then propagate those deletes to
+        // every other device through the sync queue.
+        let now = Utc::now().fixed_offset();
+        workspaces::Entity::update_many()
+            .col_expr(workspaces::Column::DeletedAt, Expr::value(now))
+            .col_expr(workspaces::Column::UpdatedAt, Expr::value(now))
+            .col_expr(workspaces::Column::IsHidden, Expr::value(true))
+            .filter(workspaces::Column::Identifier.eq(identifier))
+            .filter(workspaces::Column::DeletedAt.is_null())
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
 
-        log::info!("{:#?}", result);
         Ok(())
     }
 
     async fn update_workspace(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         payload: UpdateWorkspace,
     ) -> Result<workspaces::Model, KernelError> {
         // If promoting to default, demote all others first
@@ -161,7 +159,7 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
                 .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
         }
 
-        let model = self.get_workspace_by_id(*identifier).await?;
+        let model = self.get_workspace_by_id(identifier).await?;
         let mut active: workspaces::ActiveModel = model.into();
 
         if let Some(name) = payload.name {
@@ -202,10 +200,10 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
 
     async fn verify_workspace_password(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         password: &str,
     ) -> Result<bool, KernelError> {
-        let model = self.get_workspace_by_id(*identifier).await?;
+        let model = self.get_workspace_by_id(identifier).await?;
         if !model.is_secured {
             return Ok(true);
         }
@@ -216,8 +214,8 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
         }
     }
 
-    async fn exists(&self, id: &Uuid) -> Result<bool, KernelError> {
-        let result = self.get_workspace_by_id(id.to_owned()).await.ok();
+    async fn exists(&self, id: &str) -> Result<bool, KernelError> {
+        let result = self.get_workspace_by_id(id).await.ok();
         Ok(result.is_some())
     }
 
@@ -234,29 +232,28 @@ impl WorkspaceRepositoryExt for WorkspaceRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), KernelError> =
-                            async {
-                                let exists = workspaces::Entity::find()
-                                    .filter(workspaces::Column::Identifier.eq(model.identifier))
-                                    .one(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?
-                                    .is_some();
+                        let op_result: Result<(), KernelError> = async {
+                            let exists = workspaces::Entity::find()
+                                .filter(workspaces::Column::Identifier.eq(model.identifier.clone()))
+                                .one(conn.as_ref())
+                                .await
+                                .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+                                .is_some();
 
-                                let active_model: workspaces::ActiveModel = model.into();
+                            let active_model: workspaces::ActiveModel = model.into();
 
-                                if exists {
-                                    active_model.update(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                } else {
-                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                }
-                                Ok(())
+                            if exists {
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
+                            } else {
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
-                            .await;
+                            Ok(())
+                        }
+                        .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -288,8 +285,8 @@ impl WorkspaceRepository {
 
     #[wasm_bindgen(js_name = "get_workspace_by_id")]
     pub async fn get_workspace_by_id_js(&self, identifier: &str) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
-        let model = <Self as WorkspaceRepositoryExt>::get_workspace_by_id(self, id).await?;
+        let id = identifier.to_string();
+        let model = <Self as WorkspaceRepositoryExt>::get_workspace_by_id(self, &id).await?;
         to_js(&model)
     }
 
@@ -305,7 +302,7 @@ impl WorkspaceRepository {
         identifier: &str,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as WorkspaceRepositoryExt>::delete_workspace(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
@@ -317,7 +314,7 @@ impl WorkspaceRepository {
         identifier: &str,
         payload: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let payload: UpdateWorkspace = serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
         let model = <Self as WorkspaceRepositoryExt>::update_workspace(self, &id, payload).await?;
         to_js(&model)
@@ -329,7 +326,7 @@ impl WorkspaceRepository {
         identifier: &str,
         password: &str,
     ) -> Result<bool, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         <Self as WorkspaceRepositoryExt>::verify_workspace_password(self, &id, password)
             .await
             .map_err(JsValue::from)
@@ -337,7 +334,7 @@ impl WorkspaceRepository {
 
     #[wasm_bindgen(js_name = "exists")]
     pub async fn exists_js(&self, identifier: &str) -> Result<bool, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         <Self as WorkspaceRepositoryExt>::exists(self, &id)
             .await
             .map_err(JsValue::from)

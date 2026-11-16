@@ -13,6 +13,7 @@ import { WorkspaceProfileRepository } from "./repositories/workspace_profiles";
 import { UserPreferencesRepository } from "./repositories/user_preferences";
 import { WhiteboardRepository } from "./repositories/whiteboards";
 import { WhiteboardFileRepository } from "./repositories/whiteboard_files";
+import { SyncRepository } from "./repositories/sync";
 
 export interface CoreConsoleApi {
   db: PGlite;
@@ -29,6 +30,7 @@ export interface CoreConsoleApi {
   userPreferences: UserPreferencesRepository;
   whiteboards: WhiteboardRepository;
   whiteboardFiles: WhiteboardFileRepository;
+  sync: SyncRepository;
 }
 
 /** Builds the in-browser core API, applying pending migrations on first use. */
@@ -49,6 +51,7 @@ export async function createCoreConsoleApi(): Promise<CoreConsoleApi> {
     userPreferences: new UserPreferencesRepository(),
     whiteboards: new WhiteboardRepository(),
     whiteboardFiles: new WhiteboardFileRepository(),
+    sync: new SyncRepository(),
   };
 }
 
@@ -78,3 +81,9 @@ export type {
   UpdateWhiteboard,
 } from "./repositories/whiteboards";
 export type { WhiteboardFiles } from "./repositories/whiteboard_files";
+export type {
+  SyncQueueItem,
+  SyncState,
+  RemoteSyncChange,
+  ApplyChangesResult,
+} from "./repositories/sync";

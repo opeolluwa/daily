@@ -1,9 +1,9 @@
 use chrono::Utc;
 use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, user_preferences::ActiveModel};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -17,7 +17,7 @@ pub struct CreateUserPreferences {
 impl Into<entities::user_preferences::ActiveModel> for CreateUserPreferences {
     fn into(self) -> entities::user_preferences::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             master_first_name: Set(self.master_first_name),
             master_last_name: Set(self.master_last_name),
             master_email: Set(self.master_email),

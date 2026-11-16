@@ -1,24 +1,28 @@
+#![allow(non_snake_case)]
 use kernel::entities;
 use kernel::entities::sea_orm_active_enums::{Priority, TaskStatus};
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncTodoInput")]
 pub struct SyncTodoInput {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub description: Option<String>,
-    pub due_date: Option<String>,
+    pub dueDate: Option<String>,
     pub priority: Priority,
     pub done: bool,
-    pub created_at: String,
-    pub updated_at: String,
-    pub due_time: Option<String>,
-    pub workspace_identifier: Option<Uuid>,
+    pub createdAt: String,
+    pub updatedAt: String,
+    pub dueTime: Option<String>,
+    #[serde(default)]
+    pub status: Option<TaskStatus>,
+    pub workspaceIdentifier: Option<String>,
+    #[serde(default)]
+    pub deletedAt: Option<String>,
 }
 
 impl TryFrom<SyncTodoInput> for entities::task::Model {
@@ -30,7 +34,7 @@ impl TryFrom<SyncTodoInput> for entities::task::Model {
             title: val.title,
             description: val.description,
             due_date: val
-                .due_date
+                .dueDate
                 .map(|d| {
                     d.parse()
                         .map_err(|e| async_graphql::Error::new(format!("invalid due_date: {e}")))
@@ -39,22 +43,29 @@ impl TryFrom<SyncTodoInput> for entities::task::Model {
             priority: val.priority,
             done: val.done,
             created_at: val
-                .created_at
+                .createdAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid created_at: {e}")))?,
             updated_at: val
-                .updated_at
+                .updatedAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
             due_time: val
-                .due_time
+                .dueTime
                 .map(|t| {
                     t.parse()
                         .map_err(|e| async_graphql::Error::new(format!("invalid due_time: {e}")))
                 })
                 .transpose()?,
-            workspace_identifier: val.workspace_identifier,
-            status: TaskStatus::Planned,
+            workspace_identifier: val.workspaceIdentifier,
+            status: val.status.unwrap_or(TaskStatus::Planned),
+            deleted_at: val
+                .deletedAt
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
         })
     }
 }

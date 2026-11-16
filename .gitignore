@@ -46,3 +46,4 @@ console/src-tauri/almonds.db-wal
 node_modules
 node_modules/
 console/src-tauri/almonds-pg
+console/src-tauri/daily-db

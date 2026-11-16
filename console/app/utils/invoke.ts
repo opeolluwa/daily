@@ -254,6 +254,29 @@ const COMMANDS: Record<string, CommandHandler> = {
   delete_notification: (api, a) =>
     api.notifications.delete(asString(a, "identifier"), asMeta(a)),
 
+  sync_queue_list: (api, a) =>
+    api.sync.queue(asString(a, "workspaceIdentifier")),
+  sync_queue_ack: (api, a) => api.sync.ack(a.identifiers as string[]),
+  sync_queue_fail: (api, a) =>
+    api.sync.fail(asString(a, "identifier"), asString(a, "error")),
+  sync_state_get: (api, a) =>
+    api.sync.state(asString(a, "workspaceIdentifier")),
+  sync_state_set: (api, a) =>
+    api.sync.setState(
+      asString(a, "workspaceIdentifier"),
+      asString(a, "cursor"),
+      (a.syncedAt as string | null) ?? null,
+      (a.error as string | null) ?? null,
+    ),
+  sync_apply_changes: (api, a) =>
+    api.sync.applyChanges(
+      asString(a, "workspaceIdentifier"),
+      a.changes as Parameters<typeof api.sync.applyChanges>[1],
+    ),
+  sync_set_applying: (api, a) => api.sync.setApplying(a.applying as boolean),
+  sync_clear_applying: (api) => api.sync.clearApplying(),
+  sync_device_id: (api) => api.sync.deviceId(),
+
   get_all_recycle_bin_entries: (api, a) => api.recycleBin.find_all(asMeta(a)),
   create_recycle_bin_entry: (api, a) =>
     api.recycleBin.store(a.entry as CreateRecycleBinEntry, asMeta(a)),
@@ -332,9 +355,20 @@ async function dispatchBrowser(
  * PGlite layer (`window.core`, installed by plugins/core.client.ts) in a
  * plain browser.
  */
+const MUTATING =
+  /^(create_|update_|delete_|mark_|change_|duplicate_|transfer_|restore_|purge_)/;
+
 export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
-  if (typeof window !== "undefined" && window?.core) {
-    return (await dispatchBrowser(cmd, args ?? {})) as T;
+  const result =
+    typeof window !== "undefined" && window?.core
+      ? ((await dispatchBrowser(cmd, args ?? {})) as T)
+      : await tauriInvoke<T>(cmd, args);
+
+  if (typeof window !== "undefined" && MUTATING.test(cmd)) {
+    void import("./sync/engine")
+      .then(({ scheduleSync }) => scheduleSync())
+      .catch(() => undefined);
   }
-  return tauriInvoke<T>(cmd, args);
+
+  return result;
 }

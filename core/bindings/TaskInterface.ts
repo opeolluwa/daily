@@ -14,4 +14,5 @@ export type TaskInterface = {
   dueTime: string | null;
   workspaceIdentifier: string | null;
   status: TaskStatus;
+  deletedAt: string | null;
 };

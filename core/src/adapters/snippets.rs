@@ -1,9 +1,9 @@
 use sea_orm::ActiveValue::Set;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, snippets::ActiveModel};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[deprecated(since = "0.1.0", note = "use CreateSnippet ")]
@@ -30,13 +30,13 @@ pub struct CreateSnippet {
     pub is_pinned: bool,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
 }
 
 impl Into<entities::snippets::ActiveModel> for CreateSnippet {
     fn into(self) -> entities::snippets::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             title: Set(self.title),
             language: Set(self.language),
             code: Set(self.code),
@@ -45,6 +45,7 @@ impl Into<entities::snippets::ActiveModel> for CreateSnippet {
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
             workspace_identifier: Set(self.workspace_identifier),
+            deleted_at: Set(None),
         }
     }
 }

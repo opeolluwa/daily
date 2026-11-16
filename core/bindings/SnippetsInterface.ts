@@ -10,4 +10,5 @@ export type SnippetsInterface = {
   createdAt: string;
   updatedAt: string;
   workspaceIdentifier: string | null;
+  deletedAt: string | null;
 };

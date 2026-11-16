@@ -6,7 +6,6 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, QueryFilter, QueryOrder,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::entities::sea_orm_active_enums::NotificationType;
@@ -35,7 +34,7 @@ pub trait NotificationRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<notifications::Model>, KernelError>;
 
@@ -52,12 +51,15 @@ pub trait NotificationRepositoryExt {
 
     async fn mark_as_read(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<notifications::Model, KernelError>;
 
-    async fn delete(&self, identifier: &Uuid, meta: &Option<RequestMeta>)
-    -> Result<(), KernelError>;
+    async fn delete(
+        &self,
+        identifier: &str,
+        meta: &Option<RequestMeta>,
+    ) -> Result<(), KernelError>;
 }
 
 #[async_trait]
@@ -74,7 +76,7 @@ impl NotificationRepositoryExt for NotificationRepository {
         let mut active_model: notifications::ActiveModel = payload.to_owned().into();
 
         let meta = extract_req_meta(meta)?;
-        active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+        active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
 
         active_model
             .insert(self.conn.as_ref())
@@ -84,14 +86,14 @@ impl NotificationRepositoryExt for NotificationRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<notifications::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         notifications::Entity::find()
-            .filter(notifications::Column::Identifier.eq(*identifier))
-            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notifications::Column::Identifier.eq(identifier))
+            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -104,7 +106,7 @@ impl NotificationRepositoryExt for NotificationRepository {
         let meta = extract_req_meta(meta)?;
 
         notifications::Entity::find()
-            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .order_by_desc(notifications::Column::CreatedAt)
             .all(self.conn.as_ref())
             .await
@@ -120,7 +122,7 @@ impl NotificationRepositoryExt for NotificationRepository {
 
         notifications::Entity::find()
             .filter(notifications::Column::NotificationType.eq(notification_type.to_owned()))
-            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .order_by_desc(notifications::Column::CreatedAt)
             .all(self.conn.as_ref())
             .await
@@ -129,14 +131,14 @@ impl NotificationRepositoryExt for NotificationRepository {
 
     async fn mark_as_read(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<notifications::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let model = notifications::Entity::find()
-            .filter(notifications::Column::Identifier.eq(*identifier))
-            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notifications::Column::Identifier.eq(identifier))
+            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -155,14 +157,14 @@ impl NotificationRepositoryExt for NotificationRepository {
 
     async fn delete(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<(), KernelError> {
         let meta = extract_req_meta(meta)?;
 
         notifications::Entity::delete_many()
-            .filter(notifications::Column::Identifier.eq(*identifier))
-            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(notifications::Column::Identifier.eq(identifier))
+            .filter(notifications::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -188,7 +190,7 @@ impl NotificationRepository {
 
     #[wasm_bindgen(js_name = "find_by_id")]
     pub async fn find_by_id_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as NotificationRepositoryExt>::find_by_id(self, &id, &meta).await?;
         to_js(&model)
@@ -222,7 +224,7 @@ impl NotificationRepository {
         identifier: &str,
         meta: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as NotificationRepositoryExt>::mark_as_read(self, &id, &meta).await?;
         to_js(&model)
@@ -230,7 +232,7 @@ impl NotificationRepository {
 
     #[wasm_bindgen(js_name = "delete")]
     pub async fn delete_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as NotificationRepositoryExt>::delete(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)

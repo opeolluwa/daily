@@ -5,6 +5,7 @@ import TaskDialog from "~/components/task/Dialog.vue";
 import { useTaskStore, type Task } from "~/stores/tasks";
 import { TASK_SORT_OPTIONS, sortTasks, type TaskSort } from "~/utils/sorting";
 import type { TabsItem } from "@nuxt/ui";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 definePageMeta({ layout: false });
 
 const taskStore = useTaskStore();
@@ -80,6 +81,7 @@ onUnmounted(() => clearSearch());
     <template #main_content>
       <RyderPageHeader
         v-if="taskStore.tasks.length"
+                :ui="ryderPageHeaderOverride"
         title="Task"
         subtitle="Plan your tasks"
         cta-text="New Task"

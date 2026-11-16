@@ -7,6 +7,7 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         uuid workspace_identifier FK
+        timestamptz deleted_at
     }
     country {
         char identifier PK
@@ -39,6 +40,7 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         uuid workspace_identifier FK
+        timestamptz deleted_at
     }
     notifications {
         uuid identifier PK
@@ -65,6 +67,7 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         uuid workspace_identifier FK
+        timestamptz deleted_at
     }
     recycle_bin {
         uuid identifier PK
@@ -85,6 +88,9 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         uuid workspace_identifier FK
+        enum recurrence_type
+        date end_date
+        timestamptz deleted_at
     }
     revoked_token {
         uuid identifier PK
@@ -103,8 +109,30 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         uuid workspace_identifier FK
+        timestamptz deleted_at
     }
-    todo {
+    sync_meta {
+        varchar key PK
+        text value
+    }
+    sync_queue {
+        uuid identifier PK
+        varchar table_name
+        varchar record_identifier
+        varchar operation
+        uuid workspace_identifier
+        timestamptz created_at
+        int attempts
+        text last_error
+        varchar device_id
+    }
+    sync_state {
+        uuid workspace_identifier PK
+        bigint last_cursor
+        timestamptz last_synced_at
+        text last_error
+    }
+    task {
         uuid identifier PK
         varchar title
         text description
@@ -116,6 +144,7 @@ erDiagram
         time due_time
         uuid workspace_identifier FK
         enum status
+        timestamptz deleted_at
     }
     user_preferences {
         uuid identifier PK
@@ -144,6 +173,7 @@ erDiagram
         text data
         timestamptz created_at
         timestamptz updated_at
+        text remote_url
     }
     whiteboards {
         uuid identifier PK
@@ -152,6 +182,7 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         uuid workspace_identifier FK
+        timestamptz deleted_at
     }
     workspace_members {
         uuid identifier PK
@@ -170,6 +201,7 @@ erDiagram
         timestamptz updated_at
         uuid workspace_identifier FK
         varchar profile_picture
+        timestamptz deleted_at
     }
     workspaces {
         varchar name
@@ -182,6 +214,7 @@ erDiagram
         bool is_secured
         text password_hash
         uuid user_identifier FK
+        timestamptz deleted_at
     }
     bookmark }o--|| workspaces : "workspace_identifier"
     invitation }o--|| workspaces : "workspace_identifier"
@@ -193,7 +226,7 @@ erDiagram
     reminder }o--|| workspaces : "workspace_identifier"
     revoked_token }o--|| users : "user_identifier"
     snippets }o--|| workspaces : "workspace_identifier"
-    todo }o--|| workspaces : "workspace_identifier"
+    task }o--|| workspaces : "workspace_identifier"
     whiteboard_files }o--|| whiteboards : "whiteboard_identifier"
     whiteboards }o--|| workspaces : "workspace_identifier"
     workspace_members }o--|| workspaces : "workspace_identifier"

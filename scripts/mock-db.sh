@@ -1,1 +1,1 @@
-cp "$HOME/Library/Application Support/com.opeolluwa.daily/almonds.db" ./core.db
+cp "$HOME/Library/Application Support/com.opeolluwa.daily/almonds.db" ./console/src-tauri/core.db

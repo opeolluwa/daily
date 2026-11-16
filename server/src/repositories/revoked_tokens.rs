@@ -4,7 +4,6 @@ use chrono::DateTime;
 use kernel::entities::revoked_token;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
-use uuid::Uuid;
 
 use crate::errors::database_error::DatabaseError;
 use crate::repositories::base::Repository;
@@ -25,25 +24,25 @@ impl Repository for TokenBlacklistRepository {
 pub(crate) trait TokenBlacklistRepositoryTrait {
     async fn revoke_token(
         &self,
-        jti: &Uuid,
-        user_identifier: &Uuid,
+        jti: &str,
+        user_identifier: &str,
         expires_at: DateTime<chrono::FixedOffset>,
     ) -> Result<(), DatabaseError>;
 
-    async fn is_revoked(&self, jti: &Uuid) -> Result<bool, DatabaseError>;
+    async fn is_revoked(&self, jti: &str) -> Result<bool, DatabaseError>;
 }
 
 impl TokenBlacklistRepositoryTrait for TokenBlacklistRepository {
     async fn revoke_token(
         &self,
-        jti: &Uuid,
-        user_identifier: &Uuid,
+        jti: &str,
+        user_identifier: &str,
         expires_at: DateTime<chrono::FixedOffset>,
     ) -> Result<(), DatabaseError> {
         let record = revoked_token::ActiveModel {
-            identifier: Set(Uuid::new_v4()),
-            jti: Set(*jti),
-            user_identifier: Set(*user_identifier),
+            identifier: Set(kernel::id::new_id()),
+            jti: Set(jti.to_string()),
+            user_identifier: Set(user_identifier.to_string()),
             expires_at: Set(expires_at),
             revoked_at: Set(chrono::Utc::now().fixed_offset()),
         };
@@ -55,9 +54,9 @@ impl TokenBlacklistRepositoryTrait for TokenBlacklistRepository {
         Ok(())
     }
 
-    async fn is_revoked(&self, jti: &Uuid) -> Result<bool, DatabaseError> {
+    async fn is_revoked(&self, jti: &str) -> Result<bool, DatabaseError> {
         let record = revoked_token::Entity::find()
-            .filter(revoked_token::Column::Jti.eq(*jti))
+            .filter(revoked_token::Column::Jti.eq(jti))
             .one(self.db_conn.as_ref())
             .await
             .map_err(DatabaseError::from)?;

@@ -3,6 +3,7 @@ import NotesCard from "~/components/notes/notes-card.vue";
 import { NOTE_SORT_OPTIONS, sortNotes, type NoteSort } from "~/utils/sorting";
 import { useNoteStore } from "~/stores/notes";
 import { formatDate } from "~/utils/date";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 
 definePageMeta({ layout: false });
 
@@ -37,6 +38,7 @@ onUnmounted(() => clearSearch());
     <template #main_content>
       <RyderPageHeader
         v-if="noteStore.notes.length > 0"
+        :ui="ryderPageHeaderOverride"
         title="Notes"
         cta-text="New Note"
         cta-icon="heroicons:plus"

@@ -4,7 +4,6 @@ use kernel::{
     repositories::recycle_bin::RecycleBinRepositoryExt,
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{adapters::recycle_bin::CreateRecycleBinEntry, errors::AppError, state::app::AppState};
 
@@ -37,7 +36,7 @@ pub async fn get_all_recycle_bin_entries(
 #[tauri::command]
 pub async fn get_recycle_bin_entry(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<recycle_bin::Model>, AppError> {
     state
@@ -63,7 +62,7 @@ pub async fn get_recycle_bin_entries_by_type(
 #[tauri::command]
 pub async fn purge_recycle_bin_entry(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -90,7 +89,7 @@ pub async fn purge_all_recycle_bin_entries(
 #[tauri::command]
 pub async fn restore_recycle_bin_entry(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let _entry = state

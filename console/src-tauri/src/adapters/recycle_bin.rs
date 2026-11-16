@@ -1,15 +1,14 @@
 use kernel::adapters::meta::RequestMeta;
 use kernel::entities::sea_orm_active_enums::ItemType as RecycleBinItemType;
 use serde::Deserialize;
-use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateRecycleBinEntry {
-    pub item_id: Uuid,
+    pub item_id: String,
     pub item_type: RecycleBinItemType,
     pub payload: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub meta: Option<RequestMeta>,
 }
 

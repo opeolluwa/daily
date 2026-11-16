@@ -3,7 +3,6 @@ use std::sync::Arc;
 use chrono::Local;
 use kernel::entities::invitation::{self, ActiveModel, Entity as InvitationEntity};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
-use uuid::Uuid;
 
 use crate::{
     adapters::invitation::InviteWorkspaceMemberRequest, errors::database_error::DatabaseError,
@@ -26,7 +25,7 @@ impl Repository for InvitationRepository {
 pub(crate) trait InvitationRepositoryTrait {
     async fn find_by_email_and_workspace(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
     ) -> Result<Option<invitation::Model>, DatabaseError>;
 
@@ -34,12 +33,12 @@ pub(crate) trait InvitationRepositoryTrait {
 
     async fn find_by_identifier(
         &self,
-        identifier: Uuid,
+        identifier: String,
     ) -> Result<Option<invitation::Model>, DatabaseError>;
 
     async fn create(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         req: &InviteWorkspaceMemberRequest,
         token: &str,
     ) -> Result<invitation::Model, DatabaseError>;
@@ -50,13 +49,13 @@ pub(crate) trait InvitationRepositoryTrait {
         status: &str,
     ) -> Result<invitation::Model, DatabaseError>;
 
-    async fn delete(&self, identifier: Uuid) -> Result<bool, DatabaseError>;
+    async fn delete(&self, identifier: String) -> Result<bool, DatabaseError>;
 }
 
 impl InvitationRepositoryTrait for InvitationRepository {
     async fn find_by_email_and_workspace(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         email: &str,
     ) -> Result<Option<invitation::Model>, DatabaseError> {
         InvitationEntity::find()
@@ -77,7 +76,7 @@ impl InvitationRepositoryTrait for InvitationRepository {
 
     async fn find_by_identifier(
         &self,
-        identifier: Uuid,
+        identifier: String,
     ) -> Result<Option<invitation::Model>, DatabaseError> {
         InvitationEntity::find_by_id(identifier)
             .one(self.db_conn.as_ref())
@@ -98,7 +97,7 @@ impl InvitationRepositoryTrait for InvitationRepository {
             .map_err(DatabaseError::from)
     }
 
-    async fn delete(&self, identifier: Uuid) -> Result<bool, DatabaseError> {
+    async fn delete(&self, identifier: String) -> Result<bool, DatabaseError> {
         let result = InvitationEntity::delete_by_id(identifier)
             .exec(self.db_conn.as_ref())
             .await
@@ -108,12 +107,12 @@ impl InvitationRepositoryTrait for InvitationRepository {
 
     async fn create(
         &self,
-        workspace_identifier: Uuid,
+        workspace_identifier: String,
         req: &InviteWorkspaceMemberRequest,
         token: &str,
     ) -> Result<invitation::Model, DatabaseError> {
         let model = ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(kernel::id::new_id()),
             workspace_identifier: Set(workspace_identifier),
             email: Set(req.email.clone()),
             first_name: Set(req.first_name.clone()),

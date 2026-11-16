@@ -6,7 +6,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
-use uuid::Uuid;
 
 use validator::Validate;
 
@@ -22,7 +21,9 @@ pub async fn create_bookmark(
     bookmark: CreateBookmark,
     meta: Option<RequestMeta>,
 ) -> Result<bookmark::Model, AppError> {
-    bookmark.validate().map_err(|e| AppError::Io(e.to_string()))?;
+    bookmark
+        .validate()
+        .map_err(|e| AppError::Io(e.to_string()))?;
     let model = state
         .bookmark_repository
         .create(&bookmark.into(), &meta)
@@ -34,7 +35,7 @@ pub async fn create_bookmark(
 #[tauri::command]
 pub async fn get_bookmark(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<bookmark::Model>, AppError> {
     state
@@ -90,11 +91,13 @@ pub async fn get_recently_added_bookmarks(
 #[tauri::command]
 pub async fn update_bookmark(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     bookmark: UpdateBookmark,
     meta: Option<RequestMeta>,
 ) -> Result<bookmark::Model, AppError> {
-    bookmark.validate().map_err(|e| AppError::Io(e.to_string()))?;
+    bookmark
+        .validate()
+        .map_err(|e| AppError::Io(e.to_string()))?;
     let model = state
         .bookmark_repository
         .update(&identifier, &bookmark.into(), &meta)
@@ -106,7 +109,7 @@ pub async fn update_bookmark(
 #[tauri::command]
 pub async fn delete_bookmark(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -120,9 +123,9 @@ pub async fn delete_bookmark(
 #[tauri::command]
 pub async fn duplicate_bookmark(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state
@@ -148,9 +151,9 @@ pub async fn duplicate_bookmark(
 #[tauri::command]
 pub async fn transfer_bookmark(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state

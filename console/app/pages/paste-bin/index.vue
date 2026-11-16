@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 import PasteBinCard from "~/components/paste-bin/paste-bin-card.vue";
 import PasteBinDialog from "~/components/paste-bin/PasteBinDialog.vue";
 import { usePasteBinStore, type PasteBin } from "~/stores/paste-bin";
@@ -108,6 +109,7 @@ onBeforeUnmount(() => {
     <template #main_content>
       <RyderPageHeader
         v-if="pasteBinStore.pasteBins.length > 0"
+        :ui="ryderPageHeaderOverride"
         title="Paste Bin"
       />
       <div

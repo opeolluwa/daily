@@ -24,11 +24,12 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
 
   getters: {
     currentWorkspace: (state) =>
-      state.workspaces?.find((w) => w.identifier === state.activeWorkspaceId) ||
-      null,
+      state.workspaces?.find(
+        (w) => w.identifier === state.activeWorkspaceId && !w.deletedAt,
+      ) || null,
 
     visibleWorkspaces: (state) =>
-      state.workspaces?.filter((w) => !w.isHidden) ?? [],
+      state.workspaces?.filter((w) => !w.isHidden && !w.deletedAt) ?? [],
 
     isWorkspaceUnlocked: (state) => (identifier: string) =>
       !state.workspaces?.find((w) => w.identifier === identifier)?.isSecured ||
@@ -50,10 +51,12 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
       this.loading = true;
       try {
         this.workspaces = (await invoke<Workspace[]>("list_workspaces")) ?? [];
-        if (!this.activeWorkspaceId && this.workspaces.length > 0) {
-          // Prefer the default workspace on first load
-          const defaultWs = this.workspaces.find((w) => w.isDefault);
-          this.activeWorkspaceId = (defaultWs ?? this.workspaces[0]).identifier;
+        const live = this.workspaces.filter((w) => !w.deletedAt);
+        const active = live.find((w) => w.identifier === this.activeWorkspaceId);
+        if (!active) {
+          // Prefer the default workspace, then the first live one.
+          const fallback = live.find((w) => w.isDefault) ?? live[0];
+          this.activeWorkspaceId = fallback?.identifier ?? "";
         }
       } catch (error) {
         console.error("[workspaces] failed to fetch", error);

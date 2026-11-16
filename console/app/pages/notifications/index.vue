@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NotificationType } from "@daily/core";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 
 definePageMeta({ layout: false });
 
@@ -101,6 +102,7 @@ function relativeTime(iso: string) {
     <template #main_content>
       <RyderPageHeader
         v-if="notificationStore.notifications.length > 0"
+        :ui="ryderPageHeaderOverride"
         title="Notifications"
       />
       <!-- Toolbar -->

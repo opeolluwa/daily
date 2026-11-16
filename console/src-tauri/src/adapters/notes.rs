@@ -1,6 +1,5 @@
 use kernel::adapters::meta::RequestMeta;
 use serde::Deserialize;
-use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -8,7 +7,7 @@ pub struct CreateNote {
     pub title: String,
     pub content: String,
     pub categories: Option<Vec<String>>,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub meta: Option<RequestMeta>,
 }
 

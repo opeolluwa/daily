@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use kernel::entities::notifications;
 use sea_orm::DatabaseConnection;
-use uuid::Uuid;
 
 use crate::{
     adapters::{
@@ -36,7 +35,7 @@ impl NotificationService {
 
 #[allow(dead_code)]
 pub(crate) trait NotificationServiceExt {
-    async fn fetch_one(&self, notification_identifier: &Uuid) -> Option<notifications::Model>;
+    async fn fetch_one(&self, notification_identifier: &str) -> Option<notifications::Model>;
 
     async fn fetch_notifications(
         &self,
@@ -49,12 +48,12 @@ pub(crate) trait NotificationServiceExt {
     async fn mark_read(
         &self,
         claims: &Claims,
-        notification_identifier: &Uuid,
+        notification_identifier: &str,
     ) -> Result<(), ServiceError>;
 }
 
 impl NotificationServiceExt for NotificationService {
-    async fn fetch_one(&self, notification_identifier: &Uuid) -> Option<notifications::Model> {
+    async fn fetch_one(&self, notification_identifier: &str) -> Option<notifications::Model> {
         self.repository.fetch_one(notification_identifier).await
     }
 
@@ -84,7 +83,7 @@ impl NotificationServiceExt for NotificationService {
     async fn mark_read(
         &self,
         _claims: &Claims,
-        notification_identifier: &Uuid,
+        notification_identifier: &str,
     ) -> Result<(), ServiceError> {
         self.repository.mark_read(notification_identifier).await?;
         Ok(())

@@ -14,7 +14,7 @@ impl MigrationTrait for Migration {
                     .col(pk_uuid(OneTimePassword::Identifier))
                     .col(uuid(OneTimePassword::UserIdentifier).not_null())
                     .col(ColumnDef::new(OneTimePassword::Code).char_len(6).not_null())
-                    .col(timestamp_with_time_zone(OneTimePassword::CreatedAt))
+                    .col(timestamp_with_time_zone(OneTimePassword::CreatedAt).default(Expr::current_timestamp()))
                     .col(timestamp_with_time_zone(OneTimePassword::UpdatedAt).null())
                     .to_owned(),
             )

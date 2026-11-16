@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWhiteboardStore } from "~/stores/whiteboards";
 import WhiteboardCard from "~/components/whiteboards/whiteboard-card.vue";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 
 definePageMeta({ layout: false });
 
@@ -52,6 +53,7 @@ onUnmounted(() => clearSearch());
     <template #main_content>
       <RyderPageHeader
         v-if="whiteboardStore.whiteboards.length > 0"
+        :ui="ryderPageHeaderOverride"
         title="Whiteboards"
         cta-text="New Whiteboard"
         cta-icon="heroicons:plus"

@@ -25,7 +25,7 @@ export class TaskRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title,
         payload.description ?? null,
         payload.dueDate ?? null,
@@ -43,7 +43,7 @@ export class TaskRepository extends BaseRepository {
   ): Promise<Task | null> {
     const m = this.requireMeta(meta);
     return this.row<Task>(
-      `SELECT * FROM task WHERE identifier = $1 AND workspace_identifier = $2`,
+      `SELECT * FROM task WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -51,7 +51,7 @@ export class TaskRepository extends BaseRepository {
   async find_all(meta?: RequestMeta): Promise<Task[]> {
     const m = this.requireMeta(meta);
     return this.rows<Task>(
-      `SELECT * FROM task WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM task WHERE workspace_identifier = $1 AND deleted_at IS NULL ORDER BY created_at DESC`,
       [m.workspaceIdentifier],
     );
   }
@@ -64,7 +64,7 @@ export class TaskRepository extends BaseRepository {
     const m = this.requireMeta(meta);
     const row = await this.row<Task>(
       `UPDATE task SET priority = $2, updated_at = $3
-       WHERE identifier = $1 AND workspace_identifier = $4
+       WHERE identifier = $1 AND workspace_identifier = $4 AND deleted_at IS NULL
        RETURNING *`,
       [identifier, priority, this.now(), m.workspaceIdentifier],
     );
@@ -80,7 +80,7 @@ export class TaskRepository extends BaseRepository {
     const m = this.requireMeta(meta);
     const row = await this.row<Task>(
       `UPDATE task SET done = $2, updated_at = $3
-       WHERE identifier = $1 AND workspace_identifier = $4
+       WHERE identifier = $1 AND workspace_identifier = $4 AND deleted_at IS NULL
        RETURNING *`,
       [identifier, done, this.now(), m.workspaceIdentifier],
     );
@@ -96,7 +96,7 @@ export class TaskRepository extends BaseRepository {
     const m = this.requireMeta(meta);
     const row = await this.row<Task>(
       `UPDATE task SET due_date = $2, updated_at = $3
-       WHERE identifier = $1 AND workspace_identifier = $4
+       WHERE identifier = $1 AND workspace_identifier = $4 AND deleted_at IS NULL
        RETURNING *`,
       [identifier, due_date, this.now(), m.workspaceIdentifier],
     );
@@ -128,7 +128,7 @@ export class TaskRepository extends BaseRepository {
     }
 
     const row = await this.row<Task>(
-      `UPDATE task SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE task SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx} AND deleted_at IS NULL
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );
@@ -146,7 +146,7 @@ export class TaskRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, 'task', $3, $4, $5)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         JSON.stringify(model),
         this.now(),
@@ -155,8 +155,8 @@ export class TaskRepository extends BaseRepository {
     );
 
     await this.run(
-      `DELETE FROM task WHERE identifier = $1 AND workspace_identifier = $2`,
-      [identifier, m.workspaceIdentifier],
+      `UPDATE task SET deleted_at = $3, updated_at = $3 WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
+      [identifier, m.workspaceIdentifier, this.now()],
     );
   }
 

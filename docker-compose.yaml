@@ -16,10 +16,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mailpit:
-        condition: service_started
-      # redis:
-        # condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - internal
     volumes:
@@ -129,60 +127,62 @@ services:
   #     retries: 5
 
 
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: redis
-  #   restart: unless-stopped
-  #   command: redis-server --save 60 1 --loglevel warning
-  #   ports:
-  #     - "7963:6379"
-  #   volumes:
-  #     - redis-data:/data
-  #   networks:
-  #     - internal
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 5s
-  #     timeout: 3s
-  #     retries: 5
-  # redisinsight:
-  #   image: redis/redisinsight:latest
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   environment:
-  #     RI_REDIS_HOST: redis
-  #     RI_REDIS_PORT: 6379
-  #   volumes:
-  #     - redisinsight-data:/data
-  #   networks:
-  #     - internal
-  #   ports:
-  #     - 5540:5540
-
-  mailpit:
-    image: axllent/mailpit
-    container_name: mailpit
+  redis:
+    image: redis:7-alpine
+    container_name: redis
     restart: unless-stopped
-    volumes:
-      - mailpit-data:/data
+    command: redis-server --save 60 1 --loglevel warning
     ports:
-      - "8025:8025"
-      - "1025:1025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      - "7963:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    ports:
+      - "1080:1080"   # WEB UI
+      - "1025:1025"  #SMTP port 
+    environment:
+      - MAILDEV_OUTGOING_HOST=localhost
+      - MAILDEV_OUTGOING_PORT=3400
+      - MAILDEV_OUTGOING_USER=backoffice
+      - MAILDEV_OUTGOING_PASS=backoffice
+    networks:
+      - internal
+
+      
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: 6379
+    volumes:
+      - redisinsight-data:/data
+    networks:
+      - internal
+    ports:
+      - "5540:5540"
+
 
 volumes:
   cargo-target:
   rust-cache:
   postgres-data:
   pgadmin-data:
-  mailpit-data:
-  # redis-data:
-  # redisinsight-data:
+  redis-data:
+  redisinsight-data:
 
 networks:
   internal:

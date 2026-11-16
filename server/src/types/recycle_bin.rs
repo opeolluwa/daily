@@ -1,20 +1,20 @@
+#![allow(non_snake_case)]
 use kernel::entities;
 use kernel::entities::sea_orm_active_enums::ItemType;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncRecycleBinInput")]
 pub struct SyncRecycleBinInput {
-    pub identifier: Uuid,
-    pub item_id: Uuid,
-    pub item_type: ItemType,
+    pub identifier: String,
+    pub itemId: String,
+    pub itemType: ItemType,
     pub payload: String,
-    pub deleted_at: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub deletedAt: String,
+    pub workspaceIdentifier: Option<String>,
 }
 
 impl TryFrom<SyncRecycleBinInput> for entities::recycle_bin::Model {
@@ -23,14 +23,14 @@ impl TryFrom<SyncRecycleBinInput> for entities::recycle_bin::Model {
     fn try_from(val: SyncRecycleBinInput) -> Result<Self, Self::Error> {
         Ok(entities::recycle_bin::Model {
             identifier: val.identifier,
-            item_id: val.item_id,
-            item_type: val.item_type,
+            item_id: val.itemId,
+            item_type: val.itemType,
             payload: val.payload,
             deleted_at: val
-                .deleted_at
+                .deletedAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))?,
-            workspace_identifier: val.workspace_identifier,
+            workspace_identifier: val.workspaceIdentifier,
         })
     }
 }

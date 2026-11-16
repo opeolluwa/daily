@@ -1,13 +1,12 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
-use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Debug, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "users.ts")]
 pub struct UserProfile {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,

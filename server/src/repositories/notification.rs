@@ -5,7 +5,6 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     IntoActiveModel, PaginatorTrait, QueryFilter, QuerySelect,
 };
-use uuid::Uuid;
 
 use crate::{
     adapters::pagination::PaginationParams,
@@ -28,14 +27,14 @@ impl Repository for NotificationRepository {
 }
 
 pub(crate) trait NotificationRepositoryExt {
-    async fn mark_read(&self, notification_identifier: &Uuid) -> Result<(), DatabaseError>;
+    async fn mark_read(&self, notification_identifier: &str) -> Result<(), DatabaseError>;
 
     async fn fetch_all(
         &self,
         pagination: &PaginationParams,
     ) -> Result<PaginatedNotification, DatabaseError>;
 
-    async fn fetch_one(&self, notification_identifier: &Uuid) -> Option<notifications::Model>;
+    async fn fetch_one(&self, notification_identifier: &str) -> Option<notifications::Model>;
 
     async fn count_unread(&self) -> Result<RowCount, DatabaseError>;
 }
@@ -61,7 +60,7 @@ impl NotificationRepositoryExt for NotificationRepository {
         })
     }
 
-    async fn mark_read(&self, notification_identifier: &Uuid) -> Result<(), DatabaseError> {
+    async fn mark_read(&self, notification_identifier: &str) -> Result<(), DatabaseError> {
         let Some(notification) = self.fetch_one(notification_identifier).await else {
             return Err(DatabaseError::RecordNotFound);
         };
@@ -73,7 +72,7 @@ impl NotificationRepositoryExt for NotificationRepository {
         Ok(())
     }
 
-    async fn fetch_one(&self, notification_identifier: &Uuid) -> Option<notifications::Model> {
+    async fn fetch_one(&self, notification_identifier: &str) -> Option<notifications::Model> {
         notifications::Entity::find_by_id(notification_identifier.to_owned())
             .one(self.db_conn.as_ref())
             .await

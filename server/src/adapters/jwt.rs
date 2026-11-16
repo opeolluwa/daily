@@ -2,9 +2,9 @@ use std::fmt::Display;
 use std::time::Duration;
 
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use kernel::id::{is_ulid, new_id};
 use kernel::utils::extract_env;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::errors::auth_error::AuthenticationError;
 
@@ -19,9 +19,9 @@ pub struct Claims {
     pub(crate) iat: i64,
     pub(crate) exp: i64,
     pub(crate) email: String,
-    pub(crate) user_identifier: Uuid,
+    pub(crate) user_identifier: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) jti: Option<Uuid>,
+    pub(crate) jti: Option<String>,
 }
 
 impl Display for Claims {
@@ -52,8 +52,8 @@ impl ClaimsBuilder {
         self
     }
 
-    pub fn user_identifier(mut self, user_id: &Uuid) -> Self {
-        self.claims.user_identifier = *user_id;
+    pub fn user_identifier(mut self, user_id: &str) -> Self {
+        self.claims.user_identifier = user_id.to_string();
         self
     }
 
@@ -84,7 +84,7 @@ impl ClaimsBuilder {
             ));
         }
 
-        if self.claims.user_identifier == Uuid::nil() {
+        if !is_ulid(&self.claims.user_identifier) {
             return Err(AuthenticationError::ValidationError(
                 "User identifier is required".to_string(),
             ));
@@ -109,7 +109,7 @@ impl ClaimsBuilder {
         }
 
         if self.claims.jti.is_none() {
-            self.claims.jti = Some(Uuid::new_v4());
+            self.claims.jti = Some(new_id());
         }
 
         Ok(self.claims)
@@ -144,10 +144,10 @@ impl Keys {
 
 impl Claims {
     /// Create new Claims with email and user_identifier
-    pub fn new(email: &str, user_identifier: &Uuid) -> Self {
+    pub fn new(email: &str, user_identifier: &str) -> Self {
         Self {
             email: email.to_string(),
-            user_identifier: user_identifier.to_owned(),
+            user_identifier: user_identifier.to_string(),
             ..Default::default()
         }
     }
@@ -163,7 +163,7 @@ impl Claims {
 
         let claim = Claims {
             email: self.email.clone(),
-            user_identifier: self.user_identifier,
+            user_identifier: self.user_identifier.clone(),
             sub: if self.sub.is_empty() {
                 self.user_identifier.to_string()
             } else {
@@ -175,7 +175,7 @@ impl Claims {
             } else {
                 self.exp
             },
-            jti: self.jti.or_else(|| Some(Uuid::new_v4())),
+            jti: self.jti.clone().or_else(|| Some(new_id())),
         };
 
         let secret = extract_env::<String>("JWT_SIGNING_KEY")?;
@@ -194,11 +194,11 @@ impl Claims {
         let now = chrono::Utc::now().timestamp();
         let claim = Claims {
             email: self.email.clone(),
-            user_identifier: self.user_identifier,
+            user_identifier: self.user_identifier.clone(),
             iat: now,
             exp: now + validity.as_secs() as i64,
-            sub: self.sub.to_owned(),
-            jti: self.jti.or_else(|| Some(Uuid::new_v4())),
+            sub: self.sub.clone(),
+            jti: self.jti.clone().or_else(|| Some(new_id())),
         };
 
         let secret = extract_env::<String>("JWT_SIGNING_KEY").map_err(AuthenticationError::from)?;
@@ -239,6 +239,10 @@ impl Claims {
                 AuthenticationError::InvalidToken
             })?;
 
-        Ok(token_data.claims)
+        let claims = token_data.claims;
+        if !is_ulid(&claims.user_identifier) || !claims.jti.as_deref().is_some_and(is_ulid) {
+            return Err(AuthenticationError::InvalidToken);
+        }
+        Ok(claims)
     }
 }

@@ -5,7 +5,7 @@ export type WhiteboardFilesInterface = {
   whiteboardIdentifier: string;
   mimeType: string;
   data: string;
-  remoteUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  remoteUrl: string | null;
 };

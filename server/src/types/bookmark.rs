@@ -1,21 +1,23 @@
+#![allow(non_snake_case)]
 use kernel::entities;
 use kernel::entities::sea_orm_active_enums::Tag;
 use seaography::async_graphql;
 use seaography::CustomInputType;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(CustomInputType, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[seaography(input_type_name = "SyncBookmarkInput")]
 pub struct SyncBookmarkInput {
-    pub identifier: Uuid,
+    pub identifier: String,
     pub title: String,
     pub url: String,
     pub tag: Tag,
-    pub created_at: String,
-    pub updated_at: String,
-    pub workspace_identifier: Option<Uuid>,
+    pub createdAt: String,
+    pub updatedAt: String,
+    pub workspaceIdentifier: Option<String>,
+    #[serde(default)]
+    pub deletedAt: Option<String>,
 }
 
 impl TryFrom<SyncBookmarkInput> for entities::bookmark::Model {
@@ -27,15 +29,22 @@ impl TryFrom<SyncBookmarkInput> for entities::bookmark::Model {
             title: val.title,
             url: val.url,
             tag: val.tag,
+            deleted_at: val
+                .deletedAt
+                .map(|d| {
+                    d.parse()
+                        .map_err(|e| async_graphql::Error::new(format!("invalid deleted_at: {e}")))
+                })
+                .transpose()?,
             created_at: val
-                .created_at
+                .createdAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid created_at: {e}")))?,
             updated_at: val
-                .updated_at
+                .updatedAt
                 .parse()
                 .map_err(|e| async_graphql::Error::new(format!("invalid updated_at: {e}")))?,
-            workspace_identifier: val.workspace_identifier,
+            workspace_identifier: val.workspaceIdentifier,
         })
     }
 }

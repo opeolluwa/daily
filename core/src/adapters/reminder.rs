@@ -2,9 +2,9 @@ use chrono::Local;
 use sea_orm::ActiveValue::Set;
 use sea_orm::prelude::DateTimeWithTimeZone;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, reminder::ActiveModel};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -16,13 +16,13 @@ pub struct CreateReminder {
     pub recurrence_rule: Option<String>,
     pub alarm_sound: Option<String>,
     pub remind_at: DateTimeWithTimeZone,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
 }
 
 impl Into<entities::reminder::ActiveModel> for CreateReminder {
     fn into(self) -> entities::reminder::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             title: Set(self.title),
             description: Set(self.description),
             recurring: Set(self.recurring),
@@ -32,6 +32,9 @@ impl Into<entities::reminder::ActiveModel> for CreateReminder {
             created_at: Set(Local::now().fixed_offset()),
             updated_at: Set(Local::now().fixed_offset()),
             workspace_identifier: Set(self.workspace_identifier),
+            recurrence_type: Set(None),
+            end_date: Set(None),
+            deleted_at: Set(None),
         }
     }
 }

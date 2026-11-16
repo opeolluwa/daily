@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
+use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::{Local, TimeDelta};
 use rand::RngExt;
 use sea_orm::DatabaseConnection;
-use uuid::Uuid;
 
 use crate::{
     errors::service_error::ServiceError,
@@ -37,7 +37,7 @@ pub(crate) trait OtpServiceExt {
 
     async fn validate_otp_for_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         otp: &str,
     ) -> Result<bool, ServiceError>;
 }
@@ -45,8 +45,9 @@ pub(crate) trait OtpServiceExt {
 impl OtpServiceExt for OtpService {
     async fn new_otp_for_user(&self, user_identifier: &str) -> Result<String, ServiceError> {
         let otp = generate_otp();
+        let hashed = hash(&otp, DEFAULT_COST).map_err(|_| ServiceError::OperationFailed)?;
         self.otp_repository
-            .new_with_user(user_identifier, &otp)
+            .new_with_user(user_identifier, &hashed)
             .await
             .map_err(ServiceError::from)?;
 
@@ -55,7 +56,7 @@ impl OtpServiceExt for OtpService {
 
     async fn validate_otp_for_user(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         otp: &str,
     ) -> Result<bool, ServiceError> {
         if let Some(stored_otp) = self
@@ -69,8 +70,11 @@ impl OtpServiceExt for OtpService {
             let is_not_expired = now
                 .signed_duration_since(stored_otp.created_at.with_timezone(&Local))
                 <= OTP_VALIDITY;
-            let is_match = stored_otp.code == otp;
-            Ok(is_match && is_not_expired)
+            if !is_not_expired {
+                return Ok(false);
+            }
+            let is_match = verify(otp, &stored_otp.code).unwrap_or(false);
+            Ok(is_match)
         } else {
             Ok(false)
         }

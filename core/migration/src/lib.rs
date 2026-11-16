@@ -50,6 +50,12 @@ mod m20261112_000000_rename_todo_table_to_task;
 mod m20261112_100000_add_remote_url_to_whiteboard_files;
 mod m20261113_000000_add_recurrence_type_to_reminder;
 mod m20261113_100000_add_end_date_to_reminder;
+mod m20261114_000000_sync_foundation;
+mod m20261115_000000_workspace_tombstones;
+mod m20261116_000000_switch_identifiers_to_ulid;
+mod m20261116_100000_backfill_sync_queue;
+mod m20261116_200000_widen_otp_code_column;
+mod m20261116_300000_fix_recycle_bin_todo_item_type;
 
 pub use sea_orm_migration::prelude::*;
 pub mod exporter;
@@ -111,6 +117,12 @@ impl MigratorTrait for Migrator {
             Box::new(m20261112_100000_add_remote_url_to_whiteboard_files::Migration),
             Box::new(m20261113_000000_add_recurrence_type_to_reminder::Migration),
             Box::new(m20261113_100000_add_end_date_to_reminder::Migration),
+            Box::new(m20261114_000000_sync_foundation::Migration),
+            Box::new(m20261115_000000_workspace_tombstones::Migration),
+            Box::new(m20261116_000000_switch_identifiers_to_ulid::Migration),
+            Box::new(m20261116_100000_backfill_sync_queue::Migration),
+            Box::new(m20261116_200000_widen_otp_code_column::Migration),
+            Box::new(m20261116_300000_fix_recycle_bin_todo_item_type::Migration),
         ]
     }
 }

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use axum::extract::{Path, Query, State};
 use kernel::entities::notifications;
-use uuid::Uuid;
 
 use crate::{
     adapters::{
@@ -49,7 +48,7 @@ pub async fn count_unread(
 pub async fn mark_read(
     State(state): State<Arc<AppState>>,
     claims: Claims,
-    Path(notification_identifier): Path<Uuid>,
+    Path(notification_identifier): Path<String>,
 ) -> Result<ApiResponse<()>, ServiceError> {
     state
         .services

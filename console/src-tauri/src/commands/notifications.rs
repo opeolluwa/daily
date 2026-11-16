@@ -5,7 +5,6 @@ use kernel::{
     repositories::notifications::NotificationRepositoryExt,
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{errors::AppError, state::app::AppState};
 
@@ -25,7 +24,7 @@ pub async fn create_notification(
 #[tauri::command]
 pub async fn get_notification(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<notifications::Model>, AppError> {
     state
@@ -63,7 +62,7 @@ pub async fn get_notifications_by_type(
 #[tauri::command]
 pub async fn mark_notification_as_read(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<notifications::Model, AppError> {
     state
@@ -76,7 +75,7 @@ pub async fn mark_notification_as_read(
 #[tauri::command]
 pub async fn delete_notification(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state

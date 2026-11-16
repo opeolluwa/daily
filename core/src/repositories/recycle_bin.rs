@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use chrono::Utc;
+use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelBehavior, ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection,
     EntityTrait, IntoActiveModel, QueryFilter, QueryOrder,
 };
-use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
 use crate::entities::sea_orm_active_enums::ItemType;
@@ -40,7 +41,7 @@ pub trait RecycleBinRepositoryExt {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<recycle_bin::Model>, KernelError>;
 
@@ -50,13 +51,14 @@ pub trait RecycleBinRepositoryExt {
         meta: &Option<RequestMeta>,
     ) -> Result<Vec<recycle_bin::Model>, KernelError>;
 
-    async fn purge(&self, identifier: &Uuid, meta: &Option<RequestMeta>) -> Result<(), KernelError>;
+    async fn purge(&self, identifier: &str, meta: &Option<RequestMeta>)
+    -> Result<(), KernelError>;
 
-    async fn purge_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<Uuid>, KernelError>;
+    async fn purge_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<String>, KernelError>;
 
     async fn restore(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError>;
 
@@ -80,7 +82,7 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
         let mut active_model: recycle_bin::ActiveModel = payload.to_owned().into();
 
         if let Some(meta) = meta {
-            active_model.workspace_identifier = Set(Some(meta.workspace_identifier));
+            active_model.workspace_identifier = Set(Some(meta.workspace_identifier.clone()));
         } else {
             return Err(KernelError::DbOperationError(
                 "workspace identifier is required".into(),
@@ -100,7 +102,7 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
         let meta = extract_req_meta(meta)?;
 
         recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .order_by_desc(recycle_bin::Column::DeletedAt)
             .all(self.conn.as_ref())
             .await
@@ -109,14 +111,14 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
 
     async fn find_by_id(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<Option<recycle_bin::Model>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::Identifier.eq(*identifier))
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::Identifier.eq(identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
@@ -130,7 +132,7 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
         let meta = extract_req_meta(meta)?;
 
         recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .filter(recycle_bin::Column::ItemType.eq(item_type.to_owned()))
             .order_by_desc(recycle_bin::Column::DeletedAt)
             .all(self.conn.as_ref())
@@ -138,32 +140,39 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
     }
 
-    async fn purge(&self, identifier: &Uuid, meta: &Option<RequestMeta>) -> Result<(), KernelError> {
+    async fn purge(
+        &self,
+        identifier: &str,
+        meta: &Option<RequestMeta>,
+    ) -> Result<(), KernelError> {
         let meta = extract_req_meta(meta)?;
 
         recycle_bin::Entity::delete_many()
-            .filter(recycle_bin::Column::Identifier.eq(*identifier))
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::Identifier.eq(identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
         Ok(())
     }
 
-    async fn purge_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<Uuid>, KernelError> {
+    async fn purge_all(&self, meta: &Option<RequestMeta>) -> Result<Vec<String>, KernelError> {
         let meta = extract_req_meta(meta)?;
 
-        let identifiers = recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+        let entries = recycle_bin::Entity::find()
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .all(self.conn.as_ref())
             .await
-            .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+
+        let identifiers = entries
             .into_iter()
             .map(|entry| entry.identifier)
-            .collect::<Vec<Uuid>>();
+            .collect::<Vec<String>>();
 
+        // the found entity should be what is passed to delete
         recycle_bin::Entity::delete_many()
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -172,14 +181,14 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
 
     async fn restore(
         &self,
-        identifier: &Uuid,
+        identifier: &str,
         meta: &Option<RequestMeta>,
     ) -> Result<recycle_bin::Model, KernelError> {
         let meta = extract_req_meta(meta)?;
 
         let entry = recycle_bin::Entity::find()
-            .filter(recycle_bin::Column::Identifier.eq(*identifier))
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::Identifier.eq(identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -187,54 +196,51 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
                 KernelError::DbOperationError("recycle bin entry not found".to_string())
             })?;
 
+        macro_rules! restore_soft_deleted {
+            ($entity:ident, $model:ty, $active:ty) => {{
+                let model: $model = Self::parse_payload(&entry.payload)?;
+                let result = $entity::Entity::update_many()
+                    .col_expr($entity::Column::DeletedAt, Expr::cust("NULL"))
+                    .col_expr($entity::Column::UpdatedAt, Expr::current_timestamp())
+                    .filter($entity::Column::Identifier.eq(model.identifier.clone()))
+                    .exec(self.conn.as_ref())
+                    .await
+                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+
+                if result.rows_affected == 0 {
+                    let _ = Self::restore_payload::<$model, $active>(
+                        &entry.payload,
+                        self.conn.as_ref(),
+                    )
+                    .await?;
+                }
+            }};
+        }
+
         match entry.item_type {
             ItemType::Note => {
-                Self::restore_payload::<notes::Model, notes::ActiveModel>(
-                    &entry.payload,
-                    self.conn.as_ref(),
-                )
-                .await?
+                restore_soft_deleted!(notes, notes::Model, notes::ActiveModel);
             }
             ItemType::Task => {
-                Self::restore_payload::<task::Model, task::ActiveModel>(
-                    &entry.payload,
-                    self.conn.as_ref(),
-                )
-                .await?
+                restore_soft_deleted!(task, task::Model, task::ActiveModel);
             }
             ItemType::Bookmark => {
-                Self::restore_payload::<bookmark::Model, bookmark::ActiveModel>(
-                    &entry.payload,
-                    self.conn.as_ref(),
-                )
-                .await?
+                restore_soft_deleted!(bookmark, bookmark::Model, bookmark::ActiveModel);
             }
             ItemType::Snippet => {
-                Self::restore_payload::<snippets::Model, snippets::ActiveModel>(
-                    &entry.payload,
-                    self.conn.as_ref(),
-                )
-                .await?
+                restore_soft_deleted!(snippets, snippets::Model, snippets::ActiveModel);
             }
             ItemType::Reminder => {
-                Self::restore_payload::<reminder::Model, reminder::ActiveModel>(
-                    &entry.payload,
-                    self.conn.as_ref(),
-                )
-                .await?
+                restore_soft_deleted!(reminder, reminder::Model, reminder::ActiveModel);
             }
             ItemType::PasteBin => {
-                Self::restore_payload::<paste_bins::Model, paste_bins::ActiveModel>(
-                    &entry.payload,
-                    self.conn.as_ref(),
-                )
-                .await?
+                restore_soft_deleted!(paste_bins, paste_bins::Model, paste_bins::ActiveModel);
             }
         }
 
         recycle_bin::Entity::delete_many()
-            .filter(recycle_bin::Column::Identifier.eq(*identifier))
-            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier))
+            .filter(recycle_bin::Column::Identifier.eq(identifier))
+            .filter(recycle_bin::Column::WorkspaceIdentifier.eq(meta.workspace_identifier.clone()))
             .exec(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
@@ -254,29 +260,28 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
                     let model = model.clone();
                     async move {
                         let identifier = model.identifier.to_string();
-                        let op_result: Result<(), KernelError> =
-                            async {
-                                let exists = recycle_bin::Entity::find()
-                                    .filter(recycle_bin::Column::Identifier.eq(model.identifier))
-                                    .one(conn.as_ref())
-                                    .await
-                                    .map_err(|err| KernelError::DbOperationError(err.to_string()))?
-                                    .is_some();
+                        let op_result: Result<(), KernelError> = async {
+                            let exists = recycle_bin::Entity::find()
+                                .filter(recycle_bin::Column::Identifier.eq(model.identifier.clone()))
+                                .one(conn.as_ref())
+                                .await
+                                .map_err(|err| KernelError::DbOperationError(err.to_string()))?
+                                .is_some();
 
-                                let active_model = model.into_active_model();
+                            let active_model = model.into_active_model();
 
-                                if exists {
-                                    active_model.update(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                } else {
-                                    active_model.insert(conn.as_ref()).await.map_err(|err| {
-                                        KernelError::DbOperationError(err.to_string())
-                                    })?;
-                                }
-                                Ok(())
+                            if exists {
+                                active_model.update(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
+                            } else {
+                                active_model.insert(conn.as_ref()).await.map_err(|err| {
+                                    KernelError::DbOperationError(err.to_string())
+                                })?;
                             }
-                            .await;
+                            Ok(())
+                        }
+                        .await;
                         EntitySyncResult {
                             identifier,
                             success: op_result.is_ok(),
@@ -293,7 +298,55 @@ impl RecycleBinRepositoryExt for RecycleBinRepository {
     }
 }
 
+// TODO: consider using https://crates.io/crates/heck
+fn camelize_key(key: &str) -> String {
+    let mut out = String::with_capacity(key.len());
+    let mut upper = false;
+    for ch in key.chars() {
+        if ch == '_' {
+            upper = true;
+        } else if upper {
+            out.extend(ch.to_uppercase());
+            upper = false;
+        } else {
+            out.push(ch);
+        }
+    }
+    out
+}
+
 impl RecycleBinRepository {
+    fn camelized_value(payload: &str) -> Result<serde_json::Value, KernelError> {
+        let value: serde_json::Value = serde_json::from_str(payload)
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+        let Some(object) = value.as_object() else {
+            return Ok(value);
+        };
+        Ok(serde_json::Value::Object(
+            object
+                .iter()
+                .map(|(key, value)| (camelize_key(key), value.clone()))
+                .collect(),
+        ))
+    }
+
+    fn parse_payload<T: serde::de::DeserializeOwned>(payload: &str) -> Result<T, KernelError> {
+        serde_json::from_value(Self::camelized_value(payload)?)
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))
+    }
+
+    fn restore_value(payload: &str) -> Result<serde_json::Value, KernelError> {
+        let mut value = Self::camelized_value(payload)?;
+        if let Some(object) = value.as_object_mut() {
+            object.insert("deleted_at".to_string(), serde_json::Value::Null);
+            object.insert(
+                "updated_at".to_string(),
+                serde_json::Value::String(Utc::now().to_rfc3339()),
+            );
+        }
+        Ok(value)
+    }
+
     async fn restore_payload<M, A>(
         payload: &str,
         conn: &DatabaseConnection,
@@ -303,7 +356,7 @@ impl RecycleBinRepository {
         A: ActiveModelBehavior + Send,
         <A::Entity as EntityTrait>::Model: IntoActiveModel<A>,
     {
-        let model: M = serde_json::from_str(payload)
+        let model: M = serde_json::from_value(Self::restore_value(payload)?)
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
 
         model
@@ -340,7 +393,7 @@ impl RecycleBinRepository {
 
     #[wasm_bindgen(js_name = "find_by_id")]
     pub async fn find_by_id_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         let model = <Self as RecycleBinRepositoryExt>::find_by_id(self, &id, &meta).await?;
         to_js(&model)
@@ -361,7 +414,7 @@ impl RecycleBinRepository {
 
     #[wasm_bindgen(js_name = "purge")]
     pub async fn purge_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as RecycleBinRepositoryExt>::purge(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)
@@ -376,7 +429,7 @@ impl RecycleBinRepository {
 
     #[wasm_bindgen(js_name = "restore")]
     pub async fn restore_js(&self, identifier: &str, meta: JsValue) -> Result<JsValue, JsValue> {
-        let id = Uuid::parse_str(identifier).map_err(js_err)?;
+        let id = identifier.to_string();
         let meta: Option<RequestMeta> = serde_wasm_bindgen::from_value(meta).map_err(js_err)?;
         <Self as RecycleBinRepositoryExt>::restore(self, &id, &meta).await?;
         Ok(JsValue::UNDEFINED)

@@ -3,6 +3,12 @@ name = "kernel"
 version = "0.1.0"
 edition = "2024"
 
+[workspace]
+members = ["migration"]
+
+[workspace.dependencies]
+ulid = "3.0.0"
+
 [lib]
 crate-type = ["cdylib", "lib"]
 
@@ -21,6 +27,7 @@ sea-orm = { version = "2.0.0-rc.37", features = [
     "runtime-tokio-rustls",
 ] }
 secrecy = { version = "0.10", optional = true }
+tokio = { version = "1.53.1", features = ["fs"] }
 url = { version = "2.5", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
@@ -53,12 +60,13 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
 serde_json = "1.0.149"
 thiserror = "2.0.18"
-tokio = { version = "1.53.1", features = ["fs", "io-util", "macros", "rt"] }
+tokio = { version = "1.53.1", features = ["io-util", "macros", "rt"] }
 ts-rs = { version = "12.0.1", features = ["uuid-impl", "chrono-impl", "serde-json-impl", "format"] }
 uuid = { version = "1.21.0", features = ["v4", "js"] }
 validator = { version = "0.20.0", features = ["derive"] }
 wasm-bindgen = "0.2.127"
 wasm-bindgen-futures = "0.4"
+ulid = { workspace = true, features = ["serde"] }
 
 [dependencies.seaography]
 version = "~2.0.0-rc.8"

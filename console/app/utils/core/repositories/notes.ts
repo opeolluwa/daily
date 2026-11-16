@@ -22,7 +22,7 @@ export class NotesRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.title,
         payload.content,
         JSON.stringify(payload.categories ?? []),
@@ -39,7 +39,7 @@ export class NotesRepository extends BaseRepository {
   ): Promise<Notes | null> {
     const m = this.requireMeta(meta);
     return this.row<Notes>(
-      `SELECT * FROM notes WHERE identifier = $1 AND workspace_identifier = $2`,
+      `SELECT * FROM notes WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
       [identifier, m.workspaceIdentifier],
     );
   }
@@ -47,7 +47,7 @@ export class NotesRepository extends BaseRepository {
   async find_all(meta?: RequestMeta): Promise<Notes[]> {
     const m = this.requireMeta(meta);
     return this.rows<Notes>(
-      `SELECT * FROM notes WHERE workspace_identifier = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM notes WHERE workspace_identifier = $1 AND deleted_at IS NULL ORDER BY created_at DESC`,
       [m.workspaceIdentifier],
     );
   }
@@ -62,7 +62,7 @@ export class NotesRepository extends BaseRepository {
          (identifier, item_id, item_type, payload, deleted_at, workspace_identifier)
        VALUES ($1, $2, 'note', $3, $4, $5)`,
       [
-        this.newUuid(),
+        this.newId(),
         identifier,
         JSON.stringify(model),
         this.now(),
@@ -71,15 +71,15 @@ export class NotesRepository extends BaseRepository {
     );
 
     await this.run(
-      `DELETE FROM notes WHERE identifier = $1 AND workspace_identifier = $2`,
-      [identifier, m.workspaceIdentifier],
+      `UPDATE notes SET deleted_at = $3, updated_at = $3 WHERE identifier = $1 AND workspace_identifier = $2 AND deleted_at IS NULL`,
+      [identifier, m.workspaceIdentifier, this.now()],
     );
   }
 
   async recently_added(meta?: RequestMeta): Promise<Notes[]> {
     const m = this.requireMeta(meta);
     return this.rows<Notes>(
-      `SELECT * FROM notes WHERE workspace_identifier = $1
+      `SELECT * FROM notes WHERE workspace_identifier = $1 AND deleted_at IS NULL
        ORDER BY created_at ASC LIMIT 10`,
       [m.workspaceIdentifier],
     );
@@ -109,7 +109,7 @@ export class NotesRepository extends BaseRepository {
     }
 
     const row = await this.row<Notes>(
-      `UPDATE notes SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE notes SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx} AND deleted_at IS NULL
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );

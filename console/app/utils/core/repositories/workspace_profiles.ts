@@ -29,7 +29,7 @@ export class WorkspaceProfileRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.firstName,
         payload.lastName,
         payload.profilePicture ?? null,
@@ -43,7 +43,7 @@ export class WorkspaceProfileRepository extends BaseRepository {
   async get(meta?: RequestMeta): Promise<WorkspaceProfiles | null> {
     const m = this.requireMeta(meta);
     return this.row<WorkspaceProfiles>(
-      `SELECT * FROM workspace_profiles WHERE workspace_identifier = $1`,
+      `SELECT * FROM workspace_profiles WHERE workspace_identifier = $1 AND deleted_at IS NULL`,
       [m.workspaceIdentifier],
     );
   }
@@ -72,7 +72,7 @@ export class WorkspaceProfileRepository extends BaseRepository {
     }
 
     const row = await this.row<WorkspaceProfiles>(
-      `UPDATE workspace_profiles SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx}
+      `UPDATE workspace_profiles SET ${sets.join(", ")} WHERE identifier = $1 AND workspace_identifier = $${idx} AND deleted_at IS NULL
        RETURNING *`,
       [...params, m.workspaceIdentifier],
     );

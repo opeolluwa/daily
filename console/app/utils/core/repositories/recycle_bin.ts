@@ -5,7 +5,7 @@ export type { CreateRecycleBinEntry };
 
 const SOURCE_TABLES: Record<ItemType, string> = {
   note: "notes",
-  todo: "todo",
+  task: "task",
   bookmark: "bookmark",
   snippet: "snippets",
   reminder: "reminder",
@@ -28,7 +28,7 @@ export class RecycleBinRepository extends BaseRepository {
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
-        this.newUuid(),
+        this.newId(),
         payload.itemId,
         payload.itemType,
         payload.payload,
@@ -78,9 +78,10 @@ export class RecycleBinRepository extends BaseRepository {
 
   async purge_all(meta?: RequestMeta): Promise<void> {
     const m = this.requireMeta(meta);
-    await this.run(`DELETE FROM recycle_bin WHERE workspace_identifier = $1`, [
-      m.workspaceIdentifier,
-    ]);
+    const entries = await this.find_all(m);
+    for (const entry of entries) {
+      await this.purge(entry.identifier, m);
+    }
   }
 
   async restore(identifier: string, meta?: RequestMeta): Promise<void> {
@@ -109,12 +110,23 @@ export class RecycleBinRepository extends BaseRepository {
           : value,
       );
     }
-    const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
-    await this.run(
-      `INSERT INTO "${table}" (${columns.join(", ")}) VALUES (${placeholders})`,
-      params,
+    const restored = await this.row(
+      `UPDATE "${table}" SET deleted_at = NULL, updated_at = $1
+       WHERE identifier = $2 AND workspace_identifier = $3
+       RETURNING identifier`,
+      [this.now(), entry.itemId, m.workspaceIdentifier],
     );
+    if (!restored) {
+      const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
+      await this.run(
+        `INSERT INTO "${table}" (${columns.join(", ")}) VALUES (${placeholders})`,
+        params,
+      );
+    }
 
-    await this.purge(identifier, m);
+    await this.run(
+      `DELETE FROM recycle_bin WHERE identifier = $1 AND workspace_identifier = $2`,
+      [identifier, m.workspaceIdentifier],
+    );
   }
 }

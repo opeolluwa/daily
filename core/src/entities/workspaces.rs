@@ -13,13 +13,14 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
     #[sea_orm(primary_key, auto_increment = false)]
-    pub identifier: Uuid,
+    pub identifier: String,
     pub is_default: bool,
     pub is_hidden: bool,
     pub is_secured: bool,
     #[sea_orm(column_type = "Text", nullable)]
     pub password_hash: Option<String>,
-    pub user_identifier: Option<Uuid>,
+    pub user_identifier: Option<String>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

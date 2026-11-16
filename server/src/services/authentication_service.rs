@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use askama::Template;
-use uuid::Uuid;
 
 use crate::adapters::authentication::ChangePasswordRequest;
 use crate::adapters::authentication::CreateUserResponse;
@@ -15,10 +14,11 @@ use crate::errors::service_error::ServiceError;
 use crate::repositories::revoked_tokens::{
     TokenBlacklistRepository, TokenBlacklistRepositoryTrait,
 };
-use crate::services::mailer::email_sender::{EmailMessage, EmailSender};
-use crate::services::mailer::smtp::SmtpEmailSender;
 use crate::services::mailer::templates::account_confirmation::AccountConfirmationTemplate;
 use crate::services::mailer::templates::password_reset::PasswordResetTemplate;
+use crate::services::mailer::{
+    queued::QueuedEmailSender, EmailCategory, EmailContext, EmailSender,
+};
 use crate::services::otp_service::OtpService;
 use crate::services::otp_service::OtpServiceExt;
 use crate::{
@@ -38,7 +38,7 @@ pub struct AuthenticationService {
     user_helper_service: ServiceHelpers,
     otp_service: OtpService,
     token_blacklist_repository: TokenBlacklistRepository,
-    email_sender: SmtpEmailSender,
+    email_sender: QueuedEmailSender,
 }
 
 impl AuthenticationService {
@@ -46,7 +46,7 @@ impl AuthenticationService {
         user_repository: UserRepository,
         otp_service: OtpService,
         token_blacklist_repository: TokenBlacklistRepository,
-        email_sender: SmtpEmailSender,
+        email_sender: QueuedEmailSender,
     ) -> Self {
         Self {
             user_repository,
@@ -99,7 +99,7 @@ pub trait AuthenticationServiceTrait {
 
     fn set_avatar_url(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         avatar_url: &str,
     ) -> impl std::future::Future<Output = Result<(), ServiceError>> + Send;
 
@@ -184,16 +184,16 @@ impl AuthenticationServiceTrait for AuthenticationService {
             .render()
             .unwrap_or_else(|_| format!("Your verification code is: {otp}"));
 
-        let message = EmailMessage {
-            from_address: "noreply@almonds.app".to_string(),
-            from_name: "Almonds".to_string(),
+        let message = EmailContext {
             to_address: user.email.clone(),
             to_name: name.to_string(),
             subject: "Verify your Almonds account".to_string(),
             html_body,
+            category: EmailCategory::Account,
+            ..Default::default()
         };
 
-        if let Err(err) = self.email_sender.send_email(message) {
+        if let Err(err) = self.email_sender.send_email(message).await {
             log::error!("Failed to send confirmation email: {err}");
         }
 
@@ -264,16 +264,16 @@ impl AuthenticationServiceTrait for AuthenticationService {
             .render()
             .unwrap_or_else(|_| format!("Your password reset code is: {otp}"));
 
-        let message = EmailMessage {
-            from_address: "noreply@almonds.app".to_string(),
-            from_name: "Almonds".to_string(),
+        let message = EmailContext {
             to_address: user.email.clone(),
             to_name: name.to_string(),
             subject: "Reset your Almonds password".to_string(),
             html_body,
+            category: EmailCategory::Account,
+            ..Default::default()
         };
 
-        if let Err(err) = self.email_sender.send_email(message) {
+        if let Err(err) = self.email_sender.send_email(message).await {
             log::error!("Failed to send password reset email: {err}");
         }
 
@@ -347,7 +347,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
 
     async fn set_avatar_url(
         &self,
-        user_identifier: &Uuid,
+        user_identifier: &str,
         avatar_url: &str,
     ) -> Result<(), ServiceError> {
         self.user_repository
@@ -455,7 +455,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
     }
 
     async fn logout(&self, claims: &Claims) -> Result<(), ServiceError> {
-        let Some(jti) = claims.jti else {
+        let Some(ref jti) = claims.jti else {
             return Ok(());
         };
         let expires_at = chrono::DateTime::from_timestamp(claims.exp, 0)
@@ -468,7 +468,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
     }
 
     async fn is_token_revoked(&self, claims: &Claims) -> Result<bool, ServiceError> {
-        let Some(jti) = claims.jti else {
+        let Some(ref jti) = claims.jti else {
             return Ok(false);
         };
         Ok(self.token_blacklist_repository.is_revoked(&jti).await?)
@@ -517,9 +517,7 @@ impl AuthenticationServiceTrait for AuthenticationService {
             ),
         };
 
-        let message = EmailMessage {
-            from_address: "noreply@almonds.app".to_string(),
-            from_name: "Almonds".to_string(),
+        let message = EmailContext {
             to_address: user.email.clone(),
             to_name: user
                 .email
@@ -529,9 +527,11 @@ impl AuthenticationServiceTrait for AuthenticationService {
                 .to_string(),
             subject: subject.to_string(),
             html_body,
+            category: EmailCategory::Account,
+            ..Default::default()
         };
 
-        if let Err(err) = self.email_sender.send_email(message) {
+        if let Err(err) = self.email_sender.send_email(message).await {
             log::error!("Failed to send OTP email: {err}");
         }
 

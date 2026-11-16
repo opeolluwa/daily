@@ -5,7 +5,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{
     adapters::reminder::{CreateReminder, UpdateReminder},
@@ -29,7 +28,7 @@ pub async fn create_reminder(
 #[tauri::command]
 pub async fn get_reminder(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<reminder::Model>, AppError> {
     state
@@ -54,7 +53,7 @@ pub async fn get_all_reminders(
 #[tauri::command]
 pub async fn update_reminder(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     reminder: UpdateReminder,
     meta: Option<RequestMeta>,
 ) -> Result<reminder::Model, AppError> {
@@ -68,7 +67,7 @@ pub async fn update_reminder(
 #[tauri::command]
 pub async fn delete_reminder(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state.reminder_repository.delete(&identifier, &meta).await?;
@@ -78,9 +77,9 @@ pub async fn delete_reminder(
 #[tauri::command]
 pub async fn duplicate_reminder(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state
@@ -106,9 +105,9 @@ pub async fn duplicate_reminder(
 #[tauri::command]
 pub async fn transfer_reminder(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state

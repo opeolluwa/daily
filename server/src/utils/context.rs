@@ -4,7 +4,6 @@ use std::sync::Arc;
 use axum::http::HeaderMap;
 use sea_orm::DatabaseConnection;
 use seaography::async_graphql::{self, Context};
-use uuid::Uuid;
 
 use crate::{
     adapters::jwt::Claims,
@@ -65,7 +64,7 @@ pub async fn extract_claims(ctx: &Context<'_>) -> Result<Claims, AppError> {
         .unwrap_or(authorization);
     let claims = Claims::from_token(token).map_err(|_| AppError::InvalidToken)?;
 
-    if let Some(jti) = claims.jti {
+    if let Some(ref jti) = claims.jti {
         let blacklist = TokenBlacklistRepository::init(&Arc::new(db.clone()));
         if blacklist
             .is_revoked(&jti)
@@ -84,9 +83,9 @@ pub async fn extract_claims(ctx: &Context<'_>) -> Result<Claims, AppError> {
 #[allow(dead_code)]
 pub async fn ensure_workspace_access(
     ctx: &Context<'_>,
-    workspace_identifiers: Vec<Uuid>,
+    workspace_identifiers: Vec<String>,
 ) -> async_graphql::Result<()> {
-    let unique: Vec<Uuid> = workspace_identifiers
+    let unique: Vec<String> = workspace_identifiers
         .into_iter()
         .collect::<HashSet<_>>()
         .into_iter()
@@ -104,7 +103,7 @@ pub async fn ensure_workspace_access(
 
     for workspace_identifier in unique {
         members
-            .assert_member(workspace_identifier, &claims.email)
+            .assert_member(workspace_identifier.to_string(), &claims.email)
             .await
             .map_err(|e| async_graphql::Error::new(e.to_string()))?;
     }

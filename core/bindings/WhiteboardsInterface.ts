@@ -8,4 +8,5 @@ export type WhiteboardsInterface = {
   createdAt: string;
   updatedAt: string;
   workspaceIdentifier: string | null;
+  deletedAt: string | null;
 };

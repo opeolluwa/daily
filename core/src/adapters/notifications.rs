@@ -1,9 +1,9 @@
 use chrono::Utc;
 use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::entities::{self, notifications::ActiveModel, sea_orm_active_enums::NotificationType};
+use crate::id::new_id;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -12,14 +12,14 @@ pub struct CreateNotification {
     pub title: String,
     pub body: String,
     pub notification_type: NotificationType,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub is_read: bool,
 }
 
 impl Into<entities::notifications::ActiveModel> for CreateNotification {
     fn into(self) -> entities::notifications::ActiveModel {
         ActiveModel {
-            identifier: Set(Uuid::new_v4()),
+            identifier: Set(new_id()),
             title: Set(self.title),
             body: Set(self.body),
             notification_type: Set(self.notification_type),

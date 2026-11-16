@@ -1,13 +1,12 @@
 use kernel::adapters::meta::RequestMeta;
 use serde::Deserialize;
-use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateWhiteboard {
     pub title: Option<String>,
     pub payload: Option<serde_json::Value>,
-    pub workspace_identifier: Option<Uuid>,
+    pub workspace_identifier: Option<String>,
     pub meta: Option<RequestMeta>,
 }
 

@@ -6,6 +6,7 @@ import {
   sortBookmarks,
   type BookmarkSort,
 } from "~/utils/sorting";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 
 definePageMeta({ layout: false });
 
@@ -72,6 +73,7 @@ async function handleCreate(payload: {
     <template #main_content>
       <RyderPageHeader
         v-if="bookmarkStore.bookmarks.length > 0"
+        :ui="ryderPageHeaderOverride"
         title="Bookmarks"
         cta-text="Add Bookmark"
         cta-icon="heroicons:plus"

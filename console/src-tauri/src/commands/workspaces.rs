@@ -34,9 +34,7 @@ pub async fn get_workspace_by_id(
     state: State<'_, AppState>,
     id: String,
 ) -> Result<kernel::entities::workspaces::Model, AppError> {
-    let uuid = uuid::Uuid::parse_str(&id)
-        .map_err(|_| AppError::Io(format!("Invalid UUID string: {}", id)))?;
-    let workspace = state.workspace_repository.get_workspace_by_id(uuid).await?;
+    let workspace = state.workspace_repository.get_workspace_by_id(&id).await?;
     Ok(workspace)
 }
 
@@ -46,11 +44,9 @@ pub async fn update_workspace(
     identifier: String,
     workspace: UpdateWorkspace,
 ) -> Result<kernel::entities::workspaces::Model, AppError> {
-    let uuid = uuid::Uuid::parse_str(&identifier)
-        .map_err(|_| AppError::Io(format!("Invalid UUID string: {}", identifier)))?;
     let updated = state
         .workspace_repository
-        .update_workspace(&uuid, workspace)
+        .update_workspace(&identifier, workspace)
         .await?;
     Ok(updated)
 }
@@ -61,11 +57,9 @@ pub async fn verify_workspace_password(
     identifier: String,
     password: String,
 ) -> Result<bool, AppError> {
-    let uuid = uuid::Uuid::parse_str(&identifier)
-        .map_err(|_| AppError::Io(format!("Invalid UUID string: {}", identifier)))?;
     let ok = state
         .workspace_repository
-        .verify_workspace_password(&uuid, &password)
+        .verify_workspace_password(&identifier, &password)
         .await?;
     Ok(ok)
 }
@@ -76,12 +70,9 @@ pub async fn delete_workspace(
     identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
-    let uuid = uuid::Uuid::parse_str(&identifier)
-        .map_err(|_| AppError::Io(format!("Invalid UUID string: {}", identifier)))?;
-
     state
         .workspace_repository
-        .delete_workspace(&uuid, &meta)
+        .delete_workspace(&identifier, &meta)
         .await?;
 
     Ok(())

@@ -5,7 +5,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
-use uuid::Uuid;
 
 use crate::{
     adapters::paste_bins::{CreatePasteBin, UpdatePasteBin},
@@ -29,7 +28,7 @@ pub async fn create_paste_bin(
 #[tauri::command]
 pub async fn get_paste_bin(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<Option<paste_bins::Model>, AppError> {
     state
@@ -54,7 +53,7 @@ pub async fn get_all_paste_bins(
 #[tauri::command]
 pub async fn delete_paste_bin(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
@@ -67,7 +66,7 @@ pub async fn delete_paste_bin(
 #[tauri::command]
 pub async fn update_paste_bin(
     state: State<'_, AppState>,
-    identifier: Uuid,
+    identifier: String,
     paste_bin: UpdatePasteBin,
     meta: Option<RequestMeta>,
 ) -> Result<paste_bins::Model, AppError> {
@@ -90,9 +89,9 @@ pub async fn get_recently_added_paste_bins(
 #[tauri::command]
 pub async fn duplicate_paste_bin(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     let new_identifier = state
@@ -118,9 +117,9 @@ pub async fn duplicate_paste_bin(
 #[tauri::command]
 pub async fn transfer_paste_bin(
     state: State<'_, AppState>,
-    record_identifier: Uuid,
-    previous_workspace_identifier: Uuid,
-    target_workspace_identifier: Uuid,
+    record_identifier: String,
+    previous_workspace_identifier: String,
+    target_workspace_identifier: String,
     _meta: Option<RequestMeta>,
 ) -> Result<(), AppError> {
     state
