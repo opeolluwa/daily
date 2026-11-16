@@ -44,6 +44,11 @@ onUnmounted(() => clearSearch());
         cta-icon="heroicons:plus"
         @cta="router.push('/notes/create-notes')"
       />
+      <RyderFab
+        v-if="noteStore.notes.length > 0 && filteredNotes.length > 0"
+        aria-label="New Note"
+        @click="router.push('/notes/create-notes')"
+      />
       <!-- Sort control -->
       <div
         v-if="!noteStore.loading && noteStore.notes.length > 0"
