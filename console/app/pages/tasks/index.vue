@@ -63,7 +63,20 @@ async function deleteCompleted() {
 }
 
 const isMobile = useIsMobile();
+const isPhone = useMediaQuery("(max-width: 767px)");
 const router = useRouter();
+
+watch(
+  isPhone,
+  (phone) => {
+    if (phone) activeTab.value = "0";
+  },
+  { immediate: true },
+);
+
+const visibleTabs = computed(() =>
+  isPhone.value ? items.filter((item) => item.slot === "list") : items,
+);
 
 function openCreate() {
   if (isMobile.value) {
@@ -104,7 +117,11 @@ onUnmounted(() => clearSearch());
         cta-icon="heroicons:plus"
         @cta="openCreate"
       />
-      <RyderFab aria-label="New Task" @click="openCreate" />
+      <RyderFab
+        v-if="!isEmptyList"
+        aria-label="New Task"
+        @click="openCreate"
+      />
       <div
         v-if="
           !taskStore.loading && taskStore.tasks.length > 0 && isListViewMode
@@ -157,8 +174,9 @@ onUnmounted(() => clearSearch());
         v-model:model-value="activeTab"
         color="neutral"
         variant="link"
-        :items="items"
+        :items="visibleTabs"
         :content="true"
+        :ui="isPhone ? { list: 'hidden' } : undefined"
         class="w-full"
       >
         <template #list>

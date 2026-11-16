@@ -83,7 +83,13 @@ onUnmounted(() => clearSearch());
         :ui="ryderPageHeaderOverride"
         @cta="openCreate"
       />
-      <RyderFab aria-label="New Reminder" @click="openCreate" />
+      <RyderFab
+        v-if="
+          reminderStore.reminders.length > 0 && filteredReminders.length > 0
+        "
+        aria-label="New Reminder"
+        @click="openCreate"
+      />
       <!-- Filter tabs -->
       <div
         v-if="!reminderStore.loading && reminderStore.reminders.length > 0"

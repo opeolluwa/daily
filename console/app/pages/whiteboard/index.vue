@@ -59,7 +59,14 @@ onUnmounted(() => clearSearch());
         cta-icon="heroicons:plus"
         @cta="openCreateModal"
       />
-      <RyderFab aria-label="New Whiteboard" @click="openCreateModal" />
+      <RyderFab
+        v-if="
+          whiteboardStore.whiteboards.length > 0 &&
+          filteredWhiteboards.length > 0
+        "
+        aria-label="New Whiteboard"
+        @click="openCreateModal"
+      />
       <!-- Loading skeletons -->
       <div v-if="whiteboardStore.loading" class="flex flex-col gap-3">
         <USkeleton v-for="i in 3" :key="i" class="h-24 rounded-lg" />

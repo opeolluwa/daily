@@ -44,7 +44,11 @@ async function handleDelete(filename: string) {
         cta-icon="heroicons:plus"
         @cta="triggerUpload"
       />
-      <RyderFab aria-label="Add Image" @click="triggerUpload" />
+      <RyderFab
+        v-if="moodboardStore.images.length > 0"
+        aria-label="Add Image"
+        @click="triggerUpload"
+      />
       <input
         ref="fileInputRef"
         type="file"

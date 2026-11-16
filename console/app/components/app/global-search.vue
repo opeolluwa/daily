@@ -232,7 +232,7 @@ const flatIndexByItem = computed(() => {
 <template>
   <div
     ref="dropdownRef"
-    class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-[520px] max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 py-2"
+    class="fixed left-2 right-2 top-14 z-50 max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 md:absolute md:left-1/2 md:right-auto md:top-full md:mt-2 md:w-[520px] md:-translate-x-1/2"
   >
     <RyderEmptyState
       v-if="!hasResults"

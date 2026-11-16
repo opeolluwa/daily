@@ -89,7 +89,11 @@ async function handleCreate(payload: {
         cta-icon="heroicons:plus"
         @cta="openCreate"
       />
-      <RyderFab aria-label="Add Bookmark" @click="openCreate" />
+      <RyderFab
+        v-if="bookmarkStore.bookmarks.length > 0 && filtered.length > 0"
+        aria-label="Add Bookmark"
+        @click="openCreate"
+      />
       <div class="flex items-center gap-2 mb-1">
         <BookmarkTagFilters
           v-if="bookmarkStore.bookmarks.length !== 0"

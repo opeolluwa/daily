@@ -83,7 +83,11 @@ onUnmounted(() => clearSearch());
         cta-icon="heroicons:plus"
         @cta="openCreate"
       />
-      <RyderFab aria-label="New Snippet" @click="openCreate" />
+      <RyderFab
+        v-if="snippetStore.snippets.length > 0 && filteredSnippets.length > 0"
+        aria-label="New Snippet"
+        @click="openCreate"
+      />
       <!-- Language filter tabs + sort -->
       <div
         v-if="!snippetStore.loading && allLanguages.length > 1"

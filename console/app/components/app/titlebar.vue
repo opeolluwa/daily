@@ -28,6 +28,7 @@ const globalSearchRef = useTemplateRef<{
 }>("globalSearchRef");
 const currentPlatform = platform();
 const { toggleMobileNav } = useMobileNav();
+const mobileSearchOpen = ref(false);
 
 const colorMode = useColorMode();
 const themeLabel = computed(() =>
@@ -100,6 +101,23 @@ function clearSearch() {
   search.value = "";
 }
 
+async function openMobileSearch() {
+  mobileSearchOpen.value = true;
+  await nextTick();
+  focusSearch();
+}
+
+function closeMobileSearch() {
+  mobileSearchOpen.value = false;
+  clearSearch();
+  searchContainerRef.value?.querySelector("input")?.blur();
+}
+
+function handleSearchClose() {
+  mobileSearchOpen.value = false;
+  clearSearch();
+}
+
 function resetSearch() {
   clearSearch();
   focusSearch();
@@ -110,6 +128,7 @@ function onSearchKeydown(event: KeyboardEvent) {
     event.preventDefault();
     isOpen.value = false;
     searchContainerRef.value?.querySelector("input")?.blur();
+    if (mobileSearchOpen.value) closeMobileSearch();
     return;
   }
   globalSearchRef.value?.handleKeydown(event);
@@ -217,10 +236,24 @@ defineShortcuts(shortcuts);
     />
 
     <!-- Search -->
+    <UButton
+      v-if="!isAuthPage && !mobileSearchOpen"
+      :size="iconSize"
+      color="neutral"
+      variant="ghost"
+      class="md:hidden shrink-0"
+      icon="heroicons:magnifying-glass"
+      aria-label="Search"
+      @click="openMobileSearch"
+    />
+
     <div
       v-if="!isAuthPage"
       ref="searchContainerRef"
-      class="relative flex flex-1 min-w-0 items-center md:mx-auto md:max-w-sm"
+      class="relative min-w-0 items-center md:mx-auto md:max-w-sm"
+      :class="
+        mobileSearchOpen ? 'flex flex-1' : 'hidden md:flex md:flex-1'
+      "
     >
       <UInput
         v-model="search"
@@ -234,15 +267,28 @@ defineShortcuts(shortcuts);
         class="w-full cursor-text"
         @keydown="onSearchKeydown"
       />
+      <UButton
+        v-if="mobileSearchOpen"
+        :size="iconSize"
+        color="neutral"
+        variant="ghost"
+        class="md:hidden absolute end-0 top-1/2 -translate-y-1/2"
+        icon="heroicons:x-mark"
+        aria-label="Close search"
+        @click="closeMobileSearch"
+      />
       <AppGlobalSearch
         v-if="isOpen"
         ref="globalSearchRef"
-        @close="clearSearch"
+        @close="handleSearchClose"
       />
     </div>
 
     <!-- Right actions -->
-    <div class="flex items-center gap-0.5 ml-auto">
+    <div
+      class="items-center gap-0.5 ml-auto"
+      :class="mobileSearchOpen ? 'hidden md:flex' : 'flex'"
+    >
       <UTooltip v-if="!isAuthPage && !authStore.isGuest" :text="syncLabel">
         <UButton
           :size="iconSize"
