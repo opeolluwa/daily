@@ -5,7 +5,7 @@ export type { CreateRecycleBinEntry };
 
 const SOURCE_TABLES: Record<ItemType, string> = {
   note: "notes",
-  todo: "task",
+  task: "task",
   bookmark: "bookmark",
   snippet: "snippets",
   reminder: "reminder",

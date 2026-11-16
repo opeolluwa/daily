@@ -36,7 +36,7 @@ export interface ApplyChangesResult {
 
 const RECYCLE_BIN_TABLES: Record<string, string> = {
   notes: "note",
-  task: "todo",
+  task: "task",
   bookmark: "bookmark",
   snippets: "snippet",
   reminder: "reminder",

@@ -5,6 +5,7 @@ import {
 } from "@tauri-apps/plugin-notification";
 import { useAlarmScheduler } from "~/composables/useAlarmScheduler";
 import { useWorkspaceSetup } from "~/composables/useWorkspaceSetup";
+import { useAuthStore } from "~/stores/auth";
 import { useWorkspacesStore } from "~/stores/workspaces";
 import "@domternal/theme";
 const { init: initFontSize } = useFontSize();
@@ -17,7 +18,10 @@ const {
 } = useWorkspaceSetup();
 
 useAlarmScheduler();
-const authenticated = ref(true);
+const authStore = useAuthStore();
+const authenticated = computed(
+  () => authStore.isAuthenticated || authStore.isGuest,
+);
 
 const showWorkspaceLock = ref(false);
 onMounted(async () => {

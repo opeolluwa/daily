@@ -46,7 +46,7 @@ impl OtpRepositoryExt for OtpRepository {
 
         let otp = one_time_password::ActiveModel {
             identifier: Set(otp_identifier),
-            code: Set(code.to_string()), //TODO: hash this code
+            code: Set(code.to_string()),
             user_identifier: Set(user_identifier.to_string()),
             created_at: Set(chrono::Utc::now().fixed_offset()),
             ..Default::default()
