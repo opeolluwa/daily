@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useReminderStore, type Reminder } from "~/stores/reminder";
 import ReminderDialog from "~/components/reminders/ReminderDialog.vue";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 
 definePageMeta({ layout: false });
 
@@ -64,11 +65,18 @@ onUnmounted(() => clearSearch());
         title="Reminders"
         cta-text="New Reminder"
         cta-icon="heroicons:plus"
-        @cta="editingReminder = null; dialogOpen = true"
+        :ui="ryderPageHeaderOverride"
+        @cta="
+          editingReminder = null;
+          dialogOpen = true;
+        "
       />
       <RyderFab
         aria-label="New Reminder"
-        @click="editingReminder = null; dialogOpen = true"
+        @click="
+          editingReminder = null;
+          dialogOpen = true;
+        "
       />
       <!-- Filter tabs -->
       <div
@@ -124,7 +132,9 @@ onUnmounted(() => clearSearch());
         <RyderCard
           v-for="reminder in filteredReminders"
           :key="reminder.identifier"
-          :ui="{ root: '!p-0 overflow-hidden cursor-pointer w-72 hover:shadow-sm transition-shadow' }"
+          :ui="{
+            root: '!p-0 overflow-hidden cursor-pointer w-72 hover:shadow-sm transition-shadow',
+          }"
           @click="handleEdit(reminder.identifier)"
         >
           <div class="p-4 flex items-center gap-3">
@@ -137,7 +147,9 @@ onUnmounted(() => clearSearch());
               "
             >
               <UIcon
-                :name="reminder.recurring ? 'heroicons:arrow-path' : 'heroicons:bell'"
+                :name="
+                  reminder.recurring ? 'heroicons:arrow-path' : 'heroicons:bell'
+                "
                 class="size-5"
                 :class="
                   reminder.recurring
@@ -147,7 +159,9 @@ onUnmounted(() => clearSearch());
               />
             </div>
             <div class="min-w-0 flex-1">
-              <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+              <h3
+                class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate"
+              >
                 {{ reminder.title }}
               </h3>
               <p class="text-xs text-gray-400 mt-0.5">
@@ -159,7 +173,10 @@ onUnmounted(() => clearSearch());
           <div
             class="px-4 py-2 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between"
           >
-            <p v-if="reminder.recurring && reminder.recurrenceRule" class="text-xs text-primary-500 capitalize">
+            <p
+              v-if="reminder.recurring && reminder.recurrenceRule"
+              class="text-xs text-primary-500 capitalize"
+            >
               {{ reminder.recurrenceRule }}
             </p>
             <p v-else class="text-xs text-gray-400">One-time</p>

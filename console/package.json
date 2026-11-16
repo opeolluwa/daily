@@ -46,7 +46,7 @@
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/i18n": "^10.6.0",
-    "@opeolluwa/ryder": "github:opeolluwa/ryder#v1.6.17",
+    "@opeolluwa/ryder": "github:opeolluwa/ryder#v1.6.18",
     "@pinia/nuxt": "^1.0.3",
     "@tauri-apps/plugin-clipboard-manager": "^2.5.0",
     "@tauri-apps/plugin-notification": "^2.8.0",

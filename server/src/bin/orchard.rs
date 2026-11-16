@@ -46,7 +46,16 @@ use orchard_migration::{Migrator, MigratorTrait};
 async fn graphql_playground(
     State(GraphQlState { endpoint, .. }): State<GraphQlState>,
 ) -> impl IntoResponse {
-    response::Html(playground_source(GraphQLPlaygroundConfig::new(&endpoint)))
+    let html = playground_source(GraphQLPlaygroundConfig::new(&endpoint));
+    (
+        [(
+            HeaderName::from_static("content-security-policy"),
+            HeaderValue::from_static(
+                "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; connect-src 'self'; font-src 'self' data: fonts.gstatic.com; img-src 'self' data: cdn.jsdelivr.net",
+            ),
+        )],
+        response::Html(html),
+    )
 }
 
 #[axum::debug_handler]
@@ -218,12 +227,11 @@ async fn main() -> Result<(), AppError> {
                     HeaderName::from_static("cross-origin-resource-policy"),
                     HeaderValue::from_static("same-origin"),
                 );
-                headers.insert(
-                    HeaderName::from_static("content-security-policy"),
-                    HeaderValue::from_static(
+                headers
+                    .entry(HeaderName::from_static("content-security-policy"))
+                    .or_insert(HeaderValue::from_static(
                         "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
-                    ),
-                );
+                    ));
                 if is_production {
                     headers.insert(
                         HeaderName::from_static("strict-transport-security"),

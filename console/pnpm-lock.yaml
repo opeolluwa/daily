@@ -93,8 +93,8 @@ importers:
         specifier: ^10.6.0
         version: 10.6.0(@nuxt/schema@4.6.4)(@vue/compiler-dom@3.5.44)(db0@0.3.4(@electric-sql/pglite@0.5.15))(dotenv@17.4.2)(esbuild@0.28.2)(giget@3.3.1)(idb-keyval@6.3.0)(ioredis@5.11.1(supports-color@10.2.2))(jiti@2.7.0)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3)))(rolldown@1.2.16)(rollup@4.67.4)(supports-color@10.2.2)(typescript@5.9.3)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.44(typescript@5.9.3))
       '@opeolluwa/ryder':
-        specifier: github:opeolluwa/ryder#v1.6.17
-        version: https://codeload.github.com/opeolluwa/ryder/tar.gz/b1b2a673c25f1d69324eee52fd2371ef5360c0ef(d59781d5bb1428e576b9c35a763d5fee)
+        specifier: github:opeolluwa/ryder#v1.6.18
+        version: https://codeload.github.com/opeolluwa/ryder/tar.gz/e0bcab624c3fedccbfba004cbb38cf22218f6a10(d59781d5bb1428e576b9c35a763d5fee)
       '@pinia/nuxt':
         specifier: ^1.0.3
         version: 1.0.3(@nuxt/schema@4.6.4)(confbox@0.2.4)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(oxc-parser@0.141.0)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3)))(rolldown@1.2.16)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))
@@ -1963,9 +1963,9 @@ packages:
     resolution: {integrity: sha512-20YXYOcc8cSh/pSpNgj+MHAn11qUbsFR1IBJh6qYtRPVhUUmgqJ1DyMu39MB+uEYYL/fsberL2ByMYrFaROslw==}
     engines: {node: '>=20.11.1'}
 
-  '@opeolluwa/ryder@https://codeload.github.com/opeolluwa/ryder/tar.gz/b1b2a673c25f1d69324eee52fd2371ef5360c0ef':
-    resolution: {gitHosted: true, integrity: sha512-NB3mbKn7BYnfU+oyPsvhyJXDlRyev+2eZqZEsflONOqupNi5PgcO1h8Xhy5MGuBlnYaHz7ZlwCFFu+gPMn6Guw==, tarball: https://codeload.github.com/opeolluwa/ryder/tar.gz/b1b2a673c25f1d69324eee52fd2371ef5360c0ef}
-    version: 1.6.17
+  '@opeolluwa/ryder@https://codeload.github.com/opeolluwa/ryder/tar.gz/e0bcab624c3fedccbfba004cbb38cf22218f6a10':
+    resolution: {gitHosted: true, integrity: sha512-1205O98Vla95DQUzIIHDWAsyvH8hZtPeYJmDu/L57wP73e1VzEmNCzjzywu1jF5+4HY44jdIQOiG7VkuhIoPYw==, tarball: https://codeload.github.com/opeolluwa/ryder/tar.gz/e0bcab624c3fedccbfba004cbb38cf22218f6a10}
+    version: 1.6.18
     peerDependencies:
       '@domternal/core': ^1.1.1
       '@domternal/extension-block-controls': ^1.1.1
@@ -9781,7 +9781,7 @@ snapshots:
       - vue
       - webpack
 
-  '@opeolluwa/ryder@https://codeload.github.com/opeolluwa/ryder/tar.gz/b1b2a673c25f1d69324eee52fd2371ef5360c0ef(d59781d5bb1428e576b9c35a763d5fee)':
+  '@opeolluwa/ryder@https://codeload.github.com/opeolluwa/ryder/tar.gz/e0bcab624c3fedccbfba004cbb38cf22218f6a10(d59781d5bb1428e576b9c35a763d5fee)':
     dependencies:
       '@domternal/core': 1.8.0
       '@domternal/extension-block-controls': 1.8.0(@domternal/core@1.8.0)(@domternal/pm@1.8.0)

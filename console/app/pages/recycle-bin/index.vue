@@ -4,6 +4,7 @@ import {
   type RecycleBinItemType,
 } from "~/stores/recycle-bin";
 import WarningModal from "~/components/app/WarningModal.vue";
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 
 definePageMeta({ layout: false });
 
@@ -182,6 +183,7 @@ onUnmounted(() => {
       <RyderPageHeader
         v-if="recycleBinStore.entries.length > 0"
         title="Recycle Bin"
+        :ui="ryderPageHeaderOverride"
         cta-text="Empty bin"
         cta-icon="heroicons:trash"
         @cta="confirmEmptyBin = true"

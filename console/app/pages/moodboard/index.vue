@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ryderPageHeaderOverride } from "~/assets/ryder.css";
 import { useMoodboardStore } from "~/stores/moodboard";
 
 definePageMeta({ layout: false });
@@ -37,15 +38,13 @@ async function handleDelete(filename: string) {
     <template #main_content>
       <RyderPageHeader
         v-if="moodboardStore.images.length > 0"
+        :ui="ryderPageHeaderOverride"
         title="Moodboard"
         cta-text="Add Image"
         cta-icon="heroicons:plus"
         @cta="triggerUpload"
       />
-      <RyderFab
-        aria-label="Add Image"
-        @click="triggerUpload"
-      />
+      <RyderFab aria-label="Add Image" @click="triggerUpload" />
       <input
         ref="fileInputRef"
         type="file"
@@ -53,7 +52,7 @@ async function handleDelete(filename: string) {
         multiple
         class="hidden"
         @change="handleFileChange"
-      >
+      />
       <!-- Loading skeleton -->
       <div v-if="moodboardStore.loading" class="columns-2 gap-3 space-y-3">
         <div
@@ -87,7 +86,7 @@ async function handleDelete(filename: string) {
               :src="image.src"
               :alt="image.title"
               class="w-full object-cover"
-            >
+            />
             <div
               class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end justify-between"
             >
