@@ -38,8 +38,10 @@ const isMacOS = currentPlatform.toLowerCase() === "macos";
 
 const preferenceStore = useUserPreferenceStore();
 const route = useRoute();
+const isMobile = useIsMobile();
 const authPagesPrefix = "/auth";
 const isAuthPage = computed(() => route.path.startsWith(authPagesPrefix));
+const hideTitlebar = computed(() => IS_WEB && isAuthPage.value && isMobile.value);
 const parentPath = computed(() => {
   const segments = route.path.split("/").filter(Boolean);
   return segments.length > 1 ? `/${segments[0]}` : null;
@@ -147,6 +149,7 @@ defineShortcuts(shortcuts);
 
 <template>
   <div
+    v-if="!hideTitlebar"
     class="titlebar flex items-center gap-1.5 px-2 h-10"
     data-tauri-drag-region
     :class="{ 'rounded-t-2xl': !IS_WEB }"

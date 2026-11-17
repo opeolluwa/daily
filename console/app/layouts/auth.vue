@@ -1,7 +1,7 @@
 <template>
   <div
     id="auth_layout"
-    class="h-screen bg-gray-50 w-full dark:bg-app-dark-800 flex flex-col items-center justify-center md:p-6 relative overflow-hidden"
+    class="min-h-screen bg-white md:bg-gray-50 w-full dark:bg-app-dark-800 flex flex-col items-center md:justify-center pt-16 md:pt-0 md:p-6 relative md:overflow-hidden"
     :class="{ 'rounded-2xl': !IS_WEB }"
   >
     <div
@@ -13,7 +13,7 @@
     />
 
     <RyderCard
-      class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 pb-8 pt-12 px-8"
+      class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 pb-8 pt-12 px-8 max-md:border-0 max-md:rounded-none max-md:shadow-none"
     >
       <Transition
         enter-active-class="transition-opacity duration-200"
