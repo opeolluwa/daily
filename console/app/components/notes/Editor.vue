@@ -196,6 +196,13 @@ const model = defineModel<string>();
 
 const editor = shallowRef<Editor | null>(null);
 
+const { keyboardHeight } = useVirtualKeyboard();
+watch(keyboardHeight, (newH, oldH) => {
+  if (newH > 0 && oldH === 0 && editor.value) {
+    nextTick(() => editor.value?.commands.scrollIntoView());
+  }
+});
+
 function handleCreate(ed: Editor) {
   editor.value = ed;
 }
