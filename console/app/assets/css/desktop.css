@@ -13,7 +13,7 @@
 }
 
 .is-tauri #wild_almonds_app {
-  @apply rounded-b-2xl ring-1 ring-gray-200/80 dark:ring-white/[0.15];
+  @apply rounded-b-2xl;
 }
 
 #auth_layout form {

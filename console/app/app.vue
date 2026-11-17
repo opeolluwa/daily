@@ -79,6 +79,13 @@ onMounted(async () => {
     </Transition>
 
     <AppTitlebar :authenticated="authenticated" />
+
+    <!-- Masks the dark macOS window-edge hairline; keeps the OS shadow. -->
+    <div
+      v-if="!IS_WEB"
+      aria-hidden="true"
+      class="pointer-events-none fixed inset-0 z-[9998] rounded-2xl border border-gray-200 dark:border-white/[0.15]"
+    />
   </UApp>
 </template>
 
