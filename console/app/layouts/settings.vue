@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import tabs, { settingsTabForPath } from "~/data/settings-tabs";
+import tabs from "~/data/settings-tabs";
+import { settingsTabForPath } from "@opeolluwa/ryder/utils/settingsTabs.js";
 
 const route = useRoute();
 
@@ -11,10 +12,6 @@ const activeKey = computed<string | null>(() => {
   if (route.path === "/settings") return visibleTabs.value[0]?.key ?? null;
   return null;
 });
-
-const currentTabLabel = computed(
-  () => settingsTabForPath(visibleTabs.value, route.path)?.label ?? "Settings",
-);
 </script>
 
 <template>
@@ -67,25 +64,6 @@ const currentTabLabel = computed(
         <RyderCard
           class="min-w-0 max-w-xl flex-1 lg:rounded-xl lg:bg-white lg:p-4 lg:dark:bg-gray-800"
         >
-          <!-- Mobile back bar -->
-          <div
-            v-if="route.path !== '/settings'"
-            class="lg:hidden mb-3 flex items-center gap-2"
-          >
-            <UButton
-              icon="heroicons:arrow-left"
-              size="sm"
-              color="neutral"
-              variant="ghost"
-              @click="navigateTo('/settings')"
-            />
-            <span
-              class="text-sm font-medium text-gray-700 dark:text-gray-200"
-            >
-              {{ currentTabLabel }}
-            </span>
-          </div>
-
           <slot />
         </RyderCard>
       </div>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { items, secondaryRoutes } from "~/data/routes";
-import { tourConfig } from "~/data/tour-steps";
 import { useAuthStore } from "~/stores/auth";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
 
@@ -51,12 +50,6 @@ function onNavigate() {
   emit("navigate");
 }
 
-const { restart: restartTour } = useDriver("onboarding");
-
-function handleTourClick() {
-  restartTour(tourConfig);
-  emit("navigate");
-}
 </script>
 
 <template>
@@ -121,25 +114,6 @@ function handleTourClick() {
         </button>
       </UTooltip>
 
-      <!-- Tour -->
-      <UTooltip text="Tour" :disabled="!collapsed" side="right">
-        <button
-          type="button"
-          class="flex items-center w-full h-11 gap-2 px-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white transition-colors"
-          :class="collapsed ? 'justify-center px-0' : ''"
-          @click="handleTourClick"
-        >
-          <UIcon
-            name="heroicons:question-mark-circle"
-            class="size-5 shrink-0 text-gray-500 dark:text-gray-400"
-          />
-
-          <span v-if="!collapsed" class="text-sm font-medium">
-            Tour
-          </span>
-        </button>
-      </UTooltip>
-      
       <!-- SECONDARY -->
       <div class="mt-auto">
         <template v-for="item in secondaryRoutes" :key="item.path">
