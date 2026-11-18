@@ -11,5 +11,5 @@ pub mod snippets;
 pub mod sync;
 pub mod tasks;
 pub mod whiteboards;
-pub mod workspace_profiles;
+pub mod user_profile;
 pub mod workspaces;

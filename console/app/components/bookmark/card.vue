@@ -67,6 +67,8 @@ const handleTransfer = async (targetWorkspaceId: string) => {
     >
       {{ bookmark.tag }}
     </span>
+
+     <UBadge>      {{ bookmark.tag }}</UBadge>
     <p class="text-xs text-gray-400 shrink-0 hidden sm:block">
       {{ formatDate(bookmark.createdAt) }}
     </p>

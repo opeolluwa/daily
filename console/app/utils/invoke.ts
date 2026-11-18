@@ -11,7 +11,6 @@ import type {
   CreateTask,
   CreateWhiteboard,
   CreateWorkspace,
-  CreateWorkspaceProfile,
   CoreConsoleApi,
   RequestMeta,
   UpdateBookmark,
@@ -20,9 +19,9 @@ import type {
   UpdateReminder,
   UpdateSnippet,
   UpdateTask,
+  UpdateUserProfile,
   UpdateWhiteboard,
   UpdateWorkspace,
-  UpdateWorkspaceProfile,
 } from "./core";
 
 type InvokeArgs = Record<string, unknown>;
@@ -87,18 +86,9 @@ const COMMANDS: Record<string, CommandHandler> = {
       asString(a, "password"),
     ),
 
-  get_workspace_profile: (api, a) => api.workspaceProfiles.get(asMeta(a)),
-  create_workspace_profile: (api, a) =>
-    api.workspaceProfiles.create(
-      a.profile as CreateWorkspaceProfile,
-      asMeta(a),
-    ),
-  update_workspace_profile: (api, a) =>
-    api.workspaceProfiles.update(
-      asString(a, "identifier"),
-      a.profile as UpdateWorkspaceProfile,
-      asMeta(a),
-    ),
+  get_user_profile: (api) => api.userProfile.get_or_create(),
+  update_user_profile: (api, a) =>
+    api.userProfile.update(asString(a, "identifier"), a.profile as UpdateUserProfile),
 
   get_all_notes: (api, a) => api.notes.find_all(asMeta(a)),
   get_recently_added_notes: (api, a) => api.notes.recently_added(asMeta(a)),
@@ -297,7 +287,6 @@ const COMMANDS: Record<string, CommandHandler> = {
 
 const UNSYNCED = new Set([
   "get_unsynced_workspaces",
-  "get_unsynced_workspace_profiles",
   "get_unsynced_notes",
   "get_unsynced_tasks",
   "get_unsynced_bookmarks",
@@ -308,7 +297,6 @@ const UNSYNCED = new Set([
 
 const CLEAR_SYNCED = new Set([
   "clear_synced_workspaces",
-  "clear_synced_workspace_profiles",
   "clear_synced_notes",
   "clear_synced_tasks",
   "clear_synced_bookmarks",

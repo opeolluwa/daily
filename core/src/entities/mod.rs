@@ -20,12 +20,11 @@ pub mod sync_meta;
 pub mod sync_queue;
 pub mod sync_state;
 pub mod task;
-pub mod user_preferences;
+pub mod user_profile;
 pub mod users;
 pub mod whiteboard_files;
 pub mod whiteboards;
 pub mod workspace_members;
-pub mod workspace_profiles;
 pub mod workspaces;
 
 seaography::register_entity_modules!([
@@ -46,12 +45,11 @@ seaography::register_entity_modules!([
     sync_queue,
     sync_state,
     task,
-    user_preferences,
+    user_profile,
     users,
     whiteboard_files,
     whiteboards,
     workspace_members,
-    workspace_profiles,
     workspaces,
 ]);
 seaography::register_active_enums!([

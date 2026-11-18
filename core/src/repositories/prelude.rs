@@ -5,5 +5,5 @@ pub use super::{
     recycle_bin::RecycleBinRepositoryExt, reminder::ReminderRepositoryExt,
     snippets::SnippetRepositoryExt, sync::SyncRepository, tasks::TaskRepositoryExt,
     whiteboards::WhiteboardRepositoryExt, workspace::WorkspaceRepositoryExt,
-    workspace_profiles::WorkspaceProfileRepositoryExt,
+    user_profile::UserProfileRepositoryExt,
 };

@@ -17,7 +17,6 @@ const SYNCABLE_TABLES: &[&str] = &[
     "reminder",
     "paste_bins",
     "whiteboards",
-    "workspace_profiles",
     "workspaces",
 ];
 const RECYCLE_BIN_TABLES: &[(&str, &str)] = &[

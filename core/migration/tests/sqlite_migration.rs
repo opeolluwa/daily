@@ -9,7 +9,6 @@ const SYNCABLE_TABLES: &[&str] = &[
     "reminder",
     "paste_bins",
     "whiteboards",
-    "workspace_profiles",
 ];
 
 #[tokio::test]

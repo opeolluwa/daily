@@ -10,8 +10,7 @@ import { NotificationSettingsRepository } from "./repositories/notification_sett
 import { NotificationRepository } from "./repositories/notifications";
 import { RecycleBinRepository } from "./repositories/recycle_bin";
 import { WorkspaceRepository } from "./repositories/workspace";
-import { WorkspaceProfileRepository } from "./repositories/workspace_profiles";
-import { UserPreferencesRepository } from "./repositories/user_preferences";
+import { UserProfileRepository } from "./repositories/user_profile";
 import { WhiteboardRepository } from "./repositories/whiteboards";
 import { WhiteboardFileRepository } from "./repositories/whiteboard_files";
 import { SyncRepository } from "./repositories/sync";
@@ -28,8 +27,7 @@ export interface CoreConsoleApi {
   notifications: NotificationRepository;
   recycleBin: RecycleBinRepository;
   workspaces: WorkspaceRepository;
-  workspaceProfiles: WorkspaceProfileRepository;
-  userPreferences: UserPreferencesRepository;
+  userProfile: UserProfileRepository;
   whiteboards: WhiteboardRepository;
   whiteboardFiles: WhiteboardFileRepository;
   sync: SyncRepository;
@@ -50,8 +48,7 @@ export async function createCoreConsoleApi(): Promise<CoreConsoleApi> {
     notifications: new NotificationRepository(),
     recycleBin: new RecycleBinRepository(),
     workspaces: new WorkspaceRepository(),
-    workspaceProfiles: new WorkspaceProfileRepository(),
-    userPreferences: new UserPreferencesRepository(),
+    userProfile: new UserProfileRepository(),
     whiteboards: new WhiteboardRepository(),
     whiteboardFiles: new WhiteboardFileRepository(),
     sync: new SyncRepository(),
@@ -73,13 +70,9 @@ export type {
   UpdateWorkspace,
 } from "./repositories/workspace";
 export type {
-  CreateWorkspaceProfile,
-  UpdateWorkspaceProfile,
-} from "./repositories/workspace_profiles";
-export type {
-  CreateUserPreferences,
-  UpdateUserPreferences,
-} from "./repositories/user_preferences";
+  CreateUserProfile,
+  UpdateUserProfile,
+} from "./repositories/user_profile";
 export type {
   CreateWhiteboard,
   UpdateWhiteboard,

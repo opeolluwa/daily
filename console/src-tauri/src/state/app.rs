@@ -9,7 +9,7 @@ use kernel::{
         recycle_bin::RecycleBinRepository, reminder::ReminderRepository,
         snippets::SnippetRepository, sync::SyncRepository, tasks::TaskRepository,
         whiteboards::WhiteboardRepository, workspace::WorkspaceRepository,
-        workspace_profiles::WorkspaceProfileRepository,
+        user_profile::UserProfileRepository,
     },
     sea_orm::DatabaseConnection,
 };
@@ -27,7 +27,7 @@ pub struct AppState {
     pub sync_repository: SyncRepository,
     pub task_repository: TaskRepository,
     pub whiteboards_repository: WhiteboardRepository,
-    pub workspace_profile_repository: WorkspaceProfileRepository,
+    pub user_profile_repository: UserProfileRepository,
     pub workspace_repository: WorkspaceRepository,
     pub db: Arc<DatabaseConnection>,
     pub cloud_storage: Arc<RwLock<Option<FileStoreEngine>>>,
@@ -47,7 +47,7 @@ impl AppState {
         let task_repository = TaskRepository::new(conn.clone());
         let whiteboards_repository = WhiteboardRepository::new(conn.clone());
         let workspace_repository = WorkspaceRepository::new(conn.clone());
-        let workspace_profile_repository = WorkspaceProfileRepository::new(conn.clone());
+        let user_profile_repository = UserProfileRepository::new(conn.clone());
 
         AppState {
             bookmark_repository,
@@ -62,7 +62,7 @@ impl AppState {
             task_repository,
             whiteboards_repository,
             workspace_repository,
-            workspace_profile_repository,
+            user_profile_repository,
             db: conn,
             cloud_storage: Arc::new(RwLock::new(None)),
         }
