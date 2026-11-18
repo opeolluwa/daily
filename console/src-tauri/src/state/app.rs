@@ -3,6 +3,7 @@ use std::sync::Arc;
 use kernel::{
     filestore::FileStoreEngine,
     repositories::{
+        backup_settings::BackupSettingsRepository,
         bookmarks::BookmarkRepository, notes::NotesRepository,
         notification_settings::NotificationSettingsRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
@@ -16,6 +17,7 @@ use kernel::{
 use tokio::sync::RwLock;
 
 pub struct AppState {
+    pub backup_settings_repository: BackupSettingsRepository,
     pub bookmark_repository: BookmarkRepository,
     pub notes_repository: NotesRepository,
     pub notification_repository: NotificationRepository,
@@ -35,6 +37,7 @@ pub struct AppState {
 
 impl AppState {
     pub async fn new(conn: Arc<DatabaseConnection>) -> Self {
+        let backup_settings_repository = BackupSettingsRepository::new(conn.clone());
         let bookmark_repository = BookmarkRepository::new(conn.clone());
         let notes_repository = NotesRepository::new(conn.clone());
         let notification_repository = NotificationRepository::new(conn.clone());
@@ -50,6 +53,7 @@ impl AppState {
         let user_profile_repository = UserProfileRepository::new(conn.clone());
 
         AppState {
+            backup_settings_repository,
             bookmark_repository,
             notes_repository,
             notification_repository,

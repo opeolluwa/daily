@@ -2,6 +2,7 @@
 
 pub mod prelude;
 
+pub mod backup_settings;
 pub mod bookmark;
 pub mod country;
 pub mod invitation;
@@ -28,6 +29,7 @@ pub mod workspace_members;
 pub mod workspaces;
 
 seaography::register_entity_modules!([
+    backup_settings,
     bookmark,
     country,
     invitation,
@@ -59,4 +61,5 @@ seaography::register_active_enums!([
     sea_orm_active_enums::ReminderRecurrence,
     sea_orm_active_enums::Tag,
     sea_orm_active_enums::TaskStatus,
+    sea_orm_active_enums::BackupMode,
 ]);

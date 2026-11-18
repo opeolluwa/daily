@@ -1,5 +1,6 @@
 pub use super::{
-    bookmarks::BookmarkRepositoryExt, notes::NotesRepositoryExt,
+    backup_settings::BackupSettingsRepositoryExt, bookmarks::BookmarkRepositoryExt,
+    notes::NotesRepositoryExt,
     notification_settings::NotificationSettingsRepositoryExt,
     notifications::NotificationRepositoryExt, paste_bins::PasteBinRepositoryExt,
     recycle_bin::RecycleBinRepositoryExt, reminder::ReminderRepositoryExt,

@@ -58,6 +58,7 @@ mod m20261116_200000_widen_otp_code_column;
 mod m20261116_300000_fix_recycle_bin_todo_item_type;
 mod m20261118_000000_create_notification_settings;
 mod m20261118_100000_merge_profile_tables;
+mod m20261118_200000_create_backup_settings;
 
 pub use sea_orm_migration::prelude::*;
 pub mod exporter;
@@ -127,6 +128,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20261116_300000_fix_recycle_bin_todo_item_type::Migration),
             Box::new(m20261118_000000_create_notification_settings::Migration),
             Box::new(m20261118_100000_merge_profile_tables::Migration),
+            Box::new(m20261118_200000_create_backup_settings::Migration),
         ]
     }
 }

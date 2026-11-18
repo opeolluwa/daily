@@ -17,6 +17,7 @@ use crate::{
 };
 
 const SYNCABLE_TABLES: &[&str] = &[
+    "backup_settings",
     "notes",
     "task",
     "bookmark",

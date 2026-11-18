@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import tabs, { settingsTabForPath } from "~/data/settings-tabs";
+import tabs, {
+  settingsTabForPath,
+  type ExtendedSettingsTab,
+} from "~/data/settings-tabs";
 import { useAuthStore } from "~/stores/auth";
 
 const authStore = useAuthStore();
@@ -15,6 +18,20 @@ const activeKey = computed<string | null>(() => {
   if (route.path === "/settings") return visibleTabs.value[0]?.key ?? null;
   return null;
 });
+
+const currentTabLabel = computed(
+  () => settingsTabForPath(visibleTabs.value, route.path)?.label ?? "Settings",
+);
+
+const advancedOpen = ref(false);
+
+function handleTabClick(tab: ExtendedSettingsTab) {
+  if (tab.modal) {
+    advancedOpen.value = true;
+  } else {
+    navigateTo(tab.to);
+  }
+}
 </script>
 
 <template>
@@ -32,16 +49,18 @@ const activeKey = computed<string | null>(() => {
             </p>
 
             <nav class="space-y-0.5">
-              <NuxtLink
+              <component
+                :is="tab.modal ? 'button' : 'NuxtLink'"
                 v-for="tab in visibleTabs"
                 :key="tab.key"
-                :to="tab.to"
+                :to="tab.modal ? undefined : tab.to"
                 class="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all"
                 :class="
                   activeKey === tab.key
                     ? 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400 font-medium'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-800 dark:hover:text-white'
                 "
+                @click="tab.modal ? handleTabClick(tab) : undefined"
               >
                 <UIcon :name="tab.icon" class="size-4 shrink-0" />
 
@@ -59,7 +78,7 @@ const activeKey = computed<string | null>(() => {
                     {{ tab.desc }}
                   </p>
                 </div>
-              </NuxtLink>
+              </component>
             </nav>
           </div>
         </aside>
@@ -67,9 +86,37 @@ const activeKey = computed<string | null>(() => {
         <RyderCard
           class="min-w-0 max-w-xl flex-1 lg:rounded-xl lg:bg-white lg:p-4 lg:dark:bg-gray-800"
         >
+          <!-- Mobile back bar -->
+          <div
+            v-if="route.path !== '/settings'"
+            class="lg:hidden mb-3 flex items-center gap-2"
+          >
+            <UButton
+              icon="heroicons:arrow-left"
+              size="sm"
+              color="neutral"
+              variant="ghost"
+              @click="navigateTo('/settings')"
+            />
+            <span
+              class="text-sm font-medium text-gray-700 dark:text-gray-200"
+            >
+              {{ currentTabLabel }}
+            </span>
+          </div>
+
           <slot />
         </RyderCard>
       </div>
+
+      <!-- Desktop modal for Advanced settings -->
+      <UModal v-model:open="advancedOpen">
+        <template #content>
+          <div class="p-6 max-w-lg mx-auto">
+            <SettingsAdvancedSettings @close="advancedOpen = false" />
+          </div>
+        </template>
+      </UModal>
     </template>
   </NuxtLayout>
 </template>

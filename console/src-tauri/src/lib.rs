@@ -101,6 +101,8 @@ pub async fn run() {
             commands::bookmarks::get_recently_added_bookmarks,
             commands::bookmarks::transfer_bookmark,
             commands::bookmarks::update_bookmark,
+            commands::backup_settings::get_backup_settings,
+            commands::backup_settings::update_backup_settings,
             commands::notification_settings::get_notification_settings,
             commands::notification_settings::update_notification_settings,
             commands::notifications::create_notification,

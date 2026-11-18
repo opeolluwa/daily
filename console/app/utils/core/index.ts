@@ -6,6 +6,7 @@ import { BookmarkRepository } from "./repositories/bookmarks";
 import { SnippetRepository } from "./repositories/snippets";
 import { PasteBinRepository } from "./repositories/paste_bins";
 import { ReminderRepository } from "./repositories/reminder";
+import { BackupSettingsRepository } from "./repositories/backup_settings";
 import { NotificationSettingsRepository } from "./repositories/notification_settings";
 import { NotificationRepository } from "./repositories/notifications";
 import { RecycleBinRepository } from "./repositories/recycle_bin";
@@ -23,6 +24,7 @@ export interface CoreConsoleApi {
   snippets: SnippetRepository;
   pasteBins: PasteBinRepository;
   reminders: ReminderRepository;
+  backupSettings: BackupSettingsRepository;
   notificationSettings: NotificationSettingsRepository;
   notifications: NotificationRepository;
   recycleBin: RecycleBinRepository;
@@ -44,6 +46,7 @@ export async function createCoreConsoleApi(): Promise<CoreConsoleApi> {
     snippets: new SnippetRepository(),
     pasteBins: new PasteBinRepository(),
     reminders: new ReminderRepository(),
+    backupSettings: new BackupSettingsRepository(),
     notificationSettings: new NotificationSettingsRepository(),
     notifications: new NotificationRepository(),
     recycleBin: new RecycleBinRepository(),
@@ -62,6 +65,7 @@ export type { CreateBookmark, UpdateBookmark } from "./repositories/bookmarks";
 export type { CreateSnippet, UpdateSnippet } from "./repositories/snippets";
 export type { CreatePasteBin, UpdatePasteBin } from "./repositories/paste_bins";
 export type { CreateReminder, UpdateReminder } from "./repositories/reminder";
+export type { UpdateBackupSettings, BackupSettings } from "./repositories/backup_settings";
 export type { UpdateNotificationSettings, NotificationSettings } from "./repositories/notification_settings";
 export type { CreateNotification } from "./repositories/notifications";
 export type { CreateRecycleBinEntry } from "./repositories/recycle_bin";

@@ -1,3 +1,4 @@
+pub mod backup_settings;
 pub mod bookmark;
 pub mod note;
 pub mod recycle_bin;
