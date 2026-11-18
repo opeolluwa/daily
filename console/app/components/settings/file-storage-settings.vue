@@ -25,14 +25,22 @@ const providerOptions: {
 ];
 
 const backupStore = useBackupSettingsStore();
+const isMobile = useIsMobile();
+const advancedOpen = ref(false);
 
 onMounted(() => backupStore.init());
+
+function openAdvanced() {
+  if (isMobile.value) {
+    navigateTo("/settings/advanced");
+  } else {
+    advancedOpen.value = true;
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-4 mt-4">
-    <!-- ─── File Storage tab ─────────────────────────────────── -->
-
     <div class="bg-white dark:bg-gray-800 rounded-lg p-5 mt-3">
       <p class="text-xs text-gray-400 mb-4">
         Choose where your whiteboard images are stored.
@@ -87,6 +95,33 @@ onMounted(() => backupStore.init());
             class="size-4 text-primary-500 shrink-0 mt-1"
           />
         </button>
+
+        <!-- Advanced -->
+        <button
+          class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-left w-full transition-colors"
+          @click="openAdvanced"
+        >
+          <div
+            class="mt-0.5 size-8 rounded-md flex items-center justify-center shrink-0 bg-gray-100 dark:bg-gray-700"
+          >
+            <UIcon
+              name="heroicons:cog-8-tooth"
+              class="size-4 text-gray-500 dark:text-gray-400"
+            />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Advanced
+            </p>
+            <p class="text-xs text-gray-400 mt-0.5">
+              Data backup strategy &amp; sync server
+            </p>
+          </div>
+          <UIcon
+            name="heroicons:chevron-right"
+            class="size-4 text-gray-300 dark:text-gray-600 shrink-0"
+          />
+        </button>
       </div>
 
       <div
@@ -104,5 +139,14 @@ onMounted(() => backupStore.init());
         {{ backupStore.saving ? "Saving..." : "Save" }}
       </button>
     </div>
+
+    <!-- Desktop modal for Advanced settings -->
+    <UModal v-model:open="advancedOpen">
+      <template #content>
+        <div class="p-6 max-w-lg mx-auto">
+          <SettingsAdvancedSettings @close="advancedOpen = false" />
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

@@ -3,11 +3,7 @@ import {
   type SettingsTab,
 } from "@opeolluwa/ryder/utils/settingsTabs.js";
 
-export interface ExtendedSettingsTab extends SettingsTab {
-  modal?: boolean;
-}
-
-const items: ExtendedSettingsTab[] = [
+const items: SettingsTab[] = [
   {
     key: "profile",
     label: "Profile",
@@ -45,14 +41,6 @@ const items: ExtendedSettingsTab[] = [
     to: "/settings/file-storage",
   },
   {
-    key: "advanced",
-    label: "Advanced",
-    icon: "heroicons:cog-8-tooth",
-    desc: "Data backup & sync strategy",
-    to: "/settings/advanced",
-    modal: true,
-  },
-  {
     key: "about",
     label: "About",
     icon: "heroicons:information-circle",
@@ -61,5 +49,5 @@ const items: ExtendedSettingsTab[] = [
   },
 ];
 
-export { settingsTabForPath, type SettingsTab, type ExtendedSettingsTab };
+export { settingsTabForPath, type SettingsTab };
 export default items;

@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import tabs, {
-  settingsTabForPath,
-  type ExtendedSettingsTab,
-} from "~/data/settings-tabs";
-import { useAuthStore } from "~/stores/auth";
+import tabs, { settingsTabForPath } from "~/data/settings-tabs";
 
-const authStore = useAuthStore();
 const route = useRoute();
 
-const visibleTabs = computed(() =>
-  authStore.isGuest ? tabs.filter((tab) => tab.key !== "profile") : tabs,
-);
+const visibleTabs = computed(() => tabs);
 
 const activeKey = computed<string | null>(() => {
   const current = settingsTabForPath(visibleTabs.value, route.path)?.key;
@@ -22,16 +15,6 @@ const activeKey = computed<string | null>(() => {
 const currentTabLabel = computed(
   () => settingsTabForPath(visibleTabs.value, route.path)?.label ?? "Settings",
 );
-
-const advancedOpen = ref(false);
-
-function handleTabClick(tab: ExtendedSettingsTab) {
-  if (tab.modal) {
-    advancedOpen.value = true;
-  } else {
-    navigateTo(tab.to);
-  }
-}
 </script>
 
 <template>
@@ -49,18 +32,16 @@ function handleTabClick(tab: ExtendedSettingsTab) {
             </p>
 
             <nav class="space-y-0.5">
-              <component
-                :is="tab.modal ? 'button' : 'NuxtLink'"
+              <NuxtLink
                 v-for="tab in visibleTabs"
                 :key="tab.key"
-                :to="tab.modal ? undefined : tab.to"
+                :to="tab.to"
                 class="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all"
                 :class="
                   activeKey === tab.key
                     ? 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400 font-medium'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-800 dark:hover:text-white'
                 "
-                @click="tab.modal ? handleTabClick(tab) : undefined"
               >
                 <UIcon :name="tab.icon" class="size-4 shrink-0" />
 
@@ -78,7 +59,7 @@ function handleTabClick(tab: ExtendedSettingsTab) {
                     {{ tab.desc }}
                   </p>
                 </div>
-              </component>
+              </NuxtLink>
             </nav>
           </div>
         </aside>
@@ -108,15 +89,6 @@ function handleTabClick(tab: ExtendedSettingsTab) {
           <slot />
         </RyderCard>
       </div>
-
-      <!-- Desktop modal for Advanced settings -->
-      <UModal v-model:open="advancedOpen">
-        <template #content>
-          <div class="p-6 max-w-lg mx-auto">
-            <SettingsAdvancedSettings @close="advancedOpen = false" />
-          </div>
-        </template>
-      </UModal>
     </template>
   </NuxtLayout>
 </template>

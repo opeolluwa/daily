@@ -330,7 +330,7 @@ defineShortcuts(shortcuts);
       </span>
 
       <div
-        v-if="!isAuthPage && !authStore.isGuest"
+        v-if="!isAuthPage"
         class="items-center gap-0.5 flex"
       >
         <UDropdownMenu
@@ -342,7 +342,12 @@ defineShortcuts(shortcuts);
             separator: 'my-0.5 mx-1.5',
           }"
         >
-          <UAvatar icon="i-lucide-user" size="sm" class="cursor-pointer" />
+          <UAvatar
+            :src="preferenceStore.preference?.profilePicture || undefined"
+            icon="i-lucide-user"
+            size="sm"
+            class="cursor-pointer"
+          />
 
           <template #header>
             <div
