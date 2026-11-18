@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { items, secondaryRoutes } from "~/data/routes";
+import { tourConfig } from "~/data/tour-steps";
 import { useAuthStore } from "~/stores/auth";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
 
@@ -47,6 +48,13 @@ function isActive(path: string): boolean {
 }
 
 function onNavigate() {
+  emit("navigate");
+}
+
+const { restart: restartTour } = useDriver("onboarding");
+
+function handleTourClick() {
+  restartTour(tourConfig);
   emit("navigate");
 }
 </script>
@@ -113,14 +121,13 @@ function onNavigate() {
         </button>
       </UTooltip>
 
-      <!-- Tour label --> 
-
-      <UTooltip :text="themeLabel" :disabled="!collapsed" side="right">
+      <!-- Tour -->
+      <UTooltip text="Tour" :disabled="!collapsed" side="right">
         <button
           type="button"
           class="flex items-center w-full h-11 gap-2 px-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white transition-colors"
           :class="collapsed ? 'justify-center px-0' : ''"
-          @click="toggleTheme"
+          @click="handleTourClick"
         >
           <UIcon
             name="heroicons:question-mark-circle"
@@ -128,7 +135,7 @@ function onNavigate() {
           />
 
           <span v-if="!collapsed" class="text-sm font-medium">
-            {{ themeLabel }}
+            Tour
           </span>
         </button>
       </UTooltip>

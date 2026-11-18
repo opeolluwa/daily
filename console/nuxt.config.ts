@@ -53,10 +53,14 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
     "@vueuse/nuxt",
+    "nuxt-driver.js",
     "nuxt-seo-utils",
     "@opeolluwa/ryder",
   ],
 
+  driverJs: {
+    storagePrefix: "Daily",
+  },
   eslint: {
     config: {
       // Ensure the TypeScript parser is wired up for .ts and <script lang="ts">.
@@ -72,7 +76,6 @@ export default defineNuxtConfig({
 
   css: [
     "~/assets/css/main.css",
-    "driver.js/dist/driver.css",
     "highlight.js/styles/atom-one-dark.css",
     "@domternal/theme",
     "~/assets/css/desktop.css",
