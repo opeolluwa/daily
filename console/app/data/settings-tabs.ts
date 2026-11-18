@@ -35,7 +35,7 @@ const items: SettingsTab[] = [
   },
   {
     key: "file-storage",
-    label: "File Storage",
+    label: "Backup & Sync",
     icon: "heroicons:folder",
     desc: "File storage configuration",
     to: "/settings/file-storage",
