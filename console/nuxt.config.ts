@@ -72,6 +72,7 @@ export default defineNuxtConfig({
 
   css: [
     "~/assets/css/main.css",
+    "driver.js/dist/driver.css",
     "highlight.js/styles/atom-one-dark.css",
     "@domternal/theme",
     "~/assets/css/desktop.css",

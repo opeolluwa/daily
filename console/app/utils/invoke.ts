@@ -241,6 +241,13 @@ const COMMANDS: Record<string, CommandHandler> = {
   duplicate_reminder: (api, a) => duplicate(api, a, "reminders"),
   transfer_reminder: (api, a) => transfer(api, a, "reminders"),
 
+  get_notification_settings: (api) =>
+    api.notificationSettings.get_or_create(),
+  update_notification_settings: (api, a) =>
+    api.notificationSettings.update(
+      asString(a, "identifier"),
+      a.settings as import("./core").UpdateNotificationSettings,
+    ),
   get_all_notifications: (api, a) => api.notifications.find_all(asMeta(a)),
   get_notifications_by_type: (api, a) =>
     api.notifications.find_by_type(

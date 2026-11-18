@@ -12,16 +12,13 @@ export interface RouteLabel {
 
 export type NavigationRoute = Route | RouteLabel;
 
-export const primaryRoutes: Route[] = [
+export const items: NavigationRoute[] = [
   {
     path: "/",
     name: "Home",
     icon: "ri:home-line",
     activeIcon: "ri:home-fill",
   },
-];
-
-export const workspaceRoutes: Route[] = [
   {
     path: "/notes",
     name: "Notes",
@@ -58,9 +55,6 @@ export const workspaceRoutes: Route[] = [
     icon: "ri:code-s-slash-line",
     activeIcon: "ri:code-s-slash-fill",
   },
-];
-
-export const toolRoutes: Route[] = [
   // {
   //   path: "/moodboard",
   //   name: "Moodboard",
@@ -96,10 +90,3 @@ export const secondaryRoutes: Route[] = [
   },
 ];
 
-export const items: NavigationRoute[] = [
-  ...primaryRoutes,
-
-  ...workspaceRoutes,
-
-  ...toolRoutes,
-];

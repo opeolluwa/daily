@@ -113,6 +113,26 @@ function onNavigate() {
         </button>
       </UTooltip>
 
+      <!-- Tour label --> 
+
+      <UTooltip :text="themeLabel" :disabled="!collapsed" side="right">
+        <button
+          type="button"
+          class="flex items-center w-full h-11 gap-2 px-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white transition-colors"
+          :class="collapsed ? 'justify-center px-0' : ''"
+          @click="toggleTheme"
+        >
+          <UIcon
+            name="heroicons:question-mark-circle"
+            class="size-5 shrink-0 text-gray-500 dark:text-gray-400"
+          />
+
+          <span v-if="!collapsed" class="text-sm font-medium">
+            {{ themeLabel }}
+          </span>
+        </button>
+      </UTooltip>
+      
       <!-- SECONDARY -->
       <div class="mt-auto">
         <template v-for="item in secondaryRoutes" :key="item.path">

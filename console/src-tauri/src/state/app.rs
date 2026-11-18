@@ -4,6 +4,7 @@ use kernel::{
     filestore::FileStoreEngine,
     repositories::{
         bookmarks::BookmarkRepository, notes::NotesRepository,
+        notification_settings::NotificationSettingsRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
         recycle_bin::RecycleBinRepository, reminder::ReminderRepository,
         snippets::SnippetRepository, sync::SyncRepository, tasks::TaskRepository,
@@ -18,6 +19,7 @@ pub struct AppState {
     pub bookmark_repository: BookmarkRepository,
     pub notes_repository: NotesRepository,
     pub notification_repository: NotificationRepository,
+    pub notification_settings_repository: NotificationSettingsRepository,
     pub paste_bin_repository: PasteBinRepository,
     pub recycle_bin_repository: RecycleBinRepository,
     pub reminder_repository: ReminderRepository,
@@ -36,6 +38,7 @@ impl AppState {
         let bookmark_repository = BookmarkRepository::new(conn.clone());
         let notes_repository = NotesRepository::new(conn.clone());
         let notification_repository = NotificationRepository::new(conn.clone());
+        let notification_settings_repository = NotificationSettingsRepository::new(conn.clone());
         let paste_bin_repository = PasteBinRepository::new(conn.clone());
         let recycle_bin_repository = RecycleBinRepository::new(conn.clone());
         let reminder_repository = ReminderRepository::new(conn.clone());
@@ -50,6 +53,7 @@ impl AppState {
             bookmark_repository,
             notes_repository,
             notification_repository,
+            notification_settings_repository,
             paste_bin_repository,
             recycle_bin_repository,
             reminder_repository,

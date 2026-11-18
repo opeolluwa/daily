@@ -7,6 +7,7 @@ pub mod country;
 pub mod invitation;
 pub mod note_categories;
 pub mod notes;
+pub mod notification_settings;
 pub mod notifications;
 pub mod one_time_password;
 pub mod paste_bins;
@@ -33,6 +34,7 @@ seaography::register_entity_modules!([
     invitation,
     note_categories,
     notes,
+    notification_settings,
     notifications,
     one_time_password,
     paste_bins,

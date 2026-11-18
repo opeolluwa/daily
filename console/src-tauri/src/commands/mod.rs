@@ -2,6 +2,7 @@ pub mod bookmarks;
 pub mod cloud_storage;
 pub mod moodboard;
 pub mod notes;
+pub mod notification_settings;
 pub mod notifications;
 pub mod paste_bins;
 pub mod recycle_bin;

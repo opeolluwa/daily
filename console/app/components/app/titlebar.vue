@@ -253,6 +253,7 @@ defineShortcuts(shortcuts);
     <div
       v-if="!isAuthPage"
       ref="searchContainerRef"
+      data-tour="search"
       class="relative min-w-0 items-center md:mx-auto md:max-w-sm"
       :class="
         mobileSearchOpen ? 'flex flex-1' : 'hidden md:flex md:flex-1'
@@ -308,21 +309,25 @@ defineShortcuts(shortcuts);
         />
       </UTooltip>
 
-      <UTooltip :text="themeLabel">
-        <UColorModeButton :size="iconSize" />
-      </UTooltip>
+      <span data-tour="theme-toggle">
+        <UTooltip :text="themeLabel">
+          <UColorModeButton :size="iconSize" />
+        </UTooltip>
+      </span>
 
-      <UTooltip v-if="!isAuthPage" text="Notifications">
-        <UButton
-          :size="iconSize"
-          color="neutral"
-          class="cursor-pointer"
-          variant="ghost"
-          icon="heroicons:bell"
-          aria-label="Notifications"
-          @click="() => navigateTo('/notifications')"
-        />
-      </UTooltip>
+      <span v-if="!isAuthPage" data-tour="notifications">
+        <UTooltip text="Notifications">
+          <UButton
+            :size="iconSize"
+            color="neutral"
+            class="cursor-pointer"
+            variant="ghost"
+            icon="heroicons:bell"
+            aria-label="Notifications"
+            @click="() => navigateTo('/notifications')"
+          />
+        </UTooltip>
+      </span>
 
       <div
         v-if="!isAuthPage && !authStore.isGuest"

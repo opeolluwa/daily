@@ -38,6 +38,9 @@ pub enum KernelError {
     #[error("Notification does not exist: {0}")]
     NotificationNotFound(String),
 
+    #[error("Notification settings do not exist: {0}")]
+    NotificationSettingsNotFound(String),
+
     #[cfg(feature = "pdf")]
     #[error("Failed to generate PDF: {0}")]
     HTMLConversionError(String),

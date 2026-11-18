@@ -10,8 +10,11 @@ import { useUserPreferenceStore } from "~/stores/workspace-profile";
 import TaskDialog from "~/components/task/Dialog.vue";
 import ReminderDialog from "~/components/reminders/ReminderDialog.vue";
 import BookmarkAddModal from "~/components/bookmark/add-modal.vue";
+import { tourSteps } from "~/data/tour-steps";
 
 definePageMeta({ layout: false });
+
+const TOUR_STORAGE_KEY = "daily_tour_completed";
 
 const noteStore = useNoteStore();
 const bookmarkStore = useBookmarkStore();
@@ -63,6 +66,15 @@ function openBookmark() {
 
 const { setSearch, clearSearch } = useAppSearch();
 
+const { start: startTour, destroy: destroyTour } = useTour({
+  steps: tourSteps,
+  onComplete: () => {
+    try {
+      localStorage.setItem(TOUR_STORAGE_KEY, new Date().toISOString());
+    } catch {}
+  },
+});
+
 onMounted(async () => {
   await Promise.all([
     noteStore.fetchNotes(),
@@ -71,9 +83,20 @@ onMounted(async () => {
     userPreferenceStore.fetchPreference(),
   ]);
   setSearch({ placeholder: "Search everything…" });
+
+  await nextTick();
+
+  try {
+    if (!localStorage.getItem(TOUR_STORAGE_KEY)) {
+      startTour();
+    }
+  } catch {}
 });
 
-onUnmounted(() => clearSearch());
+onUnmounted(() => {
+  clearSearch();
+  destroyTour();
+});
 
 const userName = computed(
   () => userPreferenceStore.preference?.firstName || "there",
@@ -178,7 +201,7 @@ const today = computed(() =>
           </UInput>
         </UForm>
 
-        <div class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+        <div data-tour="quick-actions" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -231,6 +254,15 @@ const today = computed(() =>
             <span class="text-xs font-medium">Save a link</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-primary-500 dark:hover:text-primary-400 transition-colors cursor-pointer"
+          @click="startTour()"
+        >
+          <UIcon name="heroicons:academic-cap" class="size-3.5" />
+          <span>Tour</span>
+        </button>
       </div>
     </template>
 

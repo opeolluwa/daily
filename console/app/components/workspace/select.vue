@@ -53,7 +53,7 @@ const workspaceItems = computed(() => [
 ]);
 </script>
 <template>
-  <div>
+  <div data-tour="workspace-select">
     <UDropdownMenu
       :items="workspaceItems"
       :ui="{
