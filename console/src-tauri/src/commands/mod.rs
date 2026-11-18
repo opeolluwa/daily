@@ -1,7 +1,9 @@
+pub mod backup_settings;
 pub mod bookmarks;
 pub mod cloud_storage;
 pub mod moodboard;
 pub mod notes;
+pub mod notification_settings;
 pub mod notifications;
 pub mod paste_bins;
 pub mod recycle_bin;
@@ -10,5 +12,5 @@ pub mod snippets;
 pub mod sync;
 pub mod tasks;
 pub mod whiteboards;
-pub mod workspace_profiles;
+pub mod user_profile;
 pub mod workspaces;

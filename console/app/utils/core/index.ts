@@ -6,11 +6,12 @@ import { BookmarkRepository } from "./repositories/bookmarks";
 import { SnippetRepository } from "./repositories/snippets";
 import { PasteBinRepository } from "./repositories/paste_bins";
 import { ReminderRepository } from "./repositories/reminder";
+import { BackupSettingsRepository } from "./repositories/backup_settings";
+import { NotificationSettingsRepository } from "./repositories/notification_settings";
 import { NotificationRepository } from "./repositories/notifications";
 import { RecycleBinRepository } from "./repositories/recycle_bin";
 import { WorkspaceRepository } from "./repositories/workspace";
-import { WorkspaceProfileRepository } from "./repositories/workspace_profiles";
-import { UserPreferencesRepository } from "./repositories/user_preferences";
+import { UserProfileRepository } from "./repositories/user_profile";
 import { WhiteboardRepository } from "./repositories/whiteboards";
 import { WhiteboardFileRepository } from "./repositories/whiteboard_files";
 import { SyncRepository } from "./repositories/sync";
@@ -23,11 +24,12 @@ export interface CoreConsoleApi {
   snippets: SnippetRepository;
   pasteBins: PasteBinRepository;
   reminders: ReminderRepository;
+  backupSettings: BackupSettingsRepository;
+  notificationSettings: NotificationSettingsRepository;
   notifications: NotificationRepository;
   recycleBin: RecycleBinRepository;
   workspaces: WorkspaceRepository;
-  workspaceProfiles: WorkspaceProfileRepository;
-  userPreferences: UserPreferencesRepository;
+  userProfile: UserProfileRepository;
   whiteboards: WhiteboardRepository;
   whiteboardFiles: WhiteboardFileRepository;
   sync: SyncRepository;
@@ -44,11 +46,12 @@ export async function createCoreConsoleApi(): Promise<CoreConsoleApi> {
     snippets: new SnippetRepository(),
     pasteBins: new PasteBinRepository(),
     reminders: new ReminderRepository(),
+    backupSettings: new BackupSettingsRepository(),
+    notificationSettings: new NotificationSettingsRepository(),
     notifications: new NotificationRepository(),
     recycleBin: new RecycleBinRepository(),
     workspaces: new WorkspaceRepository(),
-    workspaceProfiles: new WorkspaceProfileRepository(),
-    userPreferences: new UserPreferencesRepository(),
+    userProfile: new UserProfileRepository(),
     whiteboards: new WhiteboardRepository(),
     whiteboardFiles: new WhiteboardFileRepository(),
     sync: new SyncRepository(),
@@ -62,6 +65,8 @@ export type { CreateBookmark, UpdateBookmark } from "./repositories/bookmarks";
 export type { CreateSnippet, UpdateSnippet } from "./repositories/snippets";
 export type { CreatePasteBin, UpdatePasteBin } from "./repositories/paste_bins";
 export type { CreateReminder, UpdateReminder } from "./repositories/reminder";
+export type { UpdateBackupSettings, BackupSettings } from "./repositories/backup_settings";
+export type { UpdateNotificationSettings, NotificationSettings } from "./repositories/notification_settings";
 export type { CreateNotification } from "./repositories/notifications";
 export type { CreateRecycleBinEntry } from "./repositories/recycle_bin";
 export type {
@@ -69,13 +74,9 @@ export type {
   UpdateWorkspace,
 } from "./repositories/workspace";
 export type {
-  CreateWorkspaceProfile,
-  UpdateWorkspaceProfile,
-} from "./repositories/workspace_profiles";
-export type {
-  CreateUserPreferences,
-  UpdateUserPreferences,
-} from "./repositories/user_preferences";
+  CreateUserProfile,
+  UpdateUserProfile,
+} from "./repositories/user_profile";
 export type {
   CreateWhiteboard,
   UpdateWhiteboard,

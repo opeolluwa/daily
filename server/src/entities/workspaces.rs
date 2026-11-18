@@ -54,8 +54,6 @@ pub enum Relation {
     Whiteboards,
     #[sea_orm(has_many = "super::workspace_members::Entity")]
     WorkspaceMembers,
-    #[sea_orm(has_many = "super::workspace_profiles::Entity")]
-    WorkspaceProfiles,
 }
 
 impl Related<super::bookmark::Entity> for Entity {
@@ -130,12 +128,6 @@ impl Related<super::workspace_members::Entity> for Entity {
     }
 }
 
-impl Related<super::workspace_profiles::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::WorkspaceProfiles.def()
-    }
-}
-
 impl ActiveModelBehavior for ActiveModel {}
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
@@ -164,6 +156,4 @@ pub enum RelatedEntity {
     Whiteboards,
     #[sea_orm(entity = "super::workspace_members::Entity")]
     WorkspaceMembers,
-    #[sea_orm(entity = "super::workspace_profiles::Entity")]
-    WorkspaceProfiles,
 }

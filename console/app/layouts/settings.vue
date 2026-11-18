@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import tabs, { settingsTabForPath } from "~/data/settings-tabs";
-import { useAuthStore } from "~/stores/auth";
+import tabs from "~/data/settings-tabs";
+import { settingsTabForPath } from "@opeolluwa/ryder/utils/settingsTabs.js";
 
-const authStore = useAuthStore();
 const route = useRoute();
 
-const visibleTabs = computed(() =>
-  authStore.isGuest ? tabs.filter((tab) => tab.key !== "profile") : tabs,
-);
+const visibleTabs = computed(() => tabs);
 
 const activeKey = computed<string | null>(() => {
   const current = settingsTabForPath(visibleTabs.value, route.path)?.key;

@@ -1,29 +1,36 @@
 <script setup lang="ts">
-const notifTasksDue = ref(true);
-const notifReminders = ref(true);
-const notifSyncComplete = ref(false);
-const notifAppUpdates = ref(true);
+import { useNotificationSettingsStore } from "~/stores/notification-settings";
+
+const store = useNotificationSettingsStore();
+
+onMounted(() => {
+  store.fetchSettings();
+});
 
 const items = computed(() => [
   {
     label: "Tasks due",
     desc: "Remind me when tasks are due",
-    model: notifTasksDue,
+    key: "tasksDue" as const,
+    value: store.tasksDue,
   },
   {
     label: "Reminders",
     desc: "Calendar event reminders",
-    model: notifReminders,
+    key: "reminders" as const,
+    value: store.reminders,
   },
   {
     label: "Sync complete",
     desc: "Notify when sync finishes",
-    model: notifSyncComplete,
+    key: "syncComplete" as const,
+    value: store.syncComplete,
   },
   {
     label: "App updates",
     desc: "Notify about new versions",
-    model: notifAppUpdates,
+    key: "appUpdates" as const,
+    value: store.appUpdates,
   },
 ]);
 </script>
@@ -49,15 +56,15 @@ const items = computed(() => [
           <button
             class="relative w-10 h-6 rounded-full transition-colors"
             :class="
-              item.model.value
+              item.value
                 ? 'bg-primary-500'
                 : 'bg-gray-200 dark:bg-gray-600'
             "
-            @click="item.model.value = !item.model.value"
+            @click="store.toggle(item.key)"
           >
             <span
               class="absolute top-0.5 left-0.5 size-5 bg-white rounded-full shadow transition-transform duration-200"
-              :class="item.model.value ? 'translate-x-4' : 'translate-x-0'"
+              :class="item.value ? 'translate-x-4' : 'translate-x-0'"
             />
           </button>
         </div>

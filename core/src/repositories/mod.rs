@@ -1,5 +1,7 @@
+pub mod backup_settings;
 pub mod bookmarks;
 pub mod notes;
+pub mod notification_settings;
 pub mod notifications;
 pub mod paste_bins;
 pub mod prelude;
@@ -8,8 +10,7 @@ pub mod reminder;
 pub mod snippets;
 pub mod sync;
 pub mod tasks;
-pub mod user_preferences;
+pub mod user_profile;
 pub mod whiteboards;
 pub mod workspace;
 pub mod workspace_manager;
-pub mod workspace_profiles;

@@ -1,15 +1,13 @@
 import type {
-  CreateWorkspaceProfile,
-  UpdateWorkspaceProfile,
-  WorkspaceProfiles,
+  UpdateUserProfile,
+  UserProfile,
 } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
-import { getWorkspaceMeta } from "#imports";
 
-export const useUserPreferenceStore = defineStore("user_preference_store", {
+export const useUserPreferenceStore = defineStore("user_profile_store", {
   state: () => ({
-    preference: null as WorkspaceProfiles | null,
+    preference: null as UserProfile | null,
     loading: false,
   }),
 
@@ -24,11 +22,8 @@ export const useUserPreferenceStore = defineStore("user_preference_store", {
     async fetchPreference() {
       this.loading = true;
       try {
-        this.preference = await invoke<WorkspaceProfiles | null>(
-          "get_workspace_profile",
-          {
-            meta: await getWorkspaceMeta(),
-          },
+        this.preference = await invoke<UserProfile>(
+          "get_user_profile",
         );
       } catch (error) {
         console.error("[preferences] failed to fetch", error);
@@ -37,55 +32,23 @@ export const useUserPreferenceStore = defineStore("user_preference_store", {
       }
     },
 
-    async createPreference(
-      payload: CreateWorkspaceProfile,
-    ): Promise<WorkspaceProfiles> {
-      const created = await invoke<WorkspaceProfiles>(
-        "create_workspace_profile",
-        {
-          profile: payload,
-          meta: await getWorkspaceMeta(),
-        },
-      );
-      this.preference = created;
-      return created;
-    },
-
     async updatePreference(
-      payload: Partial<UpdateWorkspaceProfile>,
-    ): Promise<WorkspaceProfiles> {
+      payload: Partial<UpdateUserProfile>,
+    ): Promise<UserProfile> {
       if (!this.preference) {
-        return this.createPreference(payload as CreateWorkspaceProfile);
+        await this.fetchPreference();
       }
-      const updated = await invoke<WorkspaceProfiles>(
-        "update_workspace_profile",
+      const updated = await invoke<UserProfile>(
+        "update_user_profile",
         {
-          identifier: this.preference.identifier,
+          identifier: this.preference!.identifier,
           profile: payload,
-          meta: await getWorkspaceMeta(),
         },
       );
       this.preference = updated;
       return updated;
     },
 
-    async fetchUnsynced() {
-      try {
-        const userPreferences = await invoke<WorkspaceProfiles[]>(
-          "get_unsynced_workspace_profiles",
-        );
-        return userPreferences;
-      } catch (error) {
-        console.error("Error fetching unsynced user preferences:", error);
-        return [];
-      }
-    },
-
-    async syncUpstream() {},
-
-    async clearQueue(identifiers: string[]) {
-      await invoke("clear_synced_workspace_profiles", { identifiers });
-    },
   },
   persist: true,
 });

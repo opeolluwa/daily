@@ -4,6 +4,18 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "backup_mode")]
+pub enum BackupMode {
+    #[sea_orm(string_value = "local_only")]
+    LocalOnly,
+    #[sea_orm(string_value = "cloud_only")]
+    CloudOnly,
+    #[sea_orm(string_value = "local_first")]
+    LocalFirst,
+    #[sea_orm(string_value = "cloud_first")]
+    CloudFirst,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "item_type")]
 pub enum ItemType {
     #[sea_orm(string_value = "task")]

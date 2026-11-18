@@ -10,6 +10,7 @@ import { useUserPreferenceStore } from "~/stores/workspace-profile";
 import TaskDialog from "~/components/task/Dialog.vue";
 import ReminderDialog from "~/components/reminders/ReminderDialog.vue";
 import BookmarkAddModal from "~/components/bookmark/add-modal.vue";
+import { tourConfig } from "~/data/tour-steps";
 
 definePageMeta({ layout: false });
 
@@ -63,6 +64,8 @@ function openBookmark() {
 
 const { setSearch, clearSearch } = useAppSearch();
 
+const { start: startTour } = useDriver("onboarding", { autoSkip: true });
+
 onMounted(async () => {
   await Promise.all([
     noteStore.fetchNotes(),
@@ -71,9 +74,14 @@ onMounted(async () => {
     userPreferenceStore.fetchPreference(),
   ]);
   setSearch({ placeholder: "Search everything…" });
+
+  await nextTick();
+  setTimeout(() => startTour(tourConfig), 500);
 });
 
-onUnmounted(() => clearSearch());
+onUnmounted(() => {
+  clearSearch();
+});
 
 const userName = computed(
   () => userPreferenceStore.preference?.firstName || "there",
@@ -178,7 +186,7 @@ const today = computed(() =>
           </UInput>
         </UForm>
 
-        <div class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+        <div data-tour="quick-actions" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -231,6 +239,7 @@ const today = computed(() =>
             <span class="text-xs font-medium">Save a link</span>
           </button>
         </div>
+
       </div>
     </template>
 

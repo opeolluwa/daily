@@ -62,11 +62,9 @@ const handleTransfer = async (targetWorkspaceId: string) => {
         {{ bookmark.url }}
       </div>
     </div>
-    <span
-      class="px-2 py-1 rounded-full bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-300 text-2xs font-medium capitalize shrink-0"
-    >
-      {{ bookmark.tag }}
-    </span>
+   
+
+
     <p class="text-xs text-gray-400 shrink-0 hidden sm:block">
       {{ formatDate(bookmark.createdAt) }}
     </p>

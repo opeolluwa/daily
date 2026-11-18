@@ -46,7 +46,6 @@ const RECYCLE_BIN_TABLES: Record<string, string> = {
 const SYNCABLE_TABLES = new Set([
   ...Object.keys(RECYCLE_BIN_TABLES),
   "whiteboards",
-  "workspace_profiles",
   "workspaces",
 ]);
 

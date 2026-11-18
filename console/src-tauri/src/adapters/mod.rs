@@ -6,5 +6,5 @@ pub mod reminder;
 pub mod snippets;
 pub mod tasks;
 pub mod whiteboards;
-pub mod workspace_profile;
+pub mod user_profile;
 pub mod workspaces;

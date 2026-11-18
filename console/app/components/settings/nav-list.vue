@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import tabs from "~/data/settings-tabs";
-import { useAuthStore } from "~/stores/auth";
 
-const authStore = useAuthStore();
-const visibleTabs = computed(() =>
-  authStore.isGuest ? tabs.filter((tab) => tab.key !== "profile") : tabs,
-);
+const visibleTabs = computed(() => tabs);
 </script>
 
 <template>

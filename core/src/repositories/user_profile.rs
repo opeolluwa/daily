@@ -10,95 +10,96 @@ use wasm_bindgen::prelude::*;
 
 use crate::types::EntitySyncResult;
 use crate::{
-    adapters::user_preferences::{CreateUserPreferences, UpdateUserPreferences},
-    entities::user_preferences,
+    adapters::user_profile::UpdateUserProfile,
+    entities::user_profile,
     error::KernelError,
+    id::new_id,
     utils::{js_err, mock_connection, to_js},
 };
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct UserPreferencesRepository {
+pub struct UserProfileRepository {
     conn: Arc<DatabaseConnection>,
 }
 
 #[async_trait]
-pub trait UserPreferencesRepositoryExt {
+pub trait UserProfileRepositoryExt {
     fn new(conn: Arc<DatabaseConnection>) -> Self;
 
-    async fn create(
-        &self,
-        payload: &CreateUserPreferences,
-    ) -> Result<user_preferences::Model, KernelError>;
-
-    async fn get_by_identifier(
-        &self,
-        identifier: &str,
-    ) -> Result<Option<user_preferences::Model>, KernelError>;
+    async fn get_or_create(&self) -> Result<user_profile::Model, KernelError>;
 
     async fn update(
         &self,
         identifier: &str,
-        payload: &UpdateUserPreferences,
-    ) -> Result<user_preferences::Model, KernelError>;
+        payload: &UpdateUserProfile,
+    ) -> Result<user_profile::Model, KernelError>;
+
     async fn upsert_many(
         &self,
-        models: Vec<user_preferences::Model>,
+        models: Vec<user_profile::Model>,
     ) -> Result<Vec<EntitySyncResult>, KernelError>;
 }
 
 #[async_trait]
-impl UserPreferencesRepositoryExt for UserPreferencesRepository {
+impl UserProfileRepositoryExt for UserProfileRepository {
     fn new(conn: Arc<DatabaseConnection>) -> Self {
         Self { conn }
     }
 
-    async fn create(
-        &self,
-        payload: &CreateUserPreferences,
-    ) -> Result<user_preferences::Model, KernelError> {
-        let active_model: user_preferences::ActiveModel = payload.to_owned().into();
+    async fn get_or_create(&self) -> Result<user_profile::Model, KernelError> {
+        let existing = user_profile::Entity::find()
+            .one(self.conn.as_ref())
+            .await
+            .map_err(|err| KernelError::DbOperationError(err.to_string()))?;
+
+        if let Some(model) = existing {
+            return Ok(model);
+        }
+
+        let now = Utc::now().fixed_offset();
+        let active_model = user_profile::ActiveModel {
+            identifier: Set(new_id()),
+            first_name: Set(String::new()),
+            last_name: Set(String::new()),
+            email: Set(String::new()),
+            profile_picture: Set(None),
+            created_at: Set(now),
+            updated_at: Set(now),
+        };
+
         active_model
             .insert(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
     }
 
-    async fn get_by_identifier(
-        &self,
-        identifier: &str,
-    ) -> Result<Option<user_preferences::Model>, KernelError> {
-        user_preferences::Entity::find()
-            .filter(user_preferences::Column::Identifier.eq(identifier))
-            .one(self.conn.as_ref())
-            .await
-            .map_err(|err| KernelError::DbOperationError(err.to_string()))
-    }
-
     async fn update(
         &self,
         identifier: &str,
-        payload: &UpdateUserPreferences,
-    ) -> Result<user_preferences::Model, KernelError> {
-        let model = user_preferences::Entity::find()
-            .filter(user_preferences::Column::Identifier.eq(identifier))
+        payload: &UpdateUserProfile,
+    ) -> Result<user_profile::Model, KernelError> {
+        let model = user_profile::Entity::find_by_id(identifier)
             .one(self.conn.as_ref())
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))?
             .ok_or_else(|| {
-                KernelError::DbOperationError("user preferences not found".to_string())
+                KernelError::DbOperationError("user profile not found".to_string())
             })?;
 
         let mut active_model = model.into_active_model();
 
-        if let Some(first_name) = &payload.master_first_name {
-            active_model.master_first_name = Set(first_name.clone());
+        if let Some(first_name) = &payload.first_name {
+            active_model.first_name = Set(first_name.clone());
         }
-        if let Some(last_name) = &payload.master_last_name {
-            active_model.master_last_name = Set(last_name.clone());
+        if let Some(last_name) = &payload.last_name {
+            active_model.last_name = Set(last_name.clone());
         }
-        if let Some(email) = &payload.master_email {
-            active_model.master_email = Set(email.clone());
+        if let Some(email) = &payload.email {
+            active_model.email = Set(email.clone());
+        }
+        if let Some(profile_picture) = &payload.profile_picture {
+            active_model.profile_picture = Set(Some(profile_picture.clone()));
         }
         active_model.updated_at = Set(Utc::now().fixed_offset());
 
@@ -107,9 +108,10 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
             .await
             .map_err(|err| KernelError::DbOperationError(err.to_string()))
     }
+
     async fn upsert_many(
         &self,
-        models: Vec<user_preferences::Model>,
+        models: Vec<user_profile::Model>,
     ) -> Result<Vec<EntitySyncResult>, KernelError> {
         let mut sync_results: Vec<EntitySyncResult> = Vec::new();
         for chunk in models.chunks(20) {
@@ -121,8 +123,8 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
                     async move {
                         let identifier = model.identifier.to_string();
                         let op_result: Result<(), KernelError> = async {
-                            let exists = user_preferences::Entity::find()
-                                .filter(user_preferences::Column::Identifier.eq(model.identifier.clone()))
+                            let exists = user_profile::Entity::find()
+                                .filter(user_profile::Column::Identifier.eq(model.identifier.clone()))
                                 .one(conn.as_ref())
                                 .await
                                 .map_err(|err| KernelError::DbOperationError(err.to_string()))?
@@ -159,33 +161,30 @@ impl UserPreferencesRepositoryExt for UserPreferencesRepository {
 }
 
 #[wasm_bindgen]
-impl UserPreferencesRepository {
+impl UserProfileRepository {
     #[wasm_bindgen(constructor)]
     pub fn new_wasm() -> Self {
         Self::new(mock_connection())
     }
 
-    #[wasm_bindgen(js_name = "create")]
-    pub async fn create_js(&self, payload: JsValue) -> Result<JsValue, JsValue> {
-        let payload: CreateUserPreferences =
-            serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
-        let model = <Self as UserPreferencesRepositoryExt>::create(self, &payload).await?;
-        to_js(&model)
-    }
-
-    #[wasm_bindgen(js_name = "get_by_identifier")]
-    pub async fn get_by_identifier_js(&self, identifier: &str) -> Result<JsValue, JsValue> {
-        let id = identifier.to_string();
-        let model = <Self as UserPreferencesRepositoryExt>::get_by_identifier(self, &id).await?;
+    #[wasm_bindgen(js_name = "get_or_create")]
+    pub async fn get_or_create_js(&self) -> Result<JsValue, JsValue> {
+        let model =
+            <Self as UserProfileRepositoryExt>::get_or_create(self).await?;
         to_js(&model)
     }
 
     #[wasm_bindgen(js_name = "update")]
-    pub async fn update_js(&self, identifier: &str, payload: JsValue) -> Result<JsValue, JsValue> {
-        let id = identifier.to_string();
-        let payload: UpdateUserPreferences =
+    pub async fn update_js(
+        &self,
+        identifier: &str,
+        payload: JsValue,
+    ) -> Result<JsValue, JsValue> {
+        let payload: UpdateUserProfile =
             serde_wasm_bindgen::from_value(payload).map_err(js_err)?;
-        let model = <Self as UserPreferencesRepositoryExt>::update(self, &id, &payload).await?;
+        let model =
+            <Self as UserProfileRepositoryExt>::update(self, identifier, &payload)
+                .await?;
         to_js(&model)
     }
 }

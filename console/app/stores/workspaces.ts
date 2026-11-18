@@ -6,7 +6,6 @@ import { useTaskStore } from "./tasks";
 import { useBookmarkStore } from "./bookmarks";
 import { useRecycleBinStore } from "./recycle-bin";
 import { useReminderStore } from "./reminder";
-import { useUserPreferenceStore } from "./workspace-profile";
 import { useSnippetStore } from "./snippets";
 
 export type Workspace = Workspaces;
@@ -135,7 +134,6 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
       const bookmarksStore = useBookmarkStore();
       const recycleBinStore = useRecycleBinStore();
       const reminderStore = useReminderStore();
-      const userPreferenceStore = useUserPreferenceStore();
       const snippetsStore = useSnippetStore();
 
       await Promise.all([
@@ -145,7 +143,6 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
         bookmarksStore.fetchBookmarks(),
         recycleBinStore.fetchEntries(),
         reminderStore.fetchReminders(),
-        userPreferenceStore.fetchPreference(),
         snippetsStore.fetchSnippets(),
       ]);
     },

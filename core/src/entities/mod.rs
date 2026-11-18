@@ -2,11 +2,13 @@
 
 pub mod prelude;
 
+pub mod backup_settings;
 pub mod bookmark;
 pub mod country;
 pub mod invitation;
 pub mod note_categories;
 pub mod notes;
+pub mod notification_settings;
 pub mod notifications;
 pub mod one_time_password;
 pub mod paste_bins;
@@ -19,20 +21,21 @@ pub mod sync_meta;
 pub mod sync_queue;
 pub mod sync_state;
 pub mod task;
-pub mod user_preferences;
+pub mod user_profile;
 pub mod users;
 pub mod whiteboard_files;
 pub mod whiteboards;
 pub mod workspace_members;
-pub mod workspace_profiles;
 pub mod workspaces;
 
 seaography::register_entity_modules!([
+    backup_settings,
     bookmark,
     country,
     invitation,
     note_categories,
     notes,
+    notification_settings,
     notifications,
     one_time_password,
     paste_bins,
@@ -44,12 +47,11 @@ seaography::register_entity_modules!([
     sync_queue,
     sync_state,
     task,
-    user_preferences,
+    user_profile,
     users,
     whiteboard_files,
     whiteboards,
     workspace_members,
-    workspace_profiles,
     workspaces,
 ]);
 seaography::register_active_enums!([
@@ -59,4 +61,5 @@ seaography::register_active_enums!([
     sea_orm_active_enums::ReminderRecurrence,
     sea_orm_active_enums::Tag,
     sea_orm_active_enums::TaskStatus,
+    sea_orm_active_enums::BackupMode,
 ]);

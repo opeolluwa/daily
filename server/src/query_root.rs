@@ -44,6 +44,7 @@ pub fn schema_builder(
     seaography::register_custom_inputs!(
         builder,
         [
+            types::backup_settings::SyncBackupSettingsInput,
             types::bookmark::SyncBookmarkInput,
             types::note::SyncNoteInput,
             types::snippet::SyncSnippetInput,
@@ -51,7 +52,7 @@ pub fn schema_builder(
             types::reminder::SyncReminderInput,
             types::workspace::SyncWorkspaceInput,
             types::recycle_bin::SyncRecycleBinInput,
-            types::workspace_preferences::SyncWorkspacePreferenceInput,
+            types::user_profile::SyncUserProfileInput,
         ]
     );
 

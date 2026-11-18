@@ -119,3 +119,19 @@ pub enum TaskStatus {
     #[sea_orm(string_value = "done")]
     Done,
 }
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ts_rs :: TS,
+)]
+#[sea_orm(rs_type = "Enum", db_type = "Enum", enum_name = "backup_mode")]
+#[ts(export)]
+#[serde(rename_all = "snake_case")]
+pub enum BackupMode {
+    #[sea_orm(string_value = "local_only")]
+    LocalOnly,
+    #[sea_orm(string_value = "cloud_only")]
+    CloudOnly,
+    #[sea_orm(string_value = "local_first")]
+    LocalFirst,
+    #[sea_orm(string_value = "cloud_first")]
+    CloudFirst,
+}

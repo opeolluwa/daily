@@ -16,6 +16,7 @@ watch(
 <template>
   <UDashboardSidebar
     id="app"
+    data-tour="sidebar"
     v-model:collapsed="sidebarStore.collapsed"
     class="hidden md:flex"
     :collapsible="true"
