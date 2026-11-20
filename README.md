@@ -42,6 +42,7 @@ Daily is a personal productivity application designed to help you organize your 
 ```bash
 git clone https://github.com/opeolluwa/daily.git
 cd daily
+just cfg
 pnpm install
 ```
 
