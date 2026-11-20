@@ -1,5 +1,4 @@
 # Daily
-
 **A customizable personal workspace for planning, organizing, and getting things done.**
 
 ![Daily Screenshot](./screenshot-1.png)
