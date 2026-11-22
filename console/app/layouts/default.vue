@@ -25,7 +25,7 @@ const isNoPaddingNeededView = computed(() =>
     id="wild_almonds_app"
     as="div"
     unit="rem"
-    :persistent="false"
+    :persistent="true"
   >
     <!-- Sidebar: icons-only strip when collapsed -->
     <NavigationApp />

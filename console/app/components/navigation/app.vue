@@ -16,13 +16,14 @@ watch(
 <template>
   <UDashboardSidebar
     id="app"
-    data-tour="sidebar"
     v-model:collapsed="sidebarStore.collapsed"
+    data-tour="sidebar"
     class="hidden md:flex"
     :collapsible="true"
     :toggle="false"
     :collapsed-size="4"
-    :default-size="18"
+    :default-size="16"
+    resizable
     :min-size="4"
     :max-size="42"
     :ui="{

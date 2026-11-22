@@ -5,6 +5,7 @@ allowBuilds:
   protobufjs: true
   sharp: true
   vue-demi: true
+  vue-greetings@https://codeload.github.com/opeolluwa/vue-greetings/tar.gz/7b35f61c1101361beb9d4e892ce2d34f9ec61af6: true
 
 packages:
   - "packages/*"

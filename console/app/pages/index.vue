@@ -11,7 +11,8 @@ import TaskDialog from "~/components/task/Dialog.vue";
 import ReminderDialog from "~/components/reminders/ReminderDialog.vue";
 import BookmarkAddModal from "~/components/bookmark/add-modal.vue";
 import { tourConfig } from "~/data/tour-steps";
-
+import { getGreeting } from 'vue-greetings'
+const message = getGreeting()
 definePageMeta({ layout: false });
 
 const noteStore = useNoteStore();
@@ -137,15 +138,15 @@ const today = computed(() =>
             <p
               class="text-xs font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500 mb-1.5"
             >
-              {{ today }}
+               <!-- {{ today }}  -->
             </p>
             <h1
               class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl dark:text-white"
             >
-              {{ greeting }}, <span class="capitalize">{{ userName }}</span>
+              Hello, <span class="capitalize">{{ userName }} 👋</span>
             </h1>
             <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-              Your personal assistant — ready when you are
+             {{message}} 
             </p>
           </div>
         </div>
@@ -186,7 +187,10 @@ const today = computed(() =>
           </UInput>
         </UForm>
 
-        <div data-tour="quick-actions" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+        <div
+          data-tour="quick-actions"
+          class="flex flex-wrap items-center justify-center gap-6 sm:gap-10"
+        >
           <button
             type="button"
             class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -239,7 +243,6 @@ const today = computed(() =>
             <span class="text-xs font-medium">Save a link</span>
           </button>
         </div>
-
       </div>
     </template>
 

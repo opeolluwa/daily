@@ -194,6 +194,9 @@ importers:
       vue:
         specifier: ^3.5.44
         version: 3.5.44(typescript@5.9.3)
+      vue-greetings:
+        specifier: github:opeolluwa/vue-greetings#v0.3.0
+        version: https://codeload.github.com/opeolluwa/vue-greetings/tar.gz/7b35f61c1101361beb9d4e892ce2d34f9ec61af6(vue@3.5.44(typescript@5.9.3))
       vue-router:
         specifier: ^5.4.0
         version: 5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3)))(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.44(typescript@5.9.3))
@@ -3253,6 +3256,7 @@ packages:
 
   '@tiptap/y-tiptap@3.0.12':
     resolution: {integrity: sha512-MlmBpmm4xiRDZmk4hiwnjScOrUtiEBYwqeJBvrDil30Eq1GqrZEox1mciBpOnnpfN731fH07OPeGS7uHryPX0g==}
+    deprecated: Persistent position migrations can cause excessive collaborative document growth. Upgrade all collaborating clients to 3.1.0 or later.
     peerDependencies:
       prosemirror-model: ^1.7.1
       prosemirror-state: ^1.2.3
@@ -7450,6 +7454,13 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+
+  vue-greetings@https://codeload.github.com/opeolluwa/vue-greetings/tar.gz/7b35f61c1101361beb9d4e892ce2d34f9ec61af6:
+    resolution: {gitHosted: true, integrity: sha512-/vHIKwIL7CoU1kGH2SK6+3whKWGpI/Hks95FfGMc6+NOv2QPfmHpUV+VgO5O7/gP+YIL0GJ07G/ydX5vI7R8KA==, tarball: https://codeload.github.com/opeolluwa/vue-greetings/tar.gz/7b35f61c1101361beb9d4e892ce2d34f9ec61af6}
+    version: 0.3.0
+    engines: {node: '>=18'}
+    peerDependencies:
+      vue: ^3.3.0
 
   vue-i18n@11.4.18:
     resolution: {integrity: sha512-NMPOTrqSUVPJxSuiYi0uJ2q0bZovoGuQb13hY9lR+ywb/FOtJRoXqxPRcO/64CDed4tkk9lZ6hRPG7HBP1nxvg==}
@@ -15699,6 +15710,10 @@ snapshots:
       semver: 7.8.6
     transitivePeerDependencies:
       - supports-color
+
+  vue-greetings@https://codeload.github.com/opeolluwa/vue-greetings/tar.gz/7b35f61c1101361beb9d4e892ce2d34f9ec61af6(vue@3.5.44(typescript@5.9.3)):
+    dependencies:
+      vue: 3.5.44(typescript@5.9.3)
 
   vue-i18n@11.4.18(vue@3.5.44(typescript@5.9.3)):
     dependencies:
