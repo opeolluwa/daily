@@ -64,6 +64,8 @@ const userMenuItems = computed(() => [
         variant="ghost"
         icon="heroicons:chevron-left"
         aria-label="Go back"
+        :disabled="isLocked"
+        :class="{ 'opacity-50 pointer-events-none': isLocked }"
         @click="router.back()"
       />
       <UButton
@@ -72,12 +74,29 @@ const userMenuItems = computed(() => [
         variant="ghost"
         icon="heroicons:chevron-right"
         aria-label="Go forward"
+        :disabled="isLocked"
+        :class="{ 'opacity-50 pointer-events-none': isLocked }"
         @click="router.forward()"
       />
     </div>
 
     <!-- Right: notifications + avatar -->
     <div v-if="!isAuthPage" class="flex items-center gap-0.5 ml-auto">
+      <UTooltip text="Search">
+        <UButton
+          size="sm"
+          color="neutral"
+          variant="ghost"
+          icon="heroicons:magnifying-glass"
+          aria-label="Search"
+          :disabled="isLocked"
+          :class="{ 'opacity-50 pointer-events-none': isLocked }"
+          @click="() => navigateTo('/search')"
+        />
+      </UTooltip>
+     <UTooltip text="toggle theme">
+          <UColorModeButton size="sm" />
+     </UTooltip>
       <UTooltip text="Notifications">
         <UButton
           size="sm"

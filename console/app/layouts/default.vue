@@ -21,8 +21,8 @@ const isNoPaddingNeededView = computed(() =>
     unit="rem"
     :persistent="false"
   >
-    <!-- Sidebar: icons-only strip when collapsed -->
-     <Navigation v-if="!workspaceStore.isCurrentWorkspaceLocked || route.path.startsWith('/settings')" class="bg-white dark:bg-gray-900 mb-4 mx-3 rounded-xl" />
+    <!-- Sidebar -->
+    <Navigation class="bg-white dark:bg-gray-900 mb-4 mx-3 rounded-xl" />
 
     <!-- Right column: header + main content -->
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -32,28 +32,13 @@ const isNoPaddingNeededView = computed(() =>
           :class="isNoPaddingNeededView ? 'p-0' : 'p-6'"
           class="flex flex-1 flex-col overflow-y-auto scrollbar-config dark:bg-app-dark-800"
         >
-          <slot
-            v-if="
-              !workspaceStore.isCurrentWorkspaceLocked ||
-              route.path.startsWith('/settings')
-            "
-            name="modal_content"
-          />
+          <slot name="modal_content" />
           <div class="mt-5 flex min-h-0 flex-1 flex-col">
-            <WorkspaceLockModal
-              v-if="
-                workspaceStore.isCurrentWorkspaceLocked &&
-                !route.path.startsWith('/settings')
-              "
-            />
-            <slot
-              v-else-if="
-                !workspaceStore.isCurrentWorkspaceLocked ||
-                route.path.startsWith('/settings')
-              "
-              name="main_content"
-            />
+            <slot name="main_content" />
           </div>
+
+          <!-- Workspace lock modal overlay -->
+          <WorkspaceLockModal />
         </main>
       </div>
     </div>
