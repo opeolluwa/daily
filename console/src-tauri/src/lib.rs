@@ -6,7 +6,7 @@ mod state;
 
 use std::sync::Arc;
 
-use kernel::{DataEngine, adapters::notifications::CreateNotification};
+use kernel::{adapters::notifications::CreateNotification, DataEngine};
 use tauri::Listener;
 use tauri::Manager;
 

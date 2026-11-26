@@ -14,7 +14,6 @@ const emit = defineEmits<{
   delete: [identifier: string];
 }>();
 
-// Drag and drop
 const el = useTemplateRef<HTMLElement>("el");
 const grip = useTemplateRef<HTMLElement>("grip");
 
@@ -24,43 +23,50 @@ makeSortableItem(el, {
   handle: grip,
 });
 
-// Priority styling
 const priorityBorderClass: Record<string, string> = {
-  high: "border-l-rose-500/50",
-  medium: "border-l-amber-500/50",
-  low: "border-l-emerald-500/50",
+  high: "border-rose-500",
+  medium: "border-amber-500",
+  low: "border-emerald-500",
 };
 
-const priorityBgClass: Record<string, string> = {
-  high: "bg-rose-500/50",
-  medium: "bg-amber-500/50",
-  low: "bg-emerald-500/50",
+const priorityDotClass: Record<string, string> = {
+  high: "bg-rose-500",
+  medium: "bg-amber-500",
+  low: "bg-emerald-500",
 };
-// Due date formatting
+
 function formatDueDate(dateStr: string | null) {
   if (!dateStr) return null;
 
   const date = new Date(dateStr);
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const datePart = date.toLocaleDateString("en-US", {
+  if (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  )
+    return "Today";
+
+  if (
+    date.getFullYear() === tomorrow.getFullYear() &&
+    date.getMonth() === tomorrow.getMonth() &&
+    date.getDate() === tomorrow.getDate()
+  )
+    return "Tomorrow";
+
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
-
-  const timePart = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
-  return `${datePart} · ${timePart}`;
 }
 
 function isToday(dateStr: string | null) {
   if (!dateStr) return false;
-
   const date = new Date(dateStr);
   const now = new Date();
-
   return (
     date.getFullYear() === now.getFullYear() &&
     date.getMonth() === now.getMonth() &&
@@ -68,7 +74,6 @@ function isToday(dateStr: string | null) {
   );
 }
 
-// Workspace actions
 const workspaceStore = useWorkspacesStore();
 const taskStore = useTaskStore();
 
@@ -93,56 +98,65 @@ async function handleTransfer(targetWorkspaceId: string) {
 
 <template>
   <li ref="el" class="list-none">
-    <RyderCard
+    <div
       ref="grip"
-      :title="task.title"
-      class="rounded-sm! border-l-2 cursor-grab"
-      :class="priorityBorderClass[task.priority]"
-      :ui="{ title: 'mb-1', header: 'gap-y-1' }"
+      class="group relative cursor-grab rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-sm hover:border-gray-300 dark:bg-gray-800/60 dark:border-gray-700/50 dark:hover:border-gray-600"
     >
-      <template #trailing>
-        <MetaControls
-          horizontal-controls
-          item-name="task"
-          @edit-record="emit('edit', task.identifier)"
-          @delete-record="emit('delete', task.identifier)"
-          @duplicate-record="handleDuplicate"
-          @transfer-record="handleTransfer"
-        />
-      </template>
-
-      <template #default>
-        <!-- Task information -->
-        <div class="min-w-0 flex flex-col">
-          <p
-            v-if="task.description"
-            class="mt-0.5 truncate text-xs text-gray-400"
-          >
-            {{ task.description }}
-          </p>
-
-          <div class="flex justify-between items-center mt-3 text-xs">
-            <span
-              v-if="task.dueDate"
-              class="shrink-0 rounded-md px-1.5 py-0.5"
-              :class="
-                isToday(task.dueDate)
-                  ? 'bg-primary-100 font-medium text-primary-600 dark:bg-primary-950 dark:text-primary-300'
-                  : 'text-gray-400'
-              "
-            >
-              {{ formatDueDate(task.dueDate) }}
-            </span>
-
-            <span
-              class="uppercase shrink-0 rounded-md ml-auto px-1.5 py-0.5"
-              :class="priorityBgClass[task.priority]"
-              >{{ task.priority }}</span
-            >
-          </div>
+      <!-- Header: title + menu -->
+      <div class="flex items-start justify-between gap-2">
+        <h3
+          class="min-w-0 truncate text-sm font-medium text-gray-800 dark:text-gray-100"
+        >
+          {{ task.title }}
+        </h3>
+        <div
+          class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <MetaControls
+            horizontal-controls
+            item-name="task"
+            @edit-record="emit('edit', task.identifier)"
+            @delete-record="emit('delete', task.identifier)"
+            @duplicate-record="handleDuplicate"
+            @transfer-record="handleTransfer"
+          />
         </div>
-      </template>
-      <!-- Due date -->
-    </RyderCard>
+      </div>
+
+      <!-- Description -->
+      <p
+        v-if="task.description"
+        class="mt-1 truncate text-xs text-gray-400 dark:text-gray-500"
+      >
+        {{ task.description }}
+      </p>
+
+      <!-- Footer: due date + priority -->
+      <div class="mt-3 flex items-center gap-2 text-xs">
+        <span
+          v-if="task.dueDate"
+          class="shrink-0 rounded-md px-1.5 py-0.5"
+          :class="
+            isToday(task.dueDate)
+              ? 'bg-primary-100 font-medium text-primary-600 dark:bg-primary-950 dark:text-primary-300'
+              : 'text-gray-400 dark:text-gray-500'
+          "
+        >
+          {{ formatDueDate(task.dueDate) }}
+        </span>
+
+        <span class="ml-auto flex items-center gap-1.5 shrink-0">
+          <span
+            class="size-1.5 rounded-full"
+            :class="priorityDotClass[task.priority]"
+          />
+          <span
+            class="text-xs font-medium capitalize text-gray-400 dark:text-gray-500"
+          >
+            {{ task.priority }}
+          </span>
+        </span>
+      </div>
+    </div>
   </li>
 </template>

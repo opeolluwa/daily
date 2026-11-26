@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useSidebarStore } from "~/stores/sidebar";
-import { useWorkspacesStore } from "~/stores/workspaces";
-
 const sidebarStore = useSidebarStore();
-const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
 const { mobileNavOpen } = useMobileNav();
@@ -21,7 +18,9 @@ const isNoPaddingNeededView = computed(() =>
     :persistent="false"
   >
     <!-- Sidebar -->
-    <Navigation class="bg-white dark:bg-gray-900 mb-4 mx-3 rounded-xl" />
+    <Navigation
+      class="bg-white border dark:border-gray-700 dark:bg-gray-800 dark:shadow my-5 mx-4 rounded-2xl"
+    />
 
     <!-- Right column: header + main content -->
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -32,7 +31,7 @@ const isNoPaddingNeededView = computed(() =>
           class="flex flex-1 flex-col overflow-y-auto scrollbar-config dark:bg-app-dark-800"
         >
           <slot name="modal_content" />
-          <div class="mt-5 flex min-h-0 flex-1 flex-col">
+          <div class="flex min-h-0 flex-1 flex-col">
             <slot name="main_content" />
           </div>
 

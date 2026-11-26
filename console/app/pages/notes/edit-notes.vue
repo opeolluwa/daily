@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useNoteStore } from "~/stores/notes";
-import { onBeforeRouteLeave } from "vue-router";
-import NoteTitleInput from "~/components/notes/note-title-input.vue";
+import { useNoteEditor } from "~/composables/useNoteEditor";
 definePageMeta({ layout: false, keepalive: true, name: "Edit notes" });
 
 const route = useRoute();
-const router = useRouter();
 const noteStore = useNoteStore();
 
 const id = computed(() => route.query.id as string | undefined);
@@ -13,11 +11,22 @@ const original = computed(
   () => noteStore.notes.find((n) => n.identifier === id.value) ?? null,
 );
 
-const title = ref("");
-const content = ref("");
-const submitting = ref(false);
-const saved = ref(false);
-const error = ref<string | null>(null);
+const { content, submitting, saved, error, notesEditor, title, handleSave } =
+  useNoteEditor({
+    saveFn: () =>
+      noteStore.updateNote(original.value!.identifier, {
+        title: title.value,
+        content: content.value,
+      }),
+    canSave: () => {
+      if (!original.value) return false;
+      return (
+        title.value !== original.value.title ||
+        content.value !== original.value.content
+      );
+    },
+  });
+
 const loadedId = ref<string | undefined>(undefined);
 
 watch(
@@ -28,68 +37,10 @@ watch(
     saved.value = false;
     error.value = null;
     submitting.value = false;
-    title.value = note.title === "Untitled" ? "" : note.title;
     content.value = note.content;
   },
   { immediate: true },
 );
-
-// ── word count ────────────────────────────────────────────────────────────────
-const wordCount = computed(() => {
-  const text = content.value.replace(/<[^>]*>/g, " ").trim();
-  if (!text) return 0;
-  return text.split(/\s+/).filter(Boolean).length;
-});
-
-const lastSaved = ref<Date | null>(null);
-const notesEditor = ref<InstanceType<typeof NotesEditor> | null>(null);
-
-const hasChanges = computed(() => {
-  if (!original.value) return false;
-  const origTitle =
-    original.value.title === "Untitled" ? "" : original.value.title;
-  return title.value !== origTitle || content.value !== original.value.content;
-});
-
-// ── save ──────────────────────────────────────────────────────────────────────
-async function handleSave() {
-  if (!original.value) return;
-  submitting.value = true;
-  error.value = null;
-  try {
-    await noteStore.updateNote(original.value.identifier, {
-      title: title.value.trim() || "Untitled",
-      content: content.value,
-    });
-    saved.value = true;
-    lastSaved.value = new Date();
-    router.push("/notes");
-  } catch (e) {
-    error.value = String(e);
-    submitting.value = false;
-  }
-}
-
-// Keyboard shortcut: Cmd/Ctrl+S
-useEventListener("keydown", (e: KeyboardEvent) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-    e.preventDefault();
-    if (hasChanges.value && !submitting.value) handleSave();
-  }
-});
-
-onBeforeRouteLeave(async () => {
-  if (submitting.value || saved.value) return;
-  if (!hasChanges.value) return;
-  try {
-    await noteStore.updateNote(original.value!.identifier, {
-      title: title.value.trim() || "Untitled",
-      content: content.value,
-    });
-  } catch (e) {
-    console.error(e);
-  }
-});
 
 onMounted(async () => {
   if (noteStore.notes.length === 0) {
@@ -101,7 +52,6 @@ onMounted(async () => {
 <template>
   <NuxtLayout name="default">
     <template #main_content>
-      <NoteTitleInput v-model="title" :disabled="submitting" />
       <!-- Not found -->
       <div
         v-if="!original && !noteStore.loading"
@@ -115,7 +65,7 @@ onMounted(async () => {
         </h3>
         <button
           class="text-xs text-primary-500 hover:text-primary-600 font-medium mt-2"
-          @click="router.push('/notes')"
+          @click="$router.push('/notes')"
         >
           Back to notes
         </button>
@@ -132,16 +82,8 @@ onMounted(async () => {
       </div>
 
       <div v-else-if="original">
-        <div class="notes-editor-desktop mx-auto min-h-[calc(100dvh-12rem)]">
-          <!-- Editor -->
-          <NotesEditor :key="id" ref="notesEditor" v-model="content">
-            <template #toolbar>
-              <NotesDesktopToolBarWrapper>
-                <NotesEditorToolBar />
-              </NotesDesktopToolBarWrapper>
-            </template>
-          </NotesEditor>
-
+        <div class="notes-editor-desktop min-h-[calc(100dvh-12rem)]">
+          <NotesEditor :key="id" ref="notesEditor" v-model="content" />
           <p v-if="error" class="text-xs text-red-500 mt-4">{{ error }}</p>
         </div>
       </div>
