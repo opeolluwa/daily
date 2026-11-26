@@ -6,7 +6,6 @@ import {
 import { useAlarmScheduler } from "~/composables/useAlarmScheduler";
 import { useWorkspaceSetup } from "~/composables/useWorkspaceSetup";
 import { useAuthStore } from "~/stores/auth";
-import { useWorkspacesStore } from "~/stores/workspaces";
 import "@domternal/theme";
 import { IS_WEB } from "~/env";
 const { init: initFontSize } = useFontSize();
@@ -24,7 +23,6 @@ const authenticated = computed(
   () => authStore.isAuthenticated || authStore.isGuest,
 );
 
-const showWorkspaceLock = ref(false);
 onMounted(async () => {
   try {
     document.documentElement.classList.toggle("is-web", IS_WEB);
@@ -37,13 +35,6 @@ onMounted(async () => {
     initDarkTheme();
     await checkSetup();
     await checkWorkspaceSetup();
-
-    const workspaceStore = useWorkspacesStore();
-    await workspaceStore.fetchWorkspaces();
-
-    if (workspaceStore.isCurrentWorkspaceLocked) {
-      showWorkspaceLock.value = true;
-    }
 
     let permissionGranted = await isPermissionGranted();
 
@@ -68,12 +59,9 @@ onMounted(async () => {
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <UserSetupModal v-if="setupRequired" />
+    <WorkspaceUserSetupModal v-if="setupRequired" />
     <WorkspaceSetupModal v-if="workspaceSetupRequired" />
-    <WorkspaceLockModal
-      v-if="showWorkspaceLock && !setupRequired && !workspaceSetupRequired"
-      @unlocked="showWorkspaceLock = false"
-    />
+
 
     <Transition
       enter-active-class="transition-opacity duration-200"

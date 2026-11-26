@@ -2,15 +2,6 @@
 import { useSidebarStore } from "~/stores/sidebar";
 
 const sidebarStore = useSidebarStore();
-const route = useRoute();
-
-watch(
-  () => route.path,
-  (path) => {
-    sidebarStore.collapsed = path.startsWith("/whiteboard/");
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
@@ -20,9 +11,10 @@ watch(
     data-tour="sidebar"
     class="hidden md:flex"
     :collapsible="true"
-    :toggle="false"
+    :resizable="true"
+    toggle-side="right"
     :collapsed-size="4"
-    :default-size="18"
+    :default-size="17"
     :min-size="4"
     :max-size="42"
     :ui="{

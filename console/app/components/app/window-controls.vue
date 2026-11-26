@@ -71,6 +71,8 @@ const userMenuItems = computed(() => [
       />
     </div>
 
+    <WorkspaceSelect v-if="!isAuthPage" class="ml-1" />
+
     <!-- Right: notifications + avatar -->
     <div v-if="!isAuthPage" class="flex items-center gap-0.5 ml-auto">
       <UTooltip text="Notifications">

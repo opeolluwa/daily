@@ -27,11 +27,12 @@ async function handleSubmit() {
   if (!validate()) return;
   loading.value = true;
   try {
-    await store.createPreference({
+    await store.updatePreference({
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       email: form.email.trim(),
     });
+    reloadNuxtApp();
   } finally {
     loading.value = false;
   }
@@ -59,33 +60,48 @@ async function handleSubmit() {
     <template #body>
       <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
         <div class="grid grid-cols-2 gap-3">
-          <RyderInput
-            v-model="form.firstName"
-            label="First name"
-            type="text"
-            name="email"
-            placeholder="Jane"
-            :disabled="loading"
-          />
+          <div>
+            <RyderInput
+              v-model="form.firstName"
+              label="First name"
+              type="text"
+              name="firstName"
+              placeholder="Jane"
+              :disabled="loading"
+            />
+            <p v-if="errors.firstName" class="mt-1 text-xs text-red-500">
+              {{ errors.firstName }}
+            </p>
+          </div>
 
-          <RyderInput
-            v-model="form.lastName"
-            label="Last name"
-            type="text"
-            name="lastName"
-            placeholder="Doe"
-            :disabled="loading"
-          />
+          <div>
+            <RyderInput
+              v-model="form.lastName"
+              label="Last name"
+              type="text"
+              name="lastName"
+              placeholder="Doe"
+              :disabled="loading"
+            />
+            <p v-if="errors.lastName" class="mt-1 text-xs text-red-500">
+              {{ errors.lastName }}
+            </p>
+          </div>
         </div>
 
-        <RyderInput
-          v-model="form.email"
-          label="Email"
-          type="email"
-          name="email"
-          placeholder="jane@example.com"
-          :disabled="loading"
-        />
+        <div>
+          <RyderInput
+            v-model="form.email"
+            label="Email"
+            type="email"
+            name="email"
+            placeholder="jane@example.com"
+            :disabled="loading"
+          />
+          <p v-if="errors.email" class="mt-1 text-xs text-red-500">
+            {{ errors.email }}
+          </p>
+        </div>
 
         <div class="flex justify-end pt-1">
           <RyderButton
