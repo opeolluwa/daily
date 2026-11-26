@@ -8,7 +8,7 @@ const isMacOS = platform().toLowerCase() === "macos";
 
 <template>
   <div
-    class="fixed top-0 left-0 right-0 h-8 z-[9999] flex items-center px-4 rounded-t-2xl"
+    class="fixed top-0 left-0 right-0 h-8 z-9999 flex items-center px-4 rounded-t-2xl"
     data-tauri-drag-region
   >
     <div v-if="isMacOS" class="traffic-lights shrink-0">
