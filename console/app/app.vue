@@ -78,7 +78,7 @@ onMounted(async () => {
       <AppSplashScreen v-if="initializing || workspaceInitializing" />
     </Transition>
 
-    <AppTitlebar :authenticated="authenticated" />
+     <AppTitlebar :authenticated="authenticated" /> 
 
     <!-- Masks the dark macOS window-edge hairline; keeps the OS shadow. -->
     <div

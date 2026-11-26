@@ -254,7 +254,7 @@ defineShortcuts(shortcuts);
       v-if="!isAuthPage"
       ref="searchContainerRef"
       data-tour="search"
-      class="relative min-w-0 items-center md:mx-auto md:max-w-sm"
+      class="relative min-w-0 items-center md:mx-auto md:max-w-sm "
       :class="
         mobileSearchOpen ? 'flex flex-1' : 'hidden md:flex md:flex-1'
       "

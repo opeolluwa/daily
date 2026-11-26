@@ -78,7 +78,6 @@ export default defineNuxtConfig({
     "~/assets/css/main.css",
     "highlight.js/styles/atom-one-dark.css",
     "@domternal/theme",
-    "~/assets/css/desktop.css",
   ],
 
   i18n: {

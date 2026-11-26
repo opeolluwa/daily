@@ -16,8 +16,8 @@ watch(
 <template>
   <UDashboardSidebar
     id="app"
-    data-tour="sidebar"
     v-model:collapsed="sidebarStore.collapsed"
+    data-tour="sidebar"
     class="hidden md:flex"
     :collapsible="true"
     :toggle="false"
@@ -27,8 +27,8 @@ watch(
     :max-size="42"
     :ui="{
       root: [
-        'bg-white dark:bg-gray-950',
-        'border-e border-gray-200 dark:border-gray-800',
+        'bg-transparent',
+        'border border-gray-200 dark:border-gray-800',
         'overflow-hidden',
         'min-h-0',
       ],
