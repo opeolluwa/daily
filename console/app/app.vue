@@ -5,7 +5,6 @@ import {
 } from "@tauri-apps/plugin-notification";
 import { useAlarmScheduler } from "~/composables/useAlarmScheduler";
 import { useWorkspaceSetup } from "~/composables/useWorkspaceSetup";
-import { useAuthStore } from "~/stores/auth";
 import "@domternal/theme";
 import { IS_WEB } from "~/env";
 const { init: initFontSize } = useFontSize();
@@ -18,10 +17,6 @@ const {
 } = useWorkspaceSetup();
 
 useAlarmScheduler();
-const authStore = useAuthStore();
-const authenticated = computed(
-  () => authStore.isAuthenticated || authStore.isGuest,
-);
 
 onMounted(async () => {
   try {
@@ -80,7 +75,7 @@ onMounted(async () => {
     <div
       v-if="!IS_WEB"
       aria-hidden="true"
-      class="pointer-events-none fixed inset-0 z-[9998] rounded-2xl border border-gray-200 dark:border-white/[0.15]"
+      class="pointer-events-none fixed inset-0 z-9998 rounded-2xl border border-gray-200 dark:border-white/15"
     />
   </UApp>
 </template>

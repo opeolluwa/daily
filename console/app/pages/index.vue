@@ -50,13 +50,7 @@ const greeting = computed(() => {
   return "Good evening";
 });
 
-const today = computed(() =>
-  now.value.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  }),
-);
+
 </script>
 
 <template>
@@ -69,11 +63,6 @@ const today = computed(() =>
           class="flex w-full flex-col items-center justify-center gap-4 text-center"
         >
           <div>
-            <p
-              class="text-xs font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500 mb-1.5"
-            >
-              {{ today }}
-            </p>
             <h1
               class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl dark:text-white"
             >

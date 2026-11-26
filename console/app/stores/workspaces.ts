@@ -179,6 +179,7 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
     omit: ["unlockedWorkspaceIds"],
     afterHydrate: (ctx) => {
       if (!Array.isArray(ctx.store.workspaces)) ctx.store.workspaces = [];
+      else ctx.store.workspaces = ctx.store.workspaces.filter(Boolean);
     },
   },
 });

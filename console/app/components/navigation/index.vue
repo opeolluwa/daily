@@ -2,19 +2,20 @@
 import { useSidebarStore } from "~/stores/sidebar";
 
 const sidebarStore = useSidebarStore();
+const collapsed = ref(false);
 </script>
 
 <template>
   <UDashboardSidebar
     id="app"
-    v-model:collapsed="sidebarStore.collapsed"
+    v-model:collapsed="collapsed"
     data-tour="sidebar"
     class="hidden md:flex"
     :collapsible="true"
     :resizable="true"
     toggle-side="right"
     :collapsed-size="4"
-    :default-size="17"
+    :default-size="16"
     :min-size="4"
     :max-size="42"
     :ui="{

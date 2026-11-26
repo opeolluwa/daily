@@ -33,8 +33,11 @@ export const useUserPreferenceStore = defineStore("user_profile_store", {
       if (!this.preference) {
         await this.fetchPreference();
       }
+      if (!this.preference) {
+        this.preference = await invoke<UserProfile>("get_user_profile");
+      }
       const updated = await invoke<UserProfile>("update_user_profile", {
-        identifier: this.preference!.identifier,
+        identifier: this.preference.identifier,
         profile: payload,
       });
       this.preference = updated;
