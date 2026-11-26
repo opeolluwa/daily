@@ -35,33 +35,49 @@ async function submit() {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col items-center justify-center">
+  <div class="flex flex-1 flex-col items-center justify-center relative overflow-hidden">
+    <!-- Decorative blobs -->
     <div
-      class="w-full max-w-sm rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-8 py-10 text-center"
+      class="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-primary-300/20 dark:bg-primary-500/10 blur-3xl"
+    />
+    <div
+      class="pointer-events-none absolute -bottom-24 -right-24 size-96 rounded-full bg-violet-300/20 dark:bg-violet-500/10 blur-3xl"
+    />
+
+    <!-- Card -->
+    <div
+      class="relative w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg px-10 py-10 text-center"
     >
-      <UIcon
-        name="heroicons:lock-closed"
-        class="size-10 text-primary-500 dark:text-primary-400 mx-auto"
-      />
-      <h2 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+      <!-- Lock icon badge -->
+      <div
+        class="mx-auto flex size-16 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-950/40"
+      >
+        <UIcon
+          name="heroicons:lock-closed"
+          class="size-8 text-primary-500 dark:text-primary-400"
+        />
+      </div>
+
+      <h2 class="mt-5 text-2xl font-bold text-gray-900 dark:text-white">
         Workspace locked
       </h2>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         Enter the password to access
-        <span class="font-medium text-gray-700 dark:text-gray-200 capitalize">{{
+        <span class="font-semibold text-gray-700 dark:text-gray-200 capitalize">{{
           workspaceName
         }}</span>.
       </p>
 
-      <form class="mt-5 flex flex-col gap-3" @submit.prevent="submit">
+      <form class="mt-6 flex flex-col gap-4 text-left" @submit.prevent="submit">
         <RyderPasswordInput
           v-model="password"
           label="Password"
           name="lock-password"
           placeholder="Enter password"
+          required
           :disabled="loading"
         />
-        <p v-if="error" class="text-xs text-red-500 text-left">
+        <p v-if="error" class="text-xs text-red-500">
           {{ error }}
         </p>
         <RyderButton
@@ -70,6 +86,7 @@ async function submit() {
           block
           size="md"
           class="w-full"
+          icon="heroicons:lock-closed"
           :loading="loading"
           :disabled="!password || loading"
         >

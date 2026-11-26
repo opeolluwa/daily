@@ -91,7 +91,7 @@ const isNoPaddingNeededView = computed(() =>
           </div>
 
           <!-- Primary nav -->
-          <NavigationSideNavContent
+          <NavigationContent
             :collapsed="sidebarStore.collapsed"
             @navigate="mobileNavOpen = false"
           />
