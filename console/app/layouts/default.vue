@@ -6,13 +6,6 @@ const sidebarStore = useSidebarStore();
 const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
-withDefaults(
-  defineProps<{ showSideContent?: boolean }>(),
-  {
-    showSideContent: true,
-  },
-);
-const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
 const noPaddingPatterns = [/^\/whiteboard\/[^/]+$/];
 const isNoPaddingNeededView = computed(() =>
@@ -73,19 +66,6 @@ const isNoPaddingNeededView = computed(() =>
             />
           </div>
         </main>
-
-        <!-- Inline aside: always visible on desktop -->
-        <aside
-          v-if="$slots.side_content && showSideContent"
-          class="hidden md:flex flex-col w-72 shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
-        >
-          <div class="flex-1 overflow-y-scroll scrollbar-config p-4">
-            <slot
-              v-if="!workspaceStore.isCurrentWorkspaceLocked"
-              name="side_content"
-            />
-          </div>
-        </aside>
       </div>
     </div>
 
@@ -126,37 +106,6 @@ const isNoPaddingNeededView = computed(() =>
             :collapsed="sidebarStore.collapsed"
             @navigate="mobileNavOpen = false"
           />
-        </div>
-      </template>
-    </USlideover>
-
-    <!-- Right panel drawer: mobile only -->
-    <USlideover
-      v-model:open="asideOpen"
-      side="right"
-      :ui="{ content: 'max-w-sm' }"
-    >
-      <template #content>
-        <div class="flex flex-col h-full bg-white dark:bg-gray-900">
-          <!-- Safe-area spacer -->
-          <div class="shrink-0" style="height: env(safe-area-inset-top)" />
-          <div class="flex flex-col flex-1 overflow-hidden p-5">
-            <div class="flex items-center justify-between mb-4 shrink-0">
-              <span class="font-semibold text-sm text-gray-900 dark:text-white">
-                Panel
-              </span>
-              <UButton
-                size="sm"
-                color="neutral"
-                variant="ghost"
-                icon="heroicons:x-mark"
-                @click="asideOpen = false"
-              />
-            </div>
-            <div class="flex-1 overflow-y-scroll">
-              <slot name="side_content" />
-            </div>
-          </div>
         </div>
       </template>
     </USlideover>

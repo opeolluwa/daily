@@ -165,44 +165,5 @@ onBeforeUnmount(() => {
       <PasteBinDialog v-model:open="showEditDialog" :paste="editingPaste" />
     </template>
 
-    <template #side_content>
-      <h2 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
-        Pinned
-      </h2>
-
-      <RyderEmptyState
-        v-if="pinnedPastes.length === 0"
-        title="Nothing pinned"
-        description="Pin a paste to keep it close."
-        icon="ri:pushpin-2-line"
-        compact
-      />
-
-      <div v-else class="flex flex-col gap-1">
-        <button
-          v-for="paste in pinnedPastes"
-          :key="paste.identifier"
-          class="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
-          @click="selectPaste(paste.identifier)"
-        >
-          <UIcon name="ri:clipboard-fill" class="size-4 shrink-0" />
-          <span class="truncate">{{ paste.title || "Untitled paste" }}</span>
-        </button>
-      </div>
-
-      <USeparator class="my-4" />
-
-      <div
-        class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-400 dark:text-gray-500"
-      >
-        <UIcon name="ri:clipboard-line" class="size-4" />
-        <span>Press</span>
-        <kbd
-          class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-          >⌘V</kbd
-        >
-        <span>to paste</span>
-      </div>
-    </template>
   </NuxtLayout>
 </template>

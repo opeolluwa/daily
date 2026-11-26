@@ -106,7 +106,7 @@ onUnmounted(() => clearSearch());
 </script>
 
 <template>
-  <NuxtLayout name="default" :show-side-content="isListViewMode ^ isEmptyList">
+  <NuxtLayout name="default">
     <template #main_content>
       <RyderPageHeader
         v-if="taskStore.tasks.length"
@@ -202,68 +202,6 @@ onUnmounted(() => clearSearch());
       </UTabs>
     </template>
 
-    <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Summary
-      </h2>
-      <div class="flex flex-col gap-3 mb-6">
-        <div class="bg-primary-50 dark:bg-primary-950 rounded-lg p-3">
-          <p
-            class="text-2xl font-semibold text-primary-700 dark:text-primary-300"
-          >
-            {{ taskStore.pendingTasks.length }}
-          </p>
-          <p class="text-xs text-primary-500 dark:text-primary-400">
-            Active tasks
-          </p>
-        </div>
-        <div class="bg-emerald-50 dark:bg-emerald-950 rounded-lg p-3">
-          <p
-            class="text-2xl font-semibold text-emerald-700 dark:text-emerald-300"
-          >
-            {{ taskStore.doneTasks.length }}
-          </p>
-          <p class="text-xs text-emerald-500 dark:text-emerald-400">
-            Completed
-          </p>
-        </div>
-      </div>
-
-      <USeparator class="my-4" />
-
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Priority
-      </h2>
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center gap-2">
-            <UIcon name="heroicons:flag" class="size-4 text-rose-500" />
-            <span class="text-gray-600 dark:text-gray-400">High</span>
-          </div>
-          <span class="text-xs text-gray-400">{{
-            taskStore.highPriorityCount
-          }}</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center gap-2">
-            <UIcon name="heroicons:flag" class="size-4 text-amber-500" />
-            <span class="text-gray-600 dark:text-gray-400">Medium</span>
-          </div>
-          <span class="text-xs text-gray-400">{{
-            taskStore.mediumPriorityCount
-          }}</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center gap-2">
-            <UIcon name="heroicons:flag" class="size-4 text-emerald-500" />
-            <span class="text-gray-600 dark:text-gray-400">Low</span>
-          </div>
-          <span class="text-xs text-gray-400">{{
-            taskStore.lowPriorityCount
-          }}</span>
-        </div>
-      </div>
-    </template>
 
     <template #modal_content>
       <TaskDialog v-model:open="dialogOpen" :task="editingTask" />

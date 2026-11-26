@@ -93,46 +93,5 @@ onUnmounted(() => clearSearch());
       </div>
     </template>
 
-    <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Recently modified
-      </h2>
-
-      <div v-if="noteStore.recentLoading" class="flex flex-col gap-1">
-        <USkeleton v-for="i in 3" :key="i" class="h-10 rounded-lg" />
-      </div>
-
-      <RyderEmptyState
-        v-else-if="noteStore.recent.length === 0"
-        title="No recent notes"
-        description="Your recently modified notes will appear here."
-        icon="heroicons:clock"
-        compact
-      />
-
-      <div v-else class="flex flex-col gap-1">
-        <div
-          v-for="note in noteStore.recent"
-          :key="note.identifier"
-          class="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-          @click="router.push(`/notes/edit-notes?id=${note.identifier}`)"
-        >
-          <UIcon
-            name="heroicons:document-text"
-            class="size-4 text-gray-400 shrink-0"
-          />
-          <div class="flex-1 min-w-0">
-            <p
-              class="font-medium text-gray-700 dark:text-gray-300 truncate text-xs"
-            >
-              {{ note.title || "Untitled" }}
-            </p>
-            <p class="text-xs text-gray-400">
-              {{ formatDate(note.updatedAt) }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>

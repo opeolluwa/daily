@@ -304,42 +304,5 @@ onUnmounted(() => {
       />
     </template>
 
-    <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Summary
-      </h2>
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-6">
-        <p class="text-2xl font-semibold text-gray-700 dark:text-gray-200">
-          {{ recycleBinStore.entries.length }}
-        </p>
-        <p class="text-xs text-gray-400 dark:text-gray-500">deleted items</p>
-      </div>
-
-      <USeparator class="my-4" />
-
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        By type
-      </h2>
-      <div class="flex flex-col gap-2">
-        <div
-          v-for="opt in itemTypeOptions.filter((o) => o.value !== 'all')"
-          :key="opt.value"
-          class="flex items-center justify-between text-sm"
-        >
-          <div class="flex items-center gap-2">
-            <UIcon
-              :name="itemTypeIcon(opt.value as RecycleBinItemType)"
-              class="size-4 text-gray-400"
-            />
-            <span class="text-gray-600 dark:text-gray-400 capitalize">{{
-              opt.label
-            }}</span>
-          </div>
-          <span class="text-xs text-gray-400">
-            {{ recycleBinStore.typeCounts[opt.value] ?? 0 }}
-          </span>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>

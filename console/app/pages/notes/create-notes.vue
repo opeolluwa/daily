@@ -100,52 +100,6 @@ onBeforeRouteLeave(async () => {
       </p>
     </template>
 
-    <template #side_content>
-      <!-- Save -->
-      <RyderButton
-        block
-        :loading="submitting"
-        :disabled="!hasContent"
-        class="mb-2"
-        @click="handleSave"
-      >
-        Save note
-      </RyderButton>
-      <RyderButton
-        block
-        variant="outline"
-        :disabled="submitting"
-        @click="router.push('/notes')"
-      >
-        Discard
-      </RyderButton>
-
-      <USeparator class="my-5" />
-
-      <!-- Stats -->
-      <p
-        class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3"
-      >
-        Document
-      </p>
-      <div class="flex flex-col gap-0.5">
-        <div
-          v-for="stat in [
-            { label: 'Words', value: wordCount },
-            { label: 'Characters', value: charCount },
-          ]"
-          :key="stat.label"
-          class="flex items-center justify-between py-2 border-b border-gray-50 dark:border-gray-800/60 text-xs"
-        >
-          <span class="text-gray-400">{{ stat.label }}</span>
-          <span
-            class="tabular-nums font-semibold text-gray-700 dark:text-gray-200"
-          >
-            {{ stat.value }}
-          </span>
-        </div>
-      </div>
-    </template>
   </NuxtLayout>
 </template>
 

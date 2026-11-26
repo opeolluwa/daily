@@ -112,26 +112,5 @@ async function handleDelete(filename: string) {
       </div>
     </template>
 
-    <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Boards
-      </h2>
-      <div
-        class="flex flex-col items-center justify-center py-6 text-center mb-6"
-      >
-        <UIcon
-          name="heroicons:squares-2x2"
-          class="size-6 text-gray-300 dark:text-gray-600 mb-2"
-        />
-        <p class="text-xs text-gray-400 dark:text-gray-500">No boards yet</p>
-      </div>
-
-      <USeparator class="my-4" />
-
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Tags
-      </h2>
-      <p class="text-xs text-gray-400 dark:text-gray-500">No tags yet</p>
-    </template>
   </NuxtLayout>
 </template>
