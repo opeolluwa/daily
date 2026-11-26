@@ -31,7 +31,7 @@ const isNoPaddingNeededView = computed(() =>
           class="flex flex-1 flex-col overflow-y-auto scrollbar-config dark:bg-app-dark-800"
         >
           <slot name="modal_content" />
-          <div class="mt-5 flex min-h-0 flex-1 flex-col">
+          <div class="flex min-h-0 flex-1 flex-col">
             <slot name="main_content" />
           </div>
 

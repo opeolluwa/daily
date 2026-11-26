@@ -123,7 +123,6 @@ function handleUpdate({ editor }: { editor: any }) {
 
 const extensions = [
   StarterKit,
-  // BubbleMenu,
   UniqueID,
   BlockColor,
   ListIndent,
@@ -264,9 +263,9 @@ function isLikelyMarkdown(text: string): boolean {
       :on-create="handleCreate"
       :on-destroy="handleDestroy"
     >
-      <Domternal.Content class="bg-transparent -ml-12" />
-      <!-- <Domternal.BubbleMenu class="mb-5" /> -->
-      <slot name="toolbar" />
+      <Domternal.Toolbar />
+      <Domternal.Content />
+      <Domternal.BubbleMenu />
     </Domternal>
   </div>
 </template>
