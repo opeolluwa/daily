@@ -103,8 +103,9 @@ export const useBackupSettingsStore = defineStore("backup_settings", {
       if (this.initialized) return;
 
       try {
-        const status =
-          await invoke<CloudStorageStatus>("get_cloud_storage_status");
+        const status = await invoke<CloudStorageStatus>(
+          "get_cloud_storage_status",
+        );
         this.applyStatus(status);
       } catch {
         this.available = false;
@@ -206,8 +207,7 @@ export const useBackupSettingsStore = defineStore("backup_settings", {
       this.error = null;
 
       try {
-        const status =
-          await invoke<CloudStorageStatus>("clear_cloud_storage");
+        const status = await invoke<CloudStorageStatus>("clear_cloud_storage");
         this.applyStatus(status);
         this.clearSecretInputs();
         this.testResult = null;

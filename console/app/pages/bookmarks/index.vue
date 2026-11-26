@@ -150,16 +150,6 @@ async function handleCreate(payload: {
       </div>
     </template>
 
-    <template #side_content>
-      <BookmarkCollections
-        v-model="activeTag"
-        :tags="TAGS"
-        :tag-icons="TAG_ICONS"
-        :total-count="bookmarkStore.bookmarks.length"
-        :tag-counts="bookmarkStore.tagCounts"
-      />
-    </template>
-
     <template #modal_content>
       <BookmarkAddModal
         v-model:open="showAddModal"

@@ -89,4 +89,3 @@ export const secondaryRoutes: Route[] = [
     activeIcon: "ri:settings-3-fill",
   },
 ];
-

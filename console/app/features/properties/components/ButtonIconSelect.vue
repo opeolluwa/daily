@@ -1,5 +1,4 @@
 <script setup lang="ts" generic="T extends string | number">
-
 const { options, modelValue } = defineProps<{
   options: { label: string; value: T; icon?: string; iconName?: string }[];
   modelValue: T | "mixed" | null;
@@ -33,11 +32,7 @@ function isActive(optionValue: T): boolean {
       "
       @click="emit('update:modelValue', option.value)"
     >
-      <UIcon
-        v-if="option.iconName"
-        :name="option.iconName"
-        class="h-4 w-4"
-      />
+      <UIcon v-if="option.iconName" :name="option.iconName" class="h-4 w-4" />
       <!-- eslint-disable vue/no-v-html -->
       <svg
         v-else-if="option.icon"

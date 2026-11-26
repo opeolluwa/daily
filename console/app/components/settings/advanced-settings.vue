@@ -136,7 +136,7 @@ async function save() {
           type="url"
           placeholder="https://sync.example.com"
           class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-        />
+        >
       </div>
 
       <div

@@ -243,63 +243,6 @@ onMounted(async () => {
         </UModal>
       </template>
     </template>
-
-    <template #side_content>
-      <template v-if="snippet">
-        <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-          Details
-        </h2>
-        <div class="flex flex-col gap-3">
-          <div>
-            <p class="text-xs text-gray-400 mb-0.5">Language</p>
-            <p class="text-xs text-gray-700 dark:text-gray-300">
-              {{ snippet.language ?? "—" }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-400 mb-0.5">Lines</p>
-            <p class="text-xs text-gray-700 dark:text-gray-300">
-              {{ lineCount(snippet.code) }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-400 mb-0.5">Created</p>
-            <p class="text-xs text-gray-700 dark:text-gray-300">
-              {{ formatDate(snippet.createdAt) }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-400 mb-0.5">Updated</p>
-            <p class="text-xs text-gray-700 dark:text-gray-300">
-              {{ formatDate(snippet.updatedAt) }}
-            </p>
-          </div>
-        </div>
-
-        <USeparator class="my-4" />
-
-        <div class="flex flex-col gap-2">
-          <UButton
-            size="xs"
-            variant="outline"
-            icon="heroicons:clipboard"
-            block
-            @click="copyCode"
-          >
-            {{ copied ? "Copied!" : "Copy code" }}
-          </UButton>
-          <UButton
-            size="xs"
-            variant="outline"
-            icon="heroicons:pencil-square"
-            block
-            @click="router.push(`/snippets/edit?id=${snippet.identifier}`)"
-          >
-            Edit snippet
-          </UButton>
-        </div>
-      </template>
-    </template>
   </NuxtLayout>
 </template>
 

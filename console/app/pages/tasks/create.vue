@@ -27,7 +27,9 @@ function toIsoDate(date: CalendarDate | undefined): string | null {
   ].join("-");
 }
 
-function fromIsoDate(value: string | null | undefined): CalendarDate | undefined {
+function fromIsoDate(
+  value: string | null | undefined,
+): CalendarDate | undefined {
   if (!value) return undefined;
   const [year, month, day] = value.split("-").map(Number);
   if (!year || !month || !day) return undefined;
@@ -79,24 +81,58 @@ async function handleSubmit() {
     <template #main_content>
       <div class="max-w-3xl">
         <div class="mb-6 flex items-center gap-3">
-          <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-100">New Task</h1>
+          <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            New Task
+          </h1>
         </div>
 
         <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-          <RyderInput v-model="form.title" label="Title" :required="true" placeholder="What needs to be done?" name="task-title" />
-          <RyderTextarea v-model="form.description" label="Description" name="task-description" placeholder="Add more details..." :rows="3" />
-          <RyderDateInput v-model="form.dueDate" label="Date" name="task-date" placeholder="Pick a date" />
-          <RyderTimeInput v-model="selectedTime" label="Time" name="task-time" size="sm" />
+          <RyderInput
+            v-model="form.title"
+            label="Title"
+            :required="true"
+            placeholder="What needs to be done?"
+            name="task-title"
+          />
+          <RyderTextarea
+            v-model="form.description"
+            label="Description"
+            name="task-description"
+            placeholder="Add more details..."
+            :rows="3"
+          />
+          <RyderDateInput
+            v-model="form.dueDate"
+            label="Date"
+            name="task-date"
+            placeholder="Pick a date"
+          />
+          <RyderTimeInput
+            v-model="selectedTime"
+            label="Time"
+            name="task-time"
+            size="sm"
+          />
 
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Priority</label>
+            <label class="text-xs font-medium text-gray-500 dark:text-gray-400"
+              >Priority</label
+            >
             <div class="flex gap-2">
               <button
                 v-for="p in ['low', 'medium', 'high'] as const"
                 :key="p"
                 type="button"
                 class="flex-1 py-2 rounded-lg text-xs font-medium capitalize border transition-colors"
-                :class="form.priority === p ? (p === 'high' ? 'bg-rose-50 dark:bg-rose-950 border-rose-300 dark:border-rose-700 text-rose-600 dark:text-rose-400' : p === 'medium' ? 'bg-amber-50 dark:bg-amber-950 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400' : 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400') : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                :class="
+                  form.priority === p
+                    ? p === 'high'
+                      ? 'bg-rose-50 dark:bg-rose-950 border-rose-300 dark:border-rose-700 text-rose-600 dark:text-rose-400'
+                      : p === 'medium'
+                        ? 'bg-amber-50 dark:bg-amber-950 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400'
+                        : 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                "
                 @click="form.priority = p"
               >
                 {{ p }}
@@ -105,8 +141,20 @@ async function handleSubmit() {
           </div>
 
           <div class="flex justify-end gap-2 pt-2">
-            <UButton type="button" color="neutral" variant="ghost" :disabled="submitting" @click="router.back()">Cancel</UButton>
-            <UButton type="submit" :loading="submitting" :disabled="!form.title.trim()">Create</UButton>
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              :disabled="submitting"
+              @click="router.back()"
+              >Cancel</UButton
+            >
+            <UButton
+              type="submit"
+              :loading="submitting"
+              :disabled="!form.title.trim()"
+              >Create</UButton
+            >
           </div>
         </form>
       </div>

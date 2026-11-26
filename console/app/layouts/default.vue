@@ -6,13 +6,6 @@ const sidebarStore = useSidebarStore();
 const workspaceStore = useWorkspacesStore();
 
 const route = useRoute();
-withDefaults(
-  defineProps<{ showSideContent?: boolean }>(),
-  {
-    showSideContent: true,
-  },
-);
-const asideOpen = ref(false);
 const { mobileNavOpen } = useMobileNav();
 const noPaddingPatterns = [/^\/whiteboard\/[^/]+$/];
 const isNoPaddingNeededView = computed(() =>
@@ -27,8 +20,8 @@ const isNoPaddingNeededView = computed(() =>
     unit="rem"
     :persistent="false"
   >
-    <!-- Sidebar: icons-only strip when collapsed -->
-     <Navigation class="bg-white dark:bg-gray-900 my-3 mx-3 rounded-3xl" />
+    <!-- Sidebar -->
+    <Navigation class="bg-white dark:bg-gray-900 mb-4 mx-3 rounded-xl" />
 
     <!-- Right column: header + main content -->
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -38,54 +31,14 @@ const isNoPaddingNeededView = computed(() =>
           :class="isNoPaddingNeededView ? 'p-0' : 'p-6'"
           class="flex flex-1 flex-col overflow-y-auto scrollbar-config dark:bg-app-dark-800"
         >
-          <slot
-            v-if="
-              !workspaceStore.isCurrentWorkspaceLocked ||
-              route.path.startsWith('/settings')
-            "
-            name="modal_content"
-          />
+          <slot name="modal_content" />
           <div class="mt-5 flex min-h-0 flex-1 flex-col">
-            <div
-              v-if="
-                workspaceStore.isCurrentWorkspaceLocked &&
-                !route.path.startsWith('/settings')
-              "
-              class="flex flex-col items-center justify-center gap-3 py-24 text-center"
-            >
-              <UIcon
-                name="heroicons:lock-closed"
-                class="size-10 text-amber-400 dark:text-amber-500"
-              />
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                This workspace is password protected
-              </p>
-              <p class="text-xs text-gray-400 dark:text-gray-500">
-                Select it from the workspace switcher to unlock.
-              </p>
-            </div>
-            <slot
-              v-else-if="
-                !workspaceStore.isCurrentWorkspaceLocked ||
-                route.path.startsWith('/settings')
-              "
-              name="main_content"
-            />
+            <slot name="main_content" />
           </div>
-        </main>
 
-        <!-- Inline aside: always visible on desktop -->
-        <aside
-          v-if="$slots.side_content && showSideContent"
-          class="hidden md:flex flex-col w-72 shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
-        >
-          <div class="flex-1 overflow-y-scroll scrollbar-config p-4">
-            <slot
-              v-if="!workspaceStore.isCurrentWorkspaceLocked"
-              name="side_content"
-            />
-          </div>
-        </aside>
+          <!-- Workspace lock modal overlay -->
+          <WorkspaceLockModal />
+        </main>
       </div>
     </div>
 
@@ -107,7 +60,11 @@ const isNoPaddingNeededView = computed(() =>
               size="sm"
               color="neutral"
               variant="ghost"
-              :icon="sidebarStore.collapsed ? 'heroicons:chevron-double-right' : 'heroicons:chevron-double-left'"
+              :icon="
+                sidebarStore.collapsed
+                  ? 'heroicons:chevron-double-right'
+                  : 'heroicons:chevron-double-left'
+              "
               aria-label="Toggle sidebar"
               @click="sidebarStore.collapsed = !sidebarStore.collapsed"
             />
@@ -122,41 +79,10 @@ const isNoPaddingNeededView = computed(() =>
           </div>
 
           <!-- Primary nav -->
-          <NavigationSideNavContent
+          <NavigationContent
             :collapsed="sidebarStore.collapsed"
             @navigate="mobileNavOpen = false"
           />
-        </div>
-      </template>
-    </USlideover>
-
-    <!-- Right panel drawer: mobile only -->
-    <USlideover
-      v-model:open="asideOpen"
-      side="right"
-      :ui="{ content: 'max-w-sm' }"
-    >
-      <template #content>
-        <div class="flex flex-col h-full bg-white dark:bg-gray-900">
-          <!-- Safe-area spacer -->
-          <div class="shrink-0" style="height: env(safe-area-inset-top)" />
-          <div class="flex flex-col flex-1 overflow-hidden p-5">
-            <div class="flex items-center justify-between mb-4 shrink-0">
-              <span class="font-semibold text-sm text-gray-900 dark:text-white">
-                Panel
-              </span>
-              <UButton
-                size="sm"
-                color="neutral"
-                variant="ghost"
-                icon="heroicons:x-mark"
-                @click="asideOpen = false"
-              />
-            </div>
-            <div class="flex-1 overflow-y-scroll">
-              <slot name="side_content" />
-            </div>
-          </div>
         </div>
       </template>
     </USlideover>

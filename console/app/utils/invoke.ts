@@ -88,7 +88,10 @@ const COMMANDS: Record<string, CommandHandler> = {
 
   get_user_profile: (api) => api.userProfile.get_or_create(),
   update_user_profile: (api, a) =>
-    api.userProfile.update(asString(a, "identifier"), a.profile as UpdateUserProfile),
+    api.userProfile.update(
+      asString(a, "identifier"),
+      a.profile as UpdateUserProfile,
+    ),
 
   get_all_notes: (api, a) => api.notes.find_all(asMeta(a)),
   get_recently_added_notes: (api, a) => api.notes.recently_added(asMeta(a)),
@@ -231,15 +234,13 @@ const COMMANDS: Record<string, CommandHandler> = {
   duplicate_reminder: (api, a) => duplicate(api, a, "reminders"),
   transfer_reminder: (api, a) => transfer(api, a, "reminders"),
 
-  get_backup_settings: (api) =>
-    api.backupSettings.get_or_create(),
+  get_backup_settings: (api) => api.backupSettings.get_or_create(),
   update_backup_settings: (api, a) =>
     api.backupSettings.update(
       asString(a, "identifier"),
       a.settings as import("./core").UpdateBackupSettings,
     ),
-  get_notification_settings: (api) =>
-    api.notificationSettings.get_or_create(),
+  get_notification_settings: (api) => api.notificationSettings.get_or_create(),
   update_notification_settings: (api, a) =>
     api.notificationSettings.update(
       asString(a, "identifier"),

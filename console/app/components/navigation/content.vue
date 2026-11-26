@@ -49,7 +49,6 @@ function isActive(path: string): boolean {
 function onNavigate() {
   emit("navigate");
 }
-
 </script>
 
 <template>
@@ -92,7 +91,7 @@ function onNavigate() {
     </div>
 
     <!-- Footer -->
-    <div class="shrink-0 px-3 pt-1 pb-4 mt-auto">
+    <div class="shrink-0 px-3 pt-1 pb-3 mt-auto">
       <USeparator class="mb-3" />
 
       <!-- THEME -->

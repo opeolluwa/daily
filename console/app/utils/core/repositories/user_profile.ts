@@ -1,4 +1,8 @@
-import type { CreateUserProfile, UpdateUserProfile, UserProfile } from "@daily/core";
+import type {
+  CreateUserProfile,
+  UpdateUserProfile,
+  UserProfile,
+} from "@daily/core";
 import { BaseRepository } from "../base";
 
 export type { CreateUserProfile, UpdateUserProfile };
@@ -20,7 +24,10 @@ export class UserProfileRepository extends BaseRepository {
     );
   }
 
-  async update(identifier: string, payload: UpdateUserProfile): Promise<UserProfile> {
+  async update(
+    identifier: string,
+    payload: UpdateUserProfile,
+  ): Promise<UserProfile> {
     const sets: string[] = ["updated_at = $2"];
     const params: unknown[] = [identifier, this.now()];
     let idx = 3;

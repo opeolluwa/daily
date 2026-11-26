@@ -65,8 +65,14 @@ export type { CreateBookmark, UpdateBookmark } from "./repositories/bookmarks";
 export type { CreateSnippet, UpdateSnippet } from "./repositories/snippets";
 export type { CreatePasteBin, UpdatePasteBin } from "./repositories/paste_bins";
 export type { CreateReminder, UpdateReminder } from "./repositories/reminder";
-export type { UpdateBackupSettings, BackupSettings } from "./repositories/backup_settings";
-export type { UpdateNotificationSettings, NotificationSettings } from "./repositories/notification_settings";
+export type {
+  UpdateBackupSettings,
+  BackupSettings,
+} from "./repositories/backup_settings";
+export type {
+  UpdateNotificationSettings,
+  NotificationSettings,
+} from "./repositories/notification_settings";
 export type { CreateNotification } from "./repositories/notifications";
 export type { CreateRecycleBinEntry } from "./repositories/recycle_bin";
 export type {

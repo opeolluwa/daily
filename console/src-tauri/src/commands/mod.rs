@@ -11,6 +11,6 @@ pub mod reminder;
 pub mod snippets;
 pub mod sync;
 pub mod tasks;
-pub mod whiteboards;
 pub mod user_profile;
+pub mod whiteboards;
 pub mod workspaces;

@@ -1,66 +1,14 @@
 <script setup lang="ts">
 import { useNoteStore } from "~/stores/notes";
-import {
-  useBookmarkStore,
-  type BookmarkTag,
-  type CreateBookmarkPayload,
-} from "~/stores/bookmarks";
-import { useTaskStore } from "~/stores/tasks";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
-import TaskDialog from "~/components/task/Dialog.vue";
-import ReminderDialog from "~/components/reminders/ReminderDialog.vue";
-import BookmarkAddModal from "~/components/bookmark/add-modal.vue";
 import { tourConfig } from "~/data/tour-steps";
 
 definePageMeta({ layout: false });
 
 const noteStore = useNoteStore();
-const bookmarkStore = useBookmarkStore();
-const taskStore = useTaskStore();
 const userPreferenceStore = useUserPreferenceStore();
 
-const router = useRouter();
-const isMobile = useIsMobile();
 const query = ref("");
-
-const taskDialogOpen = ref(false);
-const reminderDialogOpen = ref(false);
-const bookmarkDialogOpen = ref(false);
-
-const bookmarkTags: { label: string; value: BookmarkTag }[] = [
-  { label: "Development", value: "development" },
-  { label: "Design", value: "design" },
-  { label: "Research", value: "research" },
-  { label: "Inspiration", value: "inspiration" },
-];
-
-async function handleCreateBookmark(payload: CreateBookmarkPayload) {
-  await bookmarkStore.createBookmark(payload);
-}
-
-function openTask() {
-  if (isMobile.value) {
-    router.push("/tasks/create");
-    return;
-  }
-  taskDialogOpen.value = true;
-}
-
-function openReminder() {
-  if (isMobile.value) {
-    router.push("/reminders/create");
-    return;
-  }
-  reminderDialogOpen.value = true;
-}
-
-function openBookmark() {
-  if (isMobile.value) {
-    router.push("/bookmarks/create");
-    return;
-  }
-  bookmarkDialogOpen.value = true;
-}
 
 const { setSearch, clearSearch } = useAppSearch();
 
@@ -69,8 +17,6 @@ const { start: startTour } = useDriver("onboarding", { autoSkip: true });
 onMounted(async () => {
   await Promise.all([
     noteStore.fetchNotes(),
-    bookmarkStore.fetchBookmarks(),
-    taskStore.fetchTasks(),
     userPreferenceStore.fetchPreference(),
   ]);
   setSearch({ placeholder: "Search everything…" });
@@ -119,10 +65,6 @@ const today = computed(() =>
       <div
         class="-mx-6 -mt-5 -mb-6 flex min-h-0 w-full flex-col items-center justify-center flex-1 gap-6 px-5 relative"
       >
-        <!-- tint -->
-
-     
-
         <div
           class="flex w-full flex-col items-center justify-center gap-4 text-center"
         >
@@ -137,9 +79,6 @@ const today = computed(() =>
             >
               {{ greeting }}, <span class="capitalize">{{ userName }}</span>
             </h1>
-            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-              Your personal assistant — ready when you are
-            </p>
           </div>
         </div>
 
@@ -157,13 +96,15 @@ const today = computed(() =>
             }"
           >
             <template #leading>
-              <UButton
-                color="neutral"
-                icon="heroicons:sparkles-solid"
-                variant="link"
-                class="text-primary pl-2 cursor-pointer font-medium"
-                size="lg"
-              />
+              <UTooltip text="attach files">
+                <UButton
+                  color="neutral"
+                  icon="heroicons:plus-solid"
+                  variant="link"
+                  class="pl-2 cursor-pointer font-bold"
+                  size="lg"
+                />
+              </UTooltip>
             </template>
 
             <template #trailing>
@@ -178,72 +119,7 @@ const today = computed(() =>
             </template>
           </UInput>
         </UForm>
-
-        <div data-tour="quick-actions" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-          <button
-            type="button"
-            class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="router.push('/notes/create-notes')"
-          >
-            <span
-              class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
-            >
-              <UIcon name="heroicons:document-plus" class="size-8" />
-            </span>
-            <span class="text-xs font-medium">Create note</span>
-          </button>
-
-          <button
-            type="button"
-            class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="openTask"
-          >
-            <span
-              class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
-            >
-              <UIcon name="heroicons:check-circle" class="size-8" />
-            </span>
-            <span class="text-xs font-medium">Add a task</span>
-          </button>
-
-          <button
-            type="button"
-            class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="openReminder"
-          >
-            <span
-              class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
-            >
-              <UIcon name="heroicons:bell" class="size-8" />
-            </span>
-            <span class="text-xs font-medium">Set a reminder</span>
-          </button>
-
-          <button
-            type="button"
-            class="flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            @click="openBookmark"
-          >
-            <span
-              class="flex size-14 items-center justify-center rounded-2xl border border-gray-50 bg-primary-50/40 dark:border-gray-800 dark:bg-gray-800/30"
-            >
-              <UIcon name="heroicons:bookmark" class="size-8" />
-            </span>
-            <span class="text-xs font-medium">Save a link</span>
-          </button>
-        </div>
-
       </div>
-    </template>
-
-    <template #modal_content>
-      <TaskDialog v-model:open="taskDialogOpen" />
-      <ReminderDialog v-model:open="reminderDialogOpen" />
-      <BookmarkAddModal
-        v-model:open="bookmarkDialogOpen"
-        :tags="bookmarkTags"
-        @create="handleCreateBookmark"
-      />
     </template>
   </NuxtLayout>
 </template>

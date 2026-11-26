@@ -1,6 +1,5 @@
 use kernel::{
-    adapters::notification_settings::UpdateNotificationSettings,
-    entities::notification_settings,
+    adapters::notification_settings::UpdateNotificationSettings, entities::notification_settings,
     repositories::notification_settings::NotificationSettingsRepositoryExt,
 };
 use tauri::State;

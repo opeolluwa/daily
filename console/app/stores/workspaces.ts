@@ -51,7 +51,9 @@ export const useWorkspacesStore = defineStore("workspaces_store", {
       try {
         this.workspaces = (await invoke<Workspace[]>("list_workspaces")) ?? [];
         const live = this.workspaces.filter((w) => !w.deletedAt);
-        const active = live.find((w) => w.identifier === this.activeWorkspaceId);
+        const active = live.find(
+          (w) => w.identifier === this.activeWorkspaceId,
+        );
         if (!active) {
           // Prefer the default workspace, then the first live one.
           const fallback = live.find((w) => w.isDefault) ?? live[0];

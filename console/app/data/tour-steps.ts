@@ -51,16 +51,6 @@ export const tourConfig = {
       skipMissingElement: true,
     },
     {
-      element: '[data-tour="quick-actions"]',
-      popover: {
-        title: "Quick Actions",
-        description:
-          "Create notes, add tasks, set reminders, or save links in one click from the home screen.",
-        side: "top",
-        align: "center",
-      },
-    },
-    {
       element: '[data-tour="notifications"]',
       popover: {
         title: "Notifications",

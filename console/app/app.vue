@@ -6,7 +6,6 @@ import {
 import { useAlarmScheduler } from "~/composables/useAlarmScheduler";
 import { useWorkspaceSetup } from "~/composables/useWorkspaceSetup";
 import { useAuthStore } from "~/stores/auth";
-import { useWorkspacesStore } from "~/stores/workspaces";
 import "@domternal/theme";
 import { IS_WEB } from "~/env";
 const { init: initFontSize } = useFontSize();
@@ -24,7 +23,6 @@ const authenticated = computed(
   () => authStore.isAuthenticated || authStore.isGuest,
 );
 
-const showWorkspaceLock = ref(false);
 onMounted(async () => {
   try {
     document.documentElement.classList.toggle("is-web", IS_WEB);
@@ -37,13 +35,6 @@ onMounted(async () => {
     initDarkTheme();
     await checkSetup();
     await checkWorkspaceSetup();
-
-    const workspaceStore = useWorkspacesStore();
-    await workspaceStore.fetchWorkspaces();
-
-    if (workspaceStore.isCurrentWorkspaceLocked) {
-      showWorkspaceLock.value = true;
-    }
 
     let permissionGranted = await isPermissionGranted();
 
@@ -59,15 +50,17 @@ onMounted(async () => {
 
 <template>
   <UApp :toaster="{ progress: false, duration: 1500, position: 'top-right' }">
+    <!-- Background fill for Tauri transparent window -->
+    <div
+      v-if="!IS_WEB"
+      class="fixed inset-0 rounded-2xl bg-gray-50 dark:bg-app-dark-800"
+    />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <UserSetupModal v-if="setupRequired" />
+    <WorkspaceUserSetupModal v-if="setupRequired" />
     <WorkspaceSetupModal v-if="workspaceSetupRequired" />
-    <WorkspaceLockModal
-      v-if="showWorkspaceLock && !setupRequired && !workspaceSetupRequired"
-      @unlocked="showWorkspaceLock = false"
-    />
 
     <Transition
       enter-active-class="transition-opacity duration-200"
@@ -78,7 +71,10 @@ onMounted(async () => {
       <AppSplashScreen v-if="initializing || workspaceInitializing" />
     </Transition>
 
-     <AppTitlebar :authenticated="authenticated" /> 
+    <!-- Window controls (traffic lights / minimize-maximize-close) -->
+    <AppWindowControls v-if="!IS_WEB" />
+
+    <!-- <AppTitlebar :authenticated="authenticated" /> -->
 
     <!-- Masks the dark macOS window-edge hairline; keeps the OS shadow. -->
     <div

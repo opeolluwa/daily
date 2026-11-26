@@ -208,40 +208,6 @@ onUnmounted(() => clearSearch());
       </div>
     </template>
 
-    <template #side_content>
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Summary
-      </h2>
-      <div class="flex flex-col gap-3 mb-6">
-        <div class="bg-primary-50 dark:bg-primary-950 rounded-lg p-3">
-          <p
-            class="text-2xl font-semibold text-primary-700 dark:text-primary-300"
-          >
-            {{ reminderStore.upcomingReminders.length }}
-          </p>
-          <p class="text-xs text-primary-500 dark:text-primary-400">Upcoming</p>
-        </div>
-        <div class="bg-violet-50 dark:bg-violet-950 rounded-lg p-3">
-          <p
-            class="text-2xl font-semibold text-violet-700 dark:text-violet-300"
-          >
-            {{ reminderStore.recurringReminders.length }}
-          </p>
-          <p class="text-xs text-violet-500 dark:text-violet-400">Recurring</p>
-        </div>
-      </div>
-
-      <USeparator class="my-4" />
-
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Total
-      </h2>
-      <p class="text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        {{ reminderStore.reminders.length }}
-      </p>
-      <p class="text-xs text-gray-400 dark:text-gray-500">reminders</p>
-    </template>
-
     <template #modal_content>
       <ReminderDialog v-model:open="dialogOpen" :reminder="editingReminder" />
     </template>

@@ -117,7 +117,11 @@ function handleCancel() {
             >
               Cancel
             </UButton>
-            <UButton type="submit" :loading="submitting" :disabled="!form.code.trim()">
+            <UButton
+              type="submit"
+              :loading="submitting"
+              :disabled="!form.code.trim()"
+            >
               Create
             </UButton>
           </div>

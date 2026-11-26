@@ -17,16 +17,8 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(MinifiedLinks::OriginalUrl)
-                            .text()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(MinifiedLinks::MinifiedUrl)
-                            .text()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(MinifiedLinks::OriginalUrl).text().not_null())
+                    .col(ColumnDef::new(MinifiedLinks::MinifiedUrl).text().not_null())
                     .col(
                         ColumnDef::new(MinifiedLinks::CreatedAt)
                             .timestamp_with_time_zone()

@@ -29,8 +29,18 @@ const currentMonth = ref(today.getMonth());
 const selectedDate = ref<string>(todayStr);
 
 const monthNames = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -167,18 +177,30 @@ const calendarDays = computed(() => {
     const d = daysInPrevMonth - i;
     const prevMonth = month === 0 ? 11 : month - 1;
     const prevYear = month === 0 ? year - 1 : year;
-    days.push({ date: formatDate(prevYear, prevMonth, d), day: d, isCurrentMonth: false });
+    days.push({
+      date: formatDate(prevYear, prevMonth, d),
+      day: d,
+      isCurrentMonth: false,
+    });
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
-    days.push({ date: formatDate(year, month, d), day: d, isCurrentMonth: true });
+    days.push({
+      date: formatDate(year, month, d),
+      day: d,
+      isCurrentMonth: true,
+    });
   }
 
   const remaining = 42 - days.length;
   for (let d = 1; d <= remaining; d++) {
     const nextMonth = month === 11 ? 0 : month + 1;
     const nextYear = month === 11 ? year + 1 : year;
-    days.push({ date: formatDate(nextYear, nextMonth, d), day: d, isCurrentMonth: false });
+    days.push({
+      date: formatDate(nextYear, nextMonth, d),
+      day: d,
+      isCurrentMonth: false,
+    });
   }
 
   return days;
@@ -261,7 +283,10 @@ function addTaskFromMenu() {
 function addReminderFromMenu() {
   if (isMobile.value) {
     closeContextMenu();
-    router.push({ path: "/reminders/create", query: { date: contextDate.value } });
+    router.push({
+      path: "/reminders/create",
+      query: { date: contextDate.value },
+    });
     return;
   }
   editingReminder.value = null;
@@ -281,7 +306,10 @@ function openEditItem(item: CalendarItem) {
     taskDialogOpen.value = true;
   } else if (item.type === "reminder" && item.reminder) {
     if (isMobile.value) {
-      router.push({ path: "/reminders/edit", query: { id: item.reminder.identifier } });
+      router.push({
+        path: "/reminders/edit",
+        query: { id: item.reminder.identifier },
+      });
       return;
     }
     dialogInitialDate.value = null;
@@ -292,10 +320,14 @@ function openEditItem(item: CalendarItem) {
 
 function priorityColor(priority: string) {
   switch (priority) {
-    case "high": return "text-rose-500";
-    case "medium": return "text-amber-500";
-    case "low": return "text-emerald-500";
-    default: return "text-gray-400";
+    case "high":
+      return "text-rose-500";
+    case "medium":
+      return "text-amber-500";
+    case "low":
+      return "text-emerald-500";
+    default:
+      return "text-gray-400";
   }
 }
 
@@ -317,14 +349,19 @@ onMounted(() => {
           >
             <UIcon name="heroicons:chevron-left" class="size-4 text-gray-500" />
           </button>
-          <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100 w-40 text-center">
+          <h2
+            class="text-base font-semibold text-gray-800 dark:text-gray-100 w-40 text-center"
+          >
             {{ monthNames[currentMonth] }} {{ currentYear }}
           </h2>
           <button
             class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             @click="nextMonth"
           >
-            <UIcon name="heroicons:chevron-right" class="size-4 text-gray-500" />
+            <UIcon
+              name="heroicons:chevron-right"
+              class="size-4 text-gray-500"
+            />
           </button>
         </div>
         <button
@@ -347,7 +384,9 @@ onMounted(() => {
       </div>
 
       <!-- Calendar grid -->
-      <div class="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
+      <div
+        class="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800"
+      >
         <button
           v-for="cell in calendarDays"
           :key="cell.date"
@@ -380,7 +419,13 @@ onMounted(() => {
               "
             >
               <UIcon
-                :name="item.type === 'task' ? 'heroicons:check-circle' : item.recurring ? 'heroicons:arrow-path' : 'heroicons:bell'"
+                :name="
+                  item.type === 'task'
+                    ? 'heroicons:check-circle'
+                    : item.recurring
+                      ? 'heroicons:arrow-path'
+                      : 'heroicons:bell'
+                "
                 class="size-3 shrink-0"
               />
               <span class="truncate">{{ item.title }}</span>
@@ -405,14 +450,20 @@ onMounted(() => {
         >
           <div
             class="absolute z-50 w-48 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
-            :style="{ left: `${contextMenuPos.x}px`, top: `${contextMenuPos.y}px` }"
+            :style="{
+              left: `${contextMenuPos.x}px`,
+              top: `${contextMenuPos.y}px`,
+            }"
             @click.stop
           >
             <button
               class="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               @click="addTaskFromMenu"
             >
-              <UIcon name="heroicons:check-circle" class="size-4 text-primary-500" />
+              <UIcon
+                name="heroicons:check-circle"
+                class="size-4 text-primary-500"
+              />
               Add Task
             </button>
             <button
@@ -425,86 +476,6 @@ onMounted(() => {
           </div>
         </div>
       </Teleport>
-    </template>
-
-    <template #side_content>
-      <!-- Selected day -->
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        {{ formatDisplayDate(selectedDate) }}
-      </h2>
-
-      <div v-if="selectedDateItems.length" class="flex flex-col gap-2 mb-6">
-        <button
-          v-for="item in selectedDateItems"
-          :key="item.id"
-          class="flex items-start gap-2.5 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left w-full"
-          @click="openEditItem(item)"
-        >
-          <UIcon
-            :name="item.type === 'task' ? 'heroicons:check-circle' : item.recurring ? 'heroicons:arrow-path' : 'heroicons:bell'"
-            class="size-4 mt-0.5 shrink-0"
-            :class="item.type === 'task' ? 'text-primary-500' : 'text-amber-500'"
-          />
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-700 dark:text-gray-300 truncate">
-              {{ item.title }}
-            </p>
-            <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-xs text-gray-400 capitalize">{{ item.type }}</span>
-              <span
-                v-if="item.recurring"
-                class="text-xs text-amber-500 capitalize"
-              >
-                {{ item.reminder?.recurrenceRule }}
-              </span>
-              <span
-                v-if="item.type === 'task' && item.task"
-                class="text-xs font-medium capitalize"
-                :class="priorityColor(item.task.priority)"
-              >
-                {{ item.task.priority }}
-              </span>
-              <span
-                v-if="item.type === 'reminder' && item.reminder"
-                class="text-xs text-gray-400"
-              >
-                {{ new Date(item.reminder.remindAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) }}
-              </span>
-            </div>
-          </div>
-        </button>
-      </div>
-      <p v-else class="text-xs text-gray-400 mb-6">No items scheduled</p>
-
-      <USeparator class="my-4" />
-
-      <!-- Upcoming -->
-      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-        Upcoming
-      </h2>
-      <div v-if="upcomingItems.length" class="flex flex-col gap-1">
-        <button
-          v-for="item in upcomingItems"
-          :key="item.id"
-          class="flex items-start gap-3 py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left w-full"
-          @click="selectedDate = item.date; openEditItem(item)"
-        >
-          <UIcon
-            :name="item.type === 'task' ? 'heroicons:check-circle' : 'heroicons:bell'"
-            class="size-4 mt-0.5 shrink-0"
-            :class="item.type === 'task' ? 'text-primary-500' : 'text-amber-500'"
-          />
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
-              {{ item.title }}
-            </p>
-            <p class="text-xs text-gray-400">
-              {{ formatDisplayDate(item.date) }}
-            </p>
-          </div>
-        </button>
-      </div>
-      <p v-else class="text-xs text-gray-400">No upcoming items</p>
     </template>
 
     <template #modal_content>

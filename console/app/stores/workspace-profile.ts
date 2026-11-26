@@ -1,7 +1,4 @@
-import type {
-  UpdateUserProfile,
-  UserProfile,
-} from "@daily/core";
+import type { UpdateUserProfile, UserProfile } from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 
@@ -22,9 +19,7 @@ export const useUserPreferenceStore = defineStore("user_profile_store", {
     async fetchPreference() {
       this.loading = true;
       try {
-        this.preference = await invoke<UserProfile>(
-          "get_user_profile",
-        );
+        this.preference = await invoke<UserProfile>("get_user_profile");
       } catch (error) {
         console.error("[preferences] failed to fetch", error);
       } finally {
@@ -38,17 +33,13 @@ export const useUserPreferenceStore = defineStore("user_profile_store", {
       if (!this.preference) {
         await this.fetchPreference();
       }
-      const updated = await invoke<UserProfile>(
-        "update_user_profile",
-        {
-          identifier: this.preference!.identifier,
-          profile: payload,
-        },
-      );
+      const updated = await invoke<UserProfile>("update_user_profile", {
+        identifier: this.preference!.identifier,
+        profile: payload,
+      });
       this.preference = updated;
       return updated;
     },
-
   },
   persist: true,
 });

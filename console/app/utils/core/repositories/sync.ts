@@ -60,10 +60,7 @@ export class SyncRepository extends BaseRepository {
       [workspaceIdentifier],
     );
     for (const item of items) {
-      const payload = await this.payload(
-        item.tableName,
-        item.recordIdentifier,
-      );
+      const payload = await this.payload(item.tableName, item.recordIdentifier);
       if (payload) {
         item.payload = payload;
       } else if (item.operation === "DELETE") {
@@ -267,8 +264,8 @@ export class SyncRepository extends BaseRepository {
         identifier: change.recordIdentifier,
         deleted_at: timestamp,
         updated_at:
-          (change.payload as Record<string, unknown> | undefined)
-            ?.updated_at ?? timestamp,
+          (change.payload as Record<string, unknown> | undefined)?.updated_at ??
+          timestamp,
       };
       if (!isWorkspace) payload.workspace_identifier = workspaceIdentifier;
 
@@ -393,9 +390,7 @@ export class SyncRepository extends BaseRepository {
     }
 
     const deletedAt = String(payload.deleted_at);
-    const owner = String(
-      payload.workspace_identifier ?? workspaceIdentifier,
-    );
+    const owner = String(payload.workspace_identifier ?? workspaceIdentifier);
     const updated = await this.rows<{ identifier: string }>(
       `UPDATE recycle_bin
        SET payload = $1, deleted_at = $2, workspace_identifier = $3

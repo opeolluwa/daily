@@ -65,7 +65,7 @@ const workspaceItems = computed(() => [
       class="hidden md:flex"
     >
       <button
-        class="inline-flex items-center gap-2 px-2.5 py-1.5 hover:bg-primary-100/30 dark:hover:bg-gray-800 transition-colors group capitalize"
+        class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-primary-100/30 dark:hover:bg-gray-800 transition-colors group capitalize focus:outline-none"
       >
         <UIcon
           name="heroicons:briefcase"
