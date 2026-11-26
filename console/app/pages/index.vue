@@ -49,8 +49,6 @@ const greeting = computed(() => {
   if (h < 17) return "Good afternoon";
   return "Good evening";
 });
-
-
 </script>
 
 <template>
