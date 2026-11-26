@@ -38,7 +38,7 @@ watch(
       handle: 'cursor-ew-resize',
     }"
   >
-    <NavigationSideNavContent
+    <NavigationContent
       :collapsed="sidebarStore.collapsed"
       :show-user-card="false"
     />
