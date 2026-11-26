@@ -92,6 +92,5 @@ onUnmounted(() => clearSearch());
         />
       </div>
     </template>
-
   </NuxtLayout>
 </template>

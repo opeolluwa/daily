@@ -150,7 +150,6 @@ async function handleCreate(payload: {
       </div>
     </template>
 
-
     <template #modal_content>
       <BookmarkAddModal
         v-model:open="showAddModal"

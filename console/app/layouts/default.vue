@@ -11,7 +11,6 @@ const noPaddingPatterns = [/^\/whiteboard\/[^/]+$/];
 const isNoPaddingNeededView = computed(() =>
   noPaddingPatterns.some((pattern) => pattern.test(route.path)),
 );
-
 </script>
 
 <template>
@@ -61,7 +60,11 @@ const isNoPaddingNeededView = computed(() =>
               size="sm"
               color="neutral"
               variant="ghost"
-              :icon="sidebarStore.collapsed ? 'heroicons:chevron-double-right' : 'heroicons:chevron-double-left'"
+              :icon="
+                sidebarStore.collapsed
+                  ? 'heroicons:chevron-double-right'
+                  : 'heroicons:chevron-double-left'
+              "
               aria-label="Toggle sidebar"
               @click="sidebarStore.collapsed = !sidebarStore.collapsed"
             />

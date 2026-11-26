@@ -1,6 +1,5 @@
 use kernel::{
-    adapters::backup_settings::UpdateBackupSettings,
-    entities::backup_settings,
+    adapters::backup_settings::UpdateBackupSettings, entities::backup_settings,
     repositories::backup_settings::BackupSettingsRepositoryExt,
 };
 use tauri::State;

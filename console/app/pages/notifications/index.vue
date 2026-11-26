@@ -219,6 +219,5 @@ function relativeTime(iso: string) {
         </RyderCard>
       </div>
     </template>
-
   </NuxtLayout>
 </template>

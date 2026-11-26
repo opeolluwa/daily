@@ -56,7 +56,7 @@ async function handleDelete(filename: string) {
         multiple
         class="hidden"
         @change="handleFileChange"
-      />
+      >
       <!-- Loading skeleton -->
       <div v-if="moodboardStore.loading" class="columns-2 gap-3 space-y-3">
         <div
@@ -90,7 +90,7 @@ async function handleDelete(filename: string) {
               :src="image.src"
               :alt="image.title"
               class="w-full object-cover"
-            />
+            >
             <div
               class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end justify-between"
             >
@@ -111,6 +111,5 @@ async function handleDelete(filename: string) {
         </RyderCard>
       </div>
     </template>
-
   </NuxtLayout>
 </template>

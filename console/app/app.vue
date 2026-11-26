@@ -62,7 +62,6 @@ onMounted(async () => {
     <WorkspaceUserSetupModal v-if="setupRequired" />
     <WorkspaceSetupModal v-if="workspaceSetupRequired" />
 
-
     <Transition
       enter-active-class="transition-opacity duration-200"
       leave-active-class="transition-opacity duration-300"

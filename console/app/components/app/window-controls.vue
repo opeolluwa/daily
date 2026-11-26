@@ -94,9 +94,9 @@ const userMenuItems = computed(() => [
           @click="() => navigateTo('/search')"
         />
       </UTooltip>
-     <UTooltip text="toggle theme">
-          <UColorModeButton size="sm" />
-     </UTooltip>
+      <UTooltip text="toggle theme">
+        <UColorModeButton size="sm" />
+      </UTooltip>
       <UTooltip text="Notifications">
         <UButton
           size="sm"
@@ -143,7 +143,11 @@ const userMenuItems = computed(() => [
     </div>
 
     <!-- Windows controls (non-macOS) -->
-    <div v-if="!isMacOS" class="flex items-center shrink-0" :class="{ 'ml-auto': isAuthPage }">
+    <div
+      v-if="!isMacOS"
+      class="flex items-center shrink-0"
+      :class="{ 'ml-auto': isAuthPage }"
+    >
       <button
         class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
         aria-label="Minimize"

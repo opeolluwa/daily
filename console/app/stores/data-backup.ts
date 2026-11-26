@@ -31,13 +31,10 @@ export const useDataBackupStore = defineStore("data_backup_store", {
       if (!this.settings) await this.fetchSettings();
       if (!this.settings) return;
 
-      this.settings = await invoke<BackupSettings>(
-        "update_backup_settings",
-        {
-          identifier: this.settings.identifier,
-          settings: payload,
-        },
-      );
+      this.settings = await invoke<BackupSettings>("update_backup_settings", {
+        identifier: this.settings.identifier,
+        settings: payload,
+      });
     },
   },
 });

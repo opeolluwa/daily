@@ -85,10 +85,20 @@ function handleCancel() {
           </h1>
         </div>
 
-        <div v-if="!snippet" class="flex flex-col items-center justify-center py-20 text-center">
-          <UIcon name="heroicons:code-bracket" class="size-7 text-gray-400 mb-3" />
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Snippet not found</p>
-          <UButton size="sm" variant="outline" @click="router.push('/snippets')">Back to snippets</UButton>
+        <div
+          v-if="!snippet"
+          class="flex flex-col items-center justify-center py-20 text-center"
+        >
+          <UIcon
+            name="heroicons:code-bracket"
+            class="size-7 text-gray-400 mb-3"
+          />
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Snippet not found
+          </p>
+          <UButton size="sm" variant="outline" @click="router.push('/snippets')"
+            >Back to snippets</UButton
+          >
         </div>
 
         <form v-else class="flex flex-col gap-4" @submit.prevent="handleSubmit">
@@ -130,10 +140,20 @@ function handleCancel() {
           />
 
           <div class="flex justify-end gap-2 pt-2">
-            <UButton type="button" color="neutral" variant="ghost" :disabled="submitting" @click="handleCancel">
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              :disabled="submitting"
+              @click="handleCancel"
+            >
               Cancel
             </UButton>
-            <UButton type="submit" :loading="submitting" :disabled="!form.code.trim()">
+            <UButton
+              type="submit"
+              :loading="submitting"
+              :disabled="!form.code.trim()"
+            >
               Save
             </UButton>
           </div>

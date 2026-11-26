@@ -99,7 +99,6 @@ onBeforeRouteLeave(async () => {
         {{ error }}
       </p>
     </template>
-
   </NuxtLayout>
 </template>
 

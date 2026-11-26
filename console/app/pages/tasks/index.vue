@@ -117,11 +117,7 @@ onUnmounted(() => clearSearch());
         cta-icon="heroicons:plus"
         @cta="openCreate"
       />
-      <RyderFab
-        v-if="!isEmptyList"
-        aria-label="New Task"
-        @click="openCreate"
-      />
+      <RyderFab v-if="!isEmptyList" aria-label="New Task" @click="openCreate" />
       <div
         v-if="
           !taskStore.loading && taskStore.tasks.length > 0 && isListViewMode
@@ -201,7 +197,6 @@ onUnmounted(() => clearSearch());
         </template>
       </UTabs>
     </template>
-
 
     <template #modal_content>
       <TaskDialog v-model:open="dialogOpen" :task="editingTask" />

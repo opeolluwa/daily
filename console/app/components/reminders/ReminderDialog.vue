@@ -71,9 +71,7 @@ function formatTime(time: Time): string {
 function buildRemindAt(): string {
   const dateStr = toIsoDate(form.date);
   if (!dateStr) return "";
-  const timeStr = selectedTime.value
-    ? formatTime(selectedTime.value)
-    : "09:00";
+  const timeStr = selectedTime.value ? formatTime(selectedTime.value) : "09:00";
   return new Date(`${dateStr}T${timeStr}`).toISOString();
 }
 

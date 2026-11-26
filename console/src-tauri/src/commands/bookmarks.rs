@@ -6,7 +6,6 @@ use kernel::{
     repositories::workspace_manager::{DuplicateRecord, TransferRecord},
 };
 use tauri::State;
-
 use validator::Validate;
 
 use crate::{

@@ -28,11 +28,7 @@ impl MigrationTrait for Migration {
                             .text()
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(AccessTokens::ResourceType)
-                            .text()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(AccessTokens::ResourceType).text().not_null())
                     .col(
                         ColumnDef::new(AccessTokens::CreatedAt)
                             .timestamp_with_time_zone()

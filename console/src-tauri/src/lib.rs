@@ -3,9 +3,10 @@ mod commands;
 mod errors;
 mod secrets;
 mod state;
+
 use std::sync::Arc;
 
-use kernel::{adapters::notifications::CreateNotification, DataEngine};
+use kernel::{DataEngine, adapters::notifications::CreateNotification};
 use tauri::Listener;
 use tauri::Manager;
 

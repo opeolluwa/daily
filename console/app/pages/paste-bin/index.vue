@@ -164,6 +164,5 @@ onBeforeUnmount(() => {
 
       <PasteBinDialog v-model:open="showEditDialog" :paste="editingPaste" />
     </template>
-
   </NuxtLayout>
 </template>

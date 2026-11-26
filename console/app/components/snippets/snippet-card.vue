@@ -5,7 +5,6 @@ import "highlight.js/styles/github-dark.css"; // dark
 import { useWorkspacesStore } from "~/stores/workspaces";
 import { useSnippetStore } from "~/stores/snippets";
 
-
 const hlLanguageMap: Record<string, string> = {
   C: "c",
   "C++": "cpp",

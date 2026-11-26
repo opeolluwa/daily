@@ -208,7 +208,6 @@ onUnmounted(() => clearSearch());
       </div>
     </template>
 
-
     <template #modal_content>
       <ReminderDialog v-model:open="dialogOpen" :reminder="editingReminder" />
     </template>

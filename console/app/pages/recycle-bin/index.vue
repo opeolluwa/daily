@@ -303,6 +303,5 @@ onUnmounted(() => {
         @confirm="handlePurgeAll"
       />
     </template>
-
   </NuxtLayout>
 </template>

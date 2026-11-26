@@ -56,9 +56,7 @@ const items = computed(() => [
           <button
             class="relative w-10 h-6 rounded-full transition-colors"
             :class="
-              item.value
-                ? 'bg-primary-500'
-                : 'bg-gray-200 dark:bg-gray-600'
+              item.value ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-600'
             "
             @click="store.toggle(item.key)"
           >

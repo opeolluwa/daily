@@ -3,14 +3,13 @@ use std::sync::Arc;
 use kernel::{
     filestore::FileStoreEngine,
     repositories::{
-        backup_settings::BackupSettingsRepository,
-        bookmarks::BookmarkRepository, notes::NotesRepository,
-        notification_settings::NotificationSettingsRepository,
+        backup_settings::BackupSettingsRepository, bookmarks::BookmarkRepository,
+        notes::NotesRepository, notification_settings::NotificationSettingsRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
         recycle_bin::RecycleBinRepository, reminder::ReminderRepository,
         snippets::SnippetRepository, sync::SyncRepository, tasks::TaskRepository,
-        whiteboards::WhiteboardRepository, workspace::WorkspaceRepository,
-        user_profile::UserProfileRepository,
+        user_profile::UserProfileRepository, whiteboards::WhiteboardRepository,
+        workspace::WorkspaceRepository,
     },
     sea_orm::DatabaseConnection,
 };

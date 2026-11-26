@@ -36,7 +36,9 @@ const route = useRoute();
 const isMobile = useIsMobile();
 const authPagesPrefix = "/auth";
 const isAuthPage = computed(() => route.path.startsWith(authPagesPrefix));
-const hideTitlebar = computed(() => IS_WEB && isAuthPage.value && isMobile.value);
+const hideTitlebar = computed(
+  () => IS_WEB && isAuthPage.value && isMobile.value,
+);
 const parentPath = computed(() => {
   const segments = route.path.split("/").filter(Boolean);
   return segments.length > 1 ? `/${segments[0]}` : null;
@@ -78,7 +80,7 @@ const userMenuItems = computed(() => [
   ],
 ]);
 
-const search = computed<string | number  | undefined>({
+const search = computed<string | number | undefined>({
   get: () => searchQuery.value,
   set: (value) => {
     const next = value == null ? "" : String(value);
@@ -114,7 +116,6 @@ function handleSearchClose() {
   mobileSearchOpen.value = false;
   clearSearch();
 }
-
 
 function onSearchKeydown(event: KeyboardEvent) {
   if (event.key === "Escape") {
@@ -199,10 +200,8 @@ defineShortcuts(shortcuts);
       v-if="!isAuthPage"
       ref="searchContainerRef"
       data-tour="search"
-      class="relative min-w-0 items-center md:mx-auto md:max-w-sm "
-      :class="
-        mobileSearchOpen ? 'flex flex-1' : 'hidden md:flex md:flex-1'
-      "
+      class="relative min-w-0 items-center md:mx-auto md:max-w-sm"
+      :class="mobileSearchOpen ? 'flex flex-1' : 'hidden md:flex md:flex-1'"
     >
       <UInput
         v-model="search"
@@ -274,10 +273,7 @@ defineShortcuts(shortcuts);
         </UTooltip>
       </span>
 
-      <div
-        v-if="!isAuthPage"
-        class="items-center gap-0.5 flex"
-      >
+      <div v-if="!isAuthPage" class="items-center gap-0.5 flex">
         <UDropdownMenu
           :items="userMenuItems"
           :ui="{

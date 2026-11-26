@@ -49,7 +49,6 @@ function isActive(path: string): boolean {
 function onNavigate() {
   emit("navigate");
 }
-
 </script>
 
 <template>

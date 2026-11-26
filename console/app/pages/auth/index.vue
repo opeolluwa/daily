@@ -88,7 +88,9 @@ onMounted(() => {
     </div>
 
     <template #below-card>
-      <div class="flex flex-col items-center gap-2 mt-4 max-md:mt-auto max-md:pb-8">
+      <div
+        class="flex flex-col items-center gap-2 mt-4 max-md:mt-auto max-md:pb-8"
+      >
         <NuxtLink
           type="link"
           color="neutral"

@@ -1,6 +1,7 @@
 import { BaseRepository } from "../base";
 
-export type BackupMode = "local_only" | "cloud_only" | "local_first" | "cloud_first";
+export type BackupMode =
+  "local_only" | "cloud_only" | "local_first" | "cloud_first";
 
 export interface BackupSettings {
   identifier: string;

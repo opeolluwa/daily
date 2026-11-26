@@ -243,7 +243,6 @@ onMounted(async () => {
         </UModal>
       </template>
     </template>
-
   </NuxtLayout>
 </template>
 

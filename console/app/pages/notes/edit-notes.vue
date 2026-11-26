@@ -146,6 +146,5 @@ onMounted(async () => {
         </div>
       </div>
     </template>
-
   </NuxtLayout>
 </template>
