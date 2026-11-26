@@ -1,23 +1,121 @@
 <script setup lang="ts">
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform } from "@tauri-apps/plugin-os";
+import { useAuthStore } from "~/stores/auth";
+import { useUserPreferenceStore } from "~/stores/workspace-profile";
 
 const appWindow = getCurrentWindow();
 const isMacOS = platform().toLowerCase() === "macos";
+const router = useRouter();
+const authStore = useAuthStore();
+const preferenceStore = useUserPreferenceStore();
+const route = useRoute();
+const isAuthPage = computed(() => route.path.startsWith("/auth"));
+
+const userMenuItems = computed(() => [
+  [
+    {
+      label: "Profile",
+      icon: "i-lucide-user",
+      onSelect: () => navigateTo("/settings?section=profile"),
+    },
+    {
+      label: "Workspaces",
+      icon: "heroicons:briefcase",
+      onSelect: () => navigateTo("/settings?section=workspaces"),
+    },
+  ],
+  [
+    {
+      label: authStore.isGuest ? "Exit" : "Logout",
+      icon: "heroicons:arrow-right-start-on-rectangle",
+      class: "text-red-500 dark:text-red-400",
+      onSelect: () => {
+        authStore.clearSession();
+        authStore.exitGuestMode();
+        navigateTo("/auth/login");
+      },
+    },
+  ],
+]);
 </script>
 
 <template>
   <div
-    class="fixed top-0 left-0 right-0 h-8 z-9999 flex items-center px-4 rounded-t-2xl"
+    class="fixed top-0 left-0 right-0 h-10 z-[9999] flex items-center px-4 rounded-t-2xl"
     data-tauri-drag-region
   >
+    <!-- Left: traffic lights + nav -->
     <div v-if="isMacOS" class="traffic-lights shrink-0">
       <span class="btn close" @click="appWindow.close()" />
       <span class="btn minimize" @click="appWindow.minimize()" />
       <span class="btn maximize" @click="appWindow.toggleMaximize()" />
     </div>
 
-    <div v-else class="flex items-center shrink-0 ml-auto">
+    <div class="inline-flex items-center shrink-0 ml-1">
+      <UButton
+        size="sm"
+        color="neutral"
+        variant="ghost"
+        icon="heroicons:chevron-left"
+        aria-label="Go back"
+        @click="router.back()"
+      />
+      <UButton
+        size="sm"
+        color="neutral"
+        variant="ghost"
+        icon="heroicons:chevron-right"
+        aria-label="Go forward"
+        @click="router.forward()"
+      />
+    </div>
+
+    <!-- Right: notifications + avatar -->
+    <div v-if="!isAuthPage" class="flex items-center gap-0.5 ml-auto">
+      <UTooltip text="Notifications">
+        <UButton
+          size="sm"
+          color="neutral"
+          variant="ghost"
+          icon="heroicons:bell"
+          aria-label="Notifications"
+          @click="() => navigateTo('/notifications')"
+        />
+      </UTooltip>
+
+      <UDropdownMenu
+        :items="userMenuItems"
+        :ui="{
+          content:
+            'min-w-48 rounded-lg shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-900 py-1',
+          item: 'rounded-md mx-0.5 px-2.5 py-1.5 gap-2 text-[13px] transition-colors duration-100',
+          separator: 'my-0.5 mx-1.5',
+        }"
+      >
+        <UAvatar
+          :src="preferenceStore.preference?.profilePicture || undefined"
+          icon="i-lucide-user"
+          size="sm"
+          class="cursor-pointer"
+        />
+
+        <template #header>
+          <div
+            class="px-2.5 py-2 border-b border-gray-100 dark:border-gray-700"
+          >
+            <p
+              class="text-[13px] font-medium text-gray-700 dark:text-gray-200 truncate"
+            >
+              {{ preferenceStore.fullName || "Account" }}
+            </p>
+          </div>
+        </template>
+      </UDropdownMenu>
+    </div>
+
+    <!-- Windows controls (non-macOS) -->
+    <div v-if="!isMacOS" class="flex items-center shrink-0" :class="{ 'ml-auto': isAuthPage }">
       <button
         class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
         aria-label="Minimize"

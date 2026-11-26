@@ -451,7 +451,7 @@ h6.notes_heading {
 } */
 
 #wild_almonds_app {
-  @apply mt-10 overflow-hidden bg-gray-50 dark:bg-app-dark-800;
+  @apply mt-11 overflow-hidden bg-gray-50 dark:bg-app-dark-800;
 }
 
 .is-tauri #wild_almonds_app {
