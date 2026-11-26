@@ -79,9 +79,7 @@ const today = computed(() =>
             >
               {{ greeting }}, <span class="capitalize">{{ userName }}</span>
             </h1>
-            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-              Your personal assistant — ready when you are
-            </p>
+         
           </div>
         </div>
 
@@ -99,13 +97,15 @@ const today = computed(() =>
             }"
           >
             <template #leading>
-              <UButton
-                color="neutral"
-                icon="heroicons:sparkles-solid"
-                variant="link"
-                class="text-primary pl-2 cursor-pointer font-medium"
-                size="lg"
-              />
+            <UTooltip text="attach files">
+                <UButton
+                  color="neutral"
+                  icon="heroicons:plus-solid"
+                  variant="link"
+                  class=" pl-2 cursor-pointer font-bold"
+                  size="lg"
+                />
+            </UTooltip>
             </template>
 
             <template #trailing>

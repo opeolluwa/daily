@@ -36,14 +36,6 @@ async function submit() {
 
 <template>
   <div class="flex flex-1 flex-col items-center justify-center relative overflow-hidden">
-    <!-- Decorative blobs -->
-    <div
-      class="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-primary-300/20 dark:bg-primary-500/10 blur-3xl"
-    />
-    <div
-      class="pointer-events-none absolute -bottom-24 -right-24 size-96 rounded-full bg-violet-300/20 dark:bg-violet-500/10 blur-3xl"
-    />
-
     <!-- Card -->
     <div
       class="relative w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg px-10 py-10 text-center"
@@ -86,7 +78,6 @@ async function submit() {
           block
           size="md"
           class="w-full"
-          icon="heroicons:lock-closed"
           :loading="loading"
           :disabled="!password || loading"
         >
