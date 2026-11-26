@@ -7,7 +7,6 @@ import type { Editor } from "@domternal/core";
 import {
   Extension,
   StarterKit,
-  // BubbleMenu,
   BaseKeymap,
   Superscript,
   Subscript,
@@ -264,7 +263,7 @@ function isLikelyMarkdown(text: string): boolean {
       :on-destroy="handleDestroy"
     >
       <Domternal.Toolbar />
-      <Domternal.Content />
+      <Domternal.Content class="mt-4" />
       <Domternal.BubbleMenu />
     </Domternal>
   </div>
