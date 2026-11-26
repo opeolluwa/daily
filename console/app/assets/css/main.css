@@ -442,16 +442,16 @@ h6.notes_heading {
 
 /* ── Layout (formerly desktop.css) ── */
 
-.titlebar {
-  @apply fixed top-0 left-0 right-0 h-14 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 items-center p-2;
-}
+/* .titlebar {
+  @apply fixed top-11 left-3 right-3 h-14 rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 items-center p-2;
+} */
 
-.is-tauri .titlebar {
-  @apply rounded-t-2xl;
-}
+/* .is-tauri .titlebar {
+  @apply rounded-3xl;
+} */
 
 #wild_almonds_app {
-  @apply mt-14 overflow-hidden bg-gray-50 dark:bg-app-dark-800;
+  @apply mt-10 overflow-hidden bg-gray-50 dark:bg-app-dark-800;
 }
 
 .is-tauri #wild_almonds_app {

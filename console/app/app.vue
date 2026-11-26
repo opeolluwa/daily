@@ -59,6 +59,12 @@ onMounted(async () => {
 
 <template>
   <UApp :toaster="{ progress: false, duration: 1500, position: 'top-right' }">
+    <!-- Background fill for Tauri transparent window -->
+    <div
+      v-if="!IS_WEB"
+      class="fixed inset-0 rounded-2xl bg-gray-50 dark:bg-app-dark-800"
+    />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -78,7 +84,10 @@ onMounted(async () => {
       <AppSplashScreen v-if="initializing || workspaceInitializing" />
     </Transition>
 
-     <AppTitlebar :authenticated="authenticated" /> 
+    <!-- Window controls (traffic lights / minimize-maximize-close) -->
+    <AppWindowControls v-if="!IS_WEB" />
+
+    <!-- <AppTitlebar :authenticated="authenticated" /> -->
 
     <!-- Masks the dark macOS window-edge hairline; keeps the OS shadow. -->
     <div

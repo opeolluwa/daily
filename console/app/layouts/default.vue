@@ -28,7 +28,7 @@ const isNoPaddingNeededView = computed(() =>
     :persistent="false"
   >
     <!-- Sidebar: icons-only strip when collapsed -->
-     <Navigation class="bg-white dark:bg-gray-900 my-3 mx-3 rounded-3xl" />
+     <Navigation class="bg-white dark:bg-gray-900 mb-4 mx-3 rounded-xl px-2" />
 
     <!-- Right column: header + main content -->
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">

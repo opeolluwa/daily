@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { platform } from "@tauri-apps/plugin-os";
 import { computed, useTemplateRef } from "vue";
 import { IS_WEB } from "~/env";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
@@ -21,12 +19,10 @@ const syncLabel = computed(() => {
 });
 
 const { searchQuery, isOpen } = useAppSearch();
-const appWindow = getCurrentWindow();
 const searchContainerRef = useTemplateRef<HTMLElement>("searchContainerRef");
 const globalSearchRef = useTemplateRef<{
   handleKeydown: (e: KeyboardEvent) => void;
 }>("globalSearchRef");
-const currentPlatform = platform();
 const { toggleMobileNav } = useMobileNav();
 const mobileSearchOpen = ref(false);
 
@@ -34,7 +30,6 @@ const colorMode = useColorMode();
 const themeLabel = computed(() =>
   colorMode.value === "dark" ? "Light mode" : "Dark mode",
 );
-const isMacOS = currentPlatform.toLowerCase() === "macos";
 
 const preferenceStore = useUserPreferenceStore();
 const route = useRoute();
@@ -120,10 +115,6 @@ function handleSearchClose() {
   clearSearch();
 }
 
-function resetSearch() {
-  clearSearch();
-  focusSearch();
-}
 
 function onSearchKeydown(event: KeyboardEvent) {
   if (event.key === "Escape") {
@@ -152,7 +143,6 @@ defineShortcuts(shortcuts);
     v-if="!hideTitlebar"
     class="titlebar flex items-center gap-1.5 px-2 h-10"
     data-tauri-drag-region
-    :class="{ 'rounded-t-2xl': !IS_WEB }"
   >
     <!-- mobile nav toggle -->
     <div v-if="!isAuthPage">
@@ -165,51 +155,6 @@ defineShortcuts(shortcuts);
         :aria-label="parentPath ? 'Go back' : 'Open menu'"
         @click="handleMobileNavClick"
       />
-    </div>
-
-    <!-- mac os controls-->
-    <div v-if="isMacOS && !IS_WEB" class="traffic-lights shrink-0">
-      <span class="btn close" @click="appWindow.close()" />
-      <span class="btn minimize" @click="appWindow.minimize()" />
-      <span class="btn maximize" @click="appWindow.toggleMaximize()" />
-    </div>
-
-    <!-- Windows controls -->
-    <div v-else-if="!isMacOS && IS_WEB" class="flex items-center shrink-0">
-      <UTooltip text="Minimize">
-        <UButton
-          :size="iconSize"
-          color="neutral"
-          variant="ghost"
-          icon="heroicons:minus"
-          aria-label="Minimize"
-          @click="appWindow.minimize()"
-        />
-      </UTooltip>
-
-      <!-- web control/mobile -->
-
-      <UTooltip text="Maximize">
-        <UButton
-          :size="iconSize"
-          color="neutral"
-          variant="ghost"
-          icon="lucide:maximize"
-          aria-label="Maximize"
-          @click="appWindow.maximize()"
-        />
-      </UTooltip>
-
-      <UTooltip text="Close">
-        <UButton
-          :size="iconSize"
-          color="neutral"
-          variant="ghost"
-          icon="heroicons:x-mark"
-          aria-label="Close"
-          @click="appWindow.close()"
-        />
-      </UTooltip>
     </div>
 
     <div class="inline-flex items-center shrink-0">
@@ -372,64 +317,5 @@ defineShortcuts(shortcuts);
   border: none;
   outline: none;
   box-shadow: none;
-}
-
-.traffic-lights {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-}
-
-.btn {
-  width: 11px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-  cursor: pointer;
-}
-
-/* Colors */
-.close {
-  background: #ff5f57;
-}
-
-.minimize {
-  background: #ffbd2e;
-}
-
-.maximize {
-  background: #28c840;
-}
-
-/* Optional hover icons */
-.traffic-lights:hover .btn::after {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 100%;
-  background-size: 8px;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.close:hover::after {
-  content: "✕";
-  font-size: 8px;
-  color: #4d0000;
-  text-align: center;
-}
-
-.minimize:hover::after {
-  content: "–";
-  font-size: 10px;
-  color: #664d00;
-  text-align: center;
-}
-
-.maximize:hover::after {
-  content: "+";
-  font-size: 10px;
-  color: #003300;
-  text-align: center;
 }
 </style>
