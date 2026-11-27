@@ -1,8 +1,7 @@
 <template>
   <div
     id="auth_layout"
-    class="min-h-screen bg-white md:bg-gray-50 w-full dark:bg-app-dark-800 flex flex-col items-center md:justify-center pt-16 md:pt-0 md:p-6 relative md:overflow-hidden"
-    :class="{ 'rounded-2xl': !IS_WEB }"
+    class="min-h-screen rounded-2xl bg-white md:bg-gray-50 w-full dark:bg-app-dark-800 flex flex-col items-center md:justify-center pt-16 md:pt-0 md:p-6 relative md:overflow-hidden"
   >
     <div
       class="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-primary-300/20 dark:bg-primary-500/10 blur-3xl hidden md:block"
@@ -28,10 +27,6 @@
     <slot name="below-card" />
   </div>
 </template>
-
-<script lang="ts" setup>
-import { IS_WEB } from "~/env";
-</script>
 
 <style lang="css">
 /*@reference "@/assets/css/main.css";*/

@@ -28,7 +28,6 @@ import { Details } from "@domternal/extension-details";
 import { CodeBlockLowlight } from "@domternal/extension-code-block-lowlight";
 import { createLowlight, all } from "lowlight";
 import { Table } from "@domternal/extension-table";
-import { Image } from "@domternal/extension-image";
 import {
   MathInline,
   MathBlock,
@@ -133,17 +132,6 @@ export const extensions = [
     linkOnPaste: true,
     defaultProtocol: "https",
   }),
-  Image.configure({
-    //TODO: replace with actual upload handler that uploads to server and returns URL
-    uploadHandler: async (file) => {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: form });
-      const { url } = await res.json();
-      return url;
-    },
-  }),
-
   Placeholder.configure({
     placeholder: ({ node }) => {
       if (node.type.name === "heading") return "Enter a heading...";

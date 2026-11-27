@@ -134,24 +134,12 @@ db-pull-server:
     just migrate-up-server
     just generate-server-entities
 
-# --- WASM build & PGlite migration export ---
+# --- Core ---
 
-# Export migration SQL to generated/pglite/migrations, then build the WASM bundle.
-#   just build-core          # dev profile (matches pkg/ checked into the repo)
-# just build-core release  # release profile
 [working-directory('core')]
-build-core profile='dev':
-    cargo run --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations postgres
-    wasm-pack build --target web --{{ profile }}
+build-core:
     cargo test
     node ../scripts/fix-ts-exports.mjs src/entities
-
-# Export PGlite migration SQL only (no WASM build).
-# This is what console/scripts/sync-core-schema.mjs runs if the generated
-# files are missing.
-[working-directory('core')]
-schema-export:
-    cargo run --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations postgres
 
 # --- Console ---
 
@@ -286,7 +274,6 @@ install-dependencies:
     cargo install cargo-group-imports
     cargo install sea-orm-cli@^2.0.0-rc
     cargo install seaography-cli@^2.0.0-rc
-    cargo install wasm-pack
 
 # --- Release ---
 

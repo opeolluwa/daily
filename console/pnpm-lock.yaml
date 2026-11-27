@@ -44,9 +44,6 @@ importers:
       '@drawvue/core':
         specifier: workspace:*
         version: link:packages/core
-      '@electric-sql/pglite':
-        specifier: ^0.5.17
-        version: 0.5.17
       '@excalidraw/common':
         specifier: 0.18.0-f0063e113
         version: 0.18.0-f0063e113
@@ -128,9 +125,6 @@ importers:
       highlight.js:
         specifier: ^11.12.0
         version: 11.12.0
-      idb-keyval:
-        specifier: ^6.3.0
-        version: 6.3.0
       katex:
         specifier: ^0.17.0
         version: 0.17.0
@@ -8276,7 +8270,8 @@ snapshots:
 
   '@dxup/unimport@0.1.2': {}
 
-  '@electric-sql/pglite@0.5.17': {}
+  '@electric-sql/pglite@0.5.17':
+    optional: true
 
   '@emnapi/core@2.0.0-beta.2':
     dependencies:
@@ -13373,7 +13368,8 @@ snapshots:
 
   human-signals@5.0.0: {}
 
-  idb-keyval@6.3.0: {}
+  idb-keyval@6.3.0:
+    optional: true
 
   identifier-regex@1.1.0:
     dependencies:

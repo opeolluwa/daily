@@ -36,10 +36,10 @@ sudo apt install -y \
 ## Development
 
 ```bash
-just watch almond     # frontend + Tauri (recommended)
-just watch frontend   # Nuxt dev server only
-just watch tauri      # Tauri console only
-just watch core     # watch the core crate
+just watch-console    # Nuxt dev server + Tauri (recommended)
+just watch-tauri      # Tauri only
+just watch-frontend   # Nuxt dev server only (used as the Tauri devUrl)
+just build-core       # core tests + TypeScript bindings
 ```
 
 ## Android

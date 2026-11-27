@@ -210,16 +210,8 @@ body {
   @apply fixed top-11 left-3 right-3 h-14 rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 items-center p-2;
 } */
 
-/* .is-tauri .titlebar {
-  @apply rounded-3xl;
-} */
-
 #wild_almonds_app {
-  @apply mt-11 overflow-hidden bg-gray-50 dark:bg-app-dark-800;
-}
-
-.is-tauri #wild_almonds_app {
-  @apply rounded-b-2xl;
+  @apply mt-11 overflow-hidden rounded-b-2xl bg-gray-50 dark:bg-app-dark-800;
 }
 
 #auth_layout form {

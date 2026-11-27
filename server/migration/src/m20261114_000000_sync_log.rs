@@ -63,7 +63,7 @@ impl MigrationTrait for Migration {
             .await?;
 
         // The kernel migration also installs queue triggers for the local
-        // SQLite/PGlite databases. The server does not consume that queue.
+        // SQLite databases. The server does not consume that queue.
         for table in SYNCABLE_TABLES {
             db.execute_unprepared(&format!(
                 "DROP TRIGGER IF EXISTS {table}_sync_trigger ON \"{table}\";"

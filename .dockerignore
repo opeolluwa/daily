@@ -5,12 +5,9 @@
 !Cargo.toml
 !Cargo.lock
 
-# Allow the two crates
+# Allow the Rust crates
 !server/**
 !core/**
-
-# Allow the console web app (docker/prod/Dockerfile.web)
-!console/**
 
 # But ignore their build artifacts
 server/target
@@ -18,23 +15,6 @@ server/migration/target
 **/target
 core/node_modules
 core/dist
-
-# Tauri desktop app (not used by any Docker build)
-console/src-tauri
-
-# Console build artifacts (regenerated inside the image)
-console/node_modules
-console/.nuxt
-console/.output
-console/.nitro
-console/.data
-console/.cache
-console/dist
-console/src-tauri/target
-console/app/assets/core
-
-# core wasm bundle (not consumed by the web build)
-core/pkg
 
 # Optional common ignores
 **/*.db
