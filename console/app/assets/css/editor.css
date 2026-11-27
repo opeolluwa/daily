@@ -30,6 +30,8 @@
 .notes-editor .dm-toolbar {
   --dm-toolbar-bg: transparent;
   --dm-button-size: 2.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .notes-editor.dm-theme-dark .dm-toolbar {
