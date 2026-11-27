@@ -102,6 +102,12 @@ watch(
 );
 
 watch(open, (val) => {
+  if (val && !props.task) {
+    resetForm();
+    if (props.initialDate) {
+      form.dueDate = fromIsoDate(props.initialDate);
+    }
+  }
   if (!val) resetForm();
 });
 

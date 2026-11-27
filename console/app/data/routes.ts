@@ -73,6 +73,12 @@ export const items: NavigationRoute[] = [
     icon: "ri:clipboard-line",
     activeIcon: "ri:clipboard-fill",
   },
+  {
+    path: "/assistant",
+    name: "Assistant",
+    icon: "ri:sparkling-line",
+    activeIcon: "ri:sparkling-fill",
+  },
 ];
 
 export const secondaryRoutes: Route[] = [

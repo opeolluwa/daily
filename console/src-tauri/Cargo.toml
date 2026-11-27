@@ -18,6 +18,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [dependencies]
 base64 = "0.22"
 chrono = { version = "0.4.43", features = ["serde"] }
+intelligence = { version = "0.1.0", path = "../../intelligence" }
 kernel = { version = "0.1.0", path = "../../core", features = ["pdf", "filestore"] }
 keyring = "4"
 log = "0.4"

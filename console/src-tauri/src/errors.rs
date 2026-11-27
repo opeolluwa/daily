@@ -8,6 +8,8 @@ pub enum AppError {
     Io(String),
     #[error("Credential store error: {0}")]
     Secrets(String),
+    #[error("Intelligence error: {0}")]
+    Intelligence(#[from] intelligence::IntelligenceError),
 }
 
 impl Serialize for AppError {

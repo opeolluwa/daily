@@ -200,6 +200,13 @@ pub async fn run() {
             commands::cloud_storage::disable_cloud_storage,
             commands::cloud_storage::clear_cloud_storage,
             commands::cloud_storage::test_cloud_storage,
+            commands::intelligence::intelligence_configure,
+            commands::intelligence::intelligence_health_check,
+            commands::intelligence::intelligence_list_models,
+            commands::intelligence::intelligence_chat,
+            commands::intelligence::intelligence_chat_stream,
+            commands::intelligence::intelligence_agent_chat_stream,
+            commands::intelligence::intelligence_get_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

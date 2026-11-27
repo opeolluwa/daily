@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use intelligence::IntelligenceClient;
 use kernel::{
     filestore::FileStoreEngine,
     repositories::{
@@ -35,6 +36,7 @@ pub struct AppState {
     pub workspace_repository: WorkspaceRepository,
     pub db: Arc<DatabaseConnection>,
     pub cloud_storage: Arc<RwLock<Option<FileStoreEngine>>>,
+    pub intelligence_client: Arc<RwLock<Option<IntelligenceClient>>>,
 }
 
 impl AppState {
@@ -73,6 +75,7 @@ impl AppState {
             user_profile_repository,
             db: conn,
             cloud_storage: Arc::new(RwLock::new(None)),
+            intelligence_client: Arc::new(RwLock::new(None)),
         }
     }
 }
