@@ -339,13 +339,6 @@ const UNSUPPORTED = new Set([
   "list_alarm_sounds",
   "play_alarm_sound",
   "stop_alarm_sound",
-  "intelligence_configure",
-  "intelligence_health_check",
-  "intelligence_list_models",
-  "intelligence_chat",
-  "intelligence_chat_stream",
-  "intelligence_agent_chat_stream",
-  "intelligence_get_config",
 ]);
 
 async function dispatchBrowser(
