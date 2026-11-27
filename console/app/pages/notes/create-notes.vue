@@ -6,12 +6,13 @@ definePageMeta({ layout: false, name: "New note", keepalive: true });
 
 const noteStore = useNoteStore();
 
-const { content, error, notesEditor, title, handleSave, reset } =
-  useNoteEditor({
+const { content, error, notesEditor, title, handleSave, reset } = useNoteEditor(
+  {
     saveFn: () =>
       noteStore.createNote({ title: title.value, content: content.value }),
     canSave: () => !!stripHtml(content.value).trim(),
-  });
+  },
+);
 
 onActivated(() => {
   reset();

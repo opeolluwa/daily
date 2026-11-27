@@ -216,8 +216,7 @@ onMounted(async () => {
               Are you sure you want to delete
               <span class="font-medium text-gray-800 dark:text-gray-200">{{
                 snippet.title ?? "this snippet"
-              }}</span
-              >? This action cannot be undone.
+              }}</span>? This action cannot be undone.
             </p>
           </template>
           <template #footer>

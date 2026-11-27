@@ -1,6 +1,4 @@
-export function getDmVars(
-  isDark: boolean,
-): Record<string, string | number> {
+export function getDmVars(isDark: boolean): Record<string, string | number> {
   return isDark
     ? {
         "--dm-primary": "var(--color-primary-400)",

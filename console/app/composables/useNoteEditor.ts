@@ -7,7 +7,11 @@ interface UseNoteEditorOptions {
   source?: Ref<{ identifier: string; content: string } | null>;
 }
 
-export function useNoteEditor({ saveFn, canSave, source }: UseNoteEditorOptions) {
+export function useNoteEditor({
+  saveFn,
+  canSave,
+  source,
+}: UseNoteEditorOptions) {
   const router = useRouter();
 
   const content = ref("");

@@ -11,22 +11,21 @@ const original = computed(
   () => noteStore.notes.find((n) => n.identifier === id.value) ?? null,
 );
 
-const { content, error, notesEditor, title, handleSave } =
-  useNoteEditor({
-    saveFn: () =>
-      noteStore.updateNote(original.value!.identifier, {
-        title: title.value,
-        content: content.value,
-      }),
-    canSave: () => {
-      if (!original.value) return false;
-      return (
-        title.value !== original.value.title ||
-        content.value !== original.value.content
-      );
-    },
-    source: original,
-  });
+const { content, error, notesEditor, title, handleSave } = useNoteEditor({
+  saveFn: () =>
+    noteStore.updateNote(original.value!.identifier, {
+      title: title.value,
+      content: content.value,
+    }),
+  canSave: () => {
+    if (!original.value) return false;
+    return (
+      title.value !== original.value.title ||
+      content.value !== original.value.content
+    );
+  },
+  source: original,
+});
 
 onMounted(async () => {
   if (noteStore.notes.length === 0) {
