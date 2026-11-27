@@ -18,6 +18,7 @@ watch(
       sidebarStore.collapsed = true;
     }
   },
+  { immediate: true },
 );
 </script>
 

@@ -32,18 +32,14 @@ const pendingCount = computed(
   <section
     class="flex min-h-0 flex-col rounded-xl border p-3 transition-colors"
     :class="
-      isToday
-        ? 'border-primary-300 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-950/20'
-        : 'border-gray-200 bg-gray-50/70 dark:border-gray-800 dark:bg-gray-900/40'
+      'border-gray-200 bg-gray-50/70 dark:border-gray-800 dark:bg-gray-900/40'
     "
   >
     <header class="mb-3 flex items-center gap-2 px-1">
       <h3
         class="text-sm font-semibold"
         :class="
-          isToday
-            ? 'text-primary-600 dark:text-primary-400'
-            : 'text-gray-700 dark:text-gray-200'
+          'text-gray-700 dark:text-gray-200'
         "
       >
         {{ dayLabel }}
