@@ -1,29 +1,56 @@
-use candle_core::{Device, Result, Tensor};
-
-struct Model {
-    first: Tensor,
-    second: Tensor,
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use ollama_rs::{
+    generation::completion::request::GenerationRequest,
+    Ollama,
+};
+ 
+#[derive(Serialize)]
+struct GenerateRequest {
+    model: String,
+    prompt: String,
+    stream: bool,
 }
-
-impl Model {
-    fn forward(&self, image: &Tensor) -> Result<Tensor> {
-        let x = image.matmul(&self.first)?;
-        let x = x.relu()?;
-        x.matmul(&self.second)
-    }
+ 
+#[derive(Deserialize)]
+struct GenerateResponse {
+    response: String,
+    done: bool,
 }
-
-fn main() -> Result<()> {
-    // Use Device::new_cuda(0)?; to use the GPU.
-    let device = Device::Cpu;
-
-    let first = Tensor::randn(0f32, 1.0, (784, 100), &device)?;
-    let second = Tensor::randn(0f32, 1.0, (100, 10), &device)?;
-    let model = Model { first, second };
-
-    let dummy_image = Tensor::randn(0f32, 1.0, (1, 784), &device)?;
-
-    let digit = model.forward(&dummy_image)?;
-    println!("Digit {digit:?} digit");
+ 
+async fn ask_ollama(prompt: &str) -> Result<String, reqwest::Error> {
+    let client = Client::new();
+ 
+    let request = GenerateRequest {
+        model: "phi4".to_string(),
+        prompt: prompt.to_string(),
+        stream: false,  // Get complete response at once
+    };
+ 
+    let resp: GenerateResponse = client
+        .post("http://localhost:11434/api/generate")
+        .json(&request)
+        .send()
+        .await?
+        .json()
+        .await?;
+ 
+    Ok(resp.response)
+}
+ 
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Connect to local Ollama (default: http://localhost:11434)
+    let ollama = Ollama::default();
+ 
+    // Basic generation
+    let res = ollama
+        .generate(GenerationRequest::new(
+            "qwen2.5:7b".into(),
+            "Why is Rust's type system particularly effective for systems programming?".to_string(),
+        ))
+        .await?;
+ 
+    println!("{}", res.response);
     Ok(())
 }
