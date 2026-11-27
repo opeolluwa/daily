@@ -2,7 +2,12 @@
 import { useSidebarStore } from "~/stores/sidebar";
 
 const sidebarStore = useSidebarStore();
-const collapsed = ref(false);
+const collapsed = computed({
+  get: () => sidebarStore.collapsed,
+  set: (v: boolean) => {
+    sidebarStore.collapsed = v;
+  },
+});
 </script>
 
 <template>
@@ -32,7 +37,7 @@ const collapsed = ref(false);
     }"
   >
     <NavigationContent
-      :collapsed="sidebarStore.collapsed"
+      :collapsed="collapsed"
       :show-user-card="false"
     />
   </UDashboardSidebar>

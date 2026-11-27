@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { CalendarDate, Time } from "@internationalized/date";
+import { useTaskCategoryStore } from "~/stores/task-categories";
 
 definePageMeta({ layout: false, name: "Edit Task" });
 
 const route = useRoute();
 const router = useRouter();
 const taskStore = useTaskStore();
+const categoryStore = useTaskCategoryStore();
 const toast = useToast();
+const categoryManagerOpen = ref(false);
 
 const id = computed(() => route.query.id as string | undefined);
 const task = computed(
@@ -19,6 +22,7 @@ const form = reactive({
   dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
   done: false,
+  categoryIdentifier: null as string | null,
 });
 const selectedTime = shallowRef<Time | undefined>();
 const submitting = ref(false);
@@ -48,6 +52,8 @@ function hydrate() {
   form.dueDate = fromIsoDate(task.value.dueDate);
   form.priority = task.value.priority;
   form.done = task.value.done;
+  form.categoryIdentifier =
+    (task.value as Record<string, unknown>).categoryIdentifier as string | null ?? null;
   if (task.value.dueTime) {
     const [h, m] = task.value.dueTime.split(":").map(Number);
     selectedTime.value = new Time(h, m);
@@ -60,6 +66,7 @@ watch(task, hydrate, { immediate: true });
 
 onMounted(async () => {
   if (taskStore.tasks.length === 0) await taskStore.fetchTasks();
+  if (categoryStore.categories.length === 0) await categoryStore.fetchCategories();
   hydrate();
 });
 
@@ -70,7 +77,8 @@ async function handleSubmit() {
     await taskStore.updateTask(task.value.identifier, {
       title: form.title.trim(),
       description: form.description.trim() || undefined,
-    });
+      categoryIdentifier: form.categoryIdentifier ?? undefined,
+    } as Record<string, unknown>);
     const current = taskStore.tasks.find(
       (t) => t.identifier === task.value!.identifier,
     );
@@ -206,6 +214,22 @@ async function handleDelete() {
               </button>
             </div>
           </div>
+
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Category</label>
+              <button type="button" class="text-[10px] text-primary-500 hover:text-primary-600 dark:text-primary-400" @click="categoryManagerOpen = true">Manage</button>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition-colors" :class="!form.categoryIdentifier ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800'" @click="form.categoryIdentifier = null">None</button>
+              <button v-for="cat in categoryStore.categories" :key="cat.identifier" type="button" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition-colors" :class="form.categoryIdentifier === cat.identifier ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800'" @click="form.categoryIdentifier = cat.identifier">
+                <span class="size-2 rounded-full" :style="{ backgroundColor: cat.color }" />
+                {{ cat.name }}
+              </button>
+            </div>
+          </div>
+
+          <TaskCategoryManager v-model:open="categoryManagerOpen" />
 
           <button
             type="button"

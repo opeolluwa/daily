@@ -22,6 +22,8 @@ import type {
   UpdateUserProfile,
   UpdateWhiteboard,
   UpdateWorkspace,
+  CreateTaskCategoryPayload,
+  UpdateTaskCategoryPayload,
 } from "./core";
 
 type InvokeArgs = Record<string, unknown>;
@@ -106,6 +108,21 @@ const COMMANDS: Record<string, CommandHandler> = {
     api.notes.delete(asString(a, "identifier"), asMeta(a)),
   duplicate_note: (api, a) => duplicate(api, a, "notes"),
   transfer_note: (api, a) => transfer(api, a, "notes"),
+
+  get_all_task_categories: (api, a) => api.taskCategories.find_all(asMeta(a)),
+  create_task_category: (api, a) =>
+    api.taskCategories.create(
+      a.category as CreateTaskCategoryPayload,
+      asMeta(a),
+    ),
+  update_task_category: (api, a) =>
+    api.taskCategories.update(
+      asString(a, "identifier"),
+      a.category as UpdateTaskCategoryPayload,
+      asMeta(a),
+    ),
+  delete_task_category: (api, a) =>
+    api.taskCategories.delete(asString(a, "identifier"), asMeta(a)),
 
   get_all_tasks: (api, a) => api.tasks.find_all(asMeta(a)),
   create_task: (api, a) =>

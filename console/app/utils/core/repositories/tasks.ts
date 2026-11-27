@@ -10,6 +10,7 @@ const COLUMNS = [
   "priority",
   "done",
   "status",
+  "category_identifier",
   "workspace_identifier",
   "created_at",
   "updated_at",
@@ -21,8 +22,8 @@ export class TaskRepository extends BaseRepository {
     const now = this.now();
     return this.mustRow<Task>(
       `INSERT INTO task
-         (identifier, title, description, due_date, priority, done, created_at, updated_at, workspace_identifier)
-       VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)
+         (identifier, title, description, due_date, priority, done, category_identifier, created_at, updated_at, workspace_identifier)
+       VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8, $9)
        RETURNING *`,
       [
         this.newId(),
@@ -30,6 +31,7 @@ export class TaskRepository extends BaseRepository {
         payload.description ?? null,
         payload.dueDate ?? null,
         payload.priority,
+        (payload as Record<string, unknown>).categoryIdentifier ?? null,
         now,
         now,
         m.workspaceIdentifier,
@@ -125,6 +127,11 @@ export class TaskRepository extends BaseRepository {
     if (payload.status !== undefined && payload.status !== null) {
       sets.push(`status = $${idx++}::task_status`);
       params.push(payload.status);
+    }
+    const p = payload as Record<string, unknown>;
+    if (p.categoryIdentifier !== undefined) {
+      sets.push(`category_identifier = $${idx++}`);
+      params.push(p.categoryIdentifier);
     }
 
     const row = await this.row<Task>(

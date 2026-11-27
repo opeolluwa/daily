@@ -7,7 +7,9 @@ use kernel::{
         notes::NotesRepository, notification_settings::NotificationSettingsRepository,
         notifications::NotificationRepository, paste_bins::PasteBinRepository, prelude::*,
         recycle_bin::RecycleBinRepository, reminder::ReminderRepository,
-        snippets::SnippetRepository, sync::SyncRepository, tasks::TaskRepository,
+        snippets::SnippetRepository, sync::SyncRepository,
+        task_categories::{TaskCategoryRepository, TaskCategoryRepositoryExt},
+        tasks::TaskRepository,
         user_profile::UserProfileRepository, whiteboards::WhiteboardRepository,
         workspace::WorkspaceRepository,
     },
@@ -26,6 +28,7 @@ pub struct AppState {
     pub reminder_repository: ReminderRepository,
     pub snippet_repository: SnippetRepository,
     pub sync_repository: SyncRepository,
+    pub task_category_repository: TaskCategoryRepository,
     pub task_repository: TaskRepository,
     pub whiteboards_repository: WhiteboardRepository,
     pub user_profile_repository: UserProfileRepository,
@@ -46,6 +49,7 @@ impl AppState {
         let reminder_repository = ReminderRepository::new(conn.clone());
         let snippet_repository = SnippetRepository::new(conn.clone());
         let sync_repository = SyncRepository::new(conn.clone());
+        let task_category_repository = TaskCategoryRepository::new(conn.clone());
         let task_repository = TaskRepository::new(conn.clone());
         let whiteboards_repository = WhiteboardRepository::new(conn.clone());
         let workspace_repository = WorkspaceRepository::new(conn.clone());
@@ -62,6 +66,7 @@ impl AppState {
             reminder_repository,
             snippet_repository,
             sync_repository,
+            task_category_repository,
             task_repository,
             whiteboards_repository,
             workspace_repository,

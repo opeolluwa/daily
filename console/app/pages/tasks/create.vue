@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { CalendarDate, type Time } from "@internationalized/date";
+import { useTaskCategoryStore } from "~/stores/task-categories";
 
 definePageMeta({ layout: false, name: "New Task" });
 
 const route = useRoute();
 const router = useRouter();
 const taskStore = useTaskStore();
+const categoryStore = useTaskCategoryStore();
 const toast = useToast();
+
+const categoryManagerOpen = ref(false);
 
 const form = reactive({
   title: "",
   description: "",
   dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
+  categoryIdentifier: null as string | null,
 });
 
 const selectedTime = shallowRef<Time | undefined>();
@@ -43,6 +48,7 @@ function formatTime(time: Time): string {
 onMounted(() => {
   const initialDate = route.query.date as string | undefined;
   if (initialDate) form.dueDate = fromIsoDate(initialDate);
+  if (categoryStore.categories.length === 0) categoryStore.fetchCategories();
 });
 
 async function handleSubmit() {
@@ -55,6 +61,7 @@ async function handleSubmit() {
       dueDate: toIsoDate(form.dueDate) ?? undefined,
       time: selectedTime.value ? formatTime(selectedTime.value) : undefined,
       priority: form.priority,
+      categoryIdentifier: form.categoryIdentifier ?? undefined,
     });
     toast.add({
       color: "success",
@@ -139,6 +146,22 @@ async function handleSubmit() {
               </button>
             </div>
           </div>
+
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Category</label>
+              <button type="button" class="text-[10px] text-primary-500 hover:text-primary-600 dark:text-primary-400" @click="categoryManagerOpen = true">Manage</button>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition-colors" :class="!form.categoryIdentifier ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800'" @click="form.categoryIdentifier = null">None</button>
+              <button v-for="cat in categoryStore.categories" :key="cat.identifier" type="button" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition-colors" :class="form.categoryIdentifier === cat.identifier ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800'" @click="form.categoryIdentifier = cat.identifier">
+                <span class="size-2 rounded-full" :style="{ backgroundColor: cat.color }" />
+                {{ cat.name }}
+              </button>
+            </div>
+          </div>
+
+          <TaskCategoryManager v-model:open="categoryManagerOpen" />
 
           <div class="flex justify-end gap-2 pt-2">
             <UButton
