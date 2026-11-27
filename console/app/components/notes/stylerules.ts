@@ -8,8 +8,8 @@ export function getDmVars(isDark: boolean): Record<string, string | number> {
         "--dm-accent": "var(--color-primary-400)",
         "--dm-accent-surface":
           "color-mix(in srgb, var(--color-primary-400) 15%, transparent)",
-        "--dm-bg": "var(--color-surface-900)",
-        "--dm-surface": "var(--color-surface-800)",
+        "--dm-bg": "transparent",
+        "--dm-surface": "var(--app-dark-700)",
         "--dm-border-color": "var(--color-surface-700)",
       }
     : {

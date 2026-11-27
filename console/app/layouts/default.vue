@@ -16,6 +16,8 @@ watch(
   (path) => {
     if (autoCollapsePatterns.some((p) => p.test(path))) {
       sidebarStore.collapsed = true;
+    } else {
+      sidebarStore.collapsed = false;
     }
   },
   { immediate: true },
