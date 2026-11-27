@@ -74,7 +74,20 @@ impl OllamaProvider {
             .await
             .map_err(|e| IntelligenceError::Provider(e.to_string()))?;
 
-        while let Some(Ok(chunk)) = stream.next().await {
+        while let Some(result) = stream.next().await {
+            let chunk = match result {
+                Ok(chunk) => chunk,
+                Err(()) => {
+                    let message = "Ollama stream error".to_string();
+                    let _ = tx
+                        .send(StreamEvent::Error {
+                            message: message.clone(),
+                        })
+                        .await;
+                    return Err(IntelligenceError::Provider(message));
+                }
+            };
+
             if !chunk.message.content.is_empty() {
                 let _ = tx
                     .send(StreamEvent::Delta {
