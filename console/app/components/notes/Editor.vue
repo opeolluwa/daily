@@ -58,19 +58,3 @@ const initialContent = computed(() => {
     </Domternal>
   </div>
 </template>
-
-<style>
-.dm-editor {
-  --dm-editor-bg: transparent;
-  --dm-bg: transparent;
-  --dm-editor-border: none;
-  --dm-border-color: transparent;
-  --dm-primary: var(--color-primary-500);
-  --dm-active: var(--color-primary-500);
-}
-
-.notes-editor .dm-editor .ProseMirror {
-  --dm-editor-padding: 0;
-  --dm-editor-padding-top-extra: 0.25rem;
-}
-</style>

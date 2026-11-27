@@ -5,7 +5,10 @@ import { invoke } from "../utils/invoke";
 export type { Task };
 
 export type CreateTaskPayload = Partial<CreateTask> &
-  Pick<CreateTask, "title" | "priority"> & { time?: string };
+  Pick<CreateTask, "title" | "priority"> & {
+    time?: string;
+    categoryIdentifier?: string;
+  };
 
 export type UpdateTaskPayload = Partial<UpdateTask>;
 
@@ -34,6 +37,17 @@ export const useTaskStore = defineStore("task_store", {
       state.tasks.filter((t) => t.status == "done"),
     activeTasks: (state: State) =>
       state.tasks.filter((t) => t.status == "in_progress"),
+
+    tasksByDate: (state: State) => {
+      const map = new Map<string, Task[]>();
+      for (const task of state.tasks) {
+        const key = task.dueDate ?? "__unscheduled__";
+        const list = map.get(key);
+        if (list) list.push(task);
+        else map.set(key, [task]);
+      }
+      return map;
+    },
   },
 
   actions: {

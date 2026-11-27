@@ -8,6 +8,20 @@ const noPaddingPatterns = [/^\/whiteboard\/[^/]+$/];
 const isNoPaddingNeededView = computed(() =>
   noPaddingPatterns.some((pattern) => pattern.test(route.path)),
 );
+
+const autoCollapsePatterns = [/^\/tasks$/, /^\/whiteboard\/[^/]+$/];
+
+watch(
+  () => route.path,
+  (path) => {
+    if (autoCollapsePatterns.some((p) => p.test(path))) {
+      sidebarStore.collapsed = true;
+    } else {
+      sidebarStore.collapsed = false;
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

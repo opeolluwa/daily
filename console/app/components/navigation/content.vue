@@ -2,9 +2,11 @@
 import { items, secondaryRoutes } from "~/data/routes";
 import { useAuthStore } from "~/stores/auth";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
+import { useSidebarStore } from "~/stores/sidebar";
 
 const authStore = useAuthStore();
 const preferenceStore = useUserPreferenceStore();
+const sidebarStore = useSidebarStore();
 
 withDefaults(
   defineProps<{
@@ -92,7 +94,9 @@ function onNavigate() {
 
     <!-- Footer -->
     <div class="shrink-0 px-3 pt-1 pb-3 mt-auto">
-      <USeparator class="mb-3" />
+      <!-- COLLAPSE TOGGLE -->
+
+      <USeparator class="mb-3 mt-1" />
 
       <!-- THEME -->
       <UTooltip :text="themeLabel" :disabled="!collapsed" side="right">
@@ -175,6 +179,30 @@ function onNavigate() {
           </div>
         </UTooltip>
       </template>
+
+      <!-- COLLAPSE TOGGLE -->
+      <UTooltip
+        :text="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        :disabled="!collapsed"
+        side="right"
+      >
+        <button
+          type="button"
+          class="flex items-center w-full h-11 gap-2 px-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white transition-colors"
+          :class="collapsed ? 'justify-center px-0' : ''"
+          @click="sidebarStore.collapsed = !sidebarStore.collapsed"
+        >
+          <UIcon
+            :name="
+              collapsed
+                ? 'heroicons:chevron-double-right'
+                : 'heroicons:chevron-double-left'
+            "
+            class="size-5 shrink-0 text-gray-500 dark:text-gray-400"
+          />
+          <span v-if="!collapsed" class="text-sm font-medium"> Collapse </span>
+        </button>
+      </UTooltip>
     </div>
   </div>
 </template>

@@ -32,6 +32,7 @@ impl From<CreateTask> for kernel::adapters::tasks::CreateTask {
             description: t.description,
             due_date,
             priority,
+            category_identifier: None,
         }
     }
 }
@@ -50,6 +51,7 @@ impl From<UpdateTask> for kernel::adapters::tasks::UpdateTask {
             title: t.title,
             description: t.description,
             status: t.status,
+            category_identifier: None,
         }
     }
 }

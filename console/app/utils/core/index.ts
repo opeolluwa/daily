@@ -15,11 +15,13 @@ import { UserProfileRepository } from "./repositories/user_profile";
 import { WhiteboardRepository } from "./repositories/whiteboards";
 import { WhiteboardFileRepository } from "./repositories/whiteboard_files";
 import { SyncRepository } from "./repositories/sync";
+import { TaskCategoryRepository } from "./repositories/task-categories";
 
 export interface CoreConsoleApi {
   db: PGlite;
   notes: NotesRepository;
   tasks: TaskRepository;
+  taskCategories: TaskCategoryRepository;
   bookmarks: BookmarkRepository;
   snippets: SnippetRepository;
   pasteBins: PasteBinRepository;
@@ -42,6 +44,7 @@ export async function createCoreConsoleApi(): Promise<CoreConsoleApi> {
     db,
     notes: new NotesRepository(),
     tasks: new TaskRepository(),
+    taskCategories: new TaskCategoryRepository(),
     bookmarks: new BookmarkRepository(),
     snippets: new SnippetRepository(),
     pasteBins: new PasteBinRepository(),
@@ -88,6 +91,10 @@ export type {
   UpdateWhiteboard,
 } from "./repositories/whiteboards";
 export type { WhiteboardFiles } from "./repositories/whiteboard_files";
+export type {
+  CreateTaskCategoryPayload,
+  UpdateTaskCategoryPayload,
+} from "./repositories/task-categories";
 export type {
   SyncQueueItem,
   SyncState,
