@@ -32,7 +32,7 @@ const pendingCount = computed(
   <section
     class="flex min-h-0 flex-col rounded-xl border p-3 transition-colors"
     :class="
-      'border-gray-200 bg-gray-50/70 dark:border-gray-800 dark:bg-gray-900/40'
+      'border-gray-200 bg-gray-50/70 dark:border-gray-600 dark:bg-gray-800/60'
     "
   >
     <header class="mb-3 flex items-center gap-2 px-1">
@@ -64,7 +64,7 @@ const pendingCount = computed(
 
       <div
         v-if="tasks.length === 0"
-        class="flex min-h-20 flex-1 items-center justify-center rounded-lg border border-dashed border-gray-200 text-xs text-gray-400 dark:border-gray-700 dark:text-gray-500"
+        class="flex min-h-20 flex-1 items-center justify-center rounded-lg border border-dashed border-gray-200 text-xs text-gray-400 dark:border-gray-600 dark:text-gray-400"
       >
         No tasks
       </div>
@@ -72,7 +72,7 @@ const pendingCount = computed(
 
     <button
       type="button"
-      class="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300"
+      class="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-600 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-300"
       @click="emit('addTask', date)"
     >
       <UIcon name="heroicons:plus" class="size-3.5" />

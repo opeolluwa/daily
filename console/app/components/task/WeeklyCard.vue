@@ -32,7 +32,7 @@ function formatTime(timeStr: string | null | undefined): string | null {
 
 <template>
   <div
-    class="group flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-sm hover:border-gray-300 dark:bg-gray-800/60 dark:border-gray-700/50 dark:hover:border-gray-600 cursor-pointer"
+    class="group flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-sm hover:border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:border-gray-500 cursor-pointer"
     @click="emit('edit', task.identifier)"
   >
     <button
@@ -46,7 +46,7 @@ function formatTime(timeStr: string | null | undefined): string | null {
         :class="
           task.done
             ? 'text-emerald-500'
-            : 'text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500'
+            : 'text-gray-300 dark:text-gray-500 hover:text-gray-400 dark:hover:text-gray-400'
         "
       />
     </button>
@@ -64,7 +64,7 @@ function formatTime(timeStr: string | null | undefined): string | null {
       </h4>
       <p
         v-if="task.description"
-        class="mt-0.5 truncate text-xs text-gray-400 dark:text-gray-500"
+        class="mt-0.5 truncate text-xs text-gray-400 dark:text-gray-400"
       >
         {{ task.description }}
       </p>
@@ -74,7 +74,7 @@ function formatTime(timeStr: string | null | undefined): string | null {
           v-if="category"
           class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
           :style="{
-            backgroundColor: category.color + '18',
+            backgroundColor: category.color + '30',
             color: category.color,
           }"
         >
@@ -87,7 +87,7 @@ function formatTime(timeStr: string | null | undefined): string | null {
 
         <span
           v-if="task.dueTime"
-          class="ml-auto inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500"
+          class="ml-auto inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-400"
         >
           <UIcon name="heroicons:clock" class="size-3" />
           {{ formatTime(task.dueTime) }}
