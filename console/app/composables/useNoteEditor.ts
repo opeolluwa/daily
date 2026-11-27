@@ -4,9 +4,14 @@ import { stripHtml } from "~/utils/text";
 interface UseNoteEditorOptions {
   saveFn: () => Promise<void>;
   canSave: MaybeRefOrGetter<boolean>;
+  source?: Ref<{ identifier: string; content: string } | null>;
 }
 
-export function useNoteEditor({ saveFn, canSave }: UseNoteEditorOptions) {
+export function useNoteEditor({
+  saveFn,
+  canSave,
+  source,
+}: UseNoteEditorOptions) {
   const router = useRouter();
 
   const content = ref("");
@@ -14,6 +19,26 @@ export function useNoteEditor({ saveFn, canSave }: UseNoteEditorOptions) {
   const saved = ref(false);
   const error = ref<string | null>(null);
   const notesEditor = ref<InstanceType<typeof NotesEditor> | null>(null);
+
+  function reset(newContent?: string) {
+    content.value = newContent ?? "";
+    error.value = null;
+    submitting.value = false;
+    saved.value = false;
+  }
+
+  if (source) {
+    const loadedId = ref<string | undefined>(undefined);
+    watch(
+      source,
+      (note) => {
+        if (!note || loadedId.value === note.identifier) return;
+        loadedId.value = note.identifier;
+        reset(note.content);
+      },
+      { immediate: true },
+    );
+  }
 
   const title = computed(() => {
     const text = stripHtml(content.value).trim();
@@ -60,5 +85,6 @@ export function useNoteEditor({ saveFn, canSave }: UseNoteEditorOptions) {
     notesEditor,
     title,
     handleSave,
+    reset,
   };
 }
