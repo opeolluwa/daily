@@ -6,7 +6,7 @@ definePageMeta({ layout: false, name: "New note", keepalive: true });
 
 const noteStore = useNoteStore();
 
-const { content, submitting, saved, error, notesEditor, title, handleSave } =
+const { content, error, notesEditor, title, handleSave, reset } =
   useNoteEditor({
     saveFn: () =>
       noteStore.createNote({ title: title.value, content: content.value }),
@@ -14,10 +14,7 @@ const { content, submitting, saved, error, notesEditor, title, handleSave } =
   });
 
 onActivated(() => {
-  content.value = "";
-  error.value = null;
-  submitting.value = false;
-  saved.value = false;
+  reset();
   notesEditor.value?.editor?.clearContent(false);
 });
 </script>

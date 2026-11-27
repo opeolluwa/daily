@@ -55,7 +55,6 @@ const initialContent = computed(() => {
     >
       <Domternal.Toolbar />
       <Domternal.Content class="mt-4" />
-
     </Domternal>
   </div>
 </template>
@@ -66,6 +65,8 @@ const initialContent = computed(() => {
   --dm-bg: transparent;
   --dm-editor-border: none;
   --dm-border-color: transparent;
+  --dm-primary: var(--color-primary-500);
+  --dm-active: var(--color-primary-500);
 }
 
 .notes-editor .dm-editor .ProseMirror {

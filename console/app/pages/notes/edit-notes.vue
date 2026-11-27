@@ -11,7 +11,7 @@ const original = computed(
   () => noteStore.notes.find((n) => n.identifier === id.value) ?? null,
 );
 
-const { content, submitting, saved, error, notesEditor, title, handleSave } =
+const { content, error, notesEditor, title, handleSave } =
   useNoteEditor({
     saveFn: () =>
       noteStore.updateNote(original.value!.identifier, {
@@ -25,22 +25,8 @@ const { content, submitting, saved, error, notesEditor, title, handleSave } =
         content.value !== original.value.content
       );
     },
+    source: original,
   });
-
-const loadedId = ref<string | undefined>(undefined);
-
-watch(
-  original,
-  (note) => {
-    if (!note || loadedId.value === note.identifier) return;
-    loadedId.value = note.identifier;
-    saved.value = false;
-    error.value = null;
-    submitting.value = false;
-    content.value = note.content;
-  },
-  { immediate: true },
-);
 
 onMounted(async () => {
   if (noteStore.notes.length === 0) {
