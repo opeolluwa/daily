@@ -3,6 +3,7 @@ import { useTemplateRef } from "vue";
 import { makeSortableItem } from "@vue-dnd-kit/core";
 import { useTaskStore, type Task } from "~/stores/tasks";
 import { useWorkspacesStore } from "~/stores/workspaces";
+import TaskProgressRing from "./TaskProgressRing.vue";
 
 const props = defineProps<{
   task: Task;
@@ -22,12 +23,6 @@ makeSortableItem(el, {
   item: () => props.task,
   handle: grip,
 });
-
-const priorityBorderClass: Record<string, string> = {
-  high: "border-rose-500",
-  medium: "border-amber-500",
-  low: "border-emerald-500",
-};
 
 const priorityDotClass: Record<string, string> = {
   high: "bg-rose-500",
@@ -78,6 +73,12 @@ const workspaceStore = useWorkspacesStore();
 const taskStore = useTaskStore();
 
 const currentWorkspaceId = computed(() => workspaceStore.activeWorkspaceId);
+const subtaskCount = computed(
+  () => taskStore.subtaskCountByTask[props.task.identifier] ?? 0,
+);
+const subtaskProgress = computed(
+  () => taskStore.progressByTask[props.task.identifier] ?? 0,
+);
 
 async function handleDuplicate(targetWorkspaceId: string) {
   await taskStore.duplicateTask(
@@ -133,6 +134,12 @@ async function handleTransfer(targetWorkspaceId: string) {
 
       <!-- Footer: due date + priority -->
       <div class="mt-3 flex items-center gap-2 text-xs">
+        <TaskProgressRing
+          v-if="subtaskCount > 0"
+          :progress="subtaskProgress"
+          :size="28"
+        />
+
         <span
           v-if="task.dueDate"
           class="shrink-0 rounded-md px-1.5 py-0.5"

@@ -5055,8 +5055,6 @@ dependencies = [
  "sea-orm",
  "sea-orm-migration",
  "serde_json",
- "substring-replace",
- "tokio",
  "ulid",
  "uuid",
 ]
@@ -8425,15 +8423,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "substring-replace"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec3f3d456737a4a2aaa789a3351fac8bf846cf832f868c8db6ea8a8e3f4837c6"
-dependencies = [
- "to-offset",
-]
-
-[[package]]
 name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9297,12 +9286,6 @@ name = "tinyvec"
 version = "1.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee"
-
-[[package]]
-name = "to-offset"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6390877626d7dea2f5d9002312a0ae5ad5029a425c2377143389caa734daa478"
 
 [[package]]
 name = "tokio"

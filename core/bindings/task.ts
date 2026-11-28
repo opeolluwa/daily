@@ -6,10 +6,12 @@ export type CreateTask = {
   description: string | null;
   dueDate: string | null;
   priority: Priority;
+  categoryIdentifier: string | null;
 };
 
 export type UpdateTask = {
   title: string | null;
-  description: string | null;
+  description: string | null | null;
   status: string | null;
+  categoryIdentifier: string | null | null;
 };

@@ -18,11 +18,14 @@
     },
     "./bindings": {
       "types": "./bindings/index.ts"
-    }
+    },
+    "./pkg": "./pkg/kernel.js",
+    "./pkg/*": "./pkg/*"
   },
   "files": [
     "index.ts",
-    "bindings"
+    "bindings",
+    "pkg"
   ],
   "keywords": [],
   "license": "ISC"

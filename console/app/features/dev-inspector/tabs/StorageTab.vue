@@ -37,7 +37,7 @@ async function refreshMetadata(): Promise<void> {
   storeMetadata.value = await persistence.diagnostics.readStoreMetadata();
 }
 
-// ── Storage quota (browser quota backs the PGlite database) ────────────
+// ── Storage quota (webview storage estimate) ────────────────────────────
 const quotaUsed = ref<number | null>(null);
 const quotaAvailable = ref<number | null>(null);
 const quotaPersisted = ref<boolean | null>(null);

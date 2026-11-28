@@ -40,7 +40,7 @@ impl Into<entities::task::ActiveModel> for CreateTask {
 #[ts(export, export_to = "task.ts")]
 pub struct UpdateTask {
     pub title: Option<String>,
-    pub description: Option<String>,
+    pub description: Option<Option<String>>,
     pub status: Option<String>,
-    pub category_identifier: Option<String>,
+    pub category_identifier: Option<Option<String>>,
 }

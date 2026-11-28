@@ -74,10 +74,9 @@ pub async fn run() {
                         .await
                         .expect("failed to initialize kernel");
 
-                    kernel
-                        .run_migrations()
-                        .await
-                        .expect("failed to run migrations");
+                    if let Err(err) = kernel.run_migrations().await {
+                        println!("failed to run migration due to {}", err.to_string());
+                    };
 
                     let conn = Arc::new(kernel.connection().clone());
 
@@ -174,6 +173,12 @@ pub async fn run() {
             commands::task_categories::get_all_task_categories,
             commands::task_categories::update_task_category,
             commands::task_categories::delete_task_category,
+            commands::task_subtask::create_task_subtask,
+            commands::task_subtask::delete_task_subtask,
+            commands::task_subtask::get_task_subtasks,
+            commands::task_subtask::get_tasks_with_subtasks,
+            commands::task_subtask::save_task_subtasks,
+            commands::task_subtask::update_task_subtask,
             commands::tasks::change_task_priority,
             commands::tasks::create_task,
             commands::tasks::delete_task,

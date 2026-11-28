@@ -15,4 +15,5 @@ export type TaskInterface = {
   workspaceIdentifier: string | null;
   status: TaskStatus;
   deletedAt: string | null;
+  categoryIdentifier: string | null;
 };

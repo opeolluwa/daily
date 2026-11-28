@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { Task } from "~/stores/tasks";
+import { useTaskStore, type Task } from "~/stores/tasks";
 import type { TaskCategory } from "~/stores/task-categories";
+import TaskProgressRing from "./TaskProgressRing.vue";
 
 const props = defineProps<{
   task: Task;
@@ -11,6 +12,14 @@ const emit = defineEmits<{
   toggle: [identifier: string, done: boolean];
   edit: [identifier: string];
 }>();
+
+const taskStore = useTaskStore();
+const subtaskCount = computed(
+  () => taskStore.subtaskCountByTask[props.task.identifier] ?? 0,
+);
+const subtaskProgress = computed(
+  () => taskStore.progressByTask[props.task.identifier] ?? 0,
+);
 
 const category = computed(() => {
   const catId = (props.task as Record<string, unknown>).categoryIdentifier as
@@ -70,6 +79,12 @@ function formatTime(timeStr: string | null | undefined): string | null {
       </p>
 
       <div class="mt-2 flex items-center gap-2">
+        <TaskProgressRing
+          v-if="subtaskCount > 0"
+          :progress="subtaskProgress"
+          :size="26"
+        />
+
         <span
           v-if="category"
           class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
