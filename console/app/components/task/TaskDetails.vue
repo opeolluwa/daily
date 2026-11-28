@@ -3,6 +3,8 @@ import type { CalendarDate } from "@internationalized/date";
 import type { TaskCategory } from "~/stores/task-categories";
 import type { TaskSubtaskDraft } from "~/stores/tasks";
 
+const NO_CATEGORY = "__none__";
+
 const props = withDefaults(
   defineProps<{
     title: string;
@@ -14,14 +16,14 @@ const props = withDefaults(
     subtasks: TaskSubtaskDraft[];
     busy?: boolean;
     showDone?: boolean;
-    showManageCategories?: boolean;
+    embedded?: boolean;
   }>(),
   {
     dueDate: null,
     categoryIdentifier: null,
     busy: false,
     showDone: true,
-    showManageCategories: true,
+    embedded: false,
   },
 );
 
@@ -32,8 +34,21 @@ const emit = defineEmits<{
   "update:categoryIdentifier": [value: string | null];
   "update:done": [value: boolean];
   "update:subtasks": [value: TaskSubtaskDraft[]];
-  manageCategories: [];
 }>();
+
+const categoryItems = computed(() => [
+  { label: "None", value: NO_CATEGORY },
+  ...props.categories.map((category) => ({
+    label: category.name,
+    value: category.identifier,
+  })),
+]);
+
+const categoryValue = computed(() => props.categoryIdentifier ?? NO_CATEGORY);
+
+function onCategoryChange(value: string) {
+  emit("update:categoryIdentifier", value === NO_CATEGORY ? null : value);
+}
 
 function onTitleInput(event: Event) {
   emit("update:title", (event.target as HTMLInputElement).value);
@@ -88,14 +103,11 @@ function removeSubtask(index: number) {
   );
 }
 
-function selectCategory(identifier: string | null) {
-  emit("update:categoryIdentifier", identifier);
-}
 </script>
 
 <template>
   <div class="bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-    <div class="px-7 pt-7">
+    <div :class="props.embedded ? undefined : 'px-7 pt-7'">
       <div class="flex items-start gap-3">
         <input
           v-if="props.showDone"
@@ -121,47 +133,17 @@ function selectCategory(identifier: string | null) {
           <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
             Category
           </span>
-          <div class="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
-            <button
-              type="button"
-              class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors"
-              :class="
-                !props.categoryIdentifier
-                  ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:bg-white dark:text-gray-400 dark:hover:bg-gray-700'
-              "
+          <div class="min-w-0">
+            <RyderSelect
+              :model-value="categoryValue"
+              name="task-category"
+              placeholder="No category"
+              size="sm"
+              :items="categoryItems"
               :disabled="props.busy"
-              @click="selectCategory(null)"
-            >
-              None
-            </button>
-            <button
-              v-for="category in props.categories"
-              :key="category.identifier"
-              type="button"
-              class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors"
-              :class="
-                props.categoryIdentifier === category.identifier
-                  ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:bg-white dark:text-gray-400 dark:hover:bg-gray-700'
-              "
-              :disabled="props.busy"
-              @click="selectCategory(category.identifier)"
-            >
-              <span
-                class="size-2 rounded-full"
-                :style="{ backgroundColor: category.color }"
-              />
-              {{ category.name }}
-            </button>
-            <button
-              v-if="props.showManageCategories"
-              type="button"
-              class="text-[10px] text-primary-500 hover:text-primary-600 dark:text-primary-400"
-              @click="emit('manageCategories')"
-            >
-              Manage
-            </button>
+              class="w-44"
+              @update:model-value="onCategoryChange"
+            />
           </div>
         </div>
 

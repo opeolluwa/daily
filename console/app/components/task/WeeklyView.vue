@@ -218,6 +218,7 @@ onMounted(() => {
         :is-today="dateStr === todayIso()"
         class="min-w-0"
         @edit="(id) => emit('edit', id)"
+        @delete="(id) => emit('delete', id)"
         @toggle="(id, done) => emit('toggle', id, done)"
         @add-task="(date) => emit('addTask', date)"
       />

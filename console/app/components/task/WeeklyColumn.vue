@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   edit: [identifier: string];
+  delete: [identifier: string];
   toggle: [identifier: string, done: boolean];
   addTask: [date: string];
 }>();
@@ -46,14 +47,14 @@ const pendingCount = computed(
       </h3>
       <button
         v-if="tasks.length === 0"
-        class="ml-auto flex size-6 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+        class="ml-auto flex size-6 items-center justify-center rounded bg-gray-200 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
         @click="emit('addTask', date)"
       >
         +
       </button>
       <span
         v-else-if="pendingCount > 0"
-        class="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 font-mono text-[11px] leading-none font-medium text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300"
+        class="ml-auto rounded bg-primary-100 px-2 py-0.5 font-mono text-[11px] leading-none font-medium text-primary-700 dark:bg-primary-900/60 dark:text-primary-300"
       >
         {{ pendingCount }}
       </span>
@@ -67,6 +68,7 @@ const pendingCount = computed(
         :categories="categories"
         @toggle="(id, done) => emit('toggle', id, done)"
         @edit="(id) => emit('edit', id)"
+        @delete="(id) => emit('delete', id)"
       />
     </div>
 

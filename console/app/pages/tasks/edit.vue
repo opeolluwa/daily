@@ -11,12 +11,17 @@ const router = useRouter();
 const taskStore = useTaskStore();
 const categoryStore = useTaskCategoryStore();
 const toast = useToast();
-const categoryManagerOpen = ref(false);
 
 const id = computed(() => route.query.id as string | undefined);
 const task = computed(
   () => taskStore.tasks.find((t) => t.identifier === id.value) ?? null,
 );
+
+const priorityOptions = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+];
 
 const form = reactive({
   title: "",
@@ -219,45 +224,31 @@ async function handleDelete() {
             :busy="submitting"
             @update:done="onDoneChange"
             @update:subtasks="onSubtasksChange"
-            @manage-categories="categoryManagerOpen = true"
           >
             <template #extras>
-              <RyderTimeInput
-                v-model="selectedTime"
-                label="Time"
-                name="task-time"
-                size="sm"
-              />
-
-              <div class="mt-4 flex flex-col gap-1.5">
-                <label class="text-xs font-medium text-gray-500 dark:text-gray-400"
-                  >Priority</label
-                >
-                <div class="flex gap-2">
-                  <button
-                    v-for="p in ['low', 'medium', 'high'] as const"
-                    :key="p"
-                    type="button"
-                    class="flex-1 py-2 rounded-lg text-xs font-medium capitalize border transition-colors"
-                    :class="
-                      form.priority === p
-                        ? p === 'high'
-                          ? 'bg-rose-50 dark:bg-rose-950 border-rose-300 dark:border-rose-700 text-rose-600 dark:text-rose-400'
-                          : p === 'medium'
-                            ? 'bg-amber-50 dark:bg-amber-950 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400'
-                            : 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    "
-                    @click="form.priority = p"
-                  >
-                    {{ p }}
-                  </button>
+              <div class="flex items-start gap-4">
+                <div class="min-w-0 flex-1">
+                  <RyderTimeInput
+                    v-model="selectedTime"
+                    label="Time"
+                    label-class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                    name="task-time"
+                    size="sm"
+                  />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <RyderSelect
+                    v-model="form.priority"
+                    :items="priorityOptions"
+                    label="Priority"
+                    label-class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                    name="task-priority"
+                    size="sm"
+                  />
                 </div>
               </div>
             </template>
           </TaskDetails>
-
-          <TaskCategoryManager v-model:open="categoryManagerOpen" />
 
           <button
             type="button"
