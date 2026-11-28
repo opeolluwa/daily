@@ -1,4 +1,11 @@
-import type { CreateTask, Task, TaskStatus, UpdateTask } from "@daily/core";
+import type {
+  CreateTask,
+  Task,
+  TaskStatus,
+  TaskSubtaskInterface,
+  TaskWithSubtasks,
+  UpdateTask,
+} from "@daily/core";
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
 
@@ -12,13 +19,24 @@ export type CreateTaskPayload = Partial<CreateTask> &
 
 export type UpdateTaskPayload = Partial<UpdateTask>;
 
+export interface TaskSubtaskDraft {
+  identifier: string | null;
+  title: string;
+  done: boolean;
+  sortOrder: number;
+}
+
 interface State {
   tasks: Task[];
+  subtasksByTask: Record<string, TaskSubtaskDraft[]>;
+  progressByTask: Record<string, number>;
   loading: boolean;
 }
 export const useTaskStore = defineStore("task_store", {
   state: (): State => ({
     tasks: [] as Task[],
+    subtasksByTask: {},
+    progressByTask: {},
     loading: false,
   }),
 
@@ -38,6 +56,14 @@ export const useTaskStore = defineStore("task_store", {
     activeTasks: (state: State) =>
       state.tasks.filter((t) => t.status == "in_progress"),
 
+    subtaskCountByTask: (state: State) =>
+      Object.fromEntries(
+        Object.entries(state.subtasksByTask).map(([id, subtasks]) => [
+          id,
+          subtasks.length,
+        ]),
+      ),
+
     tasksByDate: (state: State) => {
       const map = new Map<string, Task[]>();
       for (const task of state.tasks) {
@@ -54,9 +80,25 @@ export const useTaskStore = defineStore("task_store", {
     async fetchTasks() {
       this.loading = true;
       try {
-        this.tasks = await invoke<Task[]>("get_all_tasks", {
-          meta: await getWorkspaceMeta(),
-        });
+        const details = await invoke<TaskWithSubtasks[]>(
+          "get_tasks_with_subtasks",
+          { meta: await getWorkspaceMeta() },
+        );
+        this.tasks = details.map((detail) => detail.task);
+        this.subtasksByTask = Object.fromEntries(
+          details.map((detail) => [
+            detail.task.identifier,
+            detail.subtasks.map((subtask) => ({
+              identifier: subtask.identifier,
+              title: subtask.title,
+              done: subtask.done,
+              sortOrder: subtask.sortOrder,
+            })),
+          ]),
+        );
+        this.progressByTask = Object.fromEntries(
+          details.map((detail) => [detail.task.identifier, detail.progress]),
+        );
       } catch (error) {
         console.error("[tasks] failed to fetch", error);
       } finally {
@@ -71,6 +113,8 @@ export const useTaskStore = defineStore("task_store", {
       });
 
       this.tasks.unshift(created);
+      this.subtasksByTask[created.identifier] = [];
+      this.progressByTask[created.identifier] = 0;
       return created;
     },
 
@@ -182,6 +226,12 @@ export const useTaskStore = defineStore("task_store", {
       });
 
       this.tasks = this.tasks.filter((t) => t.identifier !== identifier);
+      this.subtasksByTask = Object.fromEntries(
+        Object.entries(this.subtasksByTask).filter(([id]) => id !== identifier),
+      );
+      this.progressByTask = Object.fromEntries(
+        Object.entries(this.progressByTask).filter(([id]) => id !== identifier),
+      );
     },
 
     async duplicateTask(
@@ -197,6 +247,8 @@ export const useTaskStore = defineStore("task_store", {
       });
 
       this.tasks.push(updated);
+      this.subtasksByTask[updated.identifier] = [];
+      this.progressByTask[updated.identifier] = 0;
       return updated;
     },
 
@@ -215,6 +267,49 @@ export const useTaskStore = defineStore("task_store", {
       const idx = this.tasks.findIndex((t) => t.identifier === identifier);
       if (idx !== -1) this.tasks[idx] = updated;
       return updated;
+    },
+
+    async loadSubtasks(taskIdentifier: string): Promise<TaskSubtaskDraft[]> {
+      const subtasks = await invoke<TaskSubtaskInterface[]>(
+        "get_task_subtasks",
+        {
+          taskIdentifier,
+          meta: await getWorkspaceMeta(),
+        },
+      );
+      const drafts = subtasks.map((subtask) => ({
+        identifier: subtask.identifier,
+        title: subtask.title,
+        done: subtask.done,
+        sortOrder: subtask.sortOrder,
+      }));
+      this.subtasksByTask[taskIdentifier] = drafts;
+      return drafts;
+    },
+
+    async saveSubtasks(
+      taskIdentifier: string,
+      subtasks: TaskSubtaskDraft[],
+    ): Promise<TaskSubtaskDraft[]> {
+      const saved = await invoke<TaskSubtaskInterface[]>("save_task_subtasks", {
+        taskIdentifier,
+        subtasks: subtasks.map((subtask) => ({
+          identifier: subtask.identifier,
+          title: subtask.title,
+          done: subtask.done,
+          sortOrder: subtask.sortOrder,
+        })),
+        meta: await getWorkspaceMeta(),
+      });
+      const drafts = saved.map((subtask) => ({
+        identifier: subtask.identifier,
+        title: subtask.title,
+        done: subtask.done,
+        sortOrder: subtask.sortOrder,
+      }));
+      this.subtasksByTask[taskIdentifier] = drafts;
+      await this.fetchTasks();
+      return drafts;
     },
 
     async fetchUnsynced() {

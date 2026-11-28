@@ -4,7 +4,8 @@ pub use super::{
     notification_settings::NotificationSettingsRepositoryExt,
     notifications::NotificationRepositoryExt, paste_bins::PasteBinRepositoryExt,
     recycle_bin::RecycleBinRepositoryExt, reminder::ReminderRepositoryExt,
-    snippets::SnippetRepositoryExt, sync::SyncRepository, tasks::TaskRepositoryExt,
-    whiteboards::WhiteboardRepositoryExt, workspace::WorkspaceRepositoryExt,
+    snippets::SnippetRepositoryExt, sync::SyncRepository, task_subtask::TaskSubtaskRepositoryExt,
+    tasks::TaskRepositoryExt, whiteboards::WhiteboardRepositoryExt,
+    workspace::WorkspaceRepositoryExt,
     user_profile::UserProfileRepositoryExt,
 };

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { CalendarDate, Time } from "@internationalized/date";
-import { useTaskStore } from "~/stores/tasks";
+import { useTaskStore, type TaskSubtaskDraft } from "~/stores/tasks";
 import { useTaskCategoryStore } from "~/stores/task-categories";
+import TaskDetails from "./TaskDetails.vue";
 
 const props = defineProps<{
   task?: {
@@ -24,7 +25,12 @@ const categoryStore = useTaskCategoryStore();
 const toast = useToast();
 
 const editing = computed(() => !!props.task);
-const categoryManagerOpen = ref(false);
+
+const priorityOptions = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+];
 
 const form = reactive({
   title: "",
@@ -36,6 +42,8 @@ const form = reactive({
 });
 
 const selectedTime = shallowRef<Time | undefined>();
+const subtasks = ref<TaskSubtaskDraft[]>([]);
+const doneTouched = ref(false);
 const submitting = ref(false);
 const deleting = ref(false);
 
@@ -73,6 +81,40 @@ function resetForm() {
   form.done = false;
   form.categoryIdentifier = null;
   selectedTime.value = undefined;
+  subtasks.value = [];
+  doneTouched.value = false;
+}
+
+function onDoneChange(value: boolean) {
+  form.done = value;
+  doneTouched.value = true;
+}
+
+function onSubtasksChange(value: TaskSubtaskDraft[]) {
+  subtasks.value = value;
+  if (value.length > 0) {
+    form.done = value.every((subtask) => subtask.done);
+    doneTouched.value = false;
+  }
+}
+
+async function loadDraftSubtasks(task: { identifier: string }) {
+  const cached = taskStore.subtasksByTask[task.identifier];
+  if (cached) {
+    subtasks.value = cached.map((subtask) => ({ ...subtask }));
+    if (subtasks.value.length > 0) {
+      form.done = subtasks.value.every((subtask) => subtask.done);
+    }
+    return;
+  }
+  try {
+    subtasks.value = await taskStore.loadSubtasks(task.identifier);
+    if (subtasks.value.length > 0) {
+      form.done = subtasks.value.every((subtask) => subtask.done);
+    }
+  } catch {
+    subtasks.value = [];
+  }
 }
 
 watch(
@@ -85,6 +127,8 @@ watch(
       form.priority = task.priority;
       form.done = task.done;
       form.categoryIdentifier = task.categoryIdentifier ?? null;
+      doneTouched.value = false;
+      void loadDraftSubtasks(task);
       if (task.dueTime) {
         const [h, m] = task.dueTime.split(":").map(Number);
         selectedTime.value = new Time(h, m);
@@ -102,7 +146,18 @@ watch(
 );
 
 watch(open, (val) => {
-  if (!val) resetForm();
+  if (val) {
+    if (props.task) {
+      void loadDraftSubtasks(props.task);
+    } else {
+      resetForm();
+      if (props.initialDate) {
+        form.dueDate = fromIsoDate(props.initialDate);
+      }
+    }
+  } else {
+    resetForm();
+  }
 });
 
 async function handleSubmit() {
@@ -112,15 +167,17 @@ async function handleSubmit() {
     if (editing.value && props.task) {
       await taskStore.updateTask(props.task.identifier, {
         title: form.title.trim(),
-        description: form.description.trim() || undefined,
-        categoryIdentifier: form.categoryIdentifier ?? undefined,
+        description: form.description.trim() || null,
+        categoryIdentifier: form.categoryIdentifier,
       } as Record<string, unknown>);
+
+      await taskStore.saveSubtasks(props.task.identifier, subtasks.value);
 
       const current = taskStore.tasks.find(
         (t) => t.identifier === props.task!.identifier,
       );
       if (current) {
-        if (current.done !== form.done) {
+        if (doneTouched.value && current.done !== form.done) {
           await taskStore.toggleDone(props.task.identifier, form.done);
         }
         if (current.priority !== form.priority) {
@@ -140,14 +197,15 @@ async function handleSubmit() {
         description: "Your changes have been saved",
       });
     } else {
-      await taskStore.createTask({
+      const created = await taskStore.createTask({
         title: form.title.trim(),
-        description: form.description.trim() || undefined,
+        description: form.description.trim() || null,
         dueDate: toIsoDate(form.dueDate) ?? undefined,
         time: selectedTime.value ? formatTime(selectedTime.value) : undefined,
         priority: form.priority,
         categoryIdentifier: form.categoryIdentifier ?? undefined,
       });
+      await taskStore.saveSubtasks(created.identifier, subtasks.value);
       toast.add({
         color: "success",
         icon: "heroicons:check-circle",
@@ -206,140 +264,43 @@ async function handleDelete() {
     @cancel="resetForm"
   >
     <div class="flex flex-col gap-4">
-      <RyderInput
-        v-model="form.title"
-        label="Title"
-        :required="true"
-        placeholder="What needs to be done?"
-        name="task-title"
-      />
-
-      <RyderTextarea
-        v-model="form.description"
-        label="Description"
-        name="task-description"
-        placeholder="Add more details..."
-        :rows="3"
-      />
-
-      <RyderDateInput
-        v-model="form.dueDate"
-        label="Date"
-        name="task-date"
-        placeholder="Pick a date"
-      />
-
-      <RyderTimeInput
-        v-model="selectedTime"
-        label="Time"
-        name="task-time"
-        size="sm"
-      />
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-          Priority
-        </label>
-        <div class="flex gap-2">
-          <button
-            v-for="p in ['low', 'medium', 'high'] as const"
-            :key="p"
-            type="button"
-            class="flex-1 py-2 rounded-lg text-xs font-medium capitalize border transition-colors"
-            :class="
-              form.priority === p
-                ? p === 'high'
-                  ? 'bg-rose-50 dark:bg-rose-950 border-rose-300 dark:border-rose-700 text-rose-600 dark:text-rose-400'
-                  : p === 'medium'
-                    ? 'bg-amber-50 dark:bg-amber-950 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400'
-                    : 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400'
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-            "
-            @click="form.priority = p"
-          >
-            {{ p }}
-          </button>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <div class="flex items-center justify-between">
-          <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Category
-          </label>
-          <button
-            type="button"
-            class="text-[10px] text-primary-500 hover:text-primary-600 dark:text-primary-400"
-            @click="categoryManagerOpen = true"
-          >
-            Manage
-          </button>
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-          <button
-            type="button"
-            class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition-colors"
-            :class="
-              !form.categoryIdentifier
-                ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400'
-                : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800'
-            "
-            @click="form.categoryIdentifier = null"
-          >
-            None
-          </button>
-          <button
-            v-for="cat in categoryStore.categories"
-            :key="cat.identifier"
-            type="button"
-            class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition-colors"
-            :class="
-              form.categoryIdentifier === cat.identifier
-                ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-950 dark:text-primary-400'
-                : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800'
-            "
-            @click="form.categoryIdentifier = cat.identifier"
-          >
-            <span
-              class="size-2 rounded-full"
-              :style="{ backgroundColor: cat.color }"
-            />
-            {{ cat.name }}
-          </button>
-        </div>
-      </div>
-
-      <TaskCategoryManager v-model:open="categoryManagerOpen" />
-
-      <button
-        v-if="editing"
-        type="button"
-        class="flex items-center gap-3 py-3 px-4 rounded-lg border transition-colors w-full"
-        :class="
-          form.done
-            ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700'
-            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
-        "
-        @click="form.done = !form.done"
+      <TaskDetails
+        v-model:title="form.title"
+        v-model:description="form.description"
+        v-model:due-date="form.dueDate"
+        v-model:category-identifier="form.categoryIdentifier"
+        :done="form.done"
+        :subtasks="subtasks"
+        :categories="categoryStore.categories"
+        :busy="submitting"
+        :embedded="true"
+        @update:done="onDoneChange"
+        @update:subtasks="onSubtasksChange"
       >
-        <UIcon
-          :name="form.done ? 'heroicons:check-circle-solid' : 'lucide:circle'"
-          class="size-5 transition-colors"
-          :class="
-            form.done ? 'text-emerald-500' : 'text-gray-300 dark:text-gray-600'
-          "
-        />
-        <span
-          class="text-sm font-medium transition-colors"
-          :class="
-            form.done
-              ? 'text-emerald-700 dark:text-emerald-300'
-              : 'text-gray-600 dark:text-gray-400'
-          "
-        >
-          {{ form.done ? "Marked as done" : "Mark as done" }}
-        </span>
-      </button>
+        <template #extras>
+          <div class="flex items-start gap-4">
+            <div class="min-w-0 flex-1">
+              <RyderTimeInput
+                v-model="selectedTime"
+                label="Time"
+                label-class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                name="task-time"
+                size="sm"
+              />
+            </div>
+            <div class="min-w-0 flex-1">
+              <RyderSelect
+                v-model="form.priority"
+                :items="priorityOptions"
+                label="Priority"
+                label-class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                name="task-priority"
+                size="sm"
+              />
+            </div>
+          </div>
+        </template>
+      </TaskDetails>
 
       <button
         v-if="editing"

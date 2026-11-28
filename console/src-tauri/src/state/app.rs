@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use intelligence::IntelligenceClient;
 use kernel::{
     filestore::FileStoreEngine,
     repositories::{
@@ -9,6 +10,7 @@ use kernel::{
         recycle_bin::RecycleBinRepository, reminder::ReminderRepository,
         snippets::SnippetRepository, sync::SyncRepository,
         task_categories::{TaskCategoryRepository, TaskCategoryRepositoryExt},
+        task_subtask::TaskSubtaskRepository,
         tasks::TaskRepository,
         user_profile::UserProfileRepository, whiteboards::WhiteboardRepository,
         workspace::WorkspaceRepository,
@@ -29,12 +31,14 @@ pub struct AppState {
     pub snippet_repository: SnippetRepository,
     pub sync_repository: SyncRepository,
     pub task_category_repository: TaskCategoryRepository,
+    pub task_subtask_repository: TaskSubtaskRepository,
     pub task_repository: TaskRepository,
     pub whiteboards_repository: WhiteboardRepository,
     pub user_profile_repository: UserProfileRepository,
     pub workspace_repository: WorkspaceRepository,
     pub db: Arc<DatabaseConnection>,
     pub cloud_storage: Arc<RwLock<Option<FileStoreEngine>>>,
+    pub intelligence_client: Arc<RwLock<Option<IntelligenceClient>>>,
 }
 
 impl AppState {
@@ -50,6 +54,7 @@ impl AppState {
         let snippet_repository = SnippetRepository::new(conn.clone());
         let sync_repository = SyncRepository::new(conn.clone());
         let task_category_repository = TaskCategoryRepository::new(conn.clone());
+        let task_subtask_repository = TaskSubtaskRepository::new(conn.clone());
         let task_repository = TaskRepository::new(conn.clone());
         let whiteboards_repository = WhiteboardRepository::new(conn.clone());
         let workspace_repository = WorkspaceRepository::new(conn.clone());
@@ -67,12 +72,14 @@ impl AppState {
             snippet_repository,
             sync_repository,
             task_category_repository,
+            task_subtask_repository,
             task_repository,
             whiteboards_repository,
             workspace_repository,
             user_profile_repository,
             db: conn,
             cloud_storage: Arc::new(RwLock::new(None)),
+            intelligence_client: Arc::new(RwLock::new(None)),
         }
     }
 }

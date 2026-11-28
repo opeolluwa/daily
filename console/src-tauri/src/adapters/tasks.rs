@@ -9,6 +9,7 @@ pub struct CreateTask {
     pub description: Option<String>,
     pub due_date: Option<String>,
     pub priority: String,
+    pub category_identifier: Option<String>,
     pub meta: Option<RequestMeta>,
 }
 
@@ -32,7 +33,7 @@ impl From<CreateTask> for kernel::adapters::tasks::CreateTask {
             description: t.description,
             due_date,
             priority,
-            category_identifier: None,
+            category_identifier: t.category_identifier,
         }
     }
 }
@@ -41,8 +42,9 @@ impl From<CreateTask> for kernel::adapters::tasks::CreateTask {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTask {
     pub title: Option<String>,
-    pub description: Option<String>,
+    pub description: Option<Option<String>>,
     pub status: Option<String>,
+    pub category_identifier: Option<Option<String>>,
 }
 
 impl From<UpdateTask> for kernel::adapters::tasks::UpdateTask {
@@ -51,7 +53,7 @@ impl From<UpdateTask> for kernel::adapters::tasks::UpdateTask {
             title: t.title,
             description: t.description,
             status: t.status,
-            category_identifier: None,
+            category_identifier: t.category_identifier,
         }
     }
 }

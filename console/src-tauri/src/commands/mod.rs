@@ -1,6 +1,7 @@
 pub mod backup_settings;
 pub mod bookmarks;
 pub mod cloud_storage;
+pub mod intelligence;
 pub mod moodboard;
 pub mod notes;
 pub mod notification_settings;
@@ -11,6 +12,7 @@ pub mod reminder;
 pub mod snippets;
 pub mod sync;
 pub mod task_categories;
+pub mod task_subtask;
 pub mod tasks;
 pub mod user_profile;
 pub mod whiteboards;

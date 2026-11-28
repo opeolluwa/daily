@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
 import { computed, useTemplateRef } from "vue";
-import { IS_WEB } from "~/env";
 import { useUserPreferenceStore } from "~/stores/workspace-profile";
 import { syncNow, syncStatus } from "~/utils/sync/engine";
 
@@ -33,12 +32,8 @@ const themeLabel = computed(() =>
 
 const preferenceStore = useUserPreferenceStore();
 const route = useRoute();
-const isMobile = useIsMobile();
 const authPagesPrefix = "/auth";
 const isAuthPage = computed(() => route.path.startsWith(authPagesPrefix));
-const hideTitlebar = computed(
-  () => IS_WEB && isAuthPage.value && isMobile.value,
-);
 const parentPath = computed(() => {
   const segments = route.path.split("/").filter(Boolean);
   return segments.length > 1 ? `/${segments[0]}` : null;
@@ -140,11 +135,7 @@ defineShortcuts(shortcuts);
 </script>
 
 <template>
-  <div
-    v-if="!hideTitlebar"
-    class="titlebar flex items-center gap-1.5 px-2 h-10"
-    data-tauri-drag-region
-  >
+  <div class="titlebar flex items-center gap-1.5 px-2 h-10" data-tauri-drag-region>
     <!-- mobile nav toggle -->
     <div v-if="!isAuthPage">
       <UButton

@@ -1,5 +1,3 @@
-import type { CoreConsoleApi } from "./layers/shared/utils/core";
-
 declare global {
   interface Window {
     // Injected by Tauri core
@@ -28,8 +26,6 @@ declare global {
     __TAURI_EVENT_PLUGIN_INTERNALS__?: {
       unregisterListener: (event: string, eventId: number) => void;
     };
-    // Installed by plugins/core.client.ts on web builds
-    core?: CoreConsoleApi;
   }
 }
 

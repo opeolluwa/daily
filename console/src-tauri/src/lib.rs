@@ -74,10 +74,9 @@ pub async fn run() {
                         .await
                         .expect("failed to initialize kernel");
 
-                    kernel
-                        .run_migrations()
-                        .await
-                        .expect("failed to run migrations");
+                    if let Err(err) = kernel.run_migrations().await {
+                        println!("failed to run migration due to {}", err.to_string());
+                    };
 
                     let conn = Arc::new(kernel.connection().clone());
 
@@ -174,6 +173,12 @@ pub async fn run() {
             commands::task_categories::get_all_task_categories,
             commands::task_categories::update_task_category,
             commands::task_categories::delete_task_category,
+            commands::task_subtask::create_task_subtask,
+            commands::task_subtask::delete_task_subtask,
+            commands::task_subtask::get_task_subtasks,
+            commands::task_subtask::get_tasks_with_subtasks,
+            commands::task_subtask::save_task_subtasks,
+            commands::task_subtask::update_task_subtask,
             commands::tasks::change_task_priority,
             commands::tasks::create_task,
             commands::tasks::delete_task,
@@ -200,6 +205,13 @@ pub async fn run() {
             commands::cloud_storage::disable_cloud_storage,
             commands::cloud_storage::clear_cloud_storage,
             commands::cloud_storage::test_cloud_storage,
+            commands::intelligence::intelligence_configure,
+            commands::intelligence::intelligence_health_check,
+            commands::intelligence::intelligence_list_models,
+            commands::intelligence::intelligence_chat,
+            commands::intelligence::intelligence_chat_stream,
+            commands::intelligence::intelligence_agent_chat_stream,
+            commands::intelligence::intelligence_get_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

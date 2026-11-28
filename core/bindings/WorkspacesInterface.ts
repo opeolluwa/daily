@@ -11,4 +11,5 @@ export type WorkspacesInterface = {
   isSecured: boolean;
   passwordHash: string | null;
   userIdentifier: string | null;
+  deletedAt: string | null;
 };

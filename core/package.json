@@ -5,9 +5,9 @@
   "type": "module",
   "types": "index.ts",
   "scripts": {
-    "prebuild": "node ../scripts/fix-ts-exports.mjs src/entities",
-    "build": "cargo run --quiet --manifest-path migration/Cargo.toml --bin migration-export -- generated/pglite/migrations postgres && cargo run --quiet --manifest-path migration/Cargo.toml --bin migration-export -- generated/sqlite/migrations sqlite && wasm-pack build --target web --dev",
-    "prepare": "npm run build"
+    "generate-types": "node ../scripts/fix-ts-exports.mjs src/entities",
+    "build": "npm run generate-types",
+    "prepare": "npm run generate-types"
   },
   "exports": {
     ".": {

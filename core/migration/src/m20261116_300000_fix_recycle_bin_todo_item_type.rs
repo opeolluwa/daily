@@ -6,7 +6,7 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Postgres/PGlite: ALTER TYPE "item_type" RENAME VALUE 'todo' TO 'task'
+        // Postgres: ALTER TYPE "item_type" RENAME VALUE 'todo' TO 'task'
         // already ran in m20261112, updating all rows by OID. The literal 'todo'
         // is no longer valid, so we must skip the UPDATE there.
         if manager.get_database_backend() == DbBackend::Sqlite {

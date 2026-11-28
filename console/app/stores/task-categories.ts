@@ -1,9 +1,15 @@
 import { defineStore } from "pinia";
 import { invoke } from "../utils/invoke";
-import type { TaskCategory } from "../utils/core/repositories/task-categories";
 import { DEFAULT_TASK_CATEGORIES } from "../data/default-task-categories";
 
-export type { TaskCategory };
+export interface TaskCategory {
+  identifier: string;
+  name: string;
+  color: string;
+  workspaceIdentifier: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface State {
   categories: TaskCategory[];

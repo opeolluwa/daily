@@ -3,7 +3,7 @@
 
 ![Daily Screenshot](./screenshot-1.png)
 
-Daily is a personal productivity application designed to help you organize your day, manage information, and stay focused. Built for desktop with Nuxt and Tauri, it combines a modern interface with local-first storage and a foundation for AI-assisted productivity.
+Daily is a personal productivity application designed to help you organize your day, manage information, and stay focused. Built for desktop with Nuxt and Tauri, it combines a modern interface with local-first storage and a foundation for AI-assisted productivity. The Tauri desktop app is the only supported client; there is no web deployment.
 
 ## Features
 

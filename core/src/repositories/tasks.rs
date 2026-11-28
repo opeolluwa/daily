@@ -189,7 +189,7 @@ impl TaskRepositoryExt for TaskRepository {
             active_model.title = Set(title.clone());
         }
         if let Some(description) = &payload.description {
-            active_model.description = Set(Some(description.clone()));
+            active_model.description = Set(description.clone());
         }
         active_model.updated_at = Set(Utc::now().fixed_offset());
 
@@ -198,7 +198,7 @@ impl TaskRepositoryExt for TaskRepository {
             active_model.status = Set(status);
         }
         if let Some(category_identifier) = &payload.category_identifier {
-            active_model.category_identifier = Set(Some(category_identifier.clone()));
+            active_model.category_identifier = Set(category_identifier.clone());
         }
 
         active_model

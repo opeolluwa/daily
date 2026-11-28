@@ -118,12 +118,6 @@ export default defineNuxtConfig({
     envPrefix: ["VITE_", "TAURI_"],
     server: {
       strictPort: true,
-      proxy: {
-        "/sync": "http://localhost:80007",
-        "/segments": "http://localhost:8000",
-        "/blobs": "http://localhost:8000",
-        "/realtime": { target: "ws://localhost:8000", ws: true },
-      },
     },
     worker: {
       format: "es",
@@ -136,9 +130,6 @@ export default defineNuxtConfig({
         "@nuxt/ui > prosemirror-view",
         "@nuxt/ui > prosemirror-gapcursor",
       ],
-      // PGlite ships its own wasm + FS assets; pre-bundling it breaks
-      // `new PGlite("idb://core")` in dev ("Invalid FS bundle size").
-      exclude: ["@electric-sql/pglite", "@sqlite.org/sqlite-wasm"],
     },
   },
 

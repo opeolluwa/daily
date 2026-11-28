@@ -62,17 +62,13 @@ jobs:
       - name: install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       # Rust cache
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./console/src-tauri -> target"
-
-      # wasm-pack (needed for core build)
-      - name: install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       # Install frontend dependencies
       - name: install frontend dependencies

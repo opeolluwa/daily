@@ -3,7 +3,7 @@
 ## Console
 
 ```bash
-just build almond
+just build-console
 ```
 
 ## Android

@@ -6,7 +6,6 @@ import {
 import { useAlarmScheduler } from "~/composables/useAlarmScheduler";
 import { useWorkspaceSetup } from "~/composables/useWorkspaceSetup";
 import "@domternal/theme";
-import { IS_WEB } from "~/env";
 const { init: initFontSize } = useFontSize();
 const { init: initDarkTheme } = useDarkTheme();
 const { setupRequired, checkSetup, initializing } = useUserSetup();
@@ -20,11 +19,7 @@ useAlarmScheduler();
 
 onMounted(async () => {
   try {
-    document.documentElement.classList.toggle("is-web", IS_WEB);
-    document.documentElement.classList.toggle("is-tauri", !IS_WEB);
-    if (!IS_WEB) {
-      document.body.style.backgroundColor = "transparent";
-    }
+    document.body.style.backgroundColor = "transparent";
 
     initFontSize();
     initDarkTheme();
@@ -45,11 +40,8 @@ onMounted(async () => {
 
 <template>
   <UApp :toaster="{ progress: false, duration: 1500, position: 'top-right' }">
-    <!-- Background fill for Tauri transparent window -->
-    <div
-      v-if="!IS_WEB"
-      class="fixed inset-0 rounded-2xl bg-gray-50 dark:bg-app-dark-800"
-    />
+    <!-- Background fill for the transparent desktop window -->
+    <div class="fixed inset-0 rounded-2xl bg-gray-50 dark:bg-app-dark-800" />
 
     <NuxtLayout>
       <NuxtPage />
@@ -67,13 +59,12 @@ onMounted(async () => {
     </Transition>
 
     <!-- Window controls (traffic lights / minimize-maximize-close) -->
-    <AppWindowControls v-if="!IS_WEB" />
+    <AppWindowControls />
 
     <!-- <AppTitlebar :authenticated="authenticated" /> -->
 
     <!-- Masks the dark macOS window-edge hairline; keeps the OS shadow. -->
     <div
-      v-if="!IS_WEB"
       aria-hidden="true"
       class="pointer-events-none fixed inset-0 z-9998 rounded-2xl border border-gray-200 dark:border-white/15"
     />
@@ -83,16 +74,6 @@ onMounted(async () => {
 <style>
 html,
 body {
-  background-color: #fff;
-}
-
-html.dark,
-html.dark body {
-  background-color: var(--app-dark-800);
-}
-
-html.is-tauri,
-html.is-tauri body {
   background-color: transparent;
 }
 </style>
