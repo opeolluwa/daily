@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { useTaskCategoryStore, type TaskCategory } from "~/stores/task-categories";
+import {
+  useTaskCategoryStore,
+  type TaskCategory,
+} from "~/stores/task-categories";
 
 const open = defineModel<boolean>("open", { required: true });
 const categoryStore = useTaskCategoryStore();
@@ -95,7 +98,9 @@ async function handleDelete(id: string) {
         <!-- Add new -->
         <div class="flex items-end gap-2">
           <div class="flex-1">
-            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
+            <label
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block"
+            >
               New category
             </label>
             <input
@@ -104,7 +109,7 @@ async function handleDelete(id: string) {
               placeholder="Category name"
               class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
               @keydown.enter="handleCreate"
-            />
+            >
           </div>
           <div class="flex items-center gap-1">
             <button
@@ -131,7 +136,7 @@ async function handleDelete(id: string) {
           </UButton>
         </div>
 
-        <hr class="border-gray-200 dark:border-gray-700" />
+        <hr class="border-gray-200 dark:border-gray-700" >
 
         <!-- Existing categories -->
         <div class="flex flex-col gap-2">
@@ -162,7 +167,7 @@ async function handleDelete(id: string) {
                 class="flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-gray-800 focus:outline-none dark:text-gray-100"
                 @keydown.enter="saveEdit"
                 @keydown.escape="editingId = null"
-              />
+              >
               <UButton size="xs" variant="soft" @click="saveEdit">Save</UButton>
               <UButton
                 size="xs"

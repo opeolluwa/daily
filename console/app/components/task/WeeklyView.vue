@@ -67,8 +67,7 @@ function tasksForDate(dateStr: string): Task[] {
     if (priorities.size > 0 && !priorities.has(t.priority)) return false;
     if (categories.size > 0) {
       const catId = (t as Record<string, unknown>).categoryIdentifier as
-        | string
-        | null;
+        string | null;
       if (!catId || !categories.has(catId)) return false;
     }
     return true;
@@ -116,7 +115,7 @@ function exportAsText() {
 onMounted(() => {
   const route = useRoute();
   if (route.query.from) {
-    startDate.value = new Date(route.query.from as string + "T00:00:00");
+    startDate.value = new Date((route.query.from as string) + "T00:00:00");
   }
 });
 </script>
@@ -244,7 +243,9 @@ onMounted(() => {
               >
                 {{ task.title }}
               </h4>
-              <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
+              <p
+                class="text-xs text-gray-500 dark:text-gray-400 whitespace-pre-wrap"
+              >
                 {{ task.description }}
               </p>
             </div>
@@ -252,7 +253,8 @@ onMounted(() => {
           <p
             v-if="
               dates.every(
-                (d) => tasksForDate(d).filter((t) => t.description).length === 0,
+                (d) =>
+                  tasksForDate(d).filter((t) => t.description).length === 0,
               )
             "
             class="text-center text-sm text-gray-400 dark:text-gray-500 py-8"

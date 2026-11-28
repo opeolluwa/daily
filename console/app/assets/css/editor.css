@@ -37,7 +37,11 @@
 .notes-editor.dm-theme-dark .dm-toolbar {
   --dm-bg: transparent;
   --dm-accent: var(--color-primary-400);
-  --dm-accent-surface: color-mix(in srgb, var(--color-primary-400) 15%, transparent);
+  --dm-accent-surface: color-mix(
+    in srgb,
+    var(--color-primary-400) 15%,
+    transparent
+  );
 }
 
 /* ProseMirror content */

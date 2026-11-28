@@ -61,7 +61,9 @@ const hasActive = computed(
     <template #content>
       <div class="w-56 p-3 flex flex-col gap-3">
         <div v-if="categories.length > 0" class="flex flex-col gap-1.5">
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+          <span
+            class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+          >
             Category
           </span>
           <button
@@ -85,7 +87,9 @@ const hasActive = computed(
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+          <span
+            class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+          >
             Priority
           </span>
           <button
@@ -100,7 +104,10 @@ const hasActive = computed(
             "
             @click="togglePriority(p)"
           >
-            <span class="size-2 shrink-0 rounded-full" :class="priorityColors[p]" />
+            <span
+              class="size-2 shrink-0 rounded-full"
+              :class="priorityColors[p]"
+            />
             {{ p }}
           </button>
         </div>

@@ -36,9 +36,6 @@ const collapsed = computed({
       handle: 'cursor-ew-resize',
     }"
   >
-    <NavigationContent
-      :collapsed="collapsed"
-      :show-user-card="false"
-    />
+    <NavigationContent :collapsed="collapsed" :show-user-card="false" />
   </UDashboardSidebar>
 </template>

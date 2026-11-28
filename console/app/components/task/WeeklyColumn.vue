@@ -24,24 +24,18 @@ const dayLabel = computed(() => {
   return `${day} ${weekday}${suffix}`;
 });
 
-const pendingCount = computed(
-  () => props.tasks.filter((t) => !t.done).length,
-);
+const pendingCount = computed(() => props.tasks.filter((t) => !t.done).length);
 </script>
 
 <template>
   <section
     class="flex min-h-0 flex-col p-3 transition-colors"
-    :class="
-      'bg-gray-50/70 dark:bg-gray-800/60'
-    "
+    :class="'bg-gray-50/70 dark:bg-gray-800/60'"
   >
     <header class="mb-3 flex items-center gap-2 px-1">
       <h3
         class="text-sm font-semibold"
-        :class="
-          'text-gray-700 dark:text-gray-200'
-        "
+        :class="'text-gray-700 dark:text-gray-200'"
       >
         {{ dayLabel }}
       </h3>

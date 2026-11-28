@@ -1,6 +1,5 @@
 use kernel::{
-    adapters::meta::RequestMeta,
-    entities::task_category,
+    adapters::meta::RequestMeta, entities::task_category,
     repositories::task_categories::TaskCategoryRepositoryExt,
 };
 use tauri::State;

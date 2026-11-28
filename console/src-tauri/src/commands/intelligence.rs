@@ -20,9 +20,7 @@ pub async fn intelligence_configure(
 }
 
 #[tauri::command]
-pub async fn intelligence_health_check(
-    state: State<'_, AppState>,
-) -> Result<bool, AppError> {
+pub async fn intelligence_health_check(state: State<'_, AppState>) -> Result<bool, AppError> {
     let guard = state.intelligence_client.read().await;
     let client = guard.as_ref().ok_or_else(|| {
         AppError::Intelligence(intelligence::IntelligenceError::Unavailable(
@@ -33,9 +31,7 @@ pub async fn intelligence_health_check(
 }
 
 #[tauri::command]
-pub async fn intelligence_list_models(
-    state: State<'_, AppState>,
-) -> Result<Vec<String>, AppError> {
+pub async fn intelligence_list_models(state: State<'_, AppState>) -> Result<Vec<String>, AppError> {
     let guard = state.intelligence_client.read().await;
     let client = guard.as_ref().ok_or_else(|| {
         AppError::Intelligence(intelligence::IntelligenceError::Unavailable(
@@ -115,9 +111,7 @@ pub async fn intelligence_agent_chat_stream(
     let system_prompt = if context_section.is_empty() {
         DEFAULT_SYSTEM_PROMPT.to_string()
     } else {
-        format!(
-            "{DEFAULT_SYSTEM_PROMPT}\n\n---\n\nUser's current data:\n\n{context_section}"
-        )
+        format!("{DEFAULT_SYSTEM_PROMPT}\n\n---\n\nUser's current data:\n\n{context_section}")
     };
 
     let mut messages = vec![ChatMessage::system(system_prompt)];

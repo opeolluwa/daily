@@ -135,7 +135,10 @@ defineShortcuts(shortcuts);
 </script>
 
 <template>
-  <div class="titlebar flex items-center gap-1.5 px-2 h-10" data-tauri-drag-region>
+  <div
+    class="titlebar flex items-center gap-1.5 px-2 h-10"
+    data-tauri-drag-region
+  >
     <!-- mobile nav toggle -->
     <div v-if="!isAuthPage">
       <UButton

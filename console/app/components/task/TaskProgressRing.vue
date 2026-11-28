@@ -14,9 +14,7 @@ const circumference = 2 * Math.PI * radius;
 const clamped = computed(() =>
   Math.min(100, Math.max(0, Math.round(props.progress))),
 );
-const offset = computed(
-  () => circumference * (1 - clamped.value / 100),
-);
+const offset = computed(() => circumference * (1 - clamped.value / 100));
 </script>
 
 <template>

@@ -27,9 +27,7 @@ const subtaskProgress = computed(
 
 const category = computed(() => {
   const catId = (props.task as Record<string, unknown>).categoryIdentifier as
-    | string
-    | null
-    | undefined;
+    string | null | undefined;
   if (!catId) return null;
   return props.categories.find((c) => c.identifier === catId) ?? null;
 });

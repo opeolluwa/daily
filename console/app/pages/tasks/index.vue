@@ -48,10 +48,7 @@ async function handleDelete(identifier: string) {
 
 onMounted(async () => {
   setSearch({ placeholder: "Search tasks..." });
-  await Promise.all([
-    taskStore.fetchTasks(),
-    categoryStore.fetchCategories(),
-  ]);
+  await Promise.all([taskStore.fetchTasks(), categoryStore.fetchCategories()]);
   await categoryStore.seedDefaults();
 });
 

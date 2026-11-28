@@ -62,7 +62,8 @@ function hydrate() {
   form.priority = task.value.priority;
   form.done = task.value.done;
   form.categoryIdentifier =
-    (task.value as Record<string, unknown>).categoryIdentifier as string | null ?? null;
+    ((task.value as Record<string, unknown>).categoryIdentifier as
+      string | null) ?? null;
   if (task.value.dueTime) {
     const [h, m] = task.value.dueTime.split(":").map(Number);
     selectedTime.value = new Time(h, m);
@@ -116,7 +117,8 @@ watch(
 
 onMounted(async () => {
   if (taskStore.tasks.length === 0) await taskStore.fetchTasks();
-  if (categoryStore.categories.length === 0) await categoryStore.fetchCategories();
+  if (categoryStore.categories.length === 0)
+    await categoryStore.fetchCategories();
   hydrate();
 });
 

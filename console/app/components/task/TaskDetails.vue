@@ -102,7 +102,6 @@ function removeSubtask(index: number) {
       .map((subtask, i) => ({ ...subtask, sortOrder: i })),
   );
 }
-
 </script>
 
 <template>
@@ -126,9 +125,7 @@ function removeSubtask(index: number) {
         >
       </div>
 
-      <div
-        class="mt-6 rounded-2xl bg-gray-50/90 px-5 py-4 dark:bg-gray-800/60"
-      >
+      <div class="mt-6 rounded-2xl bg-gray-50/90 px-5 py-4 dark:bg-gray-800/60">
         <div class="flex items-center justify-between gap-4">
           <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
             Category
@@ -175,7 +172,9 @@ function removeSubtask(index: number) {
 
       <div class="mt-7">
         <div class="mb-3 flex items-center justify-between">
-          <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+          <span
+            class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400"
+          >
             Subtasks
           </span>
           <span

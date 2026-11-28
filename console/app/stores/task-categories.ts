@@ -65,9 +65,7 @@ export const useTaskCategoryStore = defineStore("task_category_store", {
         category: payload,
         meta: await getWorkspaceMeta(),
       });
-      const idx = this.categories.findIndex(
-        (c) => c.identifier === identifier,
-      );
+      const idx = this.categories.findIndex((c) => c.identifier === identifier);
       if (idx !== -1) this.categories[idx] = updated;
       return updated;
     },

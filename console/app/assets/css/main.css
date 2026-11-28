@@ -120,7 +120,6 @@ body {
   @apply scrollbar-thumb-rounded-full scrollbar-w-[0.25px] scrollbar-corner-gray-900 scrollbar-h-20 scrollbar-track-rounded-full scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-transparent;
 }
 
-
 /* Properties sidebar scrollbar */
 .properties-sidebar::-webkit-scrollbar {
   width: 4px;
@@ -233,4 +232,3 @@ body {
 #auth_layout h2 + p {
   @apply text-gray-600 dark:text-gray-400 max-md:text-left text-center;
 }
-
