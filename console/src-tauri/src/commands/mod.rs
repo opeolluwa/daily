@@ -11,7 +11,6 @@ pub mod recycle_bin;
 pub mod reminder;
 pub mod snippets;
 pub mod sync;
-pub mod task_categories;
 pub mod task_subtask;
 pub mod tasks;
 pub mod user_profile;

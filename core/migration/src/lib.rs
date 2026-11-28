@@ -62,6 +62,7 @@ mod m20261118_200000_create_backup_settings;
 pub mod m20261127_134554_create_task_category_table;
 mod m20261127_134557_add_category_to_task;
 mod m20261127_234037_create_task_subtasks;
+mod m20261128_000000_remove_task_category;
 
 pub use sea_orm_migration::prelude::*;
 pub struct Migrator;
@@ -134,6 +135,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20261127_134554_create_task_category_table::Migration),
             Box::new(m20261127_134557_add_category_to_task::Migration),
             Box::new(m20261127_234037_create_task_subtasks::Migration),
+            Box::new(m20261128_000000_remove_task_category::Migration),
         ]
     }
 }

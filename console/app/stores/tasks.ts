@@ -14,7 +14,6 @@ export type { Task };
 export type CreateTaskPayload = Partial<CreateTask> &
   Pick<CreateTask, "title" | "priority"> & {
     time?: string;
-    categoryIdentifier?: string;
   };
 
 export type UpdateTaskPayload = Partial<UpdateTask>;

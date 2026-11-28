@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import type { Task } from "~/stores/tasks";
-import type { TaskCategory } from "~/stores/task-categories";
 
 const props = defineProps<{
   date: string;
   tasks: Task[];
-  categories: TaskCategory[];
   isToday: boolean;
 }>();
 
@@ -59,7 +57,6 @@ const pendingCount = computed(() => props.tasks.filter((t) => !t.done).length);
         v-for="task in tasks"
         :key="task.identifier"
         :task="task"
-        :categories="categories"
         @toggle="(id, done) => emit('toggle', id, done)"
         @edit="(id) => emit('edit', id)"
         @delete="(id) => emit('delete', id)"

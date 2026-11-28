@@ -15,7 +15,6 @@ use kernel::{
         reminder::ReminderRepository,
         snippets::SnippetRepository,
         sync::SyncRepository,
-        task_categories::{TaskCategoryRepository, TaskCategoryRepositoryExt},
         task_subtask::TaskSubtaskRepository,
         tasks::TaskRepository,
         user_profile::UserProfileRepository,
@@ -37,7 +36,6 @@ pub struct AppState {
     pub reminder_repository: ReminderRepository,
     pub snippet_repository: SnippetRepository,
     pub sync_repository: SyncRepository,
-    pub task_category_repository: TaskCategoryRepository,
     pub task_subtask_repository: TaskSubtaskRepository,
     pub task_repository: TaskRepository,
     pub whiteboards_repository: WhiteboardRepository,
@@ -60,7 +58,6 @@ impl AppState {
         let reminder_repository = ReminderRepository::new(conn.clone());
         let snippet_repository = SnippetRepository::new(conn.clone());
         let sync_repository = SyncRepository::new(conn.clone());
-        let task_category_repository = TaskCategoryRepository::new(conn.clone());
         let task_subtask_repository = TaskSubtaskRepository::new(conn.clone());
         let task_repository = TaskRepository::new(conn.clone());
         let whiteboards_repository = WhiteboardRepository::new(conn.clone());
@@ -78,7 +75,6 @@ impl AppState {
             reminder_repository,
             snippet_repository,
             sync_repository,
-            task_category_repository,
             task_subtask_repository,
             task_repository,
             whiteboards_repository,

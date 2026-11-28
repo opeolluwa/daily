@@ -197,10 +197,6 @@ impl TaskRepositoryExt for TaskRepository {
             let status = TaskStatus::from_str(status)?;
             active_model.status = Set(status);
         }
-        if let Some(category_identifier) = &payload.category_identifier {
-            active_model.category_identifier = Set(category_identifier.clone());
-        }
-
         active_model
             .update(self.conn.as_ref())
             .await

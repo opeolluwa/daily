@@ -94,6 +94,54 @@ async fn sqlite_sync_foundation_migration_applies() {
 }
 
 #[tokio::test]
+async fn sqlite_task_category_is_removed_and_can_be_restored() {
+    let path = std::env::temp_dir().join(format!(
+        "almonds-task-category-removal-test-{}.db",
+        uuid::Uuid::new_v4()
+    ));
+    let url = format!("sqlite://{}?mode=rwc", path.display());
+    let db = Database::connect(&url).await.unwrap();
+    Migrator::up(&db, None).await.unwrap();
+
+    async fn category_state(db: &sea_orm::DatabaseConnection) -> (bool, bool) {
+        let columns = db
+            .query_all_raw(Statement::from_string(
+                DbBackend::Sqlite,
+                "PRAGMA table_info(\"task\")",
+            ))
+            .await
+            .unwrap();
+        let has_column = columns
+            .iter()
+            .any(|row| row.try_get::<String>("", "name").unwrap() == "category_identifier");
+
+        let tables = db
+            .query_all_raw(Statement::from_string(
+                DbBackend::Sqlite,
+                "SELECT name FROM sqlite_master WHERE type = 'table'",
+            ))
+            .await
+            .unwrap();
+        let has_table = tables
+            .iter()
+            .any(|row| row.try_get::<String>("", "name").unwrap() == "task_category");
+
+        (has_column, has_table)
+    }
+
+    assert_eq!(category_state(&db).await, (false, false));
+
+    Migrator::down(&db, Some(1)).await.unwrap();
+    assert_eq!(category_state(&db).await, (true, true));
+
+    Migrator::up(&db, Some(1)).await.unwrap();
+    assert_eq!(category_state(&db).await, (false, false));
+
+    db.close().await.unwrap();
+    std::fs::remove_file(path).unwrap();
+}
+
+#[tokio::test]
 async fn sqlite_ulid_migration_dedupes_and_converts_ids() {
     let path = std::env::temp_dir().join(format!(
         "almonds-ulid-migration-test-{}.db",

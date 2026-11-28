@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { CalendarDate, Time } from "@internationalized/date";
 import { useTaskStore, type TaskSubtaskDraft } from "~/stores/tasks";
-import { useTaskCategoryStore } from "~/stores/task-categories";
 import TaskDetails from "./TaskDetails.vue";
 
 const props = defineProps<{
@@ -13,7 +12,6 @@ const props = defineProps<{
     dueTime?: string | null;
     priority: "high" | "medium" | "low";
     done: boolean;
-    categoryIdentifier?: string | null;
   } | null;
   initialDate?: string | null;
 }>();
@@ -21,7 +19,6 @@ const props = defineProps<{
 const open = defineModel<boolean>("open", { required: true });
 
 const taskStore = useTaskStore();
-const categoryStore = useTaskCategoryStore();
 const toast = useToast();
 
 const editing = computed(() => !!props.task);
@@ -38,7 +35,6 @@ const form = reactive({
   dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
   done: false,
-  categoryIdentifier: null as string | null,
 });
 
 const selectedTime = shallowRef<Time | undefined>();
@@ -46,10 +42,6 @@ const subtasks = ref<TaskSubtaskDraft[]>([]);
 const doneTouched = ref(false);
 const submitting = ref(false);
 const deleting = ref(false);
-
-onMounted(() => {
-  if (categoryStore.categories.length === 0) categoryStore.fetchCategories();
-});
 
 function toIsoDate(date: CalendarDate | undefined): string | null {
   if (!date) return null;
@@ -79,7 +71,6 @@ function resetForm() {
   form.dueDate = undefined;
   form.priority = "medium";
   form.done = false;
-  form.categoryIdentifier = null;
   selectedTime.value = undefined;
   subtasks.value = [];
   doneTouched.value = false;
@@ -126,7 +117,6 @@ watch(
       form.dueDate = fromIsoDate(task.dueDate);
       form.priority = task.priority;
       form.done = task.done;
-      form.categoryIdentifier = task.categoryIdentifier ?? null;
       doneTouched.value = false;
       void loadDraftSubtasks(task);
       if (task.dueTime) {
@@ -168,8 +158,7 @@ async function handleSubmit() {
       await taskStore.updateTask(props.task.identifier, {
         title: form.title.trim(),
         description: form.description.trim() || null,
-        categoryIdentifier: form.categoryIdentifier,
-      } as Record<string, unknown>);
+      });
 
       await taskStore.saveSubtasks(props.task.identifier, subtasks.value);
 
@@ -203,7 +192,6 @@ async function handleSubmit() {
         dueDate: toIsoDate(form.dueDate) ?? undefined,
         time: selectedTime.value ? formatTime(selectedTime.value) : undefined,
         priority: form.priority,
-        categoryIdentifier: form.categoryIdentifier ?? undefined,
       });
       await taskStore.saveSubtasks(created.identifier, subtasks.value);
       toast.add({
@@ -268,10 +256,8 @@ async function handleDelete() {
         v-model:title="form.title"
         v-model:description="form.description"
         v-model:due-date="form.dueDate"
-        v-model:category-identifier="form.categoryIdentifier"
         :done="form.done"
         :subtasks="subtasks"
-        :categories="categoryStore.categories"
         :busy="submitting"
         :embedded="true"
         @update:done="onDoneChange"

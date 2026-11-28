@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { useTaskStore, type Task } from "~/stores/tasks";
-import type { TaskCategory } from "~/stores/task-categories";
 import { useWorkspacesStore } from "~/stores/workspaces";
 import TaskProgressRing from "./TaskProgressRing.vue";
 
 const props = defineProps<{
   task: Task;
-  categories: TaskCategory[];
 }>();
 
 const emit = defineEmits<{
@@ -24,13 +22,6 @@ const subtaskCount = computed(
 const subtaskProgress = computed(
   () => taskStore.progressByTask[props.task.identifier] ?? 0,
 );
-
-const category = computed(() => {
-  const catId = (props.task as Record<string, unknown>).categoryIdentifier as
-    string | null | undefined;
-  if (!catId) return null;
-  return props.categories.find((c) => c.identifier === catId) ?? null;
-});
 
 function formatTime(timeStr: string | null | undefined): string | null {
   if (!timeStr) return null;
@@ -117,21 +108,6 @@ async function handleTransfer(targetWorkspaceId: string) {
           :progress="subtaskProgress"
           :size="26"
         />
-
-        <span
-          v-if="category"
-          class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-          :style="{
-            backgroundColor: category.color + '30',
-            color: category.color,
-          }"
-        >
-          <span
-            class="size-1.5 rounded-full"
-            :style="{ backgroundColor: category.color }"
-          />
-          {{ category.name }}
-        </span>
 
         <span
           v-if="task.dueTime"

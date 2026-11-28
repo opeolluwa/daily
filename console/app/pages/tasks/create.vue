@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CalendarDate, type Time } from "@internationalized/date";
-import { useTaskCategoryStore } from "~/stores/task-categories";
 import type { TaskSubtaskDraft } from "~/stores/tasks";
 import TaskDetails from "~/components/task/TaskDetails.vue";
 
@@ -9,7 +8,6 @@ definePageMeta({ layout: false, name: "New Task" });
 const route = useRoute();
 const router = useRouter();
 const taskStore = useTaskStore();
-const categoryStore = useTaskCategoryStore();
 const toast = useToast();
 
 const priorityOptions = [
@@ -23,7 +21,6 @@ const form = reactive({
   description: "",
   dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
-  categoryIdentifier: null as string | null,
 });
 
 const selectedTime = shallowRef<Time | undefined>();
@@ -55,7 +52,6 @@ function formatTime(time: Time): string {
 onMounted(() => {
   const initialDate = route.query.date as string | undefined;
   if (initialDate) form.dueDate = fromIsoDate(initialDate);
-  if (categoryStore.categories.length === 0) categoryStore.fetchCategories();
 });
 
 async function handleSubmit() {
@@ -68,7 +64,6 @@ async function handleSubmit() {
       dueDate: toIsoDate(form.dueDate) ?? undefined,
       time: selectedTime.value ? formatTime(selectedTime.value) : undefined,
       priority: form.priority,
-      categoryIdentifier: form.categoryIdentifier ?? undefined,
     });
     await taskStore.saveSubtasks(created.identifier, subtasks.value);
     toast.add({
@@ -106,9 +101,7 @@ async function handleSubmit() {
             v-model:title="form.title"
             v-model:description="form.description"
             v-model:due-date="form.dueDate"
-            v-model:category-identifier="form.categoryIdentifier"
             v-model:subtasks="subtasks"
-            :categories="categoryStore.categories"
             :busy="submitting"
             :show-done="false"
           >

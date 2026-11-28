@@ -21,7 +21,6 @@ pub mod sync_meta;
 pub mod sync_queue;
 pub mod sync_state;
 pub mod task;
-pub mod task_category;
 pub mod task_subtask;
 pub mod user_profile;
 pub mod users;
@@ -49,7 +48,6 @@ seaography::register_entity_modules!([
     sync_queue,
     sync_state,
     task,
-    task_category,
     task_subtask,
     user_profile,
     users,

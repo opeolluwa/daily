@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import TaskDialog from "~/components/task/Dialog.vue";
 import { useTaskStore, type Task } from "~/stores/tasks";
-import { useTaskCategoryStore } from "~/stores/task-categories";
 
 definePageMeta({ layout: false });
 
 const taskStore = useTaskStore();
-const categoryStore = useTaskCategoryStore();
 
 const { setSearch, clearSearch } = useAppSearch();
 const dialogOpen = ref(false);
@@ -48,8 +46,7 @@ async function handleDelete(identifier: string) {
 
 onMounted(async () => {
   setSearch({ placeholder: "Search tasks..." });
-  await Promise.all([taskStore.fetchTasks(), categoryStore.fetchCategories()]);
-  await categoryStore.seedDefaults();
+  await taskStore.fetchTasks();
 });
 
 onUnmounted(() => clearSearch());

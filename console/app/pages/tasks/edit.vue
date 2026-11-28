@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CalendarDate, Time } from "@internationalized/date";
-import { useTaskCategoryStore } from "~/stores/task-categories";
 import type { TaskSubtaskDraft } from "~/stores/tasks";
 import TaskDetails from "~/components/task/TaskDetails.vue";
 
@@ -9,7 +8,6 @@ definePageMeta({ layout: false, name: "Edit Task" });
 const route = useRoute();
 const router = useRouter();
 const taskStore = useTaskStore();
-const categoryStore = useTaskCategoryStore();
 const toast = useToast();
 
 const id = computed(() => route.query.id as string | undefined);
@@ -29,7 +27,6 @@ const form = reactive({
   dueDate: undefined as CalendarDate | undefined,
   priority: "medium" as "high" | "medium" | "low",
   done: false,
-  categoryIdentifier: null as string | null,
 });
 const selectedTime = shallowRef<Time | undefined>();
 const subtasks = ref<TaskSubtaskDraft[]>([]);
@@ -61,9 +58,6 @@ function hydrate() {
   form.dueDate = fromIsoDate(task.value.dueDate);
   form.priority = task.value.priority;
   form.done = task.value.done;
-  form.categoryIdentifier =
-    ((task.value as Record<string, unknown>).categoryIdentifier as
-      string | null) ?? null;
   if (task.value.dueTime) {
     const [h, m] = task.value.dueTime.split(":").map(Number);
     selectedTime.value = new Time(h, m);
@@ -117,8 +111,6 @@ watch(
 
 onMounted(async () => {
   if (taskStore.tasks.length === 0) await taskStore.fetchTasks();
-  if (categoryStore.categories.length === 0)
-    await categoryStore.fetchCategories();
   hydrate();
 });
 
@@ -129,8 +121,7 @@ async function handleSubmit() {
     await taskStore.updateTask(task.value.identifier, {
       title: form.title.trim(),
       description: form.description.trim() || null,
-      categoryIdentifier: form.categoryIdentifier,
-    } as Record<string, unknown>);
+    });
     await taskStore.saveSubtasks(task.value.identifier, subtasks.value);
     const current = taskStore.tasks.find(
       (t) => t.identifier === task.value!.identifier,
@@ -219,10 +210,8 @@ async function handleDelete() {
             v-model:title="form.title"
             v-model:description="form.description"
             v-model:due-date="form.dueDate"
-            v-model:category-identifier="form.categoryIdentifier"
             :done="form.done"
             :subtasks="subtasks"
-            :categories="categoryStore.categories"
             :busy="submitting"
             @update:done="onDoneChange"
             @update:subtasks="onSubtasksChange"

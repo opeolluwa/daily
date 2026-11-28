@@ -14,7 +14,6 @@ pub struct CreateTask {
     pub description: Option<String>,
     pub due_date: Option<Date>,
     pub priority: Priority,
-    pub category_identifier: Option<String>,
 }
 
 impl Into<entities::task::ActiveModel> for CreateTask {
@@ -26,7 +25,6 @@ impl Into<entities::task::ActiveModel> for CreateTask {
             due_date: Set(self.due_date),
             priority: Set(self.priority),
             done: Set(false),
-            category_identifier: Set(self.category_identifier),
             created_at: Set(Utc::now().fixed_offset()),
             updated_at: Set(Utc::now().fixed_offset()),
             deleted_at: Set(None),
@@ -42,5 +40,4 @@ pub struct UpdateTask {
     pub title: Option<String>,
     pub description: Option<Option<String>>,
     pub status: Option<String>,
-    pub category_identifier: Option<Option<String>>,
 }

@@ -24,7 +24,6 @@ pub struct Model {
     pub workspace_identifier: Option<String>,
     pub status: TaskStatus,
     pub deleted_at: Option<DateTimeWithTimeZone>,
-    pub category_identifier: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -37,25 +36,11 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Workspaces,
-    #[sea_orm(
-        belongs_to = "super::task_category::Entity",
-        from = "Column::CategoryIdentifier",
-        to = "super::task_category::Column::Identifier",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    TaskCategory,
 }
 
 impl Related<super::workspaces::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Workspaces.def()
-    }
-}
-
-impl Related<super::task_category::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::TaskCategory.def()
     }
 }
 
@@ -65,6 +50,4 @@ impl ActiveModelBehavior for ActiveModel {}
 pub enum RelatedEntity {
     #[sea_orm(entity = "super::workspaces::Entity")]
     Workspaces,
-    #[sea_orm(entity = "super::task_category::Entity")]
-    TaskCategory,
 }

@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import type { CalendarDate } from "@internationalized/date";
-import type { TaskCategory } from "~/stores/task-categories";
 import type { TaskSubtaskDraft } from "~/stores/tasks";
-
-const NO_CATEGORY = "__none__";
 
 const props = withDefaults(
   defineProps<{
     title: string;
     description: string;
     dueDate?: CalendarDate | null;
-    categoryIdentifier?: string | null;
-    categories: TaskCategory[];
     done: boolean;
     subtasks: TaskSubtaskDraft[];
     busy?: boolean;
@@ -20,7 +15,6 @@ const props = withDefaults(
   }>(),
   {
     dueDate: null,
-    categoryIdentifier: null,
     busy: false,
     showDone: true,
     embedded: false,
@@ -31,24 +25,9 @@ const emit = defineEmits<{
   "update:title": [value: string];
   "update:description": [value: string];
   "update:dueDate": [value: CalendarDate | undefined];
-  "update:categoryIdentifier": [value: string | null];
   "update:done": [value: boolean];
   "update:subtasks": [value: TaskSubtaskDraft[]];
 }>();
-
-const categoryItems = computed(() => [
-  { label: "None", value: NO_CATEGORY },
-  ...props.categories.map((category) => ({
-    label: category.name,
-    value: category.identifier,
-  })),
-]);
-
-const categoryValue = computed(() => props.categoryIdentifier ?? NO_CATEGORY);
-
-function onCategoryChange(value: string) {
-  emit("update:categoryIdentifier", value === NO_CATEGORY ? null : value);
-}
 
 function onTitleInput(event: Event) {
   emit("update:title", (event.target as HTMLInputElement).value);
@@ -127,24 +106,6 @@ function removeSubtask(index: number) {
 
       <div class="mt-6 rounded-2xl bg-gray-50/90 px-5 py-4 dark:bg-gray-800/60">
         <div class="flex items-center justify-between gap-4">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Category
-          </span>
-          <div class="min-w-0">
-            <RyderSelect
-              :model-value="categoryValue"
-              name="task-category"
-              placeholder="No category"
-              size="sm"
-              :items="categoryItems"
-              :disabled="props.busy"
-              class="w-44"
-              @update:model-value="onCategoryChange"
-            />
-          </div>
-        </div>
-
-        <div class="mt-3 flex items-center justify-between gap-4">
           <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
             Due date
           </span>

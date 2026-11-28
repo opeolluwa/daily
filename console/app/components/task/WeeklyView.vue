@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useTaskStore, type Task } from "~/stores/tasks";
-import { useTaskCategoryStore } from "~/stores/task-categories";
 
 const emit = defineEmits<{
   edit: [identifier: string];
@@ -10,7 +9,6 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useTaskStore();
-const categoryStore = useTaskCategoryStore();
 
 const DAYS_TO_SHOW = 4;
 const startDate = ref(new Date());
@@ -55,23 +53,14 @@ function goToToday() {
 }
 
 const activeFilters = ref<{
-  categories: Set<string>;
   priorities: Set<string>;
-}>({ categories: new Set(), priorities: new Set() });
+}>({ priorities: new Set() });
 
 function tasksForDate(dateStr: string): Task[] {
   const all = taskStore.tasksByDate.get(dateStr) ?? [];
-  const { categories, priorities } = activeFilters.value;
-  if (categories.size === 0 && priorities.size === 0) return all;
-  return all.filter((t) => {
-    if (priorities.size > 0 && !priorities.has(t.priority)) return false;
-    if (categories.size > 0) {
-      const catId = (t as Record<string, unknown>).categoryIdentifier as
-        string | null;
-      if (!catId || !categories.has(catId)) return false;
-    }
-    return true;
-  });
+  const { priorities } = activeFilters.value;
+  if (priorities.size === 0) return all;
+  return all.filter((t) => priorities.has(t.priority));
 }
 
 const unscheduledCount = computed(() => {
@@ -151,7 +140,6 @@ onMounted(() => {
 
       <div class="flex items-center gap-1">
         <TaskWeeklyFilter
-          :categories="categoryStore.categories"
           :active-filters="activeFilters"
           @update:filters="activeFilters = $event"
         />
@@ -213,7 +201,6 @@ onMounted(() => {
         :key="dateStr"
         :date="dateStr"
         :tasks="tasksForDate(dateStr)"
-        :categories="categoryStore.categories"
         :is-today="dateStr === todayIso()"
         class="min-w-0"
         @edit="(id) => emit('edit', id)"

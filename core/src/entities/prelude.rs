@@ -16,7 +16,6 @@ pub use super::sync_meta::Entity as SyncMeta;
 pub use super::sync_queue::Entity as SyncQueue;
 pub use super::sync_state::Entity as SyncState;
 pub use super::task::Entity as Task;
-pub use super::task_category::Entity as TaskCategory;
 pub use super::task_subtask::Entity as TaskSubtask;
 pub use super::user_profile::Entity as UserProfile;
 pub use super::users::Entity as Users;

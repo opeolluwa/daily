@@ -8,7 +8,6 @@ pub mod paste_bins;
 pub mod recycle_bin;
 pub mod reminder;
 pub mod snippets;
-pub mod task_category;
 pub mod task_subtask;
 pub mod tasks;
 pub mod user_profile;
