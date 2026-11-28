@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTaskStore, type Task } from "~/stores/tasks";
 import { useWorkspacesStore } from "~/stores/workspaces";
-import TaskProgressRing from "./TaskProgressRing.vue";
 
 const props = defineProps<{
   task: Task;
@@ -16,13 +15,6 @@ const emit = defineEmits<{
 const taskStore = useTaskStore();
 const workspaceStore = useWorkspacesStore();
 const currentWorkspaceId = computed(() => workspaceStore.activeWorkspaceId);
-const subtaskCount = computed(
-  () => taskStore.subtaskCountByTask[props.task.identifier] ?? 0,
-);
-const subtaskProgress = computed(
-  () => taskStore.progressByTask[props.task.identifier] ?? 0,
-);
-
 function formatTime(timeStr: string | null | undefined): string | null {
   if (!timeStr) return null;
   const [h, m] = timeStr.split(":").map(Number);
@@ -50,7 +42,7 @@ async function handleTransfer(targetWorkspaceId: string) {
 
 <template>
   <div
-    class="group flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-sm hover:border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:border-gray-500 cursor-pointer"
+    class="group flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-2.5 transition-all hover:shadow-sm hover:border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:border-gray-500 cursor-pointer"
     @click="emit('edit', task.identifier)"
   >
     <button
@@ -97,18 +89,12 @@ async function handleTransfer(targetWorkspaceId: string) {
       </div>
       <p
         v-if="task.description"
-        class="mt-0.5 truncate text-xs text-gray-400 dark:text-gray-400"
+        class="mt-0 truncate text-xs text-gray-400 dark:text-gray-400"
       >
         {{ task.description }}
       </p>
 
       <div class="mt-2 flex items-center gap-2">
-        <TaskProgressRing
-          v-if="subtaskCount > 0"
-          :progress="subtaskProgress"
-          :size="26"
-        />
-
         <span
           v-if="task.dueTime"
           class="ml-auto inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-400"
